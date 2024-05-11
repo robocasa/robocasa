@@ -38,3 +38,14 @@ Please note the following:
   - `assets/kitchen_layouts/`: blueprints for kitchen layouts and designs
   - `objects/kitchen_objects.py`: registry for all object categories and groups
   - `objects/fixtures/`: implementations of all fixture classes
+ 
+-------
+## Citations
+```
+@inproceedings{robocasa2024,
+  title={RoboCasa: Large-Scale Simulation of Household Tasks for Generalist Robots},
+  author={Soroush Nasiriany and Abhiram Maddukuri and Lance Zhang and Adeet Parikh and Aaron Lo and Abhishek Joshi and Ajay Mandlekar and Yuke Zhu},
+  booktitle={arXiv preprint arXiv:...},
+  year={2024}
+}
+```
