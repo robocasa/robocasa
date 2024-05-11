@@ -15,7 +15,7 @@ This is the official RoboCasa codebase. Please refer to the accompanying [paper]
 ## Quick start
 Run demo script: `python -m robocasa.demos.demo_kitchens`
 
-**(Mac users:, you need to preprend the "python" command with "mj": `mjpython ...`)**
+**(Mac users: preprend the "python" command with "mj": `mjpython ...`)**
 
 Please note the following:
 - If using the keyboard device for control, you must make sure the mujoco window isn't the "active" window, otherwise the mujoco viewer keybindings will interfere. Press a background window (eg. desktop) and then proceed.
