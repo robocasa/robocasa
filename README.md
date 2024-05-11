@@ -40,7 +40,7 @@ Please note the following:
   - `objects/fixtures/`: implementations of all fixture classes
  
 -------
-## Citations
+## Citation
 ```
 @inproceedings{robocasa2024,
   title={RoboCasa: Large-Scale Simulation of Household Tasks for Generalist Robots},
