@@ -145,19 +145,19 @@ def download_kitchen_assets():
         check_folder_exists=False,
     )
 
-    print("Downloading AI-generated objects")
-    download_and_extract_zip(
-        url="https://utexas.box.com/shared/static/89i7lqpngmnudfskh4xztri2yuiuf3g2.zip",
-        folder=os.path.join(robocasa.__path__[0], "models/assets/objects/aigen_objs"),
-        check_folder_exists=False,
-    )
+    #print("Downloading AI-generated objects")
+    #download_and_extract_zip(
+    #    url="https://utexas.box.com/shared/static/os3hrui06lasnuvwqpmwn0wcrduh6jg3.zip",
+    #    folder=os.path.join(robocasa.__path__[0], "models/assets/objects/aigen_objs"),
+    #    check_folder_exists=False,
+    #)
 
-    print("Downloading generative textures")
-    download_and_extract_zip(
-        url="https://utexas.box.com/shared/static/gf9nkadvfrowkb9lmkcx58jwt4d6c1g3.zip",
-        folder=os.path.join(robocasa.__path__[0], "models/assets/generative_textures"),
-        check_folder_exists=False,
-    )
+    #print("Downloading generative textures")
+    #download_and_extract_zip(
+    #    url="https://utexas.box.com/shared/static/gf9nkadvfrowkb9lmkcx58jwt4d6c1g3.zip",
+    #    folder=os.path.join(robocasa.__path__[0], "models/assets/generative_textures"),
+    #    check_folder_exists=False,
+    #)
 
 if __name__ == "__main__":
     download_kitchen_assets()
