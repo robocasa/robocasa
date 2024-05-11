@@ -1,0 +1,51 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <texture file="visuals/material_0.png" name="tex-model" type="2d"/>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <material name="model" reflectance="0.5" texrepeat="1 1" texture="tex-model" texuniform="false"/>
+    <material name="Black_Plastic" texture="image0" specular="0.5" shininess="0.25"/>
+    <material name="Chrome" specular="0.5" shininess="1.0" rgba="1.000000 1.000000 1.000000 1.0"/>
+    <material name="Perspex" specular="0.5" shininess="1.0" rgba="0.154820 0.154820 0.154820 1.0"/>
+    <material name="Water" specular="0.5" shininess="1.0" rgba="1.000000 1.000000 1.000000 1.0"/>
+    <material name="White_Plastic" specular="0.5" shininess="0.049155468" rgba="0.800000 0.686012 0.559470 1.0"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_2.obj" name="model_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_3.obj" name="model_3_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_4.obj" name="model_4_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="-0.1617055719654759 -0.5 -0.3655727440685032" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0.1617055719654759 -0.5 -0.3655727440685032" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="-0.1617055719654759 0.5 -0.3655727440685032" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="-0.1617055719654759 -0.5 0.3655727440685032" name="ext_pz"/>
+      <!-- interior bounding box points -->
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="Water" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="Perspex" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_2_vis" material="Chrome" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_3_vis" material="Black_Plastic" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_4_vis" material="White_Plastic" class="visual"/>
+        <geom class="collision" type="box" pos="0 0.11 -0.03" size="0.11 0.39 0.35"/>
+        <geom class="collision" type="cylinder" pos="0 -0.209 0.22" size="0.164 0.14"/>
+        <!-- Cup Stand -->
+        <geom class="collision" type="cylinder" pos="0 -0.391 -0.212" size="0.109 0.032"/>
+        <!-- Button -->
+        <geom class="collision" type="cylinder" pos="0 -0.208 0.372" size="0.075 0.005" name="start_button"/>
+        <site rgba="0 0 0 1" size="0.01" pos="0 -0.391 -0.18" name="receptacle_place_site"/>
+        <site rgba="0.8 0.5 0.25 0" size="0.006 0.15" pos="0.0 -0.35 -0.05" type="cylinder" name="coffee_liquid"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

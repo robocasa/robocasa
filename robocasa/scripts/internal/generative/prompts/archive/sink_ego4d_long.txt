@@ -1,0 +1,89 @@
+Your goal is to come up with 10 unique, long-length tasks that a robot can complete that use the sink. Each of the tasks you generate should be something that can be done in the kitchen and uses the skills and objects listed below. Also, your tasks MUST adhere to the constraints listed below.
+
+Here's some information about the kitchen.
+
+In the kitchen, you have the following types of objects:
+- vegetable: avocado, cucumber, tomato, bell pepper, broccoli, carrot, garlic, lemon, lime, mushroom, onion, corn, eggplant, potato, squash, sweet potato
+- fruit: apple, banana, kiwi, mango, orange, peach, pear, tangerine
+- bread: baguette, bagel, bread
+- packaged food: bar, boxed food, canned food, cereal, bagged food, chips, jam
+- cleaner: bar soap, soap dispenser, sponge, spray
+- drink: bottled drink, boxed drink, liquor, beer, can, water bottle, wine, bottled water, coffee cup
+- receptacle: bowl, mug, cutting board, jug, kettle, pan, plate, cup, teapot, tray
+- utensil: fork, knife, ladle, spatula, spoon
+- sweets: cake, chocolate, donut, cupcake, waffle
+- decoration: candle
+- dairy: cheese, egg, milk, yogurt
+- condiment: condiment bottle, ketchup, shaker
+- pastry: croissant
+- cooked food: hot dog
+- meat: fish, steak
+- tool: rolling pin, scissors
+Each object is categorized. In the tasks you create, you should consider a family of objects. In other words, a task should not focus on a specific object like a tomato or knife. Instead, the task should be able to be generalized to a group of objects like vegetable or condiment. The only exception to this is when using receptacles. Also note that you cannot change these objects by cutting them, chopping them, breaking them, burning them, etc. We can ONLY move these objects around by picking, placing, or pushing them.
+
+In addition, the robot only has the following skills:
+- pick and place. eg: pick a vegetable from the cabinet and place it into the bowl
+- opening / closing doors. eg. open the cabinet door
+- opening / closing drawers. eg. open the drawer right below the counter
+- navigation. eg. navigating throughout the kitchen
+- pressing buttons. eg. press the button on the coffee machine
+- turning levers. eg: turning a sink faucet
+- twisting knobs. eg: twist the stove knob to turn it on
+- pushing / sweeping objects. eg. push objects across the countertop
+Make sure to design tasks that can be completed using the skills listed. These are the only skills the robot knows. If the task you come up with requires another skill, it will not be valid. 
+
+Finally, the kitchen has the following fixtures:
+- counters
+- cabinets and drawers: come with doors that can be opened and closed
+- one stove: comes with functional knobs to turn on individual burners
+- one microwave: comes with a door that can be opened and closed
+- one sink: comes with functional faucet lever and spout. can be turned on, with water running out the tap
+- one coffee machine: can be turned on, with coffee dripping out of nozzle.
+Your kitchen only has these fixtures. If the task you generate uses a fixture not listed above, the task will be considered invalid. Note that the kitchen does not have a refrigerator, oven, blender, or grill. All the tasks you generate must use the sink. Feel free to use other listed fixtures in your tasks as well. 
+
+Each task should have a unique goal. Once again, the tasks must only use the objects, skills, and fixtures listed above. These tasks should be simple enough to be done by a robot.
+
+Eventually, I would like to model these tasks in a simulated kitchen environment with a robot attempting to complete the task. The robot is an arm that is mounted on a base and can move around the kitchen and manipulate different items. When suggesting these tasks it's very important to follow these constraints:
+
+1. The simulator does not yet support deformable objects, such as liquids, bags, and towels. As a result, the robot cannot manipulate soft bodies, such as cutting objects, pouring liquids, or folding clothes.
+
+2. Most object categories are graspable, meaning the robot can pick them up. However, the following objects are not graspable: bagel, bagged food, bread, chips, chocolate, cutting board, fork, knife, plate, scissors, spatula, spoon, tray, waffle. The robot should NOT attempt to move these object categories. I would like the robot to only interact with the specified objects and fixtures, and only use the robot skills specified.
+
+Can you suggest some long-length tasks for me that follow the constraints listed above? Long-length tasks are tasks that only require the use of 2 - 5 skills.
+
+Remember that each of the tasks must use a sink. Your tasks should reflect common everyday human activities in the kitchen, such as arranging objects by type, preparing something, shifting objects around, etc. Make sure that each of the tasks also makes logical sense.
+
+For each task, follow the following format:
+Activity: Short high-level description of activity this task belongs to (NOTE: This should reflect naturalistic human activities.)
+Task: Description of task and its goals (This can be only a subtask of the entire activity)
+Objects: list of objects involved in the task
+Fixtures: list of fixtures involved in the task
+Skills: sequence of skills needed to solve task (This should clearly defined as the sequence of skills we need to compose to solve the task)
+Reasoning: why this is an interesting task that reflects everyday human activities in kitchen environments
+
+Here are some examples of good tasks following this format:
+
+Activity: Clean the dishes
+Task: Take the pan from the counter and place in the sink. Then, turn on the sink faucet.
+Objects: pan
+Fixtures: sink
+Skills (3): Pick_up(pan), Place(sink), Turn_lever(sink)
+Reasoning: This task emulates washing the dishes which is a typical human activity.
+
+Activity: Wash the vegetables
+Task: Take the vegetables from the cabinet and place them in the sink. 
+Objects: vegetables
+Fixtures: cabinet, sink
+Skills (4): Open_door(cabinet), Pick_up(vegetable), Navigate(sink), Place(sink)
+Reasoning: Human typically wash vegetables before cooking. This task mimics this action.
+
+Activity: Clearing the sink
+Task: Take the plate from the sink and move it to the counter
+Objects: plate
+Fixtures: sink
+Skills (2): Pick_up(plate), Place(counter)
+Reasoning: Clearing the sink of any dishes is a very common activity.
+
+The tasks you give need to be tasks that allow the robot to manipulate different objects in its environment. The task should make sense, but make sure to focus more on the manipulation of objects and using the sink in some form. Also do not repeat any of the good tasks mentioned above. The activities may be the same, but the tasks must be unique. Tasks should not be doing the same thing but with different objects. In other words, two tasks the put different objects into the sink are not unique.
+
+Write 10 long-length tasks that use the sink. Long-length tasks use 6+ skills. Your tasks should include a good mixture of putting things in the sink and taking things out of the sink. You must also turn the sink faucet on or off in some of the tasks. You must have tasks that do both these things. Make sure to also use other fixture such as cabinets, the microwave, and the stove.

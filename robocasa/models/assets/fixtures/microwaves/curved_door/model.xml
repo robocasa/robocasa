@@ -1,0 +1,87 @@
+<mujoco model="model">
+  <asset>
+    <texture type="2d" name="image2" file="visuals/image2.png"/>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <material name="Black" specular="0.5" shininess="0.0" rgba="0.000000 0.000000 0.000000 1.000000"/>
+    <material name="Body-Metal" specular="0.5" shininess="0.25" rgba="0.219608 0.219608 0.219608 1.000000"/>
+    <material name="Control_Panel" texture="image2" specular="0.5" shininess="0.25"/>
+    <material name="FrostyGlass" specular="0.5" shininess="0.108899986" rgba="0.000000 0.000000 0.000000 0.250000"/>
+    <material name="GlassThin" specular="0.5" shininess="1.0" rgba="0.000000 0.000000 0.000000 0.100000"/>
+    <material name="Labels" texture="image0" specular="0.5" shininess="0.49"/>
+    <material name="Light" specular="0.5" shininess="0.0" rgba="0.800000 0.800000 0.800000 1.0"/>
+    <material name="MetalPaintedBlack" specular="0.5" shininess="0.49" rgba="0.014139 0.014139 0.014139 1.000000"/>
+    <material name="MetalZinc" specular="0.5" shininess="0.534101196" rgba="0.588000 0.588000 0.588000 1.000000"/>
+    <material name="PlasticDarkRough" specular="0.5" shininess="0.25" rgba="0.008959 0.008959 0.008959 1.000000"/>
+    <material name="PlasticWhite" specular="0.5" shininess="0.25" rgba="0.588000 0.588000 0.588000 1.000000"/>
+    <material name="StainlessSteelBrushed" specular="0.5" shininess="0.8001887209999999" rgba="0.588000 0.588000 0.588000 1.000000"/>
+    <material name="material" specular="0.5" shininess="0.0" rgba="0.048259 0.048259 0.048259 1.000000"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_2.obj" name="model_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_3.obj" name="model_3_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_4.obj" name="model_4_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_5.obj" name="model_5_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_6.obj" name="model_6_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_7.obj" name="model_7_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_8.obj" name="model_8_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_9.obj" name="model_9_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_10.obj" name="model_10_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_11.obj" name="model_11_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_12.obj" name="model_12_vis" scale="1 1 1"/>
+    <material name="Body-Plastic" specular="0.5" shininess="0.25" rgba="0.219608 0.219608 0.219608 1.000000"/>
+    <material name="ClearGlass" specular="0.5" shininess="1.0" rgba="0.000000 0.000000 0.000000 0.100000"/>
+    <material name="Glass-Black" specular="0.5" shininess="1.0" rgba="0.010300 0.010300 0.010300 1.000000"/>
+    <mesh file="visuals/door_0.obj" name="door_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/door_1.obj" name="door_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/door_2.obj" name="door_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/door_3.obj" name="door_3_vis" scale="1 1 1"/>
+    <mesh file="visuals/door_4.obj" name="door_4_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="0 0 0" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0 0 0" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="0 0 0" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="0 0 0" name="ext_pz"/>
+      <!-- interior bounding box points -->
+      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0 0 0" name="int_p0"/>
+      <site rgba="1 1 0 1" size="0.01" pos="0 0 0" name="int_px"/>
+      <site rgba="0 1 1 1" size="0.01" pos="0 0 0" name="int_py"/>
+      <site rgba="1 0 1 1" size="0.01" pos="0 0 0" name="int_pz"/>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="Body-Metal" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="StainlessSteelBrushed" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_2_vis" material="PlasticWhite" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_3_vis" material="PlasticDarkRough" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_4_vis" material="MetalZinc" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_5_vis" material="MetalPaintedBlack" class="visual"/>
+        <!-- <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_6_vis" material="Light" class="visual"/> -->
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_7_vis" material="material" class="visual"/>
+        <!-- <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_8_vis" material="Labels" class="visual"/> -->
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_9_vis" material="GlassThin" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_10_vis" material="FrostyGlass" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_11_vis" material="Control_Panel" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_12_vis" material="Black" class="visual"/>
+        <!--Add Collision Geom(s) for model here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+        <body name="door">
+          <!--Add Joint Here-->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="door_0_vis" material="PlasticDarkRough" class="visual"/>
+          <!-- <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="door_1_vis" material="Glass-Black" class="visual"/> -->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="door_2_vis" material="MetalPaintedBlack" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="door_3_vis" material="ClearGlass" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="door_4_vis" material="Body-Plastic" class="visual"/>
+          <!--Add Collision Geom(s) for door here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

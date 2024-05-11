@@ -1,0 +1,40 @@
+<mujoco model="drawer">
+  <compiler angle="radian"/>
+  <asset>
+    <texture file="../../textures/ceramic.png" type="cube" name="tex"/>
+    <material name="mat" shininess="0.1" texture="tex"/>
+  </asset>
+  <default>
+    <default class="cab">
+      <geom group="0" density="10"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom pos="0.0 0 0.28" size="0.18 0.3 0.02" type="box" mass=".2" material="mat" class="cab" name="top"/>
+        <geom pos="0.0 0 -0.28" size="0.18 0.3 0.02" type="box" mass=".2" material="mat" class="cab" name="bottom"/>
+        <geom pos="0.0 0.28 0" size="0.18 0.02 0.26" type="box" mass=".2" material="mat" class="cab" name="back"/>
+        <geom pos="0.20 0 0" size="0.02 0.3 0.3" type="box" mass=".2" material="mat" class="cab" name="right"/>
+        <geom pos="-0.20 0 0" size="0.02 0.3 0.3" type="box" mass=".2" material="mat" class="cab" name="left"/>
+        <body name="inner_box">
+          <joint axis="0 1 0" type="slide" name="slidejoint" limited="true" range="-1.0 0" damping="10"/>
+          <geom pos="0.0 0 -0.28" size="0.18 0.3 0.02" type="box" mass=".2" material="mat" class="cab" name="inner_bottom"/>
+          <geom pos="0.0 0.28 0" size="0.18 0.02 0.26" type="box" mass=".2" material="mat" class="cab" name="inner_back"/>
+          <geom pos="0.20 0 0" size="0.02 0.3 0.3" type="box" mass=".2" material="mat" class="cab" name="inner_right"/>
+          <geom pos="-0.20 0 0" size="0.02 0.3 0.3" type="box" mass=".2" material="mat" class="cab" name="inner_left"/>
+          <!-- interior bounding box points -->
+          <site rgba="0.5 0.5 0.5 1" size="0.005" pos="0 0 0" name="int_p0"/>
+          <site rgba="1 1 0 1" size="0.005" pos="0 0 0" name="int_px"/>
+          <site rgba="0 1 1 1" size="0.005" pos="0 0 0" name="int_py"/>
+          <site rgba="1 0 1 1" size="0.005" pos="0 0 0" name="int_pz"/>
+        </body>
+        <!-- exterior bounding box points -->
+        <site rgba="0 0 0 1" size="0.005" pos="0 0 0" name="ext_p0"/>
+        <site rgba="1 0 0 1" size="0.005" pos="0 0 0" name="ext_px"/>
+        <site rgba="0 1 0 1" size="0.005" pos="0 0 0" name="ext_py"/>
+        <site rgba="0 0 1 1" size="0.005" pos="0 0 0" name="ext_pz"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
