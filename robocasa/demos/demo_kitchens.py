@@ -110,7 +110,7 @@ if __name__ == "__main__":
         args.style = choose_option(styles, "kitchen style", default=-1, default_message="random styles")
 
     if args.device is None:
-        selected_choice = choose_option(devices, "device")
+        selected_choice = choose_option(devices, "device", default=0)
         args.device = devices[selected_choice]
 
     # Create argument configuration
