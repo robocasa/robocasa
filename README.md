@@ -7,10 +7,18 @@ This is the official RoboCasa codebase. Please refer to the accompanying [paper]
 -------
 ## Installation
 Robocasa works across all major computing platforms, with or without GPU. Follow the instructions below to set up:
-1. Set up conda environment: `conda create -c conda-forge -n robocasa python=3.9`
-2. Activate conda environment: `conda activate robocasa`
-3. Clone and setup robosuite dependency (**important: use the robocasa_v0.5 branch!**): `git clone https://github.com/ARISE-Initiative/robosuite-dev -b robocasa_v0.5; cd robosuite-dev; pip install -e .`
-4. Clone and setup this repo: `git clone https://github.com/robocasa/robocasa; cd robocasa; source setup.sh`
+1. Set up conda environment:
+
+   ```conda create -c conda-forge -n robocasa python=3.9```
+3. Activate conda environment:
+
+   ```conda activate robocasa```
+5. Clone and setup robosuite dependency (**important: use the robocasa_v0.5 branch!**):
+
+   ```git clone https://github.com/ARISE-Initiative/robosuite-dev -b robocasa_v0.5; cd robosuite-dev; pip install -e .```
+7. Clone and setup this repo:
+
+   ```git clone https://github.com/robocasa/robocasa; cd robocasa; source setup.sh```
 
 -------
 ## Quick start
