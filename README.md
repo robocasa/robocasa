@@ -6,7 +6,7 @@ This is the official RoboCasa codebase. Please refer to the accompanying [paper]
 
 -------
 ## Installation
-RoboCasa works across all major computing platforms. The easiest way to set up is through the [Anaconda](https://www.anaconda.com/) package management system. Follow the instructions below to set up:
+RoboCasa works across all major computing platforms. The easiest way to set up is through the [Anaconda](https://www.anaconda.com/) package management system. Follow the instructions below to install:
 1. Set up conda environment:
 
    ```conda create -c conda-forge -n robocasa python=3.9```
