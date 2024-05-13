@@ -2,11 +2,11 @@
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/robocasa-banner.png" width="100%" />
 
-This is the official RoboCasa codebase. Please refer to the accompanying [paper]() and [project website](https://robocasa.github.io/robocasa-web-dev/) for additional information.
+This is the official RoboCasa codebase. Please refer to the accompanying [paper]() and [project website](https://robocasa.ai) for additional information.
 
 -------
 ## Installation
-RoboCasa works across all major computing platforms. Follow the instructions below to set up:
+RoboCasa works across all major computing platforms. The easiest way to set up is through the [Anaconda](https://www.anaconda.com/) package management system. Follow the instructions below to set up:
 1. Set up conda environment:
 
    ```conda create -c conda-forge -n robocasa python=3.9```
@@ -24,7 +24,7 @@ RoboCasa works across all major computing platforms. Follow the instructions bel
 ## Quick start
 Run demo script: `python -m robocasa.demos.demo_kitchens`
 
-**(Mac users: preprend the "python" command with "mj": `mjpython ...`)**
+**(Mac users: prepend the "python" command with "mj": `mjpython ...`)**
 
 Please note the following:
 - If using keyboard: ensure the MuJoCo window isn't the "active" window, otherwise the MuJoCo viewer keybindings will interfere. Press a background window (eg. desktop) and then proceed with pressing key strokes.
