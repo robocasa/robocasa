@@ -10,15 +10,23 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 1. Set up conda environment:
 
    ```conda create -c conda-forge -n robocasa python=3.9```
-3. Activate conda environment:
+2. Activate conda environment:
 
    ```conda activate robocasa```
-5. Clone and setup robosuite dependency (**important: use the robocasa_v0.5 branch!**):
+3. Clone and setup robosuite dependency (**important: use the robocasa_v0.5 branch!**):
 
    ```git clone https://github.com/ARISE-Initiative/robosuite-dev -b robocasa_v0.5; cd robosuite-dev; pip install -e .```
-7. Clone and setup this repo:
+4. Clone and setup this repo:
 
    ```git clone https://github.com/robocasa/robocasa; cd robocasa; source setup.sh```
+5. Install the package and download assets:
+
+   ```sh
+   pip install -e .
+   conda install -c numba numba -y
+   python robocasa/scripts/download_kitchen_assets.py   # Caution: Assets to be downloaded are around 5GB.
+   python robocasa/scripts/setup_macros.py              # Set up system variables.
+   ```
 
 -------
 ## Quick start
@@ -27,8 +35,8 @@ Run demo script: `python -m robocasa.demos.demo_kitchens`
 **(Mac users: prepend the "python" command with "mj": `mjpython ...`)**
 
 Please note the following:
-- If using keyboard: ensure the MuJoCo window isn't the "active" window, otherwise the MuJoCo viewer keybindings will interfere. Press a background window (eg. desktop) and then proceed with pressing key strokes.
-- If using spacemouse: you may need to modify the product id to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`
+If using a keyboard, ensure the MuJoCo window isn't the "active" window; otherwise, the MuJoCo viewer keybindings will interfere. Press a background window (e.g., desktop), and then proceed with pressing keystrokes.
+- If using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`
 
 -------
 ## Key files
