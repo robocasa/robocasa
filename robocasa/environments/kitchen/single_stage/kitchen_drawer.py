@@ -65,7 +65,7 @@ class ManipulateDrawer(Kitchen):
 
         for fxtr in fxtrs:
             # get bounds of fixture
-            if point_in_fixture(point=pos, fixture=fxtr, only_2d=True):
+            if OU.point_in_fixture(point=pos, fixture=fxtr, only_2d=True):
                 return True
         return False
     
