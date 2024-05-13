@@ -16,7 +16,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
    ```sh
    conda activate robocasa
    ```
-3. Clone and setup robosuite dependency (**important: use the robocasa_v0.5 branch!**):
+3. Clone and setup robosuite dependency (**important: use the robocasa_v0.1 branch!**):
 
    ```sh
    git clone https://github.com/ARISE-Initiative/robosuite-dev -b robocasa_v0.1
