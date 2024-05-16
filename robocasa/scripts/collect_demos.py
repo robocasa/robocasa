@@ -36,7 +36,8 @@ def is_empty_input_spacemouse(action):
 
 def collect_human_trajectory(
     env, device, arm, env_configuration, mirror_actions,
-    render=True, max_fr=None
+    render=True, max_fr=None,
+    print_info=True,
 ):
     """
     Use the device (keyboard or SpaceNav 3D mouse) to collect a demonstration.
@@ -55,7 +56,7 @@ def collect_human_trajectory(
     ep_meta = env.get_ep_meta()
     # print(json.dumps(ep_meta, indent=4))
     lang = ep_meta.get("lang", None)
-    if lang is not None:
+    if print_info and lang is not None:
         print("Instruction:", lang)
 
     # degugging: code block here to quickly test and close env

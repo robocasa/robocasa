@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--task", type=str, help="task (choose among 100+ tasks)")
     parser.add_argument("--layout", type=int, help="kitchen layout (choose number 0-9)")
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
-    parser.add_argument("--device", type=str, choices=["keyboard", "spacemouse"])
+    parser.add_argument("--device", type=str, default="keyboard", choices=["keyboard", "spacemouse"])
     args = parser.parse_args()
 
 
@@ -78,40 +78,12 @@ if __name__ == "__main__":
         ("RestockPantry", "restock cans in pantry"),
     ])
 
-    layouts = OrderedDict([
-        (0, "One wall"),
-        (1, "One wall w/ island"),
-        (2, "L-shaped"),
-        (3, "L-shaped w/ island"),
-        (4, "Galley"),
-        (5, "U-shaped"),
-        (6, "U-shaped w/ island"),
-        (7, "G-shaped"),
-        (8, "G-shaped (large)"),
-        (9, "Wraparound"),
-    ])
-
-    devices = OrderedDict([
-        (0, "keyboard"),
-        (1, "spacemouse"),
-    ])
-
     styles = OrderedDict()
     for k in sorted(STYLES.keys()):
         styles[k] = STYLES[k]
 
     if args.task is None:
         args.task = choose_option(tasks, "task", default="PnPCounterToCab", show_keys=True)
-
-    if args.layout is None:
-        args.layout = choose_option(layouts, "kitchen layout", default=-1, default_message="random layouts")
-
-    if args.style is None:
-        args.style = choose_option(styles, "kitchen style", default=-1, default_message="random styles")
-
-    if args.device is None:
-        selected_choice = choose_option(devices, "device", default=0)
-        args.device = devices[selected_choice]
 
     # Create argument configuration
     config = {
