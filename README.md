@@ -68,7 +68,7 @@ If using a keyboard, ensure the MuJoCo window isn't the "active" window; otherwi
 ## Citation
 ```
 @inproceedings{robocasa2024,
-  title={RoboCasa: Large-Scale Simulation of Household Tasks for Generalist Robots},
+  title={RoboCasa: Large-Scale Simulation of Everyday Tasks for Generalist Robots},
   author={Soroush Nasiriany and Abhiram Maddukuri and Lance Zhang and Adeet Parikh and Aaron Lo and Abhishek Joshi and Ajay Mandlekar and Yuke Zhu},
   booktitle={Robotics: Science and Systems},
   year={2024}
