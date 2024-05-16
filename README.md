@@ -1,4 +1,4 @@
-# RoboCasa: Large-Scale Simulation of Household Tasks for Generalist Robots
+# RoboCasa: Large-Scale Simulation of Everyday Tasks for Generalist Robots
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/robocasa-banner.png" width="100%" />
 
