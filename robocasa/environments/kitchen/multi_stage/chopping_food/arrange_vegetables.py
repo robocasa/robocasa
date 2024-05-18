@@ -14,9 +14,7 @@ class ArrangeVegetables(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        obj_name_1 = self.get_obj_lang("vegetable1")
-        obj_name_2 = self.get_obj_lang("vegetable2")
-        ep_meta["lang"] = f"pick the {obj_name_1} and {obj_name_2} from the sink and place them on the cutting board"
+        ep_meta["lang"] = f"pick the vegetables from the sink and place them on the cutting board"
         return ep_meta
 
     def _get_obj_cfgs(self):
@@ -32,7 +30,7 @@ class ArrangeVegetables(Kitchen):
                     loc="left_right",
                     top_size=(0.45, 0.55)
                 ),
-                size=(0.45, 0.55),
+                size=(0.35, 0.45),
                 pos=("ref", -1.0),
             ),
         ))

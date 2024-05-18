@@ -2,6 +2,7 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MicrowaveThawing(Kitchen):
+    EXCLUDE_LAYOUTS = [8]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
@@ -22,7 +23,7 @@ class MicrowaveThawing(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_name = self.get_obj_lang()
-        ep_meta["lang"] = f"open the microwave, pick the {obj_name} from the counter and place it in the microwave. Then close the microwave the press the on button"
+        ep_meta["lang"] = f"Pick the {obj_name} from the counter and place it in the microwave. Then turn on the microwave."
         return ep_meta
     
     def _get_obj_cfgs(self):
@@ -30,9 +31,8 @@ class MicrowaveThawing(Kitchen):
 
         cfgs.append(dict(
             name="obj",
-            obj_groups=("packaged_food", "steak", "vegetable", "fruit", "fish"),
-            graspable=True,
-            heatable=True,
+            obj_groups="food",
+            graspable=True, microwavable=True, freezable=True,
             placement=dict(
                 fixture=self.counter,
                 sample_region_kwargs=dict(
@@ -40,6 +40,16 @@ class MicrowaveThawing(Kitchen):
                 ),
                 size=(0.30, 0.30),
                 pos=("ref", -1.0),
+                try_to_place_in="container",
+            ),
+        ))
+        cfgs.append(dict(
+            name="container",
+            obj_groups=("plate"),
+            placement=dict(
+                fixture=self.microwave,
+                size=(0.05, 0.05),
+                ensure_object_boundary_in_range=False,
             ),
         ))
         
