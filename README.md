@@ -26,6 +26,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 4. Clone and setup this repo:
 
    ```sh
+   cd .. # go back to previous directory
    git clone https://github.com/robocasa/robocasa
    cd robocasa
    pip install -e .
@@ -39,17 +40,17 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 
 -------
 ## Quick start
-Run demo script: `python -m robocasa.demos.demo_kitchens`
+Choose among following demo scripts:
+- Explore kitchen layouts and styles: `python -m robocasa.demos.demo_kitchens`
+- Play back sample demonstrations of tasks: `python -m robocasa.demos.demo_tasks`
+- Collect your own demonstrations of tasks: `python -m robocasa.demos.demo_teleop`
+  - Note: if using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`
 
 **(Mac users: prepend the "python" command with "mj": `mjpython ...`)**
 
-Please note the following:
-If using a keyboard, ensure the MuJoCo window isn't the "active" window; otherwise, the MuJoCo viewer keybindings will interfere. Press a background window (e.g., desktop), and then proceed with pressing keystrokes.
-- If using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`
-
 -------
 ## Key files
-- `robocasa/demos/demo_kitchens.py`: interactive script to explore tasks and environments
+- `robocasa/demos/`: interactive scripts to explore tasks and environments (see quick start section for details)
 - `robocasa/environments/kitchen/`: all implementations for kitchen tasks
   - `kitchen.py`: base class from which all kitchen tasks extend from
   - `single_stage/`: implementations of all single-stage tasks
