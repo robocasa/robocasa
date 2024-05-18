@@ -44,9 +44,10 @@ Choose among following demo scripts:
 - Explore kitchen layouts and styles: `python -m robocasa.demos.demo_kitchens`
 - Play back sample demonstrations of tasks: `python -m robocasa.demos.demo_tasks`
 - Collect your own demonstrations of tasks: `python -m robocasa.demos.demo_teleop`
-  - Note: if using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`
 
 **(Mac users: prepend the "python" command with "mj": `mjpython ...`)**
+
+Note: if using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`
 
 -------
 ## Key files
