@@ -44,6 +44,7 @@ Choose among following demo scripts:
 - Explore kitchen layouts and styles: `python -m robocasa.demos.demo_kitchens`
 - Play back sample demonstrations of tasks: `python -m robocasa.demos.demo_tasks`
 - Collect your own demonstrations of tasks: `python -m robocasa.demos.demo_teleop`
+- Explore library of 2500+ objects: `python -m robocasa.demos.demo_objects`
 
 **(Mac users: prepend the "python" command with "mj": `mjpython ...`)**
 
