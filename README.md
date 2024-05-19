@@ -41,7 +41,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 -------
 ## Quick start
 Choose among following demo scripts:
-- Explore kitchen layouts and styles: `python -m robocasa.demos.demo_kitchens`
+- Explore kitchen layouts and styles: `python -m robocasa.demos.demo_kitchen_scenes`
 - Play back sample demonstrations of tasks: `python -m robocasa.demos.demo_tasks`
 - Collect your own demonstrations of tasks: `python -m robocasa.demos.demo_teleop`
 - Explore library of 2500+ objects: `python -m robocasa.demos.demo_objects`
