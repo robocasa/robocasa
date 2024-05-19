@@ -10,9 +10,6 @@ import time
 import robocasa
 import robosuite
 
-import robomimic.utils.env_utils as EnvUtils
-
-
 def playback_trajectory_with_env(
     env, 
     initial_state, 
