@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # Create argument configuration
     config = {
         "env_name": args.task,
-        "robots": "PandaMobile",
+        "robots": "GR1FloatingBody",
         "controller_configs": load_controller_config(default_controller="OSC_POSE"),
         "layout_ids": args.layout,
         "style_ids": args.style,
