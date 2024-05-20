@@ -34,6 +34,12 @@ from robocasa.utils.texture_swap import (
 import robocasa.macros as macros
 
 
+# Some robots may require pose offsets
+_ROBOT_POS_OFFSETS: dict[str, list[float]] = {
+    "GR1FloatingBody": [0, 0, 0.97],
+}
+
+
 class Kitchen(ManipulationEnv):
     EXCLUDE_LAYOUTS = []
     def __init__(
@@ -249,6 +255,11 @@ class Kitchen(ManipulationEnv):
             ref_fixture = self.fixtures[fixture_name]
         robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
         robot_model = self.robots[0].robot_model
+        robot_class_name = robot_model.__class__.__name__
+        if robot_class_name in _ROBOT_POS_OFFSETS:
+            for dimension in range(0, 3):
+                robot_base_pos[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][dimension]
+
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
 
@@ -582,7 +593,8 @@ class Kitchen(ManipulationEnv):
                 self.sim.data.set_joint_qpos(obj.joints[0], np.concatenate([np.array(obj_pos), np.array(obj_quat)]))
                     
         # step through a few timesteps to settle objects
-        action = np.zeros(12) # apply empty action
+        # This needs to be DOF
+        action = np.zeros(self.action_dim) # apply empty action
 
         # Since the env.step frequency is slower than the mjsim timestep frequency, the internal controller will output
         # multiple torque commands in between new high level action commands. Therefore, we need to denote via
@@ -724,13 +736,15 @@ class Kitchen(ManipulationEnv):
             if parent_body is not None:
                 cam_root = find_elements(root=worldbody, tags="body", attribs={"name": parent_body})
             
-            cam = find_elements(root=cam_root, tags="camera", attribs={"name": cam_name})
+            # Not all robots will have all cameras, if a match isn't found move on
+            cam = None
+            try:
+                cam = find_elements(root=cam_root, tags="camera", attribs={"name": cam_name})
+            except:
+                pass
 
             if cam is None:
-                cam = ET.Element("camera")
-                cam.set("mode", "fixed")
-                cam.set("name", cam_name)
-                cam_root.append(cam)
+                continue
 
             cam.set("pos", array_to_string(cam_config["pos"]))
             cam.set("quat", array_to_string(cam_config["quat"]))
