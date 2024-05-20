@@ -60,6 +60,7 @@ if __name__ == "__main__":
     parser.add_argument("--layout", type=int, help="kitchen layout (choose number 0-9)")
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
     parser.add_argument("--device", type=str, default="keyboard", choices=["keyboard", "spacemouse"])
+    parser.add_argument("--robot", type=str, default="PandaMobile", help="robot")
     args = parser.parse_args()
 
 
@@ -88,7 +89,7 @@ if __name__ == "__main__":
     # Create argument configuration
     config = {
         "env_name": args.task,
-        "robots": "GR1FloatingBody",
+        "robots": args.robot,
         "controller_configs": load_controller_config(default_controller="OSC_POSE"),
         "layout_ids": args.layout,
         "style_ids": args.style,
