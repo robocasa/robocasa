@@ -1,0 +1,91 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <texture file="visuals/material_0.png" name="tex-model" type="2d"/>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <texture type="2d" name="image4" file="visuals/image4.png"/>
+    <material name="model" reflectance="0.5" texrepeat="1 1" texture="tex-model" texuniform="false"/>
+    <material name="TX_Stove_Small" texture="image0" specular="0.5" shininess="0.25"/>
+    <material name="TX_Stove_Small_Glass" texture="image4" specular="0.5" shininess="0.25"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_rear_right_0.obj" name="knob_rear_right_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_dummy_0.obj" name="knob_dummy_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_front_left_0.obj" name="knob_front_left_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_front_right_0.obj" name="knob_front_right_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_rear_left_0.obj" name="knob_rear_left_0_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="TX_Stove_Small" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="TX_Stove_Small_Glass" class="visual"/>
+        <!-- Burners -->
+        <site name="burner_on_front_left" pos="-0.237 -0.092 0.466" size="0.075 0.005" rgba="0.3 0.4 1.0 0.5" type="cylinder"/>
+        <site name="burner_on_front_right" pos="0.246 -0.102 0.454" size="0.05 0.005" rgba="0.3 0.4 1.0 0.5" type="cylinder"/>
+        <site name="burner_on_rear_left" pos="-0.242 0.194 0.46" size="0.055 0.005" rgba="0.3 0.4 1 0.5" type="cylinder"/>
+        <site name="burner_on_rear_right" pos="0.244 0.193 0.46" size="0.055 0.005" rgba="0.3 0.4 1 0.5" type="cylinder"/>
+        <site name="burner_front_left_place_site" pos="-0.237 -0.092 0.50" size="0.075 0.001" rgba="0 0 1 0" type="cylinder"/>
+        <site name="burner_front_right_place_site" pos="0.246 -0.102 0.50" size="0.05 0.001" rgba="0 0 1 0" type="cylinder"/>
+        <site name="burner_rear_left_place_site" pos="-0.242 0.194 0.50" size="0.055 0.001" rgba="0 0 1 0" type="cylinder"/>
+        <site name="burner_rear_right_place_site" pos="0.244 0.193 0.50" size="0.055 0.001" rgba="0 0 1 0" type="cylinder"/>
+        <!-- Main -->
+        <geom class="collision" type="box" pos="0 0.06 0" size="0.445 0.335 0.5"/>
+        <!-- Tiny slab above oven door -->
+        <geom class="collision" type="box" pos="0 -0.33 0.445" size="0.445 0.06 0.018"/>
+        <!-- Oven Door (not accurate enough to be turned into a hinge) -->
+        <geom class="collision" type="box" pos="0 -0.307 -0.02" size="0.445 0.033 0.48"/>
+        <!-- Oven Handle -->
+        <geom class="collision" type="box" pos="0 -0.37 0.26" size="0.41 0.03 0.015"/>
+        <body name="knob_rear_right">
+          <joint axis="0 1 0" name="knob_rear_right_joint" damping="1" pos="0.275 -0.34 0.377"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_rear_right_0_vis" material="TX_Stove_Small" class="visual"/>
+          <!-- <geom class="collision" type="cylinder" axisangle="1 0 0 1.57" pos="0.275 -0.348 0.375" size="0.032 0.008 0"/> -->
+          <geom class="collision" type="box" pos="0.275 -0.3685 0.377" size="0.012 0.0135 0.028" friction="100 0.001 0.0001" solref="0.001 5" solimp="0.99 0.999 0.001 0.5 2" name="knob_rear_right_main"/>
+        </body>
+        <body name="knob_dummy">
+          <joint axis="0 1 0" name="knob_dummy_joint" damping="1" pos="0.186 -0.34 0.377"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_dummy_0_vis" material="TX_Stove_Small" class="visual"/>
+          <!-- <geom class="collision" type="cylinder" axisangle="1 0 0 1.57" pos="0.186 -0.348 0.375" size="0.032 0.008 0"/> -->
+          <geom class="collision" type="box" pos="0.186 -0.3685 0.377" size="0.012 0.0135 0.028" friction="100 0.001 0.0001" solref="0.001 5" solimp="0.99 0.999 0.001 0.5 2" name="knob_dummy_main"/>
+        </body>
+        <body name="knob_front_left">
+          <joint axis="0 1 0" name="knob_front_left_joint" damping="1" pos="-0.275 -0.34 0.377"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_front_left_0_vis" material="TX_Stove_Small" class="visual"/>
+          <!-- <geom class="collision" type="cylinder" axisangle="1 0 0 1.57" pos="-0.275 -0.348 0.375" size="0.032 0.008 0"/> -->
+          <geom class="collision" type="box" pos="-0.275 -0.3685 0.377" size="0.012 0.0135 0.028" friction="100 0.001 0.0001" solref="0.001 5" solimp="0.99 0.999 0.001 0.5 2" name="knob_front_left_main"/>
+        </body>
+        <body name="knob_front_right">
+          <joint axis="0 1 0" name="knob_front_right_joint" damping="1" pos="0.365 -0.34 0.377"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_front_right_0_vis" material="TX_Stove_Small" class="visual"/>
+          <!-- <geom class="collision" type="cylinder" axisangle="1 0 0 1.57" pos="0.365 -0.348 0.375" size="0.032 0.008 0"/> -->
+          <geom class="collision" type="box" pos="0.365 -0.3685 0.377" size="0.012 0.0135 0.028" friction="100 0.001 0.0001" solref="0.001 5" solimp="0.99 0.999 0.001 0.5 2" name="knob_front_right_main"/>
+        </body>
+        <body name="knob_rear_left">
+          <joint axis="0 1 0" name="knob_rear_left_joint" damping="1" pos="-0.186 -0.34 0.377"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_rear_left_0_vis" material="TX_Stove_Small" class="visual"/>
+          <!-- <geom class="collision" type="cylinder" axisangle="1 0 0 1.57" pos="-0.186 -0.348 0.375" size="0.032 0.008 0"/> -->
+          <geom class="collision" type="box" pos="-0.186 -0.3685 0.377" size="0.012 0.0135 0.028" friction="100 0.001 0.0001" solref="0.001 5" solimp="0.99 0.999 0.001 0.5 2" name="knob_rear_left_main"/>
+        </body>
+        <!-- exterior bounding box points -->
+        <site rgba="0 0 0 1" size="0.01" pos="-0.445 -0.34 -0.4975" name="ext_p0"/>
+        <site rgba="1 0 0 1" size="0.01" pos="0.445 -0.34 -0.4975" name="ext_px"/>
+        <site rgba="0 1 0 1" size="0.01" pos="-0.445 0.395 -0.4975" name="ext_py"/>
+        <site rgba="0 0 1 1" size="0.01" pos="-0.445 -0.34 0.46" name="ext_pz"/>
+        <!-- interior bounding box points -->
+        <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0 0 0" name="int_p0"/>
+        <site rgba="1 1 0 1" size="0.01" pos="0 0 0" name="int_px"/>
+        <site rgba="0 1 1 1" size="0.01" pos="0 0 0" name="int_py"/>
+        <site rgba="1 0 1 1" size="0.01" pos="0 0 0" name="int_pz"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

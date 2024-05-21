@@ -1,0 +1,37 @@
+<mujoco model="model">
+  <asset>
+    <material name="Bege" specular="0.5" shininess="0.15999998099999999" rgba="0.621795 0.536770 0.365757 1.0"/>
+    <material name="Prata" specular="0.5" shininess="0.15999998099999999" rgba="0.504000 0.504000 0.504000 1.0"/>
+    <material name="Preto" specular="0.5" shininess="0.15999998099999999" rgba="0.000000 0.000000 0.000000 1.0"/>
+    <material name="lambert1" specular="0.5" shininess="0.15999998099999999" rgba="0.500000 0.500000 0.500000 1.0"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_2.obj" name="model_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_3.obj" name="model_3_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="-0.2320324546589323 -0.24096115720684336 -0.5" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0.2320324546589323 -0.24096115720684336 -0.5" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="-0.2320324546589323 0.24096115720684336 -0.5" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="-0.2320324546589323 -0.24096115720684336 0.5" name="ext_pz"/>
+      <!-- interior bounding box points -->
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="Prata" class="visual"/>
+        <!-- <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="lambert1" class="visual"/> -->
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_2_vis" material="Bege" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_3_vis" material="Preto" class="visual"/>
+        <geom class="collision" type="box" pos="0 0 0" size="0.2320324546589323 0.24096115720684336 0.5"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

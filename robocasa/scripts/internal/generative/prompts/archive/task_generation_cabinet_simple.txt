@@ -1,0 +1,98 @@
+Your goal is to come up with 10 unique tasks that a robot can complete that use the cabinet. Each of the tasks you generate should be something that can be done in the kitchen and uses the skills and objects listed below. Also, your tasks MUST adhere to the constraints listed below.
+
+Here's some information about the kitchen.
+
+In the kitchen, you have the following types of objects:
+- vegetable: avocado, cucumber, tomato, bell pepper, broccoli, carrot, garlic, lemon, lime, mushroom, onion, corn, eggplant, potato, squash, sweet potato
+- fruit: apple, banana, kiwi, mango, orange, peach, pear, tangerine
+- bread: baguette, bagel, bread
+- packaged food: bar, boxed food, canned food, cereal, bagged food, chips, jam
+- cleaner: bar soap, soap dispenser, sponge, spray
+- drink: bottled drink, boxed drink, liquor, beer, can, water bottle, wine
+- receptacle: bowl, mug, cutting board, jug, kettle, mug, pan, plate, cup, jug, teapot, tray
+- utensil: fork, knife, ladle, spatula, spoon
+- sweets: cake, chocolate, donut, cupcake, waffle
+- decoration: candle
+- dairy: cheese, egg, milk, yogurt
+- condiment: condiment bottle, ketchup, shaker
+- pastry: croissant
+- cooked food: hot dog
+- meat: fish, steak
+- tool: rolling pin, scissors
+Each object is categorized. In the tasks you create, you should consider a family of objects. In other words, a task should not focus on a specific object like a tomato or knife. Instead, the task should be able to be generalized to a group of objects like vegetable or condiment. The only exception to this is when using receptacles. Also note that you cannot change these objects by cutting them, chopping them, breaking them, burning them, etc. We can ONLY move these objects around by picking, placing, or pushing them.
+
+In addition, the robot only has the following skills:
+- pick and place. eg: pick a vegetable from the cabinet and place it into the bowl
+- opening and closing doors. eg. open the cabinet door
+- opening and closing drawers. eg. open the drawer right below the counter
+- navigation. eg. navigating throughout the kitchen
+- insertion: eg: inserting a canned item in the drawer
+- pressing buttons. eg. press the microwave door
+- turning levers. eg: turning a sink faucet
+- twisting knobs. eg: twist the stove knob to turn it on
+- flipping switches. eg: turn on light switch
+- pushing / sweeping objects. eg. push objects across the countertop
+Make sure to design tasks that can be completed using the skills listed. These are the only skills the robot knows. If the task you come up with requires another skill, it will not be valid. 
+
+Finally, the kitchen has the following fixtures:
+- counters
+- cabinets and drawers: come with doors that can be opened and closed
+- one stove: comes with functional knobs to turn on individual burners
+- one microwave: comes with a door that can be opened and closed
+- one sink: comes with functional faucet lever and spout. can be turned on, with water running out the tap
+- one toaster: we can insert objects into toaster
+Your kitchen only has these fixtures. If the task you generate uses a fixture not listed above, the task will be considered invalid. Note that the kitchen does not have a refrigerator, oven, blender, or grill. All the tasks you generate must use the microwave. Feel free to use other listed fixtures in your tasks as well. 
+
+Each task should do a unique thing. Once again, the tasks must only use the objects, skills, and fixtures listed above. These tasks should be simple enough to be done by a robot.
+
+Eventually, I would like to model these tasks in a simulated kitchen environment with a robot attempting to complete the task. The robot is an arm that is mounted on a base and can move around the kitchen and manipulate different items. When suggesting these tasks it's very important to follow these constraints:
+
+1. The simulator does not yet support deformable objects, such as liquids, bags, and towels. As a result, the robot cannot manipulate soft bodies, such as cutting objects, pouring liquids, or folding clothes.
+
+2. Most object categories are graspable, meaning the robot can pick them up. However, the following objects are not graspable: bagel, bagged food, bread, chips, chocolate, cutting board, fork, knife, plate, scissors, spatula, spoon, tray, waffle. The robot should NOT attempt to move these object categories. I would like the robot to only interact with the specified objects and fixtures, and only use the robot skills specified.
+
+Can you suggest some tasks for me that follow the constraints listed above? Remeber that each of the tasks must use a cabinet. Your tasks should do stuff like categorizing objects by type, preparing something, shifting objects around, etc. Make sure that each of the tasks also makes logical sense. 
+
+Here are some example of good tasks and why they are good.
+
+Task: The robot navigates to the cabinet, picks up various fruits and place them neatly in the bowl placed on the counter.
+Skills: Opening and closing doors, Pick and place, Navigation
+Fixtures: Cabinets, Counter
+Objects: Receptacle (Bowl), Fruits 
+Reasoning: This task stores objects in the cabinets and force the robot to interact with the cabinet in some form. It also can be generalized to multiple families of objects.
+
+Task: The robot picks up meat, dairy, fruits and bread from different cabinets and arranges them on a board on the counter.
+Skills: Opening and closing doors, Pick and place, Navigation
+Fixtures: Cabinets, Counter
+Objects: Meat, Dairy, Fruits, Bread and Receptacle (Board)
+Reasoning: This tasks once again uses the cabinet well to store items.
+
+Task: Open the cabinet. Put all the packaged food from the counter in the cabinet and then close the cabinet.
+Skills: Pick and place, Opening and closing doors
+Fixtures: Cabinet, Counter
+Objects: packaged food
+Reasoning: This task is good because rather than taking stuff out of the counters, it is putting stuff in the counters.
+
+Task: Using different cabinets, the robot gathers an assortment of drinks and places them in a jug on the counter.
+Skills: Opening and closing doors, Pick and place, Navigation
+Fixtures: Cabinets, Counter
+Objects: Drink, Receptacle (Jug)
+Reasoning: This task makes use of a variety of cabinets to store the drinks, and service the jug as a holding place.
+
+Here are some examples of bad tasks: 
+
+Task: The robot navigates to the cabinet, picks up canned foods, and organizes them by type in the cabinet shelves.
+Skills: Opening and closing doors, Pick and place, Navigation
+Fixtures: Cabinets
+Objects: Packaged Food
+Reasoning: It is too complicated to organize goods within the cabinet. It would be better if they started outside the cabinet.
+
+Task: The robot takes cleaned utensils from the sink, places them into a drawer for storage, and then closes the cabinet.
+Skills: Pick and place, Opening and closing doors, Navigation
+Fixtures: Cabinets, Sink
+Objects: Utensil
+Reasoning: Utensils cannot be grasped by the robot.
+
+The tasks you give don't have to be tasks that a human typically does. They just need to be tasks that allow the robot to manipulate different objects in its environment and still do need to make sense to do. The task should make sense, but make sure to focus more on the manipulation of objects and using the cabinet in some form. Also do not repeat any of the good tasks mentioned above. 
+
+Write 10 tasks that use the cabinets. Make sure the tasks are putting things in the cabinets. Also, make sure that the tasks also use the other fixtures like the stove, sink, and microwave.

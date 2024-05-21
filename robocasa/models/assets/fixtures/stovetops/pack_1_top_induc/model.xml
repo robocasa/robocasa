@@ -1,0 +1,74 @@
+<mujoco model="model">
+  <asset>
+    <texture file="visuals/material_0.png" name="tex-model" type="2d"/>
+    <texture type="2d" name="image21" file="visuals/image21.png"/>
+    <material name="model" reflectance="0.5" texrepeat="1 1" texture="tex-model" texuniform="false"/>
+    <material name="TX_Stove_3_6" texture="image21" specular="0.5" shininess="0.25"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_rear_right_0.obj" name="knob_rear_right_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_front_left_0.obj" name="knob_front_left_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_front_right_0.obj" name="knob_front_right_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/knob_rear_left_0.obj" name="knob_rear_left_0_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="TX_Stove_3_6" class="visual"/>
+        <!-- Burners -->
+        <site name="burner_on_front_left" pos="-0.201 -0.077 -0.008" size="0.12 0.0001" rgba="1 0 0 0.5" type="cylinder"/>
+        <site name="burner_on_front_right" pos="0.188 -0.077 -0.008" size="0.12 0.0001" rgba="1 0 0 0.5" type="cylinder"/>
+        <site name="burner_on_rear_left" pos="-0.301 0.173 -0.008" size="0.1 0.0001" rgba="1 0 0 0.5" type="cylinder"/>
+        <site name="burner_on_rear_right" pos="0.298 0.175 -0.008" size="0.1 0.0001" rgba="1 0 0 0.5" type="cylinder"/>
+        <site name="burner_front_left_place_site" pos="-0.201 -0.077 -0.008" size="0.12 0.0001" rgba="1 0 0 0" type="cylinder"/>
+        <site name="burner_front_right_place_site" pos="0.188 -0.077 -0.008" size="0.12 0.0001" rgba="1 0 0 0" type="cylinder"/>
+        <site name="burner_rear_left_place_site" pos="-0.301 0.173 -0.008" size="0.1 0.0001" rgba="1 0 0 0" type="cylinder"/>
+        <site name="burner_rear_right_place_site" pos="0.298 0.175 -0.008" size="0.1 0.0001" rgba="1 0 0 0" type="cylinder"/>
+        <!-- Main -->
+        <geom class="collision" type="box" pos="0 0 -0.014" size="0.5 0.355 0.006"/>
+        <geom class="collision" type="box" pos="0 0.32 -0.0005" size="0.484 0.02 0.01"/>
+        <body name="knob_rear_right">
+          <joint name="knob_rear_right_joint" type="hinge" axis="0 0 1" pos="-0.087 -0.305 0.002" damping="1" armature="2"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_rear_right_0_vis" material="TX_Stove_3_6" class="visual"/>
+          <geom class="collision" type="cylinder" pos="-0.087 -0.305 0.003" size="0.0245 0.008 0"/>
+          <geom class="collision" type="box" pos="-0.087 -0.3005 0.015" size="0.009 0.027 0.008" name="knob_rear_right_main"/>
+        </body>
+        <body name="knob_front_left">
+          <joint name="knob_front_left_joint" type="hinge" axis="0 0 1" pos="0.0785 -0.305 0.002" damping="1" armature="2"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.002" type="mesh" mesh="knob_front_left_0_vis" material="TX_Stove_3_6" class="visual"/>
+          <geom class="collision" type="cylinder" pos="0.0785 -0.305 0.003" size="0.0245 0.008 0"/>
+          <geom class="collision" type="box" pos="0.0785 -0.3005 0.015" size="0.009 0.027 0.008" name="knob_front_left_main"/>
+        </body>
+        <body name="knob_front_right">
+          <joint name="knob_front_right_joint" type="hinge" axis="0 0 1" pos="0.1635 -0.305 0.002" damping="1" armature="2"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_front_right_0_vis" material="TX_Stove_3_6" class="visual"/>
+          <geom class="collision" type="cylinder" pos="0.1635 -0.305 0.003" size="0.0245 0.008 0"/>
+          <geom class="collision" type="box" pos="0.1635 -0.3005 0.015" size="0.009 0.027 0.008" name="knob_front_right_main"/>
+        </body>
+        <body name="knob_rear_left">
+          <joint name="knob_rear_left_joint" type="hinge" axis="0 0 1" pos="-0.165 -0.305 0.002" damping="1" armature="2"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="knob_rear_left_0_vis" material="TX_Stove_3_6" class="visual"/>
+          <geom class="collision" type="cylinder" pos="-0.165 -0.305 0.003" size="0.0245 0.008 0"/>
+          <geom class="collision" type="box" pos="-0.165 -0.3005 0.015" size="0.009 0.027 0.008" name="knob_rear_left_main"/>
+        </body>
+        <!-- exterior bounding box points -->
+        <site rgba="0 0 0 1" size="0.01" pos="-0.5 -0.355 -0.02" name="ext_p0"/>
+        <site rgba="1 0 0 1" size="0.01" pos="0.5 -0.355 -0.02" name="ext_px"/>
+        <site rgba="0 1 0 1" size="0.01" pos="-0.5 0.355 -0.02" name="ext_py"/>
+        <site rgba="0 0 1 1" size="0.01" pos="-0.5 -0.355 -0.008" name="ext_pz"/>
+        <!-- interior bounding box points -->
+        <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0 0 0" name="int_p0"/>
+        <site rgba="1 1 0 1" size="0.01" pos="0 0 0" name="int_px"/>
+        <site rgba="0 1 1 1" size="0.01" pos="0 0 0" name="int_py"/>
+        <site rgba="1 0 1 1" size="0.01" pos="0 0 0" name="int_pz"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

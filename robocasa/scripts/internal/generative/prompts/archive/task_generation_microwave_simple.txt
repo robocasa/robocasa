@@ -1,0 +1,92 @@
+Your goal is to come up with 10 unique tasks that a robot can complete that use the microwave. Each of the task you generate should be something that can be done in the kitchen and uses the skills and objects listed below. Also, your tasks MUST adhere to the constraints listed below.
+
+Here's some information about the kitchen.
+
+In the kitchen, you have the following types of objects:
+- vegetable: avocado, cucumber, tomato, bell pepper, broccoli, carrot, garlic, lemon, lime, mushroom, onion, corn, eggplant, potato, squash, sweet potato
+- fruit: apple, banana, kiwi, mango, orange, peach, pear, tangerine
+- bread: baguette, bagel, bread
+- packaged food: bar, boxed food, canned food, cereal, bagged food, chips, jam
+- cleaner: bar soap, soap dispenser, sponge, spray
+- drink: bottled drink, boxed drink, liquor, beer, can, water bottle, wine
+- receptacle: bowl, mug, cutting board, jug, kettle, mug, pan, plate, cup, jug, teapot, tray
+- utensil: fork, knife, ladle, spatula, spoon
+- sweets: cake, chocolate, donut, cupcake, waffle
+- decoration: candle
+- dairy: cheese, egg, milk, yogurt
+- condiment: condiment bottle, ketchup, shaker
+- pastry: croissant
+- cooked food: hot dog
+- meat: fish, steak
+- tool: rolling pin, scissors
+Each object is categorized. In the tasks you create, you should consider a family of objects. In other words, a task should not focus on a specific object like a tomato or knife. Instead, the task should be able to be generalized to a group of objects like vegetable or condiment. The only exception to this is when using receptacles. Also note that you cannot change these objects by cutting them, chopping them, breaking them, burning them, etc. We can ONLY move these objects around by picking, placing, or pushing them.
+
+In addition, the robot only has the following skills:
+- pick and place. eg: pick a vegetable from the cabinet and place it into the bowl
+- opening and closing doors. eg. open the cabinet door
+- opening and closing drawers. eg. open the drawer right below the counter
+- navigation. eg. navigating throughout the kitchen
+- insertion: eg: inserting a canned item in the drawer
+- pressing buttons. eg. press the microwave door
+- turning levers. eg: turning a sink faucet
+- twisting knobs. eg: twist the stove knob to turn it on
+- flipping switches. eg: turn on light switch
+- pushing / sweeping objects. eg. push objects across the countertop
+Make sure to design tasks that can be completed using the skills listed. These are the only skills the robot knows. If the task you come up with requires another skill, it will not be valid. 
+
+Finally, the kitchen has the following fixtures:
+- counters
+- cabinets and drawers: come with doors that can be opened and closed
+- one stove: comes with functional knobs to turn on individual burners
+- one microwave: comes with a door that can be opened and closed
+- one sink: comes with functional faucet lever and spout. can be turned on, with water running out the tap
+- one toaster: we can insert objects into toaster
+Your kitchen only has these fixtures. If the task you generate uses a fixture not listed above, the task will be considered invalid. Note that the kitchen does not have a refrigerator, oven, blender, or grill. All the tasks you generate must use the microwave. Feel free to use other listed fixtures in your tasks as well. 
+
+Each task should do a unique thing. Once again, the tasks must only use the objects, skills, and fixtures listed above. These tasks should be simple enough to be done by a robot.
+
+Eventually, I would like to model these tasks in a simulated kitchen environment with a robot attempting to complete the task. The robot is an arm that is mounted on a base and can move around the kitchen and manipulate different items. When suggesting these tasks it's very important to follow these constraints:
+
+1. The simulator does not yet support deformable objects, such as liquids, bags, and towels. As a result, the robot cannot manipulate soft bodies, such as cutting objects, pouring liquids, or folding clothes.
+
+2. Most object categories are graspable, meaning the robot can pick them up. However, the following objects are not graspable: bagel, bagged food, bread, chips, chocolate, cutting board, fork, knife, plate, scissors, spatula, spoon, tray, waffle. The robot should NOT attempt to move these object categories. I would like the robot to only interact with the specified objects and fixtures, and only use the robot skills specified.
+
+Can you suggest some tasks for me that follow the constraints listed above? Remeber that each of the tasks must use a microwave. Your tasks should do stuff like categorizing objects by type, filling up receptable with water, preparing something, shifting objects around, etc. Make sure that each of the tasks also makes logical sense. 
+
+Here are some example of good tasks and why they are good.
+
+Task: Remove a vegetable from a cabinet, put it in a bowl and then place the bowl in the microwave.
+Objects: vegetable, bowl
+Fixtures: cabinet, microwave
+Skills: pick and place, opening and closing doors
+Reasoning: This task requires the robot to use multiple skills in combination, just as humans would.
+
+Task: Open the microwave door. Remove bowl from microwave and place on the counter. Close the microwave door
+Objects: bowl
+Fixtures: counter, microwave
+Skills: pick and place, opening and closing doors
+Reasoning: This is a very simple task that should be included in the set of tasks. It also focused on taking something out of the microwave.
+
+Task: Pick a packaged food item from the cabinet, place it in the microwave, press the buttons to start the microwave and then retrieve the item once done.
+Objects: packaged food, microwave
+Fixtures: cabinet, microwave
+Skills: pick and place, opening and closing doors, pressing buttons
+Reasoning: This task mimics a conventional use of a microwave allowing the robot to showcase its object manipulation and pressing buttons skills.
+
+Here are some examples of bad tasks:
+
+Task: Pick a sweet from the counter and place it in a kettle, microwave the kettle.
+Objects: Sweets, kettle
+Fixtures: Counter, microwave
+Skills: Pick and place
+Reasoning: Putting a sweet in a kettle does not make sense. Also microwaving a kettle does not make sense. Though this example still deals with manipulation, it does not make any sense.
+
+Task: Pick a box of soda from the cabinet, then put into the microwave.
+Objects: Boxed drink
+Fixtures: Cabinet, Microwave
+Skills: Pick and place, opening and closing doors
+Reasoning: Putting a soda can in the microwave also does not make sense.
+
+The tasks you give don't have to be tasks that a human typically does. They just need to be tasks that allow the robot to manipulate different objects in its environment and still do need to make sense to do. The task should make sense, but make sure to focus more on the manipulation of objects and using the microwave in some form. Also do not repeat any of the good tasks mentioned above. 
+
+Your tasks should include a good mixture of putting things in the microwave, taking things out of the microwave, and moving things around the microwave.
