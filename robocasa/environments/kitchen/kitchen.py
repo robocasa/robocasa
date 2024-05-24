@@ -246,11 +246,12 @@ class Kitchen(ManipulationEnv):
         else:
             choices = [name for (name, fxtr) in self.fixtures.items() if not isinstance(fxtr, Wall)]
             fixture_name = self.rng.choice(choices)
-            ref_fixture = self.fixtures[fixture_name]
-        robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
+            ref_fixture = self.fixtures[fixture_name]        
+        self.planned_robot_base_xpos, self.planned_robot_base_ori = \
+            self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
         robot_model = self.robots[0].robot_model
-        robot_model.set_base_xpos(robot_base_pos)
-        robot_model.set_base_ori(robot_base_ori)
+        robot_model.set_base_xpos(self.planned_robot_base_xpos)
+        robot_model.set_base_ori(self.planned_robot_base_ori)
 
         # helper function for creating objects
         def _create_obj(cfg):
