@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
         ep_directory, discard_traj = collect_human_trajectory(
             env, device, "right", "single-arm-opposed", mirror_actions=True, render=(args.renderer != "mjviewer"),
-            max_fr=30, print_info=False,
+            max_fr=30, print_info=False, randomness_radius=0.5,
         )
 
         print()
