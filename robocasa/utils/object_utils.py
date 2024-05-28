@@ -1,5 +1,6 @@
 import numpy as np
 from robocasa.models.objects.objects import MJCFObject
+from robosuite.models.robots.robot_model import RobotModel
 
 import robosuite.utils.transform_utils as T
 from robosuite.utils.mjcf_utils import (
@@ -202,6 +203,9 @@ def objs_intersect(
     from robocasa.models.objects.fixtures import Fixture
     bbox_check = (isinstance(obj, MJCFObject) or isinstance(obj, Fixture)) and \
         (isinstance(other_obj, MJCFObject) or isinstance(other_obj, Fixture))
+    # This is a special handling for RobotModel (w/o bbox) and other objects with bbox.
+    semi_bbox_check = isinstance(obj, RobotModel) and \
+        (isinstance(other_obj, MJCFObject) or isinstance(other_obj, Fixture))
     if bbox_check:
         obj_points = obj.get_bbox_points(trans=obj_pos, rot=obj_quat)
         other_obj_points = other_obj.get_bbox_points(trans=other_obj_pos, rot=other_obj_quat)
@@ -228,6 +232,25 @@ def objs_intersect(
             if np.min(other_obj_projs) > np.max(obj_projs) or np.min(obj_projs) > np.max(other_obj_projs):
                 intersect = False
                 break
+    elif semi_bbox_check:
+        obj_x, obj_y, obj_z = obj_pos
+        other_obj_x, other_obj_y, other_obj_z = other_obj_pos
+        other_obj_points = other_obj.get_bbox_points(trans=other_obj_pos, rot=other_obj_quat)
+
+        # Check horizontal collision using the robot's horizontal radius and object's bounding box.
+        xy_collision = False
+        for point in other_obj_points:
+            if np.linalg.norm((obj_x - point[0], obj_y - point[1])) <= obj.horizontal_radius:
+                xy_collision = True
+                break
+
+        # Check vertical collision using the z-coordinates and object's bounding box.
+        if obj_z > other_obj_z:
+            z_collision = (obj_z - other_obj_z <= other_obj.top_offset[-1] - obj.bottom_offset[-1])
+        else:
+            z_collision = (other_obj_z - obj_z <= obj.top_offset[-1] - other_obj.bottom_offset[-1])
+        
+        intersect = xy_collision and z_collision
     else:
         """
         old code from placement_samplers.py
