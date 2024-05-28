@@ -12,6 +12,8 @@ import imageio
 import json
 import os
 import time
+import math
+import random
 from glob import glob
 from termcolor import colored
 
@@ -21,6 +23,7 @@ import numpy as np
 import robosuite as suite
 import robocasa.macros as macros
 from robosuite import load_controller_config
+from robosuite.utils.errors import RandomizationError
 from robosuite.utils.input_utils import input2action
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
 
@@ -35,10 +38,23 @@ def is_empty_input_spacemouse(action):
         return True
     return False
 
+def generate_random_pos_and_ori(base_xpos, base_ori, randomness_radius):
+    noisy_pos = np.copy(base_xpos)
+    noisy_ori = np.copy(base_ori)
+
+    theta = random.uniform(0, 2 * math.pi)
+    sampled_r = randomness_radius * math.sqrt(random.uniform(0, 1))
+    noise_x = sampled_r * math.cos(theta)
+    noise_y = sampled_r * math.sin(theta)
+    noisy_pos[0] += noise_x
+    noisy_pos[1] += noise_y
+    noisy_ori[2] += random.uniform(0, 2 * math.pi)
+    return noisy_pos, noisy_ori
+
 def collect_human_trajectory(
     env, device, arm, env_configuration, mirror_actions,
     render=True, max_fr=None,
-    print_info=True,
+    print_info=True, randomness_radius=None,
 ):
     """
     Use the device (keyboard or SpaceNav 3D mouse) to collect a demonstration.
@@ -52,7 +68,32 @@ def collect_human_trajectory(
         env_configuration (str): specified environment configuration
     """
 
-    env.reset()
+    if randomness_radius is not None:
+        has_valid_pos = False
+        # Each try takes ~8s, where env.reset() is the main cause.
+        for attempt in range(10):
+            env.reset()
+            env._load_model()
+            noisy_pos, noisy_ori = generate_random_pos_and_ori(env.planned_robot_base_xpos, env.planned_robot_base_ori, randomness_radius)
+            env.robots[0].robot_model.set_base_xpos(noisy_pos)
+            env.robots[0].robot_model.set_base_ori(noisy_ori)
+
+            env._initialize_sim()
+            env._reset_internal()
+            env.sim.forward()
+            
+            # We must use robot_model and its models for contact checks. Otherwise the mount/gripper may get ignored.
+            has_valid_pos = (len(env.get_contacts(env.robots[0].robot_model)) == 0)
+            for model in env.robots[0].robot_model.models:
+                if len(env.get_contacts(model)) != 0:
+                    has_valid_pos = False
+                    break
+            if has_valid_pos:
+                break
+        if not has_valid_pos:
+            raise RandomizationError("Cannot generate a valid base robot pos within the radius: {}".format(randomness_radius))
+    else:
+        env.reset()
 
     ep_meta = env.get_ep_meta()
     # print(json.dumps(ep_meta, indent=4))
