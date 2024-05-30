@@ -1,5 +1,6 @@
 import numpy as np
 from robocasa.models.objects.objects import MJCFObject
+from robosuite.models.robots.robot_model import RobotModel
 
 import robosuite.utils.transform_utils as T
 from robosuite.utils.mjcf_utils import (
@@ -246,6 +247,47 @@ def objs_intersect(
             intersect = False    
 
     return intersect
+
+
+def robot_intersects_with_obj(
+    robot,
+    robot_pos,
+    other_obj,
+    other_obj_pos,
+    other_obj_quat,
+):
+    """
+    Checks if a RobotModel (w/o bbox) intersects with another object (with bbox).
+    We do not need robot quat because we use horizontal_radius.
+    """
+    from robocasa.models.objects.fixtures import Fixture
+    assert (isinstance(robot, RobotModel)) and \
+        (isinstance(other_obj, MJCFObject) or isinstance(other_obj, Fixture))
+    
+    robot_x, robot_y, robot_z = robot_pos
+    other_obj_points = other_obj.get_bbox_points(trans=other_obj_pos, rot=other_obj_quat)
+    if len(other_obj_points) == 0:
+        # TODO: fix robocasa.models.objects.fixtures.cabinets.PanelCabinet and remove this check
+        return False
+
+    # Check horizontal collision using the robot's horizontal radius and object's bounding box.
+    xy_collision = False
+    for point in other_obj_points:
+        if np.linalg.norm((robot_x - point[0], robot_y - point[1])) <= robot.horizontal_radius:
+            xy_collision = True
+            break
+
+    # Check vertical collision using the z-coordinates and object's bounding box.
+    other_obj_min_z = 0
+    other_obj_max_z = 0
+    for point in other_obj_points:
+        other_obj_max_z = max(other_obj_max_z, point[2])
+        other_obj_min_z = min(other_obj_min_z, point[2])
+
+    z_collision = not (robot_z + robot.bottom_offset[-1] > other_obj_max_z or \
+                       robot_z + robot.top_offset[-1] < other_obj_min_z)
+    
+    return xy_collision and z_collision
 
 
 def normalize_joint_value(raw, joint_min, joint_max):
