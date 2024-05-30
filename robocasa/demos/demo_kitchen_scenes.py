@@ -101,7 +101,7 @@ if __name__ == "__main__":
         use_camera_obs=False,
         control_freq=20,
         renderer=args.renderer,
-        robot_randomness_radius=0.5, # suggested to use a number within [0.5, 2.0]; otherwise it may be illegal due to cabinet collision
+        robot_randomness_radius=None, # suggested to use a number within [0.5, 2.0]; otherwise it may be illegal due to cabinet collision
     )
 
     # Grab reference to controller config and convert it to json-encoded string
