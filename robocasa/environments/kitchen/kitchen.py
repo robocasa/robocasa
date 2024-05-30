@@ -368,45 +368,42 @@ class Kitchen(ManipulationEnv):
             noisy_pos[1] += noise_y
             noisy_ori[2] += random.uniform(0, 2 * math.pi)
             return noisy_pos, noisy_ori
+        
+        def _robot_has_collision_with_placements(robot_model, noisy_pos):
+            # check collisions from all objects
+            for (x, y, z), other_quat, other_obj in self.object_placements.values():
+                if OU.robot_intersects_with_obj(
+                    robot=robot_model,
+                    robot_pos=noisy_pos,
+                    other_obj=other_obj,
+                    other_obj_pos=[x, y, z],
+                    other_obj_quat=T.convert_quat(other_quat, to="xyzw")
+                ):
+                    return True
+            
+            # check collisions from all fixtures; this cannot be self.fxtr_placements,
+            # because it does not include fixtures like robocasa.models.objects.fixtures.accessories.Accessory
+            for ref in self.fixtures.values():
+                if not (isinstance(ref, MJCFObject) or isinstance(ref, Fixture)):
+                    # this refers to robocasa.models.objects.fixtures.others.Box/Wall
+                    continue
+                if OU.robot_intersects_with_obj(
+                    robot=robot_model,
+                    robot_pos=noisy_pos,
+                    other_obj=ref,
+                    other_obj_pos=ref.pos,
+                    other_obj_quat=ref.quat,
+                ):
+                    return True
+            return False
 
         robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
         robot_model = self.robots[0].robot_model
-        
-        self.robot_randomness_radius = 0.5
+
         if self.robot_randomness_radius is not None:
-            base_fixtures = self._get_base_fixtures()
-            for attempt in range(50):
-                is_valid_pos = True
+            for attempt in range(200):
                 noisy_pos, noisy_ori = _generate_random_pos_and_ori(robot_base_pos, robot_base_ori, self.robot_randomness_radius)
-                
-                # Check all objects first 
-                for (x, y, z), other_quat, other_obj in self.object_placements.values():
-                    if OU.objs_intersect(
-                        obj=robot_model,
-                        obj_pos=noisy_pos,
-                        obj_quat=T.convert_quat(T.mat2quat(T.euler2mat(noisy_ori)), to="xyzw"),
-                        other_obj=other_obj,
-                        other_obj_pos=[x, y, z],
-                        other_obj_quat=T.convert_quat(other_quat, to="xyzw")
-                    ):
-                        is_valid_pos = False
-                        break
-                
-                # Check all base fixtures collisions
-                if is_valid_pos:
-                    for base_fixture in base_fixtures:
-                        if OU.objs_intersect(
-                            obj=robot_model,
-                            obj_pos=noisy_pos,
-                            obj_quat=T.convert_quat(T.mat2quat(T.euler2mat(noisy_ori)), to="xyzw"),
-                            other_obj=base_fixture,
-                            other_obj_pos=base_fixture.pos,
-                            other_obj_quat=T.convert_quat(base_fixture.quat, to="xyzw"),
-                        ):
-                            is_valid_pos = False
-                            break
-                        
-                if is_valid_pos:
+                if not _robot_has_collision_with_placements(robot_model, noisy_pos):
                     robot_model.set_base_xpos(noisy_pos)
                     robot_model.set_base_ori(noisy_ori)
                     return
@@ -426,16 +423,6 @@ class Kitchen(ManipulationEnv):
     def _reset_observables(self):
         if self.hard_reset:
             self._observables = self._setup_observables()
-
-    def _get_base_fixtures(self):
-        return [
-            fxtr for fxtr in self.fixtures.values()
-            if isinstance(fxtr, Counter)
-            or isinstance(fxtr, Stove)
-            or isinstance(fxtr, Stovetop)
-            or isinstance(fxtr, HousingCabinet)
-            or isinstance(fxtr, Fridge)
-        ]
     
     def compute_robot_base_placement_pose(self, ref_fixture, offset=None):
         """
@@ -448,7 +435,14 @@ class Kitchen(ManipulationEnv):
         base_fixture = None
 
         # get all base fixtures in the environment
-        base_fixtures = self._get_base_fixtures()
+        base_fixtures = [
+            fxtr for fxtr in self.fixtures.values()
+            if isinstance(fxtr, Counter)
+            or isinstance(fxtr, Stove)
+            or isinstance(fxtr, Stovetop)
+            or isinstance(fxtr, HousingCabinet)
+            or isinstance(fxtr, Fridge)
+        ]
         
         for fxtr in base_fixtures:
             # get bounds of fixture
@@ -468,7 +462,7 @@ class Kitchen(ManipulationEnv):
         cntr_y = base_fixture.get_ext_sites(relative=True)[0][1]
         base_to_edge = [
             base_to_ref[0],
-            cntr_y - 0.20,
+            cntr_y - 0.20 - 0.05,
             0,
         ]
         if offset is not None:
@@ -476,7 +470,7 @@ class Kitchen(ManipulationEnv):
             base_to_edge[1] += offset[1]
 
         if isinstance(base_fixture, HousingCabinet) or isinstance(base_fixture, Fridge) or "stack" in base_fixture.name:
-            base_to_edge[1] -= 0.10
+            base_to_edge[1] -= 0.10 - 0.05
 
         # step 3: transform offset to global coordinates
         robot_base_pos = np.zeros(3)

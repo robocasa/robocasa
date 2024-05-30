@@ -101,6 +101,7 @@ if __name__ == "__main__":
         use_camera_obs=False,
         control_freq=20,
         renderer=args.renderer,
+        robot_randomness_radius=1.0,
     )
 
     # Grab reference to controller config and convert it to json-encoded string
