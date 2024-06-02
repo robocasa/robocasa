@@ -2,7 +2,7 @@
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/robocasa-banner.jpg" width="100%" />
 
-This is the official RoboCasa codebase. Please refer to the accompanying [paper](https://robocasa.ai/robocasa-paper.pdf) and [project website](https://robocasa.ai) for additional information.
+This is the official RoboCasa codebase. Please refer to the accompanying [paper](https://robocasa.ai/assets/robocasa_rss24.pdf) and [project website](https://robocasa.ai) for additional information.
 
 -------
 ## Installation
