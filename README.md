@@ -82,7 +82,8 @@ python -m robocasa.scripts.download_datasets --ds_types human_raw               
 
 By default, all datasets are stored under `datasets/` in the root robocasa directory.
 
-### Policy Learning
+-------
+## Policy Learning
 
 Refer to our [policy learning repo](https://github.com/ARISE-Initiative/robomimic/tree/robocasa
 ) to train and evaluate policies on our datasets.
