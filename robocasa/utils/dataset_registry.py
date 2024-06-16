@@ -44,7 +44,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         human_path="v0.1/single_stage/kitchen_pnp/PnPCounterToMicrowave/2024-04-27",
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/z1qwxsuczjmv68p7267nylbv9ebc6g4p.hdf5",
-            human_im="https://utexas.box.com/s/2kun70ehqzanl5h0hbgpdezrfrvuimq8",
+            human_im="https://utexas.box.com/shared/static/2kun70ehqzanl5h0hbgpdezrfrvuimq8.hdf5",
         ),
     ),
     PnPMicrowaveToCounter=dict(
