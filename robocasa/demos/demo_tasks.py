@@ -11,6 +11,7 @@ from robocasa.scripts.playback_dataset import playback_dataset
 from robocasa.scripts.download_kitchen_assets import download_and_extract_zip
 from robocasa.scripts.download_datasets import download_datasets
 from robocasa.utils.dataset_registry import get_ds_path
+import os
 
 def choose_option(options, option_name, show_keys=False, default=None, default_message=None):
     """
@@ -59,6 +60,7 @@ if __name__ == "__main__":
     # Arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, help="task (choose among 100+ tasks)")
+    parser.add_argument("--video_folder", type=str, default=None, help="path to video file offline. If not provided, will do live render.")
     args = parser.parse_args()
 
 
@@ -79,10 +81,14 @@ if __name__ == "__main__":
         ("PrepareCoffee", "make coffee"),
     ])
 
+    demos=-1
     while True:
         if args.task is None:
             task = choose_option(tasks, "task", default="PnPCounterToCab", show_keys=True)
-
+        else:
+            task = args.task
+        demos+=1
+        
         dataset = get_ds_path(task, ds_type="human_raw")
 
         if os.path.exists(dataset) is False:
@@ -92,8 +98,9 @@ if __name__ == "__main__":
 
         parser = argparse.ArgumentParser()
         parser.dataset = dataset
-        parser.video_path = None
-        parser.render = True
+        parser.video_path =  os.path.join(args.video_folder, f"demo_{demos}.mp4") if args.video_folder is not None else None
+
+        parser.render = args.video_folder is None
         parser.use_actions = False
         parser.render_image_names = ["robot0_agentview_center"]
         parser.use_obs = False
