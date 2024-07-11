@@ -71,8 +71,8 @@ python -m robocasa.demos.demo_teleop
 Note: If using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`.
 
 -------
-## Tasks, datasets, policy learning, and more!
-Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for additional information about tasks and assets, downloading datasets, policy learning, and more!
+## Tasks, datasets, policy learning, and additional use cases
+Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for information about tasks and assets, downloading datasets, policy learning, API docs, and more.
  
 -------
 ## Citation
