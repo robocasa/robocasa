@@ -2,7 +2,7 @@
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/robocasa-banner.jpg" width="100%" />
 
-This is the official codebase of **RoboCasa**, a large-scale simulation framework for training generally capable robots to perform everyday tasks. This guide contains information about installation and setup. Please refer to the following resources for additional information:
+This is the official codebase of RoboCasa, a large-scale simulation framework for training generally capable robots to perform everyday tasks. This guide contains information about installation and setup. Please refer to the following resources for additional information:
 
 [**[Home page]**](https://robocasa.ai) &ensp; [**[Documentation]**](https://robocasa.ai/docs/introduction/overview.html) &ensp; [**[Paper]**](https://robocasa.ai/assets/robocasa_rss24.pdf)
 
