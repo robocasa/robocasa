@@ -44,7 +44,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/uyhepwjyr0880a5q03fc61qmhbrhwy7k.hdf5",
             human_im="https://utexas.box.com/shared/static/pe03k5qvcuq1nzbpfag5pfo2t8fzvl9i.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/ppj3j8jnxkpusi7ft44f5ut7szkmu8yr.hdf5",
         ),
     ),
     PnPCounterToMicrowave=dict(
@@ -53,7 +53,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         mg_path="v0.1/single_stage/kitchen_pnp/PnPCounterToMicrowave/mg/2024-05-04-22-13-21_and_2024-05-07-07-41-17",
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/z1qwxsuczjmv68p7267nylbv9ebc6g4p.hdf5",
-            human_im="https://utexas.box.com/s/2kun70ehqzanl5h0hbgpdezrfrvuimq8",
+            human_im="https://utexas.box.com/shared/static/2kun70ehqzanl5h0hbgpdezrfrvuimq8.hdf5",
             mg_im="",
         ),
     ),
@@ -94,7 +94,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/hjukxdpqvnrghtbjbhin28idzkysq7oa.hdf5",
             human_im="https://utexas.box.com/shared/static/vhvlbuza3g1lpqa9m6zvmbzh8xquvqy8.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/ekf6qwp9s07jnkpazbohlv03d6b73vth.hdf5",
         ),
     ),
     CloseSingleDoor=dict(
@@ -104,7 +104,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/gea28p5mrvj9lnw1s6c8fqvzxk5f779i.hdf5",
             human_im="https://utexas.box.com/shared/static/2wnm0u1x9fp9ni02pmzqzhpjsb1kgfrr.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/5mg9vkhilkaxza83l48aht3sk76086tm.hdf5",
         ),
     ),
     OpenDoubleDoor=dict(
@@ -134,7 +134,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/990d2f339zvalvlw50s4s1l6sfvt018m.hdf5",
             human_im="https://utexas.box.com/shared/static/d8a0g5827kbm4ufk3p1tbuz3idstgum8.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/t0sio5vrdax5bdfqkumfh63inq6o9b88.hdf5",
         ),
     ),
     CloseDrawer=dict(
@@ -144,7 +144,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/ooekd1zdy02hfu234xm5h63f7mzbez4b.hdf5",
             human_im="https://utexas.box.com/shared/static/4r5w0a6i4jtgv5qmqx09fnqh5d7c45oi.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/aohabqltp8c6ze61u4h2uhtc9p9w35zb.hdf5",
         ),
     ),
     TurnOnSinkFaucet=dict(
@@ -154,6 +154,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/7vogk85ed3sm1o1vo8fzast9rs8zshgk.hdf5",
             human_im="https://utexas.box.com/shared/static/f0brygtzwgmmwccg58b6m82yapa4jnji.hdf5",
+            mg_im="https://utexas.box.com/shared/static/p8x9njpsf5j9fkmnu7lwajupzm1t7aap.hdf5",
         ),
     ),
     TurnOffSinkFaucet=dict(
@@ -163,6 +164,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/ukkycoa2c6k5d6bpt1cdplzk2nrg879t.hdf5",
             human_im="https://utexas.box.com/shared/static/ceewfn4ydhprupdcdppfe8wu4x61oxdg.hdf5",
+            mg_im="https://utexas.box.com/shared/static/r392ma0dje2t5ov4dug4vbqhn0z6hblk.hdf5",
         ),
     ),
     TurnSinkSpout=dict(
@@ -172,6 +174,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/zxop70u9s6rl4udz7fhp4besrvu508pj.hdf5",
             human_im="https://utexas.box.com/shared/static/nnojt3760k143fxwhf2u0kzh1i56n7x1.hdf5",
+            mg_im="https://utexas.box.com/shared/static/34l1y45xquau66nk8j7hrpfvlad4b9fg.hdf5",
         ),
     ),
     TurnOnStove=dict(
@@ -181,6 +184,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/ow4npc933yty4blxg8rc2pgjp6f1yc36.hdf5",
             human_im="https://utexas.box.com/shared/static/dewbngq5wk6dipb29x6984x6dygu2gck.hdf5",
+            mg_im="https://utexas.box.com/shared/static/7gzolvj3fyzhhfjoxswmmpjpxu5q4too.hdf5",
         ),
     ),
     TurnOffStove=dict(
@@ -190,6 +194,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/vp6u3huv9c2vg5r09105gkbmwguycnn0.hdf5",
             human_im="https://utexas.box.com/shared/static/8tukea09szcjb2ncbe43zt65n7dzg4eh.hdf5",
+            mg_im="https://utexas.box.com/shared/static/6rv14y77hfknrwfbwn5qtlfdydkr8tog.hdf5",
         ),
     ),
     CoffeeSetupMug=dict(
@@ -199,6 +204,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/zxytzos86xes7jo8z0gp7lklawbiyo8g.hdf5",
             human_im="https://utexas.box.com/shared/static/pv2i49t4p7238gp34txhm7jcl7domw58.hdf5",
+            mg_im="",
         ),
     ),
     CoffeeServeMug=dict(
@@ -208,6 +214,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/tse3mkxx913pf4d4ij7fplchtv1rchkq.hdf5",
             human_im="https://utexas.box.com/shared/static/ts3537f93dzjpkux19syy0pndw5re231.hdf5",
+            mg_im="",
         ),
     ),
     CoffeePressButton=dict(
@@ -217,6 +224,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/t6oblmeilexe9ndca4ccaxdclw1tzps5.hdf5",
             human_im="https://utexas.box.com/shared/static/l5dnmcfd0r36vhdqgjchxo20vajt7ohl.hdf5",
+            mg_im="https://utexas.box.com/shared/static/y5zm9mlslfg8p4jkpwnxlizcsvsca1mb.hdf5",
         ),
     ),
     TurnOnMicrowave=dict(
@@ -226,6 +234,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/o1sp7qrcd97b6jo68olx58l35wffpbna.hdf5",
             human_im="https://utexas.box.com/shared/static/t6eromogy5is2no3s1e5bk1nb2hgab2k.hdf5",
+            mg_im="https://utexas.box.com/shared/static/t1n5oijudf8yn85bj8v64b1codde7kye.hdf5",
         ),
     ),
     TurnOffMicrowave=dict(
@@ -235,6 +244,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/m2exfytqjd0496y70b3ou2i8993ryb50.hdf5",
             human_im="https://utexas.box.com/shared/static/0drm2h7fgd5857x8xgcj1lph23srpbj1.hdf5",
+            mg_im="https://utexas.box.com/shared/static/7c8bku46us9a8sddwg3zk6z3p4ce6ya0.hdf5",
         ),
     ),
     NavigateKitchen=dict(
