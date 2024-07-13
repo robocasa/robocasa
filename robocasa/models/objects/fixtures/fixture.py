@@ -322,11 +322,14 @@ class Fixture(MujocoXMLObject):
         
         return sites
     
+    # Return an empty list when get_ext_sites is not initialized well.
     def get_bbox_points(self, trans=None, rot=None):
         """
         Get the full set of bounding box points of the object
         rot: a rotation matrix
         """
+        if len(self._bounds_sites) == 0:
+            return []
         bbox_offsets = self.get_ext_sites(all_points=True, relative=True)
 
         if trans is None:

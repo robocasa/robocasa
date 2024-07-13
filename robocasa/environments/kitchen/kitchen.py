@@ -1,6 +1,7 @@
 import numpy as np
 import xml.etree.ElementTree as ET
 import random
+import math
 from copy import deepcopy
 import os
 from scipy.spatial.transform import Rotation
@@ -77,8 +78,10 @@ class Kitchen(ManipulationEnv):
         use_distractors=False,
         translucent_robot=False,
         randomize_cameras=False,
+        robot_randomness_radius=None,
     ):
         self.init_robot_base_pos = init_robot_base_pos
+        self.robot_randomness_radius = robot_randomness_radius
 
         # object placement initializer
         self.placement_initializer = placement_initializer
@@ -247,10 +250,6 @@ class Kitchen(ManipulationEnv):
             choices = [name for (name, fxtr) in self.fixtures.items() if not isinstance(fxtr, Wall)]
             fixture_name = self.rng.choice(choices)
             ref_fixture = self.fixtures[fixture_name]
-        robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
-        robot_model = self.robots[0].robot_model
-        robot_model.set_base_xpos(robot_base_pos)
-        robot_model.set_base_ori(robot_base_ori)
 
         # helper function for creating objects
         def _create_obj(cfg):
@@ -356,6 +355,63 @@ class Kitchen(ManipulationEnv):
             return
         self.object_placements = object_placements
 
+        # Helper function to add noises to randomize the robot model.
+        def _generate_random_pos_and_ori(base_xpos, base_ori, randomness_radius):
+            noisy_pos = np.copy(base_xpos)
+            noisy_ori = np.copy(base_ori)
+
+            theta = random.uniform(0, 2 * math.pi)
+            sampled_r = randomness_radius * math.sqrt(random.uniform(0, 1))
+            noise_x = sampled_r * math.cos(theta)
+            noise_y = sampled_r * math.sin(theta)
+            noisy_pos[0] += noise_x
+            noisy_pos[1] += noise_y
+            noisy_ori[2] += random.uniform(0, 2 * math.pi)
+            return noisy_pos, noisy_ori
+        
+        def _robot_has_collision_with_placements(robot_model, noisy_pos):
+            # check collisions from all objects
+            for (x, y, z), other_quat, other_obj in self.object_placements.values():
+                if OU.robot_intersects_with_obj(
+                    robot=robot_model,
+                    robot_pos=noisy_pos,
+                    other_obj=other_obj,
+                    other_obj_pos=[x, y, z],
+                    other_obj_quat=T.convert_quat(other_quat, to="xyzw")
+                ):
+                    return True
+            
+            # check collisions from all fixtures; this cannot be self.fxtr_placements,
+            # because it does not include fixtures like robocasa.models.objects.fixtures.accessories.Accessory
+            for ref in self.fixtures.values():
+                if not (isinstance(ref, MJCFObject) or isinstance(ref, Fixture)):
+                    # this refers to robocasa.models.objects.fixtures.others.Box/Wall
+                    continue
+                if OU.robot_intersects_with_obj(
+                    robot=robot_model,
+                    robot_pos=noisy_pos,
+                    other_obj=ref,
+                    other_obj_pos=ref.pos,
+                    other_obj_quat=ref.quat,
+                ):
+                    return True
+            return False
+
+        robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
+        robot_model = self.robots[0].robot_model
+
+        if self.robot_randomness_radius is not None:
+            for attempt in range(200):
+                noisy_pos, noisy_ori = _generate_random_pos_and_ori(robot_base_pos, robot_base_ori, self.robot_randomness_radius)
+                if not _robot_has_collision_with_placements(robot_model, noisy_pos):
+                    robot_model.set_base_xpos(noisy_pos)
+                    robot_model.set_base_ori(noisy_ori)
+                    return
+            raise RandomizationError("Cannot generate a valid base robot pos within the radius: {}".format(self.robot_randomness_radius)) 
+        else:
+            robot_model.set_base_xpos(robot_base_pos)
+            robot_model.set_base_ori(robot_base_ori)
+                
     def _setup_kitchen_references(self):
         """
         setup fixtures (and their references). this function is called within load_model function for kitchens
