@@ -53,7 +53,7 @@ if __name__ == "__main__":
         "--ds_types",
         type=str,
         nargs='+',
-        default=["human_raw", "human_im"],
+        default=["human_raw", "human_im", "mg_im"],
     )
 
     parser.add_argument(

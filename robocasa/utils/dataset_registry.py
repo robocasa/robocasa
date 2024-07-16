@@ -34,7 +34,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/nc0x55xwlgs4acj97ngdj1q6pv450ooo.hdf5",
             human_im="https://utexas.box.com/shared/static/0z1wr8iwfusfqqpp56j3vfxvvse1x0vc.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/5vkb2fpthnw554q888fynk3zqwsgk2e5.hdf5",
         ),
     ),
     PnPSinkToCounter=dict(
@@ -54,7 +54,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/z1qwxsuczjmv68p7267nylbv9ebc6g4p.hdf5",
             human_im="https://utexas.box.com/shared/static/2kun70ehqzanl5h0hbgpdezrfrvuimq8.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/vdm6pzl68xqqxvk9iy7i3l62j37t3sbp.hdf5",
         ),
     ),
     PnPMicrowaveToCounter=dict(
@@ -64,7 +64,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/emnl5i3s621sf5smgek5lu4twbc326jt.hdf5",
             human_im="https://utexas.box.com/shared/static/z2t1kyto32thprw7xvq3r4tjvkdz0dl2.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/3gs5cvp5qyzvk7gplmp0lkwfs1x1mkrj.hdf5",
         ),
     ),
     PnPCounterToStove=dict(
@@ -74,7 +74,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/emnl5i3s621sf5smgek5lu4twbc326jt.hdf5",
             human_im="https://utexas.box.com/shared/static/z2t1kyto32thprw7xvq3r4tjvkdz0dl2.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/1ytpoks6mp9f56wh36ni8k02fz0kbvmb.hdf5",
         ),
     ),
     PnPStoveToCounter=dict(
@@ -84,7 +84,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/1m3v1rkh7gna5ujt0vcwzej7stv5rdio.hdf5",
             human_im="https://utexas.box.com/shared/static/rht9bfh38gaue5ig17ubpsibb4jrgtyv.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/uvrx2d7zxungplafbn9kg6rbe23ysund.hdf5",
         ),
     ),
     OpenSingleDoor=dict(
@@ -124,7 +124,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/zozyctzejc2nrlpjwqjq4w761830kq45.hdf5",
             human_im="https://utexas.box.com/shared/static/14f2ssfhwfhyo9cvj0s3kq303bv38g6t.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/7t269kmcrsycc4wz5wonw62ijopjhyv7.hdf5",
         ),
     ),
     OpenDrawer=dict(
@@ -204,7 +204,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/zxytzos86xes7jo8z0gp7lklawbiyo8g.hdf5",
             human_im="https://utexas.box.com/shared/static/pv2i49t4p7238gp34txhm7jcl7domw58.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/uagjbu3y2ds0hzm7789nuj0ppxp9dxxl.hdf5",
         ),
     ),
     CoffeeServeMug=dict(
@@ -214,7 +214,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/tse3mkxx913pf4d4ij7fplchtv1rchkq.hdf5",
             human_im="https://utexas.box.com/shared/static/ts3537f93dzjpkux19syy0pndw5re231.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/ikkr7qu89v9e0o1kwiqttkxllaxvv2n4.hdf5",
         ),
     ),
     CoffeePressButton=dict(
