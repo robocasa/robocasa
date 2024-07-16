@@ -756,6 +756,10 @@ class Kitchen(ManipulationEnv):
             result = replace_wall_texture(result, new_wall_texture_file=wall_tex)
             result = replace_floor_texture(result, new_floor_texture_file=floor_tex)
 
+        from datetime import datetime 
+        with open(f"/home/genericp3rson/Developer/RobotLocomotion/robocasa_project/model_{datetime.now()}.xml", "w") as f:
+            f.write(result)
+
         return result
 
     def _setup_references(self):
