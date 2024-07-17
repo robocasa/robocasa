@@ -14,7 +14,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/c0a0vdyqeqh6o9z4c57sk61aypladizj.hdf5",
             human_im="https://utexas.box.com/shared/static/gznii250ip99731ii2r0ml6be7gzt2cp.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/7y9csrcx6uhhq4p3yctmm2df3rjqpw6g.hdf5",
         ),
     ),
     PnPCabToCounter=dict(
@@ -114,7 +114,7 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/xl23utiszzdbjdqlveq1mxxca9m3kbvw.hdf5",
             human_im="https://utexas.box.com/shared/static/8swihowjd5fdk1vpf0k94gl72f8nbjeb.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/5djutjyyksic6qpl2uuq9cvzj3r78jvf.hdf5",
         ),
     ),
     CloseDoubleDoor=dict(
