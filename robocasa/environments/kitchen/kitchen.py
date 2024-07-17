@@ -33,6 +33,10 @@ from robocasa.utils.texture_swap import (
 )
 import robocasa.macros as macros
 
+_ROBOT_POS_OFFSETS: dict[str, list[float]] = {
+    "GR1FloatingBody": [0, 0, 0.97],
+}
+
 
 class Kitchen(ManipulationEnv):
     EXCLUDE_LAYOUTS = []
@@ -247,8 +251,14 @@ class Kitchen(ManipulationEnv):
             choices = [name for (name, fxtr) in self.fixtures.items() if not isinstance(fxtr, Wall)]
             fixture_name = self.rng.choice(choices)
             ref_fixture = self.fixtures[fixture_name]
+
+        
         robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
         robot_model = self.robots[0].robot_model
+        robot_class_name = robot_model.__class__.__name__
+        if robot_class_name in _ROBOT_POS_OFFSETS:
+            for dimension in range(0, 3):
+                robot_base_pos[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][dimension]
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
 
@@ -582,7 +592,7 @@ class Kitchen(ManipulationEnv):
                 self.sim.data.set_joint_qpos(obj.joints[0], np.concatenate([np.array(obj_pos), np.array(obj_quat)]))
                     
         # step through a few timesteps to settle objects
-        action = np.zeros(12) # apply empty action
+        action = np.zeros(self.action_dim) # apply empty action
 
         # Since the env.step frequency is slower than the mjsim timestep frequency, the internal controller will output
         # multiple torque commands in between new high level action commands. Therefore, we need to denote via
@@ -723,7 +733,10 @@ class Kitchen(ManipulationEnv):
             cam_root = worldbody
             if parent_body is not None:
                 cam_root = find_elements(root=worldbody, tags="body", attribs={"name": parent_body})
-            
+                if cam_root is None:
+                    # camera config refers to body that doesnt exist on the robot
+                    continue
+
             cam = find_elements(root=cam_root, tags="camera", attribs={"name": cam_name})
 
             if cam is None:

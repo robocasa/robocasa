@@ -61,7 +61,13 @@ if __name__ == "__main__":
     parser.add_argument("--task", type=str, default="PnPCounterToCab", help="task")
     parser.add_argument("--layout", type=int, help="kitchen layout (choose number 0-9)")
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
+    parser.add_argument("--robot", type=str, help="robot")
     args = parser.parse_args()
+
+    robots = OrderedDict([
+        (0, "PandaMobile"),
+        (1, "GR1FloatingBody")
+    ])
 
     layouts = OrderedDict([
         (0, "One wall"),
@@ -80,31 +86,7 @@ if __name__ == "__main__":
     for k in sorted(STYLES.keys()):
         styles[k] = STYLES[k].capitalize()
 
-    # Create argument configuration
-    config = {
-        "env_name": args.task,
-        "robots": "PandaMobile",
-        "controller_configs": load_controller_config(default_controller="OSC_POSE"),
-        "translucent_robot": False,
-    }
-
     args.renderer = "mjviewer"
-
-    print(colored("Initializing environment...", "yellow"))
-    
-    env = robosuite.make(
-        **config,
-        has_renderer=(args.renderer != "mjviewer"),
-        has_offscreen_renderer=False,
-        render_camera=None,
-        ignore_done=True,
-        use_camera_obs=False,
-        control_freq=20,
-        renderer=args.renderer,
-    )
-
-    # Grab reference to controller config and convert it to json-encoded string
-    env_info = json.dumps(config)
 
     # initialize device
     from robosuite.devices import Keyboard
@@ -123,21 +105,47 @@ if __name__ == "__main__":
         else:
             style = args.style
         
+        if args.robot is None:
+            robot_choice = choose_option(robots, "robot", default=0, default_message="PandaMobile")
+            robot = robots[robot_choice]
+        else:
+            robot = args.robot
+
         if layout == -1:
             layout = np.random.choice(range(10))
         if style == -1:
             style = np.random.choice(range(11))
-    
+
+        print("Initializing environment...")
+
+        # Create argument configuration
+        config = {
+            "env_name": args.task,
+            "robots": robot,
+            "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+            "translucent_robot": False,
+        }
+        env = robosuite.make(
+            **config,
+            has_renderer=(args.renderer != "mjviewer"),
+            has_offscreen_renderer=False,
+            render_camera=None,
+            ignore_done=True,
+            use_camera_obs=False,
+            control_freq=20,
+            renderer=args.renderer,
+        )
+
+        # Grab reference to controller config and convert it to json-encoded string
+        env_info = json.dumps(config)
+
         env.layout_and_style_ids = [[layout, style]]
         print(colored(
             f"Showing configuration:\n    Layout: {layouts[layout]}\n    Style: {styles[style]}",
-            "green",
+            "yellow",
         ))
         print()
-        print(colored(
-            "Spawning environment...\n(Press Q any time to view new configuration)",
-            "yellow"
-        ))
+        print("Spawning environment...\n(Press Q any time to view new configuration)")
 
         ep_directory, discard_traj = collect_human_trajectory(
             env, device, "right", "single-arm-opposed", mirror_actions=True, render=(args.renderer != "mjviewer"),

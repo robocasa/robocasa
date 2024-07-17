@@ -76,10 +76,8 @@ def collect_human_trajectory(
     # Set active robot
     active_robot = env.robots[0] if env_configuration == "bimanual" else env.robots[arm == "left"]
 
-    if active_robot.is_mobile:
-        zero_action = np.array([0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1])
-    else:
-        zero_action = np.array([0, 0, 0, 0, 0, 0, -1])
+    zero_action = np.zeros(env.action_dim)
+
     for _ in range(1):
         # do a dummy step thru base env to initalize things, but don't record the step
         if isinstance(env, DataCollectionWrapper):
@@ -153,6 +151,8 @@ def collect_human_trajectory(
                     f"{arm}_gripper": arm_actions[-1:]
                 }
             )
+        
+        action = np.pad(action, (0, env.action_dim - action.size), mode="constant")
 
         # Run environment step
         obs, _, _, _ = env.step(action)
@@ -385,7 +385,7 @@ if __name__ == "__main__":
         elif args.camera == "free":
             args.camera = None
 
-        config["translucent_robot"] = True
+        config["translucent_robot"] = False
 
         # by default use obj instance split A
         config["obj_instance_split"] = "A"
