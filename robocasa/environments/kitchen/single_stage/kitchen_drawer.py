@@ -27,7 +27,7 @@ class ManipulateDrawer(Kitchen):
             inits.append((robot_base_pos_right, robot_base_ori_right, "left")) 
         
         assert len(inits) > 0
-        robot_base_pos, robot_base_ori, side = random.sample(inits, 1)[0]
+        robot_base_pos, robot_base_ori, side = self.rng.choice(inits)
         self.drawer_side = side
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)

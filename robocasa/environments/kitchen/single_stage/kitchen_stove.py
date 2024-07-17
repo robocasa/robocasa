@@ -17,11 +17,11 @@ class ManipulateStoveKnob(Kitchen):
         else:
             valid_knobs = [k for (k, v) in self.stove.knob_joints.items() if v is not None]
             if self.knob_id == "random":
-                self.knob = random.sample(valid_knobs, 1)[0]
+                self.knob = self.rng.choice(valid_knobs)
             else:
                 assert self.knob_id in valid_knobs
                 self.knob = self.knob
-            self.cookware_burner = self.knob if np.random.uniform() <= 0.50 else random.sample(valid_knobs, 1)[0]
+            self.cookware_burner = self.knob if np.random.uniform() <= 0.50 else self.rng.choice(valid_knobs)
         self.init_robot_base_pos = self.stove
 
     def get_ep_meta(self):

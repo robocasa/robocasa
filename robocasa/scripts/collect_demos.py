@@ -28,7 +28,6 @@ import robocasa
 from robocasa.models.objects.fixtures import FixtureType
 
 import mujoco
-assert mujoco.__version__ == "3.1.1", "MuJoCo version must be 3.1.1. Please run pip install mujoco==3.1.1"
 
 def is_empty_input_spacemouse(action):
     if np.all(action[:6] == 0) and action[6] == -1 and np.all(action[7:11] == 0):

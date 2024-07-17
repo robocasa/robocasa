@@ -21,7 +21,7 @@ class DryDishes(Kitchen):
         cfgs = []
 
         #sample a random back corner for the cup to be placed on
-        cup_pos = random.sample([(1.0, 1.0), (-1.0, 1.0)], 1)[0]
+        cup_pos = self.rng.choice([(1.0, 1.0), (-1.0, 1.0)])
         cfgs.append(dict(
             name="obj1",
             obj_groups=("cup"),

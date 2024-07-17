@@ -980,7 +980,7 @@ class Kitchen(ManipulationEnv):
                 matches = [name for name in matches if self._is_fxtr_valid(self.fixtures[name], size) ]
             assert len(matches) > 0
             # sample random key
-            key = random.sample(matches, 1)[0]
+            key = self.rng.choice(matches)
             return self.fixtures[key]
         else:
             ref_fixture = self.get_fixture(ref)
@@ -1006,7 +1006,7 @@ class Kitchen(ManipulationEnv):
             dists = [OU.fixture_pairwise_dist(ref_fixture, fxtr) for fxtr in cand_fixtures]
             min_dist = np.min(dists)
             close_fixtures = [fxtr for (fxtr, d) in zip(cand_fixtures, dists) if d - min_dist < 0.10]
-            return random.sample(close_fixtures, 1)[0]
+            return self.rng.choice(close_fixtures)
         
     def register_fixture_ref(self, ref_name, fn_kwargs):
         if ref_name not in self.fixture_refs:
