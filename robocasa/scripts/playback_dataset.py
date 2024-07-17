@@ -466,6 +466,12 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--extend_states",
+        action='store_true',
+        help="play last step of episodes for 50 extra frames",
+    )
+
+    parser.add_argument(
         "--verbose",
         action='store_true',
         help="log additional information",
