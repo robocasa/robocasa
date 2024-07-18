@@ -244,9 +244,18 @@ class Kitchen(ManipulationEnv):
         if self.init_robot_base_pos is not None:
             ref_fixture = self.get_fixture(self.init_robot_base_pos)
         else:
-            choices = [name for (name, fxtr) in self.fixtures.items() if not isinstance(fxtr, Wall)]
-            fixture_name = self.rng.choice(choices)
-            ref_fixture = self.fixtures[fixture_name]
+            fixtures = list(self.fixtures.values())
+            valid_src_fixture_classes = [
+                "CoffeeMachine", "Toaster", "Stove", "Stovetop", "SingleCabinet", "HingeCabinet", "OpenCabinet", "Drawer",
+                "Microwave", "Sink", "Hood", "Oven", "Fridge", "Dishwasher",
+            ]
+            while True:
+                ref_fixture = self.rng.choice(fixtures)
+                fxtr_class = type(ref_fixture).__name__
+                if fxtr_class not in valid_src_fixture_classes:
+                    continue
+                break
+
         robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
         robot_model = self.robots[0].robot_model
         robot_model.set_base_xpos(robot_base_pos)
