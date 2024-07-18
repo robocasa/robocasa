@@ -121,8 +121,8 @@ def collect_human_trajectory(
             arm_actions[0], arm_actions[1] = arm_actions[1], -arm_actions[0]
             arm_actions[3], arm_actions[4] = arm_actions[4], -arm_actions[3]
 
-            base_action = input_action[7:10]
-            torso_action = input_action[10:11]
+            base_action = input_action[-5:-2]
+            torso_action = input_action[-2:-1]
 
             if np.abs(torso_action[0]) < 0.50:
                 torso_action[:] = 0.0
@@ -130,19 +130,21 @@ def collect_human_trajectory(
             # flip some actions
             base_action[0], base_action[1] = base_action[1], -base_action[0]
 
-            action = np.concatenate((
-                arm_actions,
-                np.repeat(input_action[6:7], env.robots[0].gripper[arm].dof),
-                base_action,
-                torso_action,
-            ))
+            action = env.robots[0].create_action_vector(
+                {
+                    env.robots[0].base: base_action,
+                    arm: arm_actions, 
+                    f"{arm}_gripper": np.repeat(input_action[6:7], env.robots[0].gripper[arm].dof)
+                }
+            )
+
+
             mode_action = input_action[-1]
 
-            env.robots[0].enable_parts(base=True, right=True, left=True, torso=True)
             if mode_action > 0:
-                action = np.concatenate((action, [1]))
+                env.robots[0].enable_parts(base=True, right=True, left=True, torso=True)
             else:
-                action = np.concatenate((action, [-1]))
+                env.robots[0].enable_parts(base=False, right=True, left=True, torso=False)
         else:
             arm_actions = input_action
             action = env.robots[0].create_action_vector(
@@ -152,7 +154,6 @@ def collect_human_trajectory(
                 }
             )
         
-        action = np.pad(action, (0, env.action_dim - action.size), mode="constant")
 
         # Run environment step
         obs, _, _, _ = env.step(action)

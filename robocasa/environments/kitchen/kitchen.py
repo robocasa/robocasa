@@ -35,6 +35,7 @@ import robocasa.macros as macros
 
 _ROBOT_POS_OFFSETS: dict[str, list[float]] = {
     "GR1FloatingBody": [0, 0, 0.97],
+    "GR1": [0, 0, 0.97]
 }
 
 
