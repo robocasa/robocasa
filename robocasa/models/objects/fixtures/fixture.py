@@ -33,6 +33,7 @@ def get_texture_name_from_file(file):
     name = suffix_path.split(".")[0]
     return name
 
+
 class FixtureType(IntEnum):
     """
     Enum for fixture types in robosuite kitchen environments.
@@ -60,6 +61,7 @@ class FixtureType(IntEnum):
     ISLAND = 21
     COUNTER_NON_CORNER = 22
 
+
 class Fixture(MujocoXMLObject):
     def __init__(
         self,
@@ -70,6 +72,7 @@ class Fixture(MujocoXMLObject):
         scale=1,
         size=None,
         placement=None,
+        rng=None,
     ):
         if not xml.endswith(".xml"):
             xml = os.path.join(xml, "model.xml")
@@ -131,6 +134,11 @@ class Fixture(MujocoXMLObject):
 
         # placement config, for determining where to place fixture (most fixture will not use this)
         self._placement = placement
+
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
 
     def set_origin(self, origin):        
         # compute new position
@@ -354,6 +362,7 @@ class Fixture(MujocoXMLObject):
     @property
     def nat_lang(self):
         return self.name
+
 
 class ProcGenFixture(Fixture):
     def exclude_from_prefixing(self, inp):

@@ -19,6 +19,7 @@ class Box(BoxObject):
         texture="textures/wood/dark_wood_parquet.png",
         mat_attrib = {"shininess": "0.1"},
         tex_attrib = {"type": "cube"},
+        rng=None,
         *args,
         **kwargs
     ):
@@ -48,6 +49,11 @@ class Box(BoxObject):
         # for relative positioning
         self.origin_offset = np.array([0, 0, 0])
         self.scale = 1
+
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
 
     def set_pos(self, pos):
         self.pos = pos
@@ -83,6 +89,7 @@ class Wall(BoxObject):
         backing_extended=[False, False],
         default_wall_th=0.02,
         default_backing_th=0.1,
+        rng=None,
         *args,
         **kwargs
     ):
@@ -154,6 +161,11 @@ class Wall(BoxObject):
             self._obj.set("pos", a2s(pos))
         if quat is not None:
             self._obj.set("quat", a2s(quat))
+
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
 
     def set_pos(self, pos):
         self.pos = pos

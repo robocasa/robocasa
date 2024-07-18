@@ -28,7 +28,7 @@ ATTACH_ARGS = [
 ]
 
 
-def initialize_fixture(config, cur_fixtures):
+def initialize_fixture(config, cur_fixtures, rng=None):
     """
     initializes a fixture object based on the given configuration
     ignores positional arguments as it is changed later
@@ -60,6 +60,7 @@ def initialize_fixture(config, cur_fixtures):
         if k in config:
             config[k] = cur_fixtures[config[k]]
 
+    config["rng"] = rng
     fixture = class_type(name=name, **config)
     # print(class_type, name, type(fixture))
     return fixture

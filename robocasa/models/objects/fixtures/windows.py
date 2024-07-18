@@ -1,16 +1,28 @@
 from robosuite.utils.mjcf_utils import array_to_string as a2s, string_to_array as s2a, CustomMaterial, xml_path_completion
 from robosuite.models.objects import CompositeBodyObject, BoxObject
 import numpy as np
-
 import robocasa
 
 
-#creates num_windows side-by side where each subsequent is created in increasing X-direction
-#size represents the size the group
-
-
 class Window(CompositeBodyObject):
-    def __init__(self, name, size, ofs = None, pos=None, quat=None, window_bak="textures/others/bk7.png",  texture="textures/flat/white.png", trim_th=0.02, trim_size=0.015, num_windows=1):
+    """
+    creates num_windows side-by side where each subsequent is created in increasing X-direction
+    size represents the size the group
+    """
+    def __init__(
+            self,
+            name,
+            size,
+            ofs=None,
+            pos=None,
+            quat=None,
+            window_bak="textures/others/bk7.png",
+            texture="textures/flat/white.png",
+            trim_th=0.02,
+            trim_size=0.015,
+            num_windows=1,
+            rng=None,
+        ):
         self.size = size
         self.origin_offset = [0, 0, 0]
         self.window_size = [size[0]/num_windows, size[1], size[2]]
@@ -63,8 +75,6 @@ class Window(CompositeBodyObject):
         self.ofs = ofs if ofs is not None else [0.0, 0.0, 0.0]
         self.ofs = np.array(self.ofs)
 
-        
-
         self.create_window()
         
         super().__init__(
@@ -75,7 +85,11 @@ class Window(CompositeBodyObject):
             joints=None
         )
 
-#change to create objects then create positions
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
+        #change to create objects then create positions
 
 
     def create_window(self):
@@ -102,10 +116,8 @@ class Window(CompositeBodyObject):
         names = [f"{name}_{i}" for i in range(self.num_windows) for name in base_names]
         names.append("door")
 
-
         offsets = self._get_window_offsets()
         positions = []
-
 
         for offset in offsets:
             positions.extend(
@@ -121,8 +133,6 @@ class Window(CompositeBodyObject):
         positions.append(np.array([0, 0, 0]))
         
         objects = []
-
-
         for obj_name, size in zip(names, sizes):
             if "door" in obj_name:
                 new_obj = BoxObject(name=obj_name, size=np.array(size), material=self.window_mat)
@@ -133,10 +143,7 @@ class Window(CompositeBodyObject):
         self.objects = objects
         self.positions = [position + self.ofs for position in positions]
         self.quats = [None] * (len(objects)-1)
-        self.quats.append([ 0, 0, 0.7071081, 0.7071055 ]) 
-
-
-        
+        self.quats.append([ 0, 0, 0.7071081, 0.7071055 ])         
 
     def _get_window_offsets(self):
         x = self.window_size[0]/2
@@ -144,7 +151,6 @@ class Window(CompositeBodyObject):
         end = self.size[0]/2 - x
         offsets = np.linspace(start, end, self.num_windows)
         return offsets
-
 
     def set_pos(self, pos):
         self.pos = pos
@@ -160,23 +166,43 @@ class Window(CompositeBodyObject):
     @property
     def rot(self):
         rot = s2a(self._obj.get("euler", "0.0 0.0 0.0"))
-        return rot[2]
-  
-
-  #sample the start and end offsets
+        return rot[2]  
 
 
 class FramedWindow(Window):
-    def __init__(self, name, size, ofs = None, pos=None, quat=None, window_bak="textures/others/bk7.png", texture="textures/flat/white.png", trim_th=0.02, trim_size=0.015, num_windows=1, frame_width=0.05):
+    def __init__(
+            self,
+            name,
+            size,
+            ofs=None,
+            pos=None,
+            quat=None,
+            window_bak="textures/others/bk7.png",
+            texture="textures/flat/white.png",
+            trim_th=0.02,
+            trim_size=0.015,
+            num_windows=1,
+            frame_width=0.05,
+            rng=None,
+        ):
         self.frame_width = frame_width
-        super().__init__(name=name, size=size,ofs=ofs, pos=pos, quat=quat,window_bak=window_bak, texture=texture, trim_th=trim_th, trim_size=trim_size, num_windows=num_windows)
-
-
+        super().__init__(
+            name=name,
+            size=size,
+            ofs=ofs,
+            pos=pos,
+            quat=quat,
+            window_bak=window_bak,
+            texture=texture,
+            trim_th=trim_th,
+            trim_size=trim_size,
+            num_windows=num_windows,
+            rng=rng,
+        )
         
     def create_window(self):
         self.window_size = [(self.size[0] - self.frame_width)/self.num_windows, self.size[1], self.size[2]-self.frame_width]
         super().create_window()
-
 
         #created the window now add the frame!
         x, y, z = self.window_size
@@ -199,12 +225,9 @@ class FramedWindow(Window):
         new_positions = [frame_pos + self.ofs for frame_pos in frame_positions]
         self.positions.extend(new_positions)
         self.quats.extend([None] * len(new_positions))
-    
-
 
         for obj_name, size in zip(names, sizes):
             self.objects.append(BoxObject(name=obj_name, size=np.array(size),material=self.trim_mat))
-    
 
     def _get_window_offsets(self):
         x = self.window_size[0]/2
@@ -212,7 +235,6 @@ class FramedWindow(Window):
         end = ((self.size[0]-self.frame_width)/2) - x
         offsets = np.linspace(start, end, self.num_windows)
         return offsets
-
 
     def set_pos(self, pos):
         self.pos = pos

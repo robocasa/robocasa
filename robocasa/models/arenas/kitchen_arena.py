@@ -7,10 +7,10 @@ import robocasa
 
 # base class for kitchens
 class KitchenArena(Arena):
-    def __init__(self, json_path, style=0):
+    def __init__(self, json_path, style=0, rng=None):
         super().__init__(xml_path_completion("arenas/empty_kitchen_arena.xml", root=robocasa.models.assets_root))
         self.fixtures = create_fixtures(
-            json_path, style=style,
+            json_path, style=style, rng=rng,
         )
 
     def get_fixture_cfgs(self):

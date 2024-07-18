@@ -191,6 +191,7 @@ class Kitchen(ManipulationEnv):
         self.mujoco_arena = KitchenArena(
             xml_path_completion(KU.LAYOUTS[self.layout_id], root=robocasa.models.assets_root),
             style=self.style_id,
+            rng=self.rng,
         )
         # Arena always gets set to zero origin
         self.mujoco_arena.set_origin([0, 0, 0])
