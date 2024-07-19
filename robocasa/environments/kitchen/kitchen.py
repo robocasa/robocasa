@@ -1,5 +1,6 @@
 import numpy as np
 import xml.etree.ElementTree as ET
+import lxml.etree as le
 import random
 from copy import deepcopy
 import os
@@ -757,8 +758,20 @@ class Kitchen(ManipulationEnv):
             result = replace_floor_texture(result, new_floor_texture_file=floor_tex)
 
         from datetime import datetime 
-        with open(f"/home/genericp3rson/Developer/RobotLocomotion/robocasa_project/model_{datetime.now()}.xml", "w") as f:
-            f.write(result)
+        with open(f"model_{datetime.now()}.xml", "w") as f:
+            doc = le.fromstring(result) 
+            for elem in doc.xpath('//*[attribute::name]'):
+                if (
+                    # rm robot
+                    "robot0" in elem.attrib['name'] or "base0" in elem.attrib['name'] or "gripper0" in elem.attrib['name'] or "omniron" in elem.attrib["name"] or
+                    # rm extra stuff
+                    "vis" in elem.attrib["name"]
+                ):
+                    parent=elem.getparent()
+                    parent.remove(elem)
+            new_xml_str = (le.tostring(doc)).decode('utf-8')
+            f.write(new_xml_str)
+            # f.write(result)
 
         return result
 
