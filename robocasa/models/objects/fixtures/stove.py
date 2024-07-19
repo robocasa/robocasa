@@ -76,7 +76,7 @@ class Stove(Fixture):
         if mode == "off":
             joint_val = 0.0
         else:
-            if np.random.uniform() < 0.5:
+            if self.rng.uniform() < 0.5:
                 joint_val = rng.uniform(0.50, np.pi / 2)
             else:
                 joint_val = rng.uniform(2 * np.pi - np.pi / 2, 2 * np.pi - 0.50)

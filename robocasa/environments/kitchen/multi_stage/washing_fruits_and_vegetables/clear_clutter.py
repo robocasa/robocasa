@@ -29,8 +29,8 @@ class ClearClutter(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        self.num_food = random.choice([1,2])
-        self.num_unwashable = random.choice([1,2])
+        self.num_food = self.rng.choice([1,2])
+        self.num_unwashable = self.rng.choice([1,2])
 
         for i in range(self.num_food):
             cfgs.append(dict(

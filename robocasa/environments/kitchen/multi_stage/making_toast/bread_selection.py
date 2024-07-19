@@ -48,7 +48,7 @@ class BreadSelection(Kitchen):
         # Three types of pastries 
         cfgs.append(dict(
             name="distr_pastry",
-            obj_groups=random.choice(["baguette", "cupcake"]),
+            obj_groups=self.rng.choice(["baguette", "cupcake"]),
             placement=dict(
                 fixture=self.counter,
                 sample_region_kwargs=dict(

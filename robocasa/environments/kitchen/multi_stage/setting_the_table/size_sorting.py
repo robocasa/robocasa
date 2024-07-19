@@ -27,8 +27,8 @@ class SizeSorting(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        self.objs = random.choice([2,3,4])
-        stack_cat = random.choice(["cup", "bowl"])
+        self.objs = self.rng.choice([2,3,4])
+        stack_cat = self.rng.choice(["cup", "bowl"])
         scale=0.8
         for i in range(self.objs):
             cfgs.append(dict(

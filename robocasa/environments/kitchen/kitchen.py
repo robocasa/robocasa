@@ -654,8 +654,8 @@ class Kitchen(ManipulationEnv):
     def _randomize_cameras(self):
         for camera in self._cam_configs:
             if "agentview" in camera:
-                pos_noise = np.random.normal(loc=0, scale=0.05, size=(1, 3))[0]
-                euler_noise = np.random.normal(loc=0, scale=3, size=(1, 3))[0]
+                pos_noise = self.rng.normal(loc=0, scale=0.05, size=(1, 3))[0]
+                euler_noise = self.rng.normal(loc=0, scale=3, size=(1, 3))[0]
             elif "eye_in_hand" in camera:
                 pos_noise = np.zeros_like(pos_noise)
                 euler_noise = np.zeros_like(euler_noise)

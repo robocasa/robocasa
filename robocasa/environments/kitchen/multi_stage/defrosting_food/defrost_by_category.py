@@ -41,7 +41,7 @@ class DefrostByCategory(Kitchen):
                 size=(0.3, 0.4),
                 pos=("ref", -1)
             ))
-        random.shuffle(placements)
+        self.rng.shuffle(placements)
 
         for i in range(4):
             cfgs.append(dict(

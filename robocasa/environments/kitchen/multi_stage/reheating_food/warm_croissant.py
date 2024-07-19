@@ -13,7 +13,7 @@ class WarmCroissant(Kitchen):
         # Pick a knob/burner on a stove and a counter close to it
         valid_knobs = [k for (k, v) in self.stove.knob_joints.items() if v is not None]
         if self.knob_id == "random":
-            self.knob = self.rng.choice(valid_knobs)
+            self.knob = self.rng.choice(list(valid_knobs))
         else:
             assert self.knob_id in valid_knobs
             self.knob = self.knob

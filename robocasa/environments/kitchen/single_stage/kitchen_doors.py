@@ -72,7 +72,7 @@ class ManipulateDoor(Kitchen):
         ))
 
         # distractors
-        num_distr = np.random.randint(1, 4)
+        num_distr = self.rng.integers(1, 4)
         for i in range(num_distr):
             cfgs.append(dict(
                 name=f"distr_counter_{i+1}",

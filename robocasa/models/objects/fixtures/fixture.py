@@ -178,7 +178,7 @@ class Fixture(MujocoXMLObject):
 
     def sample_reset_region(self, *args, **kwargs):
         regions = self.get_reset_regions(*args, **kwargs)
-        return random.sample(list(regions.values()), 1)[0]
+        return self.rng.choice(list(regions.values()))
 
     def get_site_info(self, sim):
         """

@@ -29,7 +29,7 @@ class FoodCleanup(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        self.num_food = random.choice([i for i in range(1, 4)])
+        self.num_food = self.rng.choice([i for i in range(1, 4)])
         for i in range(self.num_food):
             cfgs.append(dict(
                 name=f"food{i}",
