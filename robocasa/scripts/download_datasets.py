@@ -53,7 +53,8 @@ if __name__ == "__main__":
         "--ds_types",
         type=str,
         nargs='+',
-        default=["human_raw", "human_im", "mg_im"],
+        default=["human_raw", "human_im"],
+        help="Dataset types. Choose one or multiple options among human_raw, human_im, mg_im",
     )
 
     parser.add_argument(

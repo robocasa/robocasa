@@ -20,11 +20,11 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
     PnPCabToCounter=dict(
         horizon=500,
         human_path="v0.1/single_stage/kitchen_pnp/PnPCabToCounter/2024-04-24",
-        mg_path="v0.1/single_stage/kitchen_pnp/PnPCabToCounter/mg/2024-05-04-22-10-37_and_2024-05-07-07-40-14",
+        mg_path="v0.1/single_stage/kitchen_pnp/PnPCabToCounter/mg/2024-07-12-04-33-29",
         download_links=dict(
             human_raw="https://utexas.box.com/shared/static/fgd165p91ts9qurfb496ubi1xdqgrz97.hdf5",
             human_im="https://utexas.box.com/shared/static/pdfh88slq4bazfglixaw80whvbtlbw6r.hdf5",
-            mg_im="",
+            mg_im="https://utexas.box.com/shared/static/mfltre5w8qi8ps1fqicblx40p008425z.hdf5",
         ),
     ),
     PnPCounterToSink=dict(
