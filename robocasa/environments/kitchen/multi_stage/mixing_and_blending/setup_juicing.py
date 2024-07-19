@@ -4,7 +4,7 @@ from robocasa.environments.kitchen.kitchen import *
 class SetupJuicing(Kitchen):
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
-        self.num_fruits = random.randint(2, 4)
+        self.num_fruits = self.rng.integers(low=2, high=4)
         super().__init__( *args, **kwargs)
 
     def _setup_kitchen_references(self):
@@ -27,7 +27,6 @@ class SetupJuicing(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        
         for i in range(self.num_fruits):
 
             cfgs.append(dict(
