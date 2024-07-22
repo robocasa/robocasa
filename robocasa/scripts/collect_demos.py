@@ -386,7 +386,7 @@ if __name__ == "__main__":
         elif args.camera == "free":
             args.camera = None
 
-        config["translucent_robot"] = False
+        config["translucent_robot"] = True
 
         # by default use obj instance split A
         config["obj_instance_split"] = "A"
