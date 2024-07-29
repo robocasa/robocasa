@@ -18,6 +18,9 @@ def download_datasets(tasks, ds_types, overwrite=False):
     for task_name in tasks:
         for ds_type in ds_types:
             ds_path, ds_info = get_ds_path(task_name, ds_type, return_info=True)
+            if ds_path is None:
+                print("Skipping dataset type", ds_type, "for task", task_name, "since it is not available.")
+                continue
             ds_dir = "/".join(ds_path.split("/")[0:-1])
             fname = ds_path.split("/")[-1]
 

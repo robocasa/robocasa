@@ -325,14 +325,16 @@ def get_ds_path(task, ds_type, return_info=False):
         elif task in MULTI_STAGE_TASK_DATASETS:
             fname = "demo_im128.hdf5"
     elif ds_type == "mg_im":
-        folder = ds_config["mg_path"]
+        # mg dataset is not available for all tasks
+        folder = ds_config.get("mg_path", None)
         fname = "demo_gentex_im128_randcams.hdf5"
     else:
         raise ValueError
     
     # if dataset type is not registered, return None
     if folder is None:
-        return None
+        ret =  None, None if return_info is True else None
+        return ret
 
     if macros.DATASET_BASE_PATH is None:
         ds_base_path = os.path.join(Path(robocasa.__path__[0]).parent.absolute(), "datasets")
