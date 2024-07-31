@@ -60,7 +60,7 @@ if __name__ == "__main__":
     # Arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, help="task (choose among 100+ tasks)")
-    parser.add_argument("--video_folder", type=str, default=None, help="path to video file offline. If not provided, will do live render.")
+    parser.add_argument("--video_folder", type=str, default=None, help="path to video folder offline. If not provided, will do live render.")
     args = parser.parse_args()
 
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             print(colored("Unable to find dataset locally. Downloading...", color="yellow"))
             download_datasets(tasks=[task], ds_types=["human_raw"])
 
-        parser = argparse.ArgumentParser()
+        parser = argparse.Namespace()
         parser.dataset = dataset
         parser.video_path =  os.path.join(args.video_folder, f"demo_{demos}.mp4") if args.video_folder is not None else None
 
