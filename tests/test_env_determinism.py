@@ -37,8 +37,9 @@ class TestEnvDeterminism(unittest.TestCase):
     def test_env_determinism(self, *args):
         """
         Tests environment determinism for all Kichen environments excluding those in
-        skip_envs (defined above). We test for similarity in scene layout, style, and all
-        objects and fixtures in the scene including their position and orientation. 
+        skip_envs (defined above). We test for similarity in scene layout, style, all
+        objects and fixtures in the scene including their position and orientation,
+        and randomized cameras. 
         """
         
         def compare_scene_appearance(env_1, env_2):
