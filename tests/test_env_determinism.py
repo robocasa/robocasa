@@ -144,6 +144,33 @@ class TestEnvDeterminism(unittest.TestCase):
         
         for texture_name in texture_names:
             self.assertEqual(env_1._curr_gen_fixtures[texture_name], env_2._curr_gen_fixtures[texture_name])
+
+    def test_randomized_cameras(self):
+        """
+        Tests env determinism when using randomized cameras. Ensures that the position
+        and orientation of all respective cameras are the same when using the same seed.
+        """
+
+        config = {
+            "env_name": "PnPCounterToCab",
+            "robots": "PandaMobile",
+            "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+            "has_renderer": False,
+            "has_offscreen_renderer": False,
+            "ignore_done": True,
+            "use_camera_obs": False,
+            "control_freq": 20,
+            "seed": DEFAULT_SEED,
+            "randomize_cameras": False,
+        }
+
+        env_1 = self.create_env(config)
+        env_2 = self.create_env(config)
         
+        self.assertListEqual(list(env_1._cam_configs.keys()), list(env_2._cam_configs.keys()))
+        for camera_name in env_1._cam_configs.keys():
+            self.assertEqual(env_1._cam_configs[camera_name]["pos"], env_2._cam_configs[camera_name]["pos"])
+            self.assertEqual(env_1._cam_configs[camera_name]["quat"], env_2._cam_configs[camera_name]["quat"])
+
 if __name__ == "__main__":
     unittest.main()
