@@ -745,7 +745,7 @@ class Kitchen(ManipulationEnv):
         if (self.generative_textures is not None) and (self.generative_textures is not False):
             # sample textures
             assert self.generative_textures == "100p"
-            self._curr_gen_fixtures = get_random_textures()
+            self._curr_gen_fixtures = get_random_textures(self.rng)
             
             cab_tex = self._curr_gen_fixtures["cab_tex"]
             counter_tex = self._curr_gen_fixtures["counter_tex"]

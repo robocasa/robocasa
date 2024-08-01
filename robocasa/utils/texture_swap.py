@@ -423,9 +423,9 @@ WALL_TEX_NAMES = [
 ]
 
 
-def get_random_textures(frac=1.0):
+def get_random_textures(rng, frac=1.0):
     end_ind = int(frac * 100)
-    ind = np.random.randint(0, end_ind)
+    ind = rng.integers(0, end_ind)
 
     textures = dict(
         cab_tex=os.path.join(TEXTURES_DIR, "cabinet", CABINET_TEX_NAMES[ind]),
