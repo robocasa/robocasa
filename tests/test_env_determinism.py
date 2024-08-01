@@ -2,7 +2,9 @@ import unittest
 from unittest import mock
 
 import numpy as np
+from lxml import etree as ET
 
+import mujoco
 import robocasa
 import robosuite
 from robosuite import load_controller_config
@@ -15,10 +17,15 @@ class TestEnvDeterminism(unittest.TestCase):
     skip_envs = set(["AfterwashSorting", "BowlAndCup", "ClearingCleaningReceptacles",
                      "Door", "DrinkwareConsolidation", "HumanoidTransport", "Lift",
                      "NutAssembly", "NutAssemblyRound", "NutAssemblySingle", "NutAssemblySquare",
-                     "PickPlaceBread", "PickPlaceCan", "PickPlaceCereal", "PickPlaceMilk",
-                     "PickPlaceSingle", "PnP", "SetBowlsForSoup", "SetupJuicing", "Stack",
-                     "ToolHang", "TwoArmHandover", "TwoArmLift", "TwoArmPegInHole",
+                     "PickPlace", "PickPlaceBread", "PickPlaceCan", "PickPlaceCereal", 
+                     "PickPlaceMilk", "PickPlaceSingle", "PnP", "SetBowlsForSoup", "SetupJuicing", 
+                     "Stack", "ToolHang", "TwoArmHandover", "TwoArmLift", "TwoArmPegInHole",
                      "TwoArmTransport", "WineServingPrep", "Wipe"])
+    
+    def create_env(self, config):
+        env = robosuite.make(**config)
+        env.reset()
+        return env
 
     @mock.patch("random.choice")
     @mock.patch("random.choices")
@@ -28,11 +35,11 @@ class TestEnvDeterminism(unittest.TestCase):
     @mock.patch("numpy.random.normal")
     @mock.patch("numpy.random.uniform")
     def test_env_determinism(self, *args):
-
-        def create_env(config):
-            env = robosuite.make(**config)
-            env.reset()
-            return env
+        """
+        Tests environment determinism for all Kichen environments excluding those in
+        skip_envs (defined above). We test for similarity in scene layout, style, and all
+        objects and fixtures in the scene including their position and orientation. 
+        """
         
         def compare_scene_appearance(env_1, env_2):
             """
@@ -43,6 +50,10 @@ class TestEnvDeterminism(unittest.TestCase):
             self.assertEqual(env_1.style_id, env_2.style_id)
 
         def compare_objects_in_scene(env_1, env_2):
+            """
+            Compares all added objects in the scene and their positions and
+            quaternions.
+            """
             env_1_objects = env_1.object_placements
             env_2_objects = env_2.object_placements
 
@@ -56,6 +67,10 @@ class TestEnvDeterminism(unittest.TestCase):
                 np.testing.assert_allclose(quat_1, quat_2, atol=1e-7)
 
         def compare_fixtures_in_scene(env_1, env_2):
+            """
+            Compares all added fixtures in the scene and their positions and
+            quaternions.
+            """
             env_1_fixtures = env_1.fxtr_placements
             env_2_fixtures = env_2.fxtr_placements
 
@@ -68,7 +83,6 @@ class TestEnvDeterminism(unittest.TestCase):
                 np.testing.assert_allclose(quat_1, quat_2, atol=1e-7)
 
         for i, env in enumerate(sorted(robosuite.ALL_ENVIRONMENTS)):
-
             if env in self.skip_envs:
                 continue
 
@@ -87,8 +101,8 @@ class TestEnvDeterminism(unittest.TestCase):
                 "randomize_cameras": False
             }
 
-            env_1 = create_env(config)
-            env_2 = create_env(config)
+            env_1 = self.create_env(config)
+            env_2 = self.create_env(config)
 
             compare_scene_appearance(env_1, env_2)
             compare_objects_in_scene(env_1, env_2)
@@ -100,8 +114,36 @@ class TestEnvDeterminism(unittest.TestCase):
             for mock in args:
                 mock.assert_not_called()
 
-            if i == 0:
-                exit(0)
+    def test_random_generative_textures(self):
+        """
+        Tests env determinism when using generative textures to ensure random generation 
+        of textures results in the same generated texture replacement file.
+        """
 
+        config = {
+            "env_name": "PnPCounterToCab",
+            "robots": "PandaMobile",
+            "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+            "has_renderer": False,
+            "has_offscreen_renderer": False,
+            "ignore_done": True,
+            "use_camera_obs": False,
+            "control_freq": 20,
+            "seed": DEFAULT_SEED,
+            "randomize_cameras": False,
+            "generative_textures": "100p"
+        }
+
+        env_1 = self.create_env(config)
+        env_2 = self.create_env(config)
+
+        texture_names = ["cab_tex",
+                         "counter_tex",
+                         "wall_tex",
+                         "floor_tex"]
+        
+        for texture_name in texture_names:
+            self.assertEqual(env_1._curr_gen_fixtures[texture_name], env_2._curr_gen_fixtures[texture_name])
+        
 if __name__ == "__main__":
     unittest.main()

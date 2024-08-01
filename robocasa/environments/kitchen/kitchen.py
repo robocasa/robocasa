@@ -752,11 +752,11 @@ class Kitchen(ManipulationEnv):
             wall_tex = self._curr_gen_fixtures["wall_tex"]
             floor_tex = self._curr_gen_fixtures["floor_tex"]
 
-            result = replace_cab_textures(result, new_cab_texture_file=cab_tex)
-            result = replace_counter_top_texture(result, new_counter_top_texture_file=counter_tex)
-            result = replace_wall_texture(result, new_wall_texture_file=wall_tex)
-            result = replace_floor_texture(result, new_floor_texture_file=floor_tex)
-
+            result = replace_cab_textures(self.rng, result, new_cab_texture_file=cab_tex)
+            result = replace_counter_top_texture(self.rng, result, new_counter_top_texture_file=counter_tex)
+            result = replace_wall_texture(self.rng, result, new_wall_texture_file=wall_tex)
+            result = replace_floor_texture(self.rng, result, new_floor_texture_file=floor_tex)
+            
         return result
 
     def _setup_references(self):
