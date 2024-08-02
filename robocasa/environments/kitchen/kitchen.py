@@ -263,10 +263,6 @@ class Kitchen(ManipulationEnv):
 
         robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(ref_fixture=ref_fixture)
         robot_model = self.robots[0].robot_model
-        robot_class_name = robot_model.__class__.__name__
-        if robot_class_name in _ROBOT_POS_OFFSETS:
-            for dimension in range(0, 3):
-                robot_base_pos[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][dimension]
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
 
@@ -438,6 +434,13 @@ class Kitchen(ManipulationEnv):
         robot_base_pos = np.zeros(3)
         robot_base_pos[0:2] = OU.get_pos_after_rel_offset(base_fixture, base_to_edge)[0:2]
         robot_base_ori = np.array([0, 0, base_fixture.rot + np.pi / 2])
+
+        # apply robot-specific offset
+        robot_model = self.robots[0].robot_model
+        robot_class_name = robot_model.__class__.__name__
+        if robot_class_name in _ROBOT_POS_OFFSETS:
+            for dimension in range(0, 3):
+                robot_base_pos[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][dimension]
 
         return robot_base_pos, robot_base_ori
 
