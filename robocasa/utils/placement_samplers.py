@@ -1,13 +1,19 @@
 import collections
+import random
 from copy import copy
 
 import numpy as np
-import random
-
 from robosuite.models.objects import MujocoObject
 from robosuite.utils import RandomizationError
-from robosuite.utils.transform_utils import quat_multiply, euler2mat, mat2quat, convert_quat, rotate_2d_point
-from robocasa.utils.object_utils import objs_intersect, obj_in_region
+from robosuite.utils.transform_utils import (
+    convert_quat,
+    euler2mat,
+    mat2quat,
+    quat_multiply,
+    rotate_2d_point,
+)
+
+from robocasa.utils.object_utils import obj_in_region, objs_intersect
 
 
 class ObjectPositionSampler:
@@ -44,14 +50,18 @@ class ObjectPositionSampler:
         if rng is None:
             rng = np.random.default_rng()
         self.rng = rng
-        
+
         # Setup attributes
         self.name = name
         if mujoco_objects is None:
             self.mujoco_objects = []
         else:
             # Shallow copy the list so we don't modify the inputted list but still keep the object references
-            self.mujoco_objects = [mujoco_objects] if isinstance(mujoco_objects, MujocoObject) else copy(mujoco_objects)
+            self.mujoco_objects = (
+                [mujoco_objects]
+                if isinstance(mujoco_objects, MujocoObject)
+                else copy(mujoco_objects)
+            )
         self.ensure_object_boundary_in_range = ensure_object_boundary_in_range
         self.ensure_valid_placement = ensure_valid_placement
         self.reference_pos = reference_pos
@@ -65,9 +75,15 @@ class ObjectPositionSampler:
         Args:
             mujoco_objects (MujocoObject or list of MujocoObject): single model or list of MJCF object models
         """
-        mujoco_objects = [mujoco_objects] if isinstance(mujoco_objects, MujocoObject) else mujoco_objects
+        mujoco_objects = (
+            [mujoco_objects]
+            if isinstance(mujoco_objects, MujocoObject)
+            else mujoco_objects
+        )
         for obj in mujoco_objects:
-            assert obj not in self.mujoco_objects, "Object '{}' already in sampler!".format(obj.name)
+            assert (
+                obj not in self.mujoco_objects
+            ), "Object '{}' already in sampler!".format(obj.name)
             self.mujoco_objects.append(obj)
 
     def reset(self):
@@ -96,7 +112,7 @@ class ObjectPositionSampler:
                 placements specified in @fixtures. Note quat is in (w,x,y,z) form
         """
         raise NotImplementedError
-    
+
     @property
     def sides_combinations(self):
         return {
@@ -104,15 +120,24 @@ class ObjectPositionSampler:
             "right": ["front_right", "back_right"],
             "front": ["front_left", "front_right"],
             "back": ["back_left", "back_right"],
-            "all": ["front_left", "front_right", "back_left", "back_right"]
+            "all": ["front_left", "front_right", "back_left", "back_right"],
         }
-    
+
     @property
     def valid_sides(self):
-        return set([
-            "left", "right", "front", "back", "all",
-            "front_left", "front_right", "back_left", "back_right"
-        ])
+        return set(
+            [
+                "left",
+                "right",
+                "front",
+                "back",
+                "all",
+                "front_left",
+                "front_right",
+                "back_left",
+                "back_right",
+            ]
+        )
 
 
 class UniformRandomSampler(ObjectPositionSampler):
@@ -163,7 +188,7 @@ class UniformRandomSampler(ObjectPositionSampler):
         reference_rot=0,
         z_offset=0.0,
         rng=None,
-        side="all"
+        side="all",
     ):
         self.x_range = x_range
         self.y_range = y_range
@@ -171,7 +196,9 @@ class UniformRandomSampler(ObjectPositionSampler):
         self.rotation_axis = rotation_axis
 
         if side not in self.valid_sides:
-            raise ValueError("Invalid value for side, must be one of:", self.valid_sides)
+            raise ValueError(
+                "Invalid value for side, must be one of:", self.valid_sides
+            )
 
         super().__init__(
             name=name,
@@ -235,7 +262,9 @@ class UniformRandomSampler(ObjectPositionSampler):
         else:
             # Invalid axis specified, raise error
             raise ValueError(
-                "Invalid rotation axis specified. Must be 'x', 'y', or 'z'. Got: {}".format(self.rotation_axis)
+                "Invalid rotation axis specified. Must be 'x', 'y', or 'z'. Got: {}".format(
+                    self.rotation_axis
+                )
             )
 
     def sample(self, placed_objects=None, reference=None, on_top=True):
@@ -265,7 +294,7 @@ class UniformRandomSampler(ObjectPositionSampler):
         """
         # Standardize inputs
         placed_objects = {} if placed_objects is None else copy(placed_objects)
-        
+
         if reference is None:
             base_offset = self.reference_pos
         elif type(reference) is str:
@@ -282,35 +311,47 @@ class UniformRandomSampler(ObjectPositionSampler):
             base_offset = np.array(reference)
             assert (
                 base_offset.shape[0] == 3
-            ), "Invalid reference received. Should be (x,y,z) 3-tuple, but got: {}".format(base_offset)
+            ), "Invalid reference received. Should be (x,y,z) 3-tuple, but got: {}".format(
+                base_offset
+            )
 
         # Sample pos and quat for all objects assigned to this sampler
         for obj in self.mujoco_objects:
             # First make sure the currently sampled object hasn't already been sampled
-            assert obj.name not in placed_objects, "Object '{}' has already been sampled!".format(obj.name)
+            assert (
+                obj.name not in placed_objects
+            ), "Object '{}' has already been sampled!".format(obj.name)
 
             success = False
 
             # get reference rotation
-            ref_quat = convert_quat(mat2quat(euler2mat([0, 0, self.reference_rot])), to="wxyz")
+            ref_quat = convert_quat(
+                mat2quat(euler2mat([0, 0, self.reference_rot])), to="wxyz"
+            )
 
             ### get boundary points ###
-            region_points = np.array([
-                [self.x_range[0], self.y_range[0], 0],
-                [self.x_range[1], self.y_range[0], 0],
-                [self.x_range[0], self.y_range[1], 0],
-            ])
+            region_points = np.array(
+                [
+                    [self.x_range[0], self.y_range[0], 0],
+                    [self.x_range[1], self.y_range[0], 0],
+                    [self.x_range[0], self.y_range[1], 0],
+                ]
+            )
             for i in range(len(region_points)):
-                region_points[i][0:2] = rotate_2d_point(region_points[i][0:2], rot=self.reference_rot)
+                region_points[i][0:2] = rotate_2d_point(
+                    region_points[i][0:2], rot=self.reference_rot
+                )
             region_points += base_offset
-            
+
             for i in range(5000):  # 5000 retries
                 # sample object coordinates
                 relative_x = self._sample_x()
                 relative_y = self._sample_y()
 
                 # apply rotation
-                object_x, object_y = rotate_2d_point([relative_x, relative_y], rot=self.reference_rot)
+                object_x, object_y = rotate_2d_point(
+                    [relative_x, relative_y], rot=self.reference_rot
+                )
 
                 object_x = object_x + base_offset[0]
                 object_y = object_y + base_offset[1]
@@ -323,19 +364,24 @@ class UniformRandomSampler(ObjectPositionSampler):
                 # multiply this quat by the object's initial rotation if it has the attribute specified
                 if hasattr(obj, "init_quat"):
                     quat = quat_multiply(obj.init_quat, quat)
-                quat = convert_quat(quat_multiply(
-                    convert_quat(ref_quat, to="xyzw"),
-                    convert_quat(quat, to="xyzw"),
-                ), to="wxyz")
+                quat = convert_quat(
+                    quat_multiply(
+                        convert_quat(ref_quat, to="xyzw"),
+                        convert_quat(quat, to="xyzw"),
+                    ),
+                    to="wxyz",
+                )
 
                 location_valid = True
-                
+
                 # ensure object placed fully in region
                 if self.ensure_object_boundary_in_range and not obj_in_region(
                     obj,
                     obj_pos=[object_x, object_y, object_z],
                     obj_quat=convert_quat(quat, to="xyzw"),
-                    p0=region_points[0], px=region_points[1], py=region_points[2],
+                    p0=region_points[0],
+                    px=region_points[1],
+                    py=region_points[2],
                 ):
                     location_valid = False
                     continue
@@ -398,7 +444,9 @@ class SequentialCompositeSampler(ObjectPositionSampler):
         """
         # Verify that all added mujoco objects haven't already been added, and add to this sampler's objects dict
         for obj in sampler.mujoco_objects:
-            assert obj not in self.mujoco_objects, f"Object '{obj.name}' already has sampler associated with it!"
+            assert (
+                obj not in self.mujoco_objects
+            ), f"Object '{obj.name}' already has sampler associated with it!"
             self.mujoco_objects.append(obj)
         self.samplers[sampler.name] = sampler
         self.sample_args[sampler.name] = sample_args
@@ -428,7 +476,9 @@ class SequentialCompositeSampler(ObjectPositionSampler):
         """
         Override super method to make sure user doesn't call this (all objects should implicitly belong to sub-samplers)
         """
-        raise AttributeError("add_objects() should not be called for SequentialCompsiteSamplers!")
+        raise AttributeError(
+            "add_objects() should not be called for SequentialCompsiteSamplers!"
+        )
 
     def add_objects_to_sampler(self, sampler_name, mujoco_objects):
         """
@@ -439,15 +489,20 @@ class SequentialCompositeSampler(ObjectPositionSampler):
             mujoco_objects (MujocoObject or list of MujocoObject): Object(s) to add
         """
         # First verify that all mujoco objects haven't already been added, and add to this sampler's objects dict
-        mujoco_objects = [mujoco_objects] if isinstance(mujoco_objects, MujocoObject) else mujoco_objects
+        mujoco_objects = (
+            [mujoco_objects]
+            if isinstance(mujoco_objects, MujocoObject)
+            else mujoco_objects
+        )
         for obj in mujoco_objects:
-            assert obj not in self.mujoco_objects, f"Object '{obj.name}' already has sampler associated with it!"
+            assert (
+                obj not in self.mujoco_objects
+            ), f"Object '{obj.name}' already has sampler associated with it!"
             self.mujoco_objects.append(obj)
         # Make sure sampler_name exists
-        assert (
-            sampler_name in self.samplers.keys()
-        ), "Invalid sub-sampler specified, valid options are: {}, " "requested: {}".format(
-            self.samplers.keys(), sampler_name
+        assert sampler_name in self.samplers.keys(), (
+            "Invalid sub-sampler specified, valid options are: {}, "
+            "requested: {}".format(self.samplers.keys(), sampler_name)
         )
         # Add the mujoco objects to the requested sub-sampler
         self.samplers[sampler_name].add_objects(mujoco_objects)
@@ -502,9 +557,13 @@ class SequentialCompositeSampler(ObjectPositionSampler):
             new_placements = sampler.sample(placed_objects=placed_objects, **s_args)
             # Update placements
             placed_objects.update(new_placements)
-        
+
         # only return placements for newly placed objects
-        sampled_obj_names = [obj.name for sampler in self.samplers.values() for obj in sampler.mujoco_objects]
+        sampled_obj_names = [
+            obj.name
+            for sampler in self.samplers.values()
+            for obj in sampler.mujoco_objects
+        ]
         return {k: v for (k, v) in placed_objects.items() if k in sampled_obj_names}
 
 
@@ -523,9 +582,13 @@ class MultiRegionSampler(ObjectPositionSampler):
         z_offset=0.0,
     ):
         if len(regions) != 4:
-            raise ValueError("Exactly four sites (one for each quadrant) must be provided.")
+            raise ValueError(
+                "Exactly four sites (one for each quadrant) must be provided."
+            )
         if side not in self.valid_sides:
-            raise ValueError("Invalid value for side, must be one of:", self.valid_sides)
+            raise ValueError(
+                "Invalid value for side, must be one of:", self.valid_sides
+            )
 
         # initialize sides and regions
         if side in self.sides_combinations:
@@ -533,7 +596,7 @@ class MultiRegionSampler(ObjectPositionSampler):
         else:
             self.sides = [side]
         self.regions = regions
-        
+
         # create a list of uniform samplers (one for each site)
         self.samplers = list()
         for s in self.sides:
@@ -549,7 +612,7 @@ class MultiRegionSampler(ObjectPositionSampler):
                 ensure_object_boundary_in_range=ensure_object_boundary_in_range,
                 ensure_valid_placement=ensure_valid_placement,
                 z_offset=z_offset,
-                rng=rng
+                rng=rng,
             )
             self.samplers.append(sampler)
 

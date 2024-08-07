@@ -1,5 +1,6 @@
 import argparse
 import os
+
 from lxml import etree
 from tqdm import tqdm
 
@@ -13,13 +14,14 @@ def prettify_xmls(folder=None, filepath=None):
             for f in files:
                 if f.endswith(".xml"):
                     filepaths.append(os.path.join(root, f))
-    
+
     for f in tqdm(filepaths):
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.parse(f, parser)
         xml = etree.tostring(tree, pretty_print=True, encoding=str)
         with open(f, "w") as file:
             file.write(xml)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

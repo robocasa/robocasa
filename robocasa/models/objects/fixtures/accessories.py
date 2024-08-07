@@ -1,16 +1,13 @@
 import numpy as np
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import string_to_array as s2a
 
 from robocasa.models.objects.fixtures.fixture import Fixture
-from robosuite.utils.mjcf_utils import string_to_array as s2a, array_to_string as a2s
 
 
 # For air fryers, etc.
 class Accessory(Fixture):
-    def __init__(
-        self, xml, name,
-        pos=None,
-        *args, **kwargs
-    ):
+    def __init__(self, xml, name, pos=None, *args, **kwargs):
         super().__init__(
             xml=xml,
             name=name,
@@ -26,9 +23,11 @@ class CoffeeMachine(Accessory):
         super().__init__(*args, **kwargs)
         self._turned_on = False
 
-        self._receptacle_pouring_site = self.worldbody.find("./body/body/site[@name='{}{}']".format(
-            self.naming_prefix, "receptacle_place_site"
-        ))
+        self._receptacle_pouring_site = self.worldbody.find(
+            "./body/body/site[@name='{}{}']".format(
+                self.naming_prefix, "receptacle_place_site"
+            )
+        )
         self._coffee_liquid_site_names = []
         for postfix in ["coffee_liquid_left", "coffee_liquid_right", "coffee_liquid"]:
             name = "{}{}".format(self.naming_prefix, postfix)
@@ -46,7 +45,7 @@ class CoffeeMachine(Accessory):
                 "size": (0.01, 0.01),
             }
         }
-    
+
     def get_state(self):
         state = dict(
             turned_on=self._turned_on,
@@ -54,11 +53,13 @@ class CoffeeMachine(Accessory):
         return state
 
     def update_state(self, env):
-        start_button_pressed = env.check_contact(env.robots[0].gripper["right"], "{}_start_button".format(self.name))
+        start_button_pressed = env.check_contact(
+            env.robots[0].gripper["right"], "{}_start_button".format(self.name)
+        )
 
         if self._turned_on is False and start_button_pressed:
             self._turned_on = True
-        
+
         for site_name in self._coffee_liquid_site_names:
             site_id = env.sim.model.site_name2id(site_name)
             if self._turned_on:
@@ -66,7 +67,6 @@ class CoffeeMachine(Accessory):
             else:
                 env.sim.model.site_rgba[site_id][3] = 0.0
 
-    
     def check_receptacle_placement_for_pouring(self, env, obj_name, xy_thresh=0.04):
         """
         check whether receptacle is placed under coffee machine for pouring
@@ -75,43 +75,42 @@ class CoffeeMachine(Accessory):
         pour_site_name = "{}{}".format(self.naming_prefix, "receptacle_place_site")
         site_id = env.sim.model.site_name2id(pour_site_name)
         pour_site_pos = env.sim.data.site_xpos[site_id]
-        xy_check = np.linalg.norm(obj_pos[0:2] - pour_site_pos[0:2]) < xy_thresh 
+        xy_check = np.linalg.norm(obj_pos[0:2] - pour_site_pos[0:2]) < xy_thresh
         z_check = np.abs(obj_pos[2] - pour_site_pos[2]) < 0.10
         return xy_check and z_check
-    
+
     def gripper_button_far(self, env, th=0.15):
-        button_id = env.sim.model.geom_name2id("{}{}".format(self.naming_prefix, "start_button"))
+        button_id = env.sim.model.geom_name2id(
+            "{}{}".format(self.naming_prefix, "start_button")
+        )
         button_pos = env.sim.data.geom_xpos[button_id]
         gripper_site_pos = env.sim.data.site_xpos[env.robots[0].eef_site_id["right"]]
-        
+
         gripper_button_far = np.linalg.norm(gripper_site_pos - button_pos) > th
- 
+
         return gripper_button_far
-    
+
     @property
     def nat_lang(self):
         return "coffee machine"
 
 
 class Toaster(Accessory):
-
     @property
     def nat_lang(self):
         return "toaster"
-    
+
+
 class Stool(Accessory):
     @property
     def nat_lang(self):
         return "stool"
 
+
 # For outlets, clocks, paintings, etc.
 class WallAccessory(Fixture):
     def __init__(
-        self, xml, name,
-        pos,
-        attach_to=None,
-        protrusion=0.02,
-        *args, **kwargs
+        self, xml, name, pos, attach_to=None, protrusion=0.02, *args, **kwargs
     ):
         super().__init__(
             xml=xml,
@@ -143,7 +142,7 @@ class WallAccessory(Fixture):
         if self.wall is None:
             # absolute position was specified
             return
-        
+
         x, y, z = self.pos
         # print(self.wall.wall_side, self.name)
 
@@ -162,5 +161,5 @@ class WallAccessory(Fixture):
             raise NotImplementedError()
         else:
             raise ValueError()
-        
+
         self.set_pos([x, y, z])

@@ -1,6 +1,6 @@
+import os
 from collections import OrderedDict
 from copy import deepcopy
-import os
 from pathlib import Path
 
 import robocasa
@@ -307,6 +307,7 @@ MULTI_STAGE_TASK_DATASETS = OrderedDict(
     ),
 )
 
+
 def get_ds_path(task, ds_type, return_info=False):
     if task in SINGLE_STAGE_TASK_DATASETS:
         ds_config = SINGLE_STAGE_TASK_DATASETS[task]
@@ -314,7 +315,7 @@ def get_ds_path(task, ds_type, return_info=False):
         ds_config = MULTI_STAGE_TASK_DATASETS[task]
     else:
         raise ValueError
-    
+
     if ds_type == "human_raw":
         folder = ds_config["human_path"]
         fname = "demo.hdf5"
@@ -329,15 +330,17 @@ def get_ds_path(task, ds_type, return_info=False):
         fname = "demo_gentex_im128_randcams.hdf5"
     else:
         raise ValueError
-    
+
     # if dataset type is not registered, return None
     if folder is None:
         return None
 
     if macros.DATASET_BASE_PATH is None:
-        ds_base_path = os.path.join(Path(robocasa.__path__[0]).parent.absolute(), "datasets")
+        ds_base_path = os.path.join(
+            Path(robocasa.__path__[0]).parent.absolute(), "datasets"
+        )
     else:
-        ds_base_path = macros.DATASET_BASE_PATH 
+        ds_base_path = macros.DATASET_BASE_PATH
     ds_path = os.path.join(ds_base_path, folder, fname)
 
     if return_info is False:

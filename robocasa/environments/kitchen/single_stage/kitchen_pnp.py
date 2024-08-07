@@ -2,13 +2,7 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PnP(Kitchen):
-    def __init__(
-        self,
-        obj_groups="all",
-        exclude_obj_groups=None,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, obj_groups="all", exclude_obj_groups=None, *args, **kwargs):
         self.obj_groups = obj_groups
         self.exclude_obj_groups = exclude_obj_groups
 
@@ -19,15 +13,15 @@ class PnP(Kitchen):
 
 
 class PnPCounterToCab(PnP):
-    def __init__(self, cab_id=FixtureType.CABINET_TOP, obj_groups="all", *args, **kwargs):        
+    def __init__(
+        self, cab_id=FixtureType.CABINET_TOP, obj_groups="all", *args, **kwargs
+    ):
         self.cab_id = cab_id
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
-    
+
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
-        self.cab = self.register_fixture_ref(
-            "cab", dict(id=self.cab_id)
-        )
+        self.cab = self.register_fixture_ref("cab", dict(id=self.cab_id))
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
@@ -36,58 +30,66 @@ class PnPCounterToCab(PnP):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
-        ep_meta["lang"] = f"pick the {obj_lang} from the counter and place it in the cabinet"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the counter and place it in the cabinet"
         return ep_meta
-    
+
     def _reset_internal(self):
         """
         Resets simulation internal configurations.
         """
         super()._reset_internal()
         self.cab.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
-    
+
     def _get_obj_cfgs(self):
-        cfgs = []        
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.cab,
+        cfgs = []
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.cab,
+                    ),
+                    size=(0.60, 0.30),
+                    pos=(0.0, -1.0),
+                    offset=(0.0, 0.10),
                 ),
-                size=(0.60, 0.30),
-                pos=(0.0, -1.0),
-                offset=(0.0, 0.10),
-            ),
-        ))
+            )
+        )
 
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.cab,
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.cab,
+                    ),
+                    size=(1.0, 0.30),
+                    pos=(0.0, 1.0),
+                    offset=(0.0, -0.05),
                 ),
-                size=(1.0, 0.30),
-                pos=(0.0, 1.0),
-                offset=(0.0, -0.05),
-            ),
-        ))
-        cfgs.append(dict(
-            name="distr_cab",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.cab,
-                size=(1.0, 0.20),
-                pos=(0.0, 1.0),
-                offset=(0.0, 0.0),
-            ),
-        ))
+            )
+        )
+        cfgs.append(
+            dict(
+                name="distr_cab",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.cab,
+                    size=(1.0, 0.20),
+                    pos=(0.0, 1.0),
+                    offset=(0.0, 0.0),
+                ),
+            )
+        )
 
         return cfgs
 
@@ -98,71 +100,83 @@ class PnPCounterToCab(PnP):
 
 
 class PnPCabToCounter(PnP):
-    def __init__(self, cab_id=FixtureType.CABINET_TOP, obj_groups="all", *args, **kwargs):        
+    def __init__(
+        self, cab_id=FixtureType.CABINET_TOP, obj_groups="all", *args, **kwargs
+    ):
         self.cab_id = cab_id
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=self.cab_id),
+            "cab",
+            dict(id=self.cab_id),
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.cab),
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.cab),
         )
         self.init_robot_base_pos = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
-        ep_meta["lang"] = f"pick the {obj_lang} from the cabinet and place it on the counter"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the cabinet and place it on the counter"
         return ep_meta
-    
+
     def _reset_internal(self):
         """
         Resets simulation internal configurations.
         """
         super()._reset_internal()
         self.cab.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True,
-            placement=dict(
-                fixture=self.cab,
-                size=(0.50, 0.20),
-                pos=(0, -1.0),
-            ),
-        ))
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                placement=dict(
+                    fixture=self.cab,
+                    size=(0.50, 0.20),
+                    pos=(0, -1.0),
+                ),
+            )
+        )
 
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.cab,
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.cab,
+                    ),
+                    size=(1.0, 0.30),
+                    pos=(0.0, 1.0),
+                    offset=(0.0, -0.05),
                 ),
-                size=(1.0, 0.30),
-                pos=(0.0, 1.0),
-                offset=(0.0, -0.05),
-            ),
-        ))
-        cfgs.append(dict(
-            name="distr_cab",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.cab,
-                size=(1.0, 0.20),
-                pos=(0.0, 1.0),
-                offset=(0.0, 0.0),
-            ),
-        ))
+            )
+        )
+        cfgs.append(
+            dict(
+                name="distr_cab",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.cab,
+                    size=(1.0, 0.20),
+                    pos=(0.0, 1.0),
+                    offset=(0.0, 0.0),
+                ),
+            )
+        )
 
         return cfgs
 
@@ -179,62 +193,73 @@ class PnPCounterToSink(PnP):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref(
-            "sink", dict(id=FixtureType.SINK),
+            "sink",
+            dict(id=FixtureType.SINK),
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.sink),
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.sink),
         )
         self.init_robot_base_pos = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
-        ep_meta["lang"] = f"pick the {obj_lang} from the counter and place it in the sink"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the counter and place it in the sink"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True, washable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                washable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.30, 0.40),
+                    pos=("ref", -1.0),
                 ),
-                size=(0.30, 0.40),
-                pos=("ref", -1.0),
-            ),
-        ))
-        
+            )
+        )
+
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                    offset=(0.0, 0.30),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-                offset=(0.0, 0.30),
-            ),
-        ))
-        cfgs.append(dict(
-            name="distr_sink",
-            obj_groups="all",
-            washable=True,
-            placement=dict(
-                fixture=self.sink,
-                size=(0.25, 0.25),
-                pos=(0.0, 1.0),
-            ),
-        ))
+            )
+        )
+        cfgs.append(
+            dict(
+                name="distr_sink",
+                obj_groups="all",
+                washable=True,
+                placement=dict(
+                    fixture=self.sink,
+                    size=(0.25, 0.25),
+                    pos=(0.0, 1.0),
+                ),
+            )
+        )
 
         return cfgs
 
@@ -251,10 +276,12 @@ class PnPSinkToCounter(PnP):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref(
-            "sink", dict(id=FixtureType.SINK),
+            "sink",
+            dict(id=FixtureType.SINK),
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.sink),
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.sink),
         )
         self.init_robot_base_pos = self.sink
 
@@ -262,51 +289,60 @@ class PnPSinkToCounter(PnP):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
         cont_lang = self.get_obj_lang(obj_name="container")
-        ep_meta["lang"] = f"pick the {obj_lang} from the sink and place it on the {cont_lang} located on the counter"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the sink and place it on the {cont_lang} located on the counter"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True, washable=True,
-            placement=dict(
-                fixture=self.sink,
-                size=(0.25, 0.25),
-                pos=(0.0, 1.0),
-            ),
-        ))
-        cfgs.append(dict(
-            name="container",
-            obj_groups="container",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                washable=True,
+                placement=dict(
+                    fixture=self.sink,
+                    size=(0.25, 0.25),
+                    pos=(0.0, 1.0),
                 ),
-                size=(0.35, 0.40),
-                pos=("ref", -1.0),
-            ),
-        ))
-        
+            )
+        )
+        cfgs.append(
+            dict(
+                name="container",
+                obj_groups="container",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.35, 0.40),
+                    pos=("ref", -1.0),
+                ),
+            )
+        )
+
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                    offset=(0.0, 0.30),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-                offset=(0.0, 0.30),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
@@ -319,22 +355,26 @@ class PnPSinkToCounter(PnP):
 
 class PnPCounterToMicrowave(PnP):
     EXCLUDE_LAYOUTS = [8]
+
     def __init__(self, obj_groups="food", *args, **kwargs):
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
-    
+
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.microwave = self.register_fixture_ref(
-            "microwave", dict(id=FixtureType.MICROWAVE),
+            "microwave",
+            dict(id=FixtureType.MICROWAVE),
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.microwave),
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.distr_counter = self.register_fixture_ref(
-            "distr_counter", dict(id=FixtureType.COUNTER, ref=self.microwave),
+            "distr_counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.init_robot_base_pos = self.microwave
-    
+
     def _reset_internal(self):
         """
         Resets simulation internal configurations.
@@ -345,50 +385,59 @@ class PnPCounterToMicrowave(PnP):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
-        ep_meta["lang"] = f"pick the {obj_lang} from the counter and place it in the microwave"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the counter and place it in the microwave"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
 
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True, microwavable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.microwave,
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                microwavable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                    try_to_place_in="container",
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-                try_to_place_in="container",
-            ),
-        ))
-        cfgs.append(dict(
-            name="container",
-            obj_groups=("plate"),
-            placement=dict(
-                fixture=self.microwave,
-                size=(0.05, 0.05),
-                ensure_object_boundary_in_range=False,
-            ),
-        ))
+            )
+        )
+        cfgs.append(
+            dict(
+                name="container",
+                obj_groups=("plate"),
+                placement=dict(
+                    fixture=self.microwave,
+                    size=(0.05, 0.05),
+                    ensure_object_boundary_in_range=False,
+                ),
+            )
+        )
 
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.distr_counter,
-                sample_region_kwargs=dict(
-                    ref=self.microwave,
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.distr_counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", 1.0),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", 1.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
@@ -400,26 +449,30 @@ class PnPCounterToMicrowave(PnP):
         container_micro_contact = self.check_contact(container, self.microwave)
         gripper_obj_far = OU.gripper_obj_far(self)
         return obj_container_contact and container_micro_contact and gripper_obj_far
-    
+
 
 class PnPMicrowaveToCounter(PnP):
     EXCLUDE_LAYOUTS = [8]
+
     def __init__(self, obj_groups="food", *args, **kwargs):
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.microwave = self.register_fixture_ref(
-            "microwave", dict(id=FixtureType.MICROWAVE),
+            "microwave",
+            dict(id=FixtureType.MICROWAVE),
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.microwave),
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.distr_counter = self.register_fixture_ref(
-            "distr_counter", dict(id=FixtureType.COUNTER, ref=self.microwave),
+            "distr_counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.init_robot_base_pos = self.microwave
-    
+
     def _reset_internal(self):
         """
         Resets simulation internal configurations.
@@ -431,50 +484,59 @@ class PnPMicrowaveToCounter(PnP):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
         cont_lang = self.get_obj_lang(obj_name="container")
-        ep_meta["lang"] = f"pick the {obj_lang} from the microwave and place it on {cont_lang} located on the counter"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the microwave and place it on {cont_lang} located on the counter"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
 
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True, microwavable=True,
-            placement=dict(
-                fixture=self.microwave,
-                size=(0.05, 0.05),
-                ensure_object_boundary_in_range=False,
-                try_to_place_in="container",
-            ),
-        ))
-        cfgs.append(dict(
-            name="container",
-            obj_groups=("container"),
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.microwave,
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                microwavable=True,
+                placement=dict(
+                    fixture=self.microwave,
+                    size=(0.05, 0.05),
+                    ensure_object_boundary_in_range=False,
+                    try_to_place_in="container",
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-            ),
-        ))
+            )
+        )
+        cfgs.append(
+            dict(
+                name="container",
+                obj_groups=("container"),
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                ),
+            )
+        )
 
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.distr_counter,
-                sample_region_kwargs=dict(
-                    ref=self.microwave,
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.distr_counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", 1.0),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", 1.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
@@ -490,9 +552,7 @@ class PnPCounterToStove(PnP):
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
-        self.stove = self.register_fixture_ref(
-            "stove", dict(id=FixtureType.STOVE)
-        )
+        self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
@@ -502,38 +562,45 @@ class PnPCounterToStove(PnP):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
         cont_lang = self.get_obj_lang(obj_name="container")
-        ep_meta["lang"] = f"pick the {obj_lang} from the plate and place it in the {cont_lang}"
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the plate and place it in the {cont_lang}"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
-        
-        cfgs.append(dict(
-            name="container",
-            obj_groups=("pan"),
-            placement=dict(
-                fixture=self.stove,
-                ensure_object_boundary_in_range=False,
-                size=(0.02, 0.02),
-                rotation=[(-3 * np.pi / 8, -np.pi / 4), (np.pi / 4, 3 * np.pi / 8)],
-            ),
-        ))
 
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True, cookable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.stove,
+        cfgs.append(
+            dict(
+                name="container",
+                obj_groups=("pan"),
+                placement=dict(
+                    fixture=self.stove,
+                    ensure_object_boundary_in_range=False,
+                    size=(0.02, 0.02),
+                    rotation=[(-3 * np.pi / 8, -np.pi / 4), (np.pi / 4, 3 * np.pi / 8)],
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-                try_to_place_in="container",
-            ),
-        ))
+            )
+        )
+
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                cookable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.stove,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                    try_to_place_in="container",
+                ),
+            )
+        )
 
         return cfgs
 
@@ -542,7 +609,7 @@ class PnPCounterToStove(PnP):
         gripper_obj_far = OU.gripper_obj_far(self)
 
         return obj_in_container and gripper_obj_far
-    
+
 
 class PnPStoveToCounter(PnP):
     def __init__(self, obj_groups="food", *args, **kwargs):
@@ -550,9 +617,7 @@ class PnPStoveToCounter(PnP):
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
-        self.stove = self.register_fixture_ref(
-            "stove", dict(id=FixtureType.STOVE)
-        )
+        self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
@@ -562,40 +627,49 @@ class PnPStoveToCounter(PnP):
         ep_meta = super().get_ep_meta()
         obj_lang = self.get_obj_lang()
         obj_cont_lang = self.get_obj_lang(obj_name="obj_container")
-        cont_lang, preposition = self.get_obj_lang(obj_name="container", get_preposition=True)
-        ep_meta["lang"] = f"pick the {obj_lang} from the {obj_cont_lang} and place it {preposition} the {cont_lang}"
+        cont_lang, preposition = self.get_obj_lang(
+            obj_name="container", get_preposition=True
+        )
+        ep_meta[
+            "lang"
+        ] = f"pick the {obj_lang} from the {obj_cont_lang} and place it {preposition} the {cont_lang}"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
-        
-        cfgs.append(dict(
-            name="obj",
-            obj_groups=self.obj_groups,
-            exclude_obj_groups=self.exclude_obj_groups,
-            graspable=True, cookable=True,
-            max_size=(0.15, 0.15, None),
-            placement=dict(
-                fixture=self.stove,
-                ensure_object_boundary_in_range=False,
-                size=(0.02, 0.02),
-                rotation=[(-3 * np.pi / 8, -np.pi / 4), (np.pi / 4, 3 * np.pi / 8)],
-                try_to_place_in="pan",
-            ),
-        ))
 
-        cfgs.append(dict(
-            name="container",
-            obj_groups=("plate", "bowl"),
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.stove,
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups=self.obj_groups,
+                exclude_obj_groups=self.exclude_obj_groups,
+                graspable=True,
+                cookable=True,
+                max_size=(0.15, 0.15, None),
+                placement=dict(
+                    fixture=self.stove,
+                    ensure_object_boundary_in_range=False,
+                    size=(0.02, 0.02),
+                    rotation=[(-3 * np.pi / 8, -np.pi / 4), (np.pi / 4, 3 * np.pi / 8)],
+                    try_to_place_in="pan",
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-            ),
-        ))
+            )
+        )
+
+        cfgs.append(
+            dict(
+                name="container",
+                obj_groups=("plate", "bowl"),
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.stove,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                ),
+            )
+        )
 
         return cfgs
 

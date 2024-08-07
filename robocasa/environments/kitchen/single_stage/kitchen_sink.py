@@ -28,40 +28,44 @@ class ManipulateSinkFaucet(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        
+
         # distractors
         for i in range(np.random.randint(1, 4)):
-            cfgs.append(dict(
-                name=f"distr_counter_{i}",
-                obj_groups="all",
-                placement=dict(
-                    fixture=self.get_fixture(FixtureType.COUNTER, ref=self.sink),
-                    sample_region_kwargs=dict(
-                        ref=self.sink,
-                        loc="left_right",
+            cfgs.append(
+                dict(
+                    name=f"distr_counter_{i}",
+                    obj_groups="all",
+                    placement=dict(
+                        fixture=self.get_fixture(FixtureType.COUNTER, ref=self.sink),
+                        sample_region_kwargs=dict(
+                            ref=self.sink,
+                            loc="left_right",
+                        ),
+                        size=(0.30, 0.30),
+                        pos=("ref", -1.0),
+                        offset=(0.0, 0.10),
                     ),
-                    size=(0.30, 0.30),
-                    pos=("ref", -1.0),
-                    offset=(0.0, 0.10),
+                )
+            )
+        cfgs.append(
+            dict(
+                name="distr_sink",
+                obj_groups="all",
+                washable=True,
+                placement=dict(
+                    fixture=self.sink,
+                    size=(0.30, 0.40),
+                    pos=(None, -1.0),
                 ),
-            ))
-        cfgs.append(dict(
-            name="distr_sink",
-            obj_groups="all",
-            washable=True,
-            placement=dict(
-                fixture=self.sink,
-                size=(0.30, 0.40),
-                pos=(None, -1.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
-    def _check_success(self):        
-        handle_state = self.sink.get_handle_state(env=self)        
+    def _check_success(self):
+        handle_state = self.sink.get_handle_state(env=self)
         water_on = handle_state["water_on"]
-    
+
         if self.behavior == "turn_on":
             success = water_on
         elif self.behavior == "turn_off":
@@ -110,38 +114,42 @@ class TurnSinkSpout(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        
+
         # distractors
         for i in range(np.random.randint(1, 4)):
-            cfgs.append(dict(
-                name=f"distr_counter_{i}",
-                obj_groups="all",
-                placement=dict(
-                    fixture=self.get_fixture(FixtureType.COUNTER, ref=self.sink),
-                    sample_region_kwargs=dict(
-                        ref=self.sink,
-                        loc="left_right",
+            cfgs.append(
+                dict(
+                    name=f"distr_counter_{i}",
+                    obj_groups="all",
+                    placement=dict(
+                        fixture=self.get_fixture(FixtureType.COUNTER, ref=self.sink),
+                        sample_region_kwargs=dict(
+                            ref=self.sink,
+                            loc="left_right",
+                        ),
+                        size=(0.30, 0.30),
+                        pos=("ref", -1.0),
+                        offset=(0.0, 0.10),
                     ),
-                    size=(0.30, 0.30),
-                    pos=("ref", -1.0),
-                    offset=(0.0, 0.10),
+                )
+            )
+        cfgs.append(
+            dict(
+                name="distr_sink",
+                obj_groups="all",
+                washable=True,
+                placement=dict(
+                    fixture=self.sink,
+                    size=(0.30, 0.40),
+                    pos=(None, -1.0),
                 ),
-            ))
-        cfgs.append(dict(
-            name="distr_sink",
-            obj_groups="all",
-            washable=True,
-            placement=dict(
-                fixture=self.sink,
-                size=(0.30, 0.40),
-                pos=(None, -1.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
-    def _check_success(self):        
+    def _check_success(self):
         handle_state = self.sink.get_handle_state(env=self)
-        success = (handle_state["spout_ori"] == self.behavior)
-        
+        success = handle_state["spout_ori"] == self.behavior
+
         return success

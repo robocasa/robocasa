@@ -1,5 +1,6 @@
 from robocasa.models.objects.fixtures.fixture import Fixture
 
+
 class Fridge(Fixture):
     def __init__(
         self,
@@ -9,13 +10,9 @@ class Fridge(Fixture):
         **kwargs
     ):
         super().__init__(
-            xml=xml,
-            name=name,
-            duplicate_collision_geoms=False,
-            *args,
-            **kwargs
+            xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )
-    
+
     @property
     def nat_lang(self):
         return "fridge"

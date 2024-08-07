@@ -1,13 +1,13 @@
-from robocasa.models.objects.fixtures import *
-from robocasa.models.arenas.layout_utils import *
-
-from robosuite.utils.mjcf_utils import array_to_string as a2s, string_to_array as s2a
-import robosuite
-
-import yaml
-import numpy as np
 import random
 
+import numpy as np
+import robosuite
+import yaml
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import string_to_array as s2a
+
+from robocasa.models.arenas.layout_utils import *
+from robocasa.models.objects.fixtures import *
 
 # fixture string to class
 FIXTURES = dict(
@@ -18,7 +18,6 @@ FIXTURES = dict(
     housing_cabinet=HousingCabinet,
     drawer=Drawer,
     counter=Counter,
-
     stove=Stove,
     stovetop=Stovetop,
     oven=Oven,
@@ -27,11 +26,9 @@ FIXTURES = dict(
     sink=Sink,
     fridge=Fridge,
     dishwasher=Dishwasher,
-
     wall=Wall,
     floor=Floor,
     box=Box,
-
     accessory=Accessory,
     paper_towel=Accessory,
     plant=Accessory,
@@ -44,24 +41,15 @@ FIXTURES = dict(
     wall_accessory=WallAccessory,
     window=Window,
     framed_window=FramedWindow,
-    
-
     # needs some additional work
     # slide_cabinet=SlideCabinet,
 )
 # fixtures that are attached to other fixtures, disables positioning system in this script
 FIXTURES_INTERIOR = dict(
-    sink=Sink,
-    stovetop=Stovetop,
-    accessory=Accessory,
-    wall_accessory=WallAccessory
+    sink=Sink, stovetop=Stovetop, accessory=Accessory, wall_accessory=WallAccessory
 )
 
-ALL_SIDES = [
-    "left", "right",
-    "front", "back",
-    "bottom", "top"
-]
+ALL_SIDES = ["left", "right", "front", "back", "bottom", "top"]
 
 STYLES = {
     0: "industrial",
@@ -73,8 +61,8 @@ STYLES = {
     6: "traditional_2",
     7: "farmhouse",
     8: "rustic",
-    9: "mediterranean", # held out for potential testing
-    10: "transitional_1", # held out for potential testing
+    9: "mediterranean",  # held out for potential testing
+    10: "transitional_1",  # held out for potential testing
     11: "transitional_2",
 }
 
@@ -85,30 +73,41 @@ def check_syntax(fixture):
     """
 
     if fixture["type"] != "stack" and fixture["type"] not in FIXTURES:
-        raise ValueError("Invalid value for fixture type: \"{}\".".format(fixture["type"]))
-    
+        raise ValueError(
+            'Invalid value for fixture type: "{}".'.format(fixture["type"])
+        )
+
     if "config_name" in fixture and "default_config_name" in fixture:
-        raise ValueError("Cannot specify both \"config_name\" and \"default_config_name\"")
-    
+        raise ValueError('Cannot specify both "config_name" and "default_config_name"')
+
     if "align_to" in fixture or "side" in fixture or "alignment" in fixture:
         if not ("align_to" in fixture and "side" in fixture):
-            raise ValueError("Both or neither of \"align_to\" and " \
-                             "\"side\" need to be specified.")
+            raise ValueError(
+                'Both or neither of "align_to" and ' '"side" need to be specified.'
+            )
         if "pos" in fixture:
             raise ValueError("Cannot specify both relative and absolute positions.")
-        
+
         # check alignment and side arguments are compatible
         if "alignment" in fixture:
             for keywords in AXES_KEYWORDS.values():
                 if fixture["side"] in keywords:
                     # check that neither keyword is used for alignment
-                    if keywords[0] in fixture["alignment"] or keywords[1] in fixture["alignment"]:
-                        raise ValueError("Cannot set alignment to \"{}\" when aligning to the \"{}\" side"
-                                        .format(fixture["alignment"], fixture["side"]))
-                    
+                    if (
+                        keywords[0] in fixture["alignment"]
+                        or keywords[1] in fixture["alignment"]
+                    ):
+                        raise ValueError(
+                            'Cannot set alignment to "{}" when aligning to the "{}" side'.format(
+                                fixture["alignment"], fixture["side"]
+                            )
+                        )
+
         # check if side is valid
         if fixture["side"] not in ALL_SIDES:
-            raise ValueError("\"{}\" is not a valid side for alignment".format(fixture["side"]))
+            raise ValueError(
+                '"{}" is not a valid side for alignment'.format(fixture["side"])
+            )
 
 
 def create_fixtures(yaml_path, style="playground"):
@@ -118,41 +117,43 @@ def create_fixtures(yaml_path, style="playground"):
         pass
 
     if style not in STYLES.keys() and style not in STYLES.values():
-        raise ValueError("Unrecognized style: \"{}\"".format(style))
+        raise ValueError('Unrecognized style: "{}"'.format(style))
     if type(style) == int:
         style = STYLES[style]
-    
+
     style_yaml_path = os.path.join("kitchen_layouts", "styles", style + ".yaml")
-    style_yaml_path = xml_path_completion(style_yaml_path, root=robocasa.models.assets_root)
-    with open(style_yaml_path, 'r') as f:
+    style_yaml_path = xml_path_completion(
+        style_yaml_path, root=robocasa.models.assets_root
+    )
+    with open(style_yaml_path, "r") as f:
         style = yaml.safe_load(f)
 
     # load arena
-    with open(yaml_path, 'r') as f:
+    with open(yaml_path, "r") as f:
         arena_config = yaml.safe_load(f)
     arena = list()
-    
+
     for group_name, group_config in arena_config.items():
         group_fixtures = list()
         for k, fixture_list in group_config.items():
             if k in ["group_origin", "group_z_rot", "group_pos"]:
                 continue
             elif type(fixture_list) != list:
-                raise ValueError("\"{}\" is not a valid argument for groups".format(k))
-                
+                raise ValueError('"{}" is not a valid argument for groups'.format(k))
+
             # add suffix to support different groups
             for fxtr_config in fixture_list:
-                fxtr_config["name"] += '_' + group_name
+                fxtr_config["name"] += "_" + group_name
                 # update fixture names for alignment, interior objects, etc.
                 for k in ATTACH_ARGS + ["align_to", "stack_fixtures", "size"]:
                     if k in fxtr_config:
                         if isinstance(fxtr_config[k], list):
                             for i in range(len(fxtr_config[k])):
                                 if isinstance(fxtr_config[k][i], str):
-                                    fxtr_config[k][i] += '_' + group_name
+                                    fxtr_config[k][i] += "_" + group_name
                         else:
                             if isinstance(fxtr_config[k], str):
-                                fxtr_config[k] += '_' + group_name
+                                fxtr_config[k] += "_" + group_name
 
             group_fixtures.extend(fixture_list)
 
@@ -173,7 +174,7 @@ def create_fixtures(yaml_path, style="playground"):
     configs = dict()
     # names of composites, delete from fixtures before returning
     composites = list()
-    
+
     # initialize each fixture in the arena
     for fixture_config in arena:
         check_syntax(fixture_config)
@@ -182,15 +183,13 @@ def create_fixtures(yaml_path, style="playground"):
         # stack of fixtures, handled separately
         if fixture_config["type"] == "stack":
             stack = FixtureStack(
-                fixture_config, fixtures, 
-                configs, style,
-                default_texture=None
+                fixture_config, fixtures, configs, style, default_texture=None
             )
             fixtures[fixture_name] = stack
             configs[fixture_name] = fixture_config
             composites.append(fixture_name)
             continue
-        
+
         # load fixture defaults
         default_config = load_default_config(style, fixture_config)
         if default_config is not None:
@@ -220,9 +219,10 @@ def create_fixtures(yaml_path, style="playground"):
             # relative positioning
             if "align_to" in fixture_config:
                 pos = get_relative_position(
-                    fixture, fixture_config, 
+                    fixture,
+                    fixture_config,
                     fixtures[fixture_config["align_to"]],
-                    configs[fixture_config["align_to"]]
+                    configs[fixture_config["align_to"]],
                 )
 
             elif "stack_on" in fixture_config:
@@ -257,19 +257,16 @@ def create_fixtures(yaml_path, style="playground"):
         config = configs[name]
         if "group_origin" not in config:
             continue
-        
+
         # TODO: add default for group origin?
         # rotate about this coordinate (around the z-axis)
         origin = config["group_origin"]
         pos = config["group_pos"]
         z_rot = config["group_z_rot"]
-        displacement = [
-            pos[0] - origin[0],
-            pos[1] - origin[1]
-        ]
+        displacement = [pos[0] - origin[0], pos[1] - origin[1]]
 
         if type(fixture) not in [Wall, Floor]:
-            dx  = fixture.pos[0] - origin[0]
+            dx = fixture.pos[0] - origin[0]
             dy = fixture.pos[1] - origin[1]
             dx_rot = dx * np.cos(z_rot) - dy * np.sin(z_rot)
             dy_rot = dx * np.sin(z_rot) + dy * np.cos(z_rot)
@@ -277,11 +274,7 @@ def create_fixtures(yaml_path, style="playground"):
             x_rot = origin[0] + dx_rot
             y_rot = origin[1] + dy_rot
             z = fixture.pos[2]
-            pos_new = [
-                x_rot + displacement[0],
-                y_rot + displacement[1],
-                z
-            ]
+            pos_new = [x_rot + displacement[0], y_rot + displacement[1], z]
 
             # account for previous z-axis rotation
             rot_prev = fixture._obj.get("euler")
