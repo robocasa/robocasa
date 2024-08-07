@@ -76,7 +76,7 @@ Please refer to the [documentation page](https://robocasa.ai/docs/introduction/o
  
 -------
 ## Citation
-```
+```bibtex
 @inproceedings{robocasa2024,
   title={RoboCasa: Large-Scale Simulation of Everyday Tasks for Generalist Robots},
   author={Soroush Nasiriany and Abhiram Maddukuri and Lance Zhang and Adeet Parikh and Aaron Lo and Abhishek Joshi and Ajay Mandlekar and Yuke Zhu},
