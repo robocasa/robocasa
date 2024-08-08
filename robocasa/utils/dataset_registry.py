@@ -333,7 +333,8 @@ def get_ds_path(task, ds_type, return_info=False):
 
     # if dataset type is not registered, return None
     if folder is None:
-        return None
+        ret = (None, None) if return_info is True else None
+        return ret
 
     if macros.DATASET_BASE_PATH is None:
         ds_base_path = os.path.join(
