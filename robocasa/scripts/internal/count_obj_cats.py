@@ -1,13 +1,19 @@
-import numpy as np
-from robosuite.models.objects.kitchen_objects import OBJ_CATEGORIES, OBJ_GROUPS
 import random
 from collections import OrderedDict
 
+import numpy as np
+from robosuite.models.objects.kitchen_objects import OBJ_CATEGORIES, OBJ_GROUPS
 
 SPEC = OrderedDict(
     PnPCounterToCab=dict(
         groups="all",
-        exclude_groups=["condiment_bottle", "baguette", "kettle_electric", "avocado", "can"],
+        exclude_groups=[
+            "condiment_bottle",
+            "baguette",
+            "kettle_electric",
+            "avocado",
+            "can",
+        ],
         graspable=True,
     ),
     PnPCabToCounter=dict(
@@ -87,8 +93,8 @@ def count_obj_cats(
             if heatable is True and cat_meta.heatable is not True:
                 continue
             if freezable is True and cat_meta.freezable is not True:
-                continue  
-            
+                continue
+
             valid_categories.append(cat)
 
     return valid_categories

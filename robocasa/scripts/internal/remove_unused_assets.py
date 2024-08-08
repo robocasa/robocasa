@@ -1,14 +1,12 @@
 import argparse
-import os
-from tqdm import tqdm
 import glob
-from lxml import etree
+import os
 
-from robosuite.utils.mjcf_utils import (
-    find_elements,
-    string_to_array as s2a,
-    array_to_string as a2s,
-)
+from lxml import etree
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import find_elements
+from robosuite.utils.mjcf_utils import string_to_array as s2a
+from tqdm import tqdm
 
 
 def remove_unused_assets(xml_path):
@@ -29,9 +27,13 @@ def remove_unused_assets(xml_path):
         if tex.get("name") == "tex-" + model_name:
             tex.getparent().remove(tex)
             continue
-        
+
         for tex2 in scanned_textures:
-            if tex.tag == tex2.tag and tex.attrib == tex2.attrib and tex.tail == tex2.tail:
+            if (
+                tex.tag == tex2.tag
+                and tex.attrib == tex2.attrib
+                and tex.tail == tex2.tail
+            ):
                 # duplicate texture found, remove
                 tex.getparent().remove(tex)
                 break
@@ -61,6 +63,6 @@ if __name__ == "__main__":
         for f in files:
             if f == "model.xml":
                 paths.append(os.path.join(root, f))
-    
+
     for p in tqdm(paths):
         remove_unused_assets(p)

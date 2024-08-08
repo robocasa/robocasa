@@ -1,4 +1,3 @@
-
 LAYOUTS = {
     0: "kitchen_layouts/one_wall_small_arena.yaml",
     1: "kitchen_layouts/one_wall_large_arena.yaml",
@@ -10,7 +9,6 @@ LAYOUTS = {
     7: "kitchen_layouts/G_shaped_small_arena.yaml",
     8: "kitchen_layouts/G_shaped_large_arena.yaml",
     9: "kitchen_layouts/wraparound_arena.yaml",
-
     -1: "kitchen_layouts/playground.yaml",
 }
 
@@ -20,7 +18,7 @@ LAYOUT_CAMS = {
         lookat=[2.26593463, -1.00037131, 1.38769295],
         distance=3.0505089839567323,
         azimuth=90.71563812375285,
-        elevation=-12.63948837207208
+        elevation=-12.63948837207208,
     ),
     1: dict(
         lookat=[2.66147999, -1.00162429, 1.2425155],
@@ -56,13 +54,24 @@ DEFAULT_LAYOUT_CAM = {
 }
 
 SCENE_SPLITS = {
-    "5_scenes": [[3, 0], [0, 4], [4, 5], [5, 4], [6, 1]], # split for sampling from 5 percent of kitchens
+    "5_scenes": [
+        [3, 0],
+        [0, 4],
+        [4, 5],
+        [5, 4],
+        [6, 1],
+    ],  # split for sampling from 5 percent of kitchens
 }
 
 CAM_CONFIGS = dict(
     robot0_agentview_center=dict(
         pos=[-0.6, 0.0, 1.15],
-        quat=[0.636945903301239, 0.3325185477733612, -0.3199238181114197, -0.6175596117973328],
+        quat=[
+            0.636945903301239,
+            0.3325185477733612,
+            -0.3199238181114197,
+            -0.6175596117973328,
+        ],
         parent_body="base0_support",
     ),
     robot0_agentview_left=dict(
@@ -73,17 +82,26 @@ CAM_CONFIGS = dict(
     ),
     robot0_agentview_right=dict(
         pos=[-0.5, -0.35, 1.05],
-        quat=[0.6775091886520386, 0.3767866790294647, -0.2993525564670563, -0.55623859167099],
+        quat=[
+            0.6775091886520386,
+            0.3767866790294647,
+            -0.2993525564670563,
+            -0.55623859167099,
+        ],
         camera_attribs=dict(fovy="60"),
         parent_body="base0_support",
     ),
     robot0_frontview=dict(
         pos=[-0.50, 0, 0.95],
-        quat=[0.6088936924934387, 0.3814677894115448, -0.3673907518386841, -0.5905545353889465],
+        quat=[
+            0.6088936924934387,
+            0.3814677894115448,
+            -0.3673907518386841,
+            -0.5905545353889465,
+        ],
         camera_attribs=dict(fovy="60"),
         parent_body="base0_support",
     ),
-
     robot0_eye_in_hand=dict(
         pos=[0.05, 0, 0],
         quat=[0, 0.707107, 0.707107, 0],

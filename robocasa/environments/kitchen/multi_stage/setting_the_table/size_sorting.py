@@ -2,14 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SizeSorting(Kitchen):
+    def __init__(self, *args, **kwargs):
 
-    def __init__(self,*args, **kwargs):
-
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER, size=(1, 0.4)))  
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, size=(1, 0.4))
+        )
         self.init_robot_base_pos = self.counter
 
     def get_ep_meta(self):
@@ -27,28 +28,33 @@ class SizeSorting(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        self.objs = random.choice([2,3,4])
+        self.objs = random.choice([2, 3, 4])
         stack_cat = random.choice(["cup", "bowl"])
-        scale=0.8
+        scale = 0.8
         for i in range(self.objs):
-            cfgs.append(dict(
-            name=f"obj_{i}",
-            obj_groups=stack_cat,
-            object_scale=scale **i,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    top_size=(0.6, 0.4)
+            cfgs.append(
+                dict(
+                    name=f"obj_{i}",
+                    obj_groups=stack_cat,
+                    object_scale=scale**i,
+                    placement=dict(
+                        fixture=self.counter,
+                        sample_region_kwargs=dict(top_size=(0.6, 0.4)),
+                        size=(0.6, 0.4),
+                        pos=(0, -1.0),
+                        offset=(i * 0.1, 0),
                     ),
-                size=(0.6, 0.4),
-                pos=(0, -1.0),
-                offset=(i*0.1, 0),
-                ),
-            ))
+                )
+            )
 
         return cfgs
 
     def _check_success(self):
 
-        objs_stacked_inorder = all([OU.check_obj_in_receptacle(self, f"obj_{i}", f"obj_{i-1}") for i in range(1,self.objs)])
+        objs_stacked_inorder = all(
+            [
+                OU.check_obj_in_receptacle(self, f"obj_{i}", f"obj_{i-1}")
+                for i in range(1, self.objs)
+            ]
+        )
         return objs_stacked_inorder and OU.gripper_obj_far(self, "obj_0")

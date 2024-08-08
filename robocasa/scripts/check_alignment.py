@@ -1,11 +1,12 @@
-import numpy as np
 import argparse
 import json
-import h5py
 import os
 
+import h5py
+import numpy as np
 
 # TODO: add option to delete trajectories that fail threshold automatically/copy over trajectories that are valid
+
 
 def search_for_value(arr, val, num_conseq, start_pos):
     counter = 0
@@ -33,13 +34,21 @@ def extract_key_points(traj):
 
 def extract_metadata(dataset_path, meta):
     for layout_id in os.listdir(dataset_path):
-        if '.' in layout_id:
+        if "." in layout_id:
             continue
 
         # locate dataset file
         layout_folder_path = os.path.join(dataset_path, layout_id)
-        demos = [f for f in os.listdir(layout_folder_path) if os.path.isdir(os.path.join(layout_folder_path, f))]
-        print("{} demos found for layout {}, using the first one.".format(len(demos), layout_id))
+        demos = [
+            f
+            for f in os.listdir(layout_folder_path)
+            if os.path.isdir(os.path.join(layout_folder_path, f))
+        ]
+        print(
+            "{} demos found for layout {}, using the first one.".format(
+                len(demos), layout_id
+            )
+        )
 
         # load dataset
         dataset_path = os.path.join(layout_folder_path, demos[0], "demo.hdf5")
@@ -64,26 +73,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--base_dataset_path",
         default="/Users/lancezhang/projects/kitchen/robosuite/robosuite/models/assets/demonstrations_private",
-        help="folder in which all datasets are stored (i.e. path to `demonstrations_private`)"
+        help="folder in which all datasets are stored (i.e. path to `demonstrations_private`)",
     )
     parser.add_argument(
-        "--threshold", type=int, default=5,
-        help="maximum number of error (timesteps) for a trajectory to be considered valid"
+        "--threshold",
+        type=int,
+        default=5,
+        help="maximum number of error (timesteps) for a trajectory to be considered valid",
     )
     args = parser.parse_args()
 
     task_dataset_path = os.path.join(args.base_dataset_path, args.dataset_name)
-    print("Scanning task_dataset:", task_dataset_path, '\n')
+    print("Scanning task_dataset:", task_dataset_path, "\n")
 
     # extract necessary metadata from dataset
     metadata = {
         "key_points": {"start_grip": list(), "end_grip": list()},
-        "layout_id": list(), "demo_name": list()
+        "layout_id": list(),
+        "demo_name": list(),
     }
     extract_metadata(task_dataset_path, metadata)
 
     # calculate statistics
-    print("=" * 100, '\n')
+    print("=" * 100, "\n")
     print("Total demos found:", len(metadata["demo_name"]))
 
     # calculate disalignment
@@ -121,6 +133,6 @@ if __name__ == "__main__":
     if len(invalid_trajectories) > 0:
         print("Invalid demos and associated errors:")
         for k, v in invalid_trajectories.items():
-            print(k, '--', v)
+            print(k, "--", v)
     else:
         print("No invalid trajectories detected!")

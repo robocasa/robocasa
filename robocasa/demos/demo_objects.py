@@ -3,26 +3,27 @@
 
 import argparse
 import os
-import numpy as np
 import time
-from termcolor import colored
-import mujoco
-import mujoco.viewer
-from pynput.keyboard import Controller, Key, Listener
 import xml.etree.ElementTree as ET
 
+import mujoco
+import mujoco.viewer
+import numpy as np
 import robosuite
-from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
-from robosuite.utils.mjcf_utils import (
-    find_elements,
-    string_to_array as s2a,
-    array_to_string as a2s,
-)
+from pynput.keyboard import Controller, Key, Listener
 from robosuite.devices import Device
+from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import find_elements
+from robosuite.utils.mjcf_utils import string_to_array as s2a
+from termcolor import colored
 
 import robocasa
 from robocasa.models.objects.kitchen_objects import sample_kitchen_object
-from robocasa.scripts.download_kitchen_assets import DOWNLOAD_ASSET_REGISTRY, download_and_extract_zip
+from robocasa.scripts.download_kitchen_assets import (
+    DOWNLOAD_ASSET_REGISTRY,
+    download_and_extract_zip,
+)
 
 
 def edit_model_xml(xml_str):
@@ -54,9 +55,11 @@ def edit_model_xml(xml_str):
 
         old_path_split = old_path.split("/")
         # maybe replace all paths to robosuite assets
-        check_lst = [loc for loc, val in enumerate(old_path_split) if val == "robosuite"]
+        check_lst = [
+            loc for loc, val in enumerate(old_path_split) if val == "robosuite"
+        ]
         if len(check_lst) > 0:
-            ind = max(check_lst) # last occurrence index
+            ind = max(check_lst)  # last occurrence index
             new_path_split = path_split + old_path_split[ind + 1 :]
             new_path = "/".join(new_path_split)
             elem.set("file", new_path)
@@ -70,9 +73,9 @@ def read_model(
     show_bbox=False,
     show_coll_geoms=False,
 ):
-    with open(filepath, 'r') as file:
+    with open(filepath, "r") as file:
         xml = file.read()
-    
+
     xml = edit_model_xml(xml)
     root = ET.fromstring(xml)
 
@@ -105,27 +108,36 @@ def read_model(
             name = site.get("name", None)
             if name is not None:
                 sites[name] = s2a(site.get("pos"))
-        
+
         ext_bbox_center = None
         ext_bbox_size = None
         if "ext_p0" in sites:
-            ext_bbox_center = np.array([
-                np.mean([sites["ext_p0"][0], sites["ext_px"][0]]),
-                np.mean([sites["ext_p0"][1], sites["ext_py"][1]]),
-                np.mean([sites["ext_p0"][2], sites["ext_pz"][2]]),
-            ])
-            ext_bbox_size = np.array([
-                sites["ext_px"][0] - sites["ext_p0"][0],
-                sites["ext_py"][1] - sites["ext_p0"][1],
-                sites["ext_pz"][2] - sites["ext_p0"][2],
-            ])
+            ext_bbox_center = np.array(
+                [
+                    np.mean([sites["ext_p0"][0], sites["ext_px"][0]]),
+                    np.mean([sites["ext_p0"][1], sites["ext_py"][1]]),
+                    np.mean([sites["ext_p0"][2], sites["ext_pz"][2]]),
+                ]
+            )
+            ext_bbox_size = np.array(
+                [
+                    sites["ext_px"][0] - sites["ext_p0"][0],
+                    sites["ext_py"][1] - sites["ext_p0"][1],
+                    sites["ext_pz"][2] - sites["ext_p0"][2],
+                ]
+            )
         elif "bottom_site" in sites:
             ext_bbox_center = np.mean([sites["top_site"], sites["bottom_site"]], axis=0)
-            ext_bbox_size = np.array([
-                sites["horizontal_radius_site"][0],
-                sites["horizontal_radius_site"][1],
-                sites["top_site"][2] - ext_bbox_center[2],
-            ]) * 2
+            ext_bbox_size = (
+                np.array(
+                    [
+                        sites["horizontal_radius_site"][0],
+                        sites["horizontal_radius_site"][1],
+                        sites["top_site"][2] - ext_bbox_center[2],
+                    ]
+                )
+                * 2
+            )
 
         if (ext_bbox_center is not None) and (ext_bbox_size is not None):
             ext_bbox_site = ET.fromstring(
@@ -135,7 +147,6 @@ def read_model(
                 )
             )
             worldbody.append(ext_bbox_site)
-
 
     if hide_sites:
         # hide all sites
@@ -150,7 +161,7 @@ def read_model(
     info = {}
 
     # initialize model
-    xml = ET.tostring(root, encoding='unicode')
+    xml = ET.tostring(root, encoding="unicode")
     if filepath is not None:
         os.chdir(os.path.dirname(filepath))
     t = time.time()
@@ -171,12 +182,14 @@ def render_model(
     kill = False
 
     def key_callback(keycode):
-        if chr(keycode) == 'q':
+        if chr(keycode) == "q":
             nonlocal kill
             kill = not kill
 
     # mujoco.viewer.launch(sim.model._model, sim.data._data)
-    viewer = mujoco.viewer.launch_passive(sim.model._model, sim.data._data,
+    viewer = mujoco.viewer.launch_passive(
+        sim.model._model,
+        sim.data._data,
         key_callback=key_callback,
         show_right_ui=False,
     )
@@ -251,31 +264,31 @@ class DemoKeyboard(Device):
 
         except AttributeError as e:
             pass
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--mjcf",
         type=str,
-        help="(optional) path to specific model xml file to visualize. skip to sample random models"
+        help="(optional) path to specific model xml file to visualize. skip to sample random models",
     )
     parser.add_argument(
         "--show_bbox",
-        action='store_true',
+        action="store_true",
         help="(optional) visualize exterior bounding box (based on ext_ sites)",
     )
     parser.add_argument(
         "--show_coll_geoms",
-        action='store_true',
+        action="store_true",
         help="(optional) whether to hide collision geoms (group 0)",
     )
     parser.add_argument(
         "--obj_types",
         type=str,
-        nargs='+',
+        nargs="+",
         default=["objaverse"],
-        help="(optional) object types. choose among [objaverse, aigen]"
+        help="(optional) object types. choose among [objaverse, aigen]",
     )
     args = parser.parse_args()
 
@@ -290,16 +303,24 @@ if __name__ == "__main__":
 
     if "aigen" in obj_registries:
 
-        aigen_objs_path = os.path.join(robocasa.__path__[0], "models/assets/objects/aigen_objs")
+        aigen_objs_path = os.path.join(
+            robocasa.__path__[0], "models/assets/objects/aigen_objs"
+        )
         if os.path.exists(aigen_objs_path) is False:
             download_config = DOWNLOAD_ASSET_REGISTRY["aigen_objs"]
-            download_config["message"] = "Unable to find AI-generated objects locally. Downloading files."
+            download_config[
+                "message"
+            ] = "Unable to find AI-generated objects locally. Downloading files."
             download_config["prompt_before_download"] = True
             download_and_extract_zip(**download_config)
-            print(colored(f"Ending script. Rerun script to use new AI-generated objects", "yellow"))
+            print(
+                colored(
+                    f"Ending script. Rerun script to use new AI-generated objects",
+                    "yellow",
+                )
+            )
             exit()
-            
-    
+
     while True:
         if args.mjcf is not None:
             filepath = args.mjcf
@@ -336,7 +357,7 @@ if __name__ == "__main__":
             cam_settings=cam_settings,
         )
 
-        time.sleep(0.5) # add delay to prevent ghost windows from opening
+        time.sleep(0.5)  # add delay to prevent ghost windows from opening
 
         while viewer.is_running():
             if device.get_controller_state()["kill"]:
