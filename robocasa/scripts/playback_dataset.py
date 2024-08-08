@@ -99,14 +99,11 @@ def playback_trajectory_with_env(
             if video_count % video_skip == 0:
                 video_img = []
                 for cam_name in camera_names:
-                    video_img.append(
-                        env.render(
-                            mode="rgb_array",
-                            height=512,
-                            width=512,
-                            camera_name=cam_name,
-                        )
-                    )
+                    # video_img.append(env.render(mode="rgb_array", height=512, width=512, camera_name=cam_name))
+                    im = env.sim.render(height=512, width=512, camera_name=cam_name)[
+                        ::-1
+                    ]
+                    video_img.append(im)
                 video_img = np.concatenate(
                     video_img, axis=1
                 )  # concatenate horizontally
@@ -172,8 +169,6 @@ def get_env_metadata_from_dataset(dataset_path, ds_format="robomimic"):
     f = h5py.File(dataset_path, "r")
     if ds_format == "robomimic":
         env_meta = json.loads(f["data"].attrs["env_args"])
-    elif ds_format == "r2d2":
-        env_meta = dict(f.attrs)
     else:
         raise ValueError
     f.close()
@@ -265,8 +260,7 @@ def reset_to(env, state):
 
 def playback_dataset(args):
     # some arg checking
-    # write_video = True #(args.video_path is not None)
-    write_video = False
+    write_video = args.render is not True
     if args.video_path is None:
         args.video_path = args.dataset.split(".hdf5")[0] + ".mp4"
         if args.use_actions:
@@ -293,23 +287,24 @@ def playback_dataset(args):
 
     # create environment only if not playing back with observations
     if not args.use_obs:
-        # need to make sure ObsUtils knows which observations are images, but it doesn't matter
-        # for playback since observations are unused. Pass a dummy spec here.
-        dummy_spec = dict(
-            obs=dict(
-                low_dim=["robot0_eef_pos"],
-                rgb=[],
-            ),
-        )
+        # # need to make sure ObsUtils knows which observations are images, but it doesn't matter
+        # # for playback since observations are unused. Pass a dummy spec here.
+        # dummy_spec = dict(
+        #     obs=dict(
+        #             low_dim=["robot0_eef_pos"],
+        #             rgb=[],
+        #         ),
+        # )
         # initialize_obs_utils_with_obs_specs(obs_modality_specs=dummy_spec)
 
         env_meta = get_env_metadata_from_dataset(dataset_path=args.dataset)
         # env_meta["env_kwargs"]["controller_configs"]["control_delta"] = False # absolute action space
 
         env_kwargs = env_meta["env_kwargs"]
+        env_kwargs["env_name"] = env_meta["env_name"]
         env_kwargs["has_renderer"] = False
         env_kwargs["renderer"] = "mjviewer"
-        env_kwargs["has_offscreen_renderer"] = False  # write_video
+        env_kwargs["has_offscreen_renderer"] = write_video
         env_kwargs["use_camera_obs"] = False
 
         if args.verbose:
@@ -333,34 +328,12 @@ def playback_dataset(args):
         ]
     elif "data" in f.keys():
         demos = list(f["data"].keys())
-    else:
-        demos = None
 
-    if demos is not None:
-        inds = np.argsort([int(elem[5:]) for elem in demos])
-        demos = [demos[i] for i in inds]
-    else:
-        """rendering for r2d2"""
-        assert args.use_obs
-        video_writer = None
-        if write_video:
-            video_writer = imageio.get_writer(args.video_path, fps=20)
-        playback_trajectory_with_obs(
-            traj_grp=f,
-            video_writer=video_writer,
-            video_skip=args.video_skip,
-            image_names=args.render_image_names,
-            first=args.first,
-        )
-        f.close()
-        if write_video:
-            video_writer.close()
-        return
+    inds = np.argsort([int(elem[5:]) for elem in demos])
+    demos = [demos[i] for i in inds]
 
     # maybe reduce the number of demonstrations to playback
     if args.n is not None:
-        # if not args.dont_shuffle_demos:
-        #     random.shuffle(demos)
         random.shuffle(demos)
         demos = demos[: args.n]
 
