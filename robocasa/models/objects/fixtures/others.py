@@ -1,12 +1,15 @@
-from robosuite.utils.mjcf_utils import array_to_string as a2s, string_to_array as s2a, CustomMaterial, xml_path_completion
-from robosuite.models.objects import BoxObject
-from robocasa.models.objects.fixtures.fixture import Fixture
+import xml.etree.ElementTree as ET
+from copy import deepcopy
 
 import numpy as np
-from copy import deepcopy
-import xml.etree.ElementTree as ET
+from robosuite.models.objects import BoxObject
+from robosuite.utils.mjcf_utils import CustomMaterial
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import string_to_array as s2a
+from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
+from robocasa.models.objects.fixtures.fixture import Fixture
 
 
 # used to fill in gaps on corners & beneath bottom cabinets
@@ -17,8 +20,8 @@ class Box(BoxObject):
         size,
         name="box",
         texture="textures/wood/dark_wood_parquet.png",
-        mat_attrib = {"shininess": "0.1"},
-        tex_attrib = {"type": "cube"},
+        mat_attrib={"shininess": "0.1"},
+        tex_attrib={"type": "cube"},
         rng=None,
         *args,
         **kwargs
@@ -32,13 +35,13 @@ class Box(BoxObject):
             mat_attrib=mat_attrib,
             shared=True,
         )
-        
+
         super().__init__(
             name=name,
             material=material,
             joints=None,
             # divide by 2 per mujoco convention
-            size=[x / 2 for x in size]
+            size=[x / 2 for x in size],
         )
 
         self.size = size
@@ -77,13 +80,13 @@ class Wall(BoxObject):
         quat=None,
         size=None,
         wall_side="back",
-        mat_attrib = {
+        mat_attrib={
             "texrepeat": "3 3",
             "reflectance": "0.1",
             "shininess": "0.1",
-            "texuniform": "true"
+            "texuniform": "true",
         },
-        tex_attrib = {"type": "2d"},
+        tex_attrib={"type": "2d"},
         # parameters used for alignment
         backing=False,
         backing_extended=[False, False],
@@ -128,11 +131,11 @@ class Wall(BoxObject):
                 pos[1] += shift
             elif self.wall_side == "front":
                 pos[1] -= shift
-            
+
             if backing:
                 size[1] += default_wall_th + default_backing_th
                 pos[2] -= default_wall_th + default_backing_th
-                
+
                 # extend left/right side to form a perfect box
                 if backing_extended[0]:
                     size[0] += default_backing_th
@@ -148,12 +151,7 @@ class Wall(BoxObject):
                         pos[0] += default_backing_th
 
         super().__init__(
-            name=name,
-            material=material,
-            joints=None,
-            size=size,
-            *args,
-            **kwargs
+            name=name, material=material, joints=None, size=size, *args, **kwargs
         )
 
         self.pos = pos
@@ -170,14 +168,14 @@ class Wall(BoxObject):
     def set_pos(self, pos):
         self.pos = pos
         self._obj.set("pos", a2s(pos))
-    
+
     def get_quat(self):
         side_rots = {
             "back": [-0.707, 0.707, 0, 0],
             "front": [0, 0, 0.707, -0.707],
             "left": [0.5, 0.5, -0.5, -0.5],
             "right": [0.5, -0.5, -0.5, 0.5],
-            "floor": [0.707, 0, 0, 0.707]
+            "floor": [0.707, 0, 0, 0.707],
         }
         if self.wall_side not in side_rots:
             raise ValueError()
@@ -189,16 +187,19 @@ class Wall(BoxObject):
 
 class Floor(Wall):
     def __init__(
-            self, size, name="wall", 
-            texture="textures/bricks/red_bricks.png",
-            mat_attrib={
-                "texrepeat": "2 2", 
-                "texuniform": "true",
-                "reflectance": "0.1",
-                "shininess": "0.1"
-            },
-            *args, **kwargs
-        ):
+        self,
+        size,
+        name="wall",
+        texture="textures/bricks/red_bricks.png",
+        mat_attrib={
+            "texrepeat": "2 2",
+            "texuniform": "true",
+            "reflectance": "0.1",
+            "shininess": "0.1",
+        },
+        *args,
+        **kwargs
+    ):
         # swap x, y axes due to rotation
         size = [size[1], size[0], size[2]]
 
@@ -206,10 +207,12 @@ class Floor(Wall):
 
         # everything is the same except the plane is rotated to be horizontal
         super().__init__(
-            name, texture, 
+            name,
+            texture,
             # horizontal plane
             wall_side="floor",
             size=size,
             mat_attrib=mat_attrib,
-            *args, **kwargs
+            *args,
+            **kwargs
         )

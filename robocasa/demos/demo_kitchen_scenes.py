@@ -1,18 +1,21 @@
 import argparse
 import json
 import time
-import numpy as np
-from termcolor import colored
 from collections import OrderedDict
 
+import numpy as np
 import robosuite
 from robosuite import load_controller_config
-from robocasa.scripts.collect_demos import collect_human_trajectory
 from robosuite.wrappers import VisualizationWrapper
+from termcolor import colored
 
 from robocasa.models.arenas.layout_builder import STYLES
+from robocasa.scripts.collect_demos import collect_human_trajectory
 
-def choose_option(options, option_name, show_keys=False, default=None, default_message=None):
+
+def choose_option(
+    options, option_name, show_keys=False, default=None, default_message=None
+):
     """
     Prints out environment options, and returns the selected env_name choice
 
@@ -37,10 +40,12 @@ def choose_option(options, option_name, show_keys=False, default=None, default_m
             print("[{}] {}".format(i, v))
     print()
     try:
-        s = input("Choose an option 0 to {}, or any other key for default ({}): ".format(
-            len(options) - 1,
-            default_message,
-        ))
+        s = input(
+            "Choose an option 0 to {}, or any other key for default ({}): ".format(
+                len(options) - 1,
+                default_message,
+            )
+        )
         # parse input into a number within range
         k = min(max(int(s), 0), len(options) - 1)
         choice = list(options.keys())[k]
@@ -63,18 +68,20 @@ if __name__ == "__main__":
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
     args = parser.parse_args()
 
-    layouts = OrderedDict([
-        (0, "One wall"),
-        (1, "One wall w/ island"),
-        (2, "L-shaped"),
-        (3, "L-shaped w/ island"),
-        (4, "Galley"),
-        (5, "U-shaped"),
-        (6, "U-shaped w/ island"),
-        (7, "G-shaped"),
-        (8, "G-shaped (large)"),
-        (9, "Wraparound"),
-    ])
+    layouts = OrderedDict(
+        [
+            (0, "One wall"),
+            (1, "One wall w/ island"),
+            (2, "L-shaped"),
+            (3, "L-shaped w/ island"),
+            (4, "Galley"),
+            (5, "U-shaped"),
+            (6, "U-shaped w/ island"),
+            (7, "G-shaped"),
+            (8, "G-shaped (large)"),
+            (9, "Wraparound"),
+        ]
+    )
 
     styles = OrderedDict()
     for k in sorted(STYLES.keys()):
@@ -91,7 +98,7 @@ if __name__ == "__main__":
     args.renderer = "mjviewer"
 
     print(colored("Initializing environment...", "yellow"))
-    
+
     env = robosuite.make(
         **config,
         has_renderer=(args.renderer != "mjviewer"),
@@ -114,34 +121,48 @@ if __name__ == "__main__":
     # collect demonstrations
     while True:
         if args.layout is None:
-            layout = choose_option(layouts, "kitchen layout", default=-1, default_message="random layouts")
+            layout = choose_option(
+                layouts, "kitchen layout", default=-1, default_message="random layouts"
+            )
         else:
             layout = args.layout
 
         if args.style is None:
-            style = choose_option(styles, "kitchen style", default=-1, default_message="random styles")
+            style = choose_option(
+                styles, "kitchen style", default=-1, default_message="random styles"
+            )
         else:
             style = args.style
-        
+
         if layout == -1:
             layout = np.random.choice(range(10))
         if style == -1:
             style = np.random.choice(range(11))
-    
+
         env.layout_and_style_ids = [[layout, style]]
-        print(colored(
-            f"Showing configuration:\n    Layout: {layouts[layout]}\n    Style: {styles[style]}",
-            "green",
-        ))
+        print(
+            colored(
+                f"Showing configuration:\n    Layout: {layouts[layout]}\n    Style: {styles[style]}",
+                "green",
+            )
+        )
         print()
-        print(colored(
-            "Spawning environment...\n(Press Q any time to view new configuration)",
-            "yellow"
-        ))
+        print(
+            colored(
+                "Spawning environment...\n(Press Q any time to view new configuration)",
+                "yellow",
+            )
+        )
 
         ep_directory, discard_traj = collect_human_trajectory(
-            env, device, "right", "single-arm-opposed", mirror_actions=True, render=(args.renderer != "mjviewer"),
-            max_fr=30, print_info=False,
+            env,
+            device,
+            "right",
+            "single-arm-opposed",
+            mirror_actions=True,
+            render=(args.renderer != "mjviewer"),
+            max_fr=30,
+            print_info=False,
         )
 
         print()

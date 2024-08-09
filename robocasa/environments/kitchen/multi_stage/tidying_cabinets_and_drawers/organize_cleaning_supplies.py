@@ -4,13 +4,15 @@ from robocasa.environments.kitchen.kitchen import *
 class OrganizeCleaningSupplies(Kitchen):
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
-        self.cab = self.register_fixture_ref("cab", dict(id=self.cab_id,ref=self.sink))
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER, ref=self.sink))
+        self.cab = self.register_fixture_ref("cab", dict(id=self.cab_id, ref=self.sink))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.sink)
+        )
         self.init_robot_base_pos = self.cab
 
     def get_ep_meta(self):
@@ -18,7 +20,9 @@ class OrganizeCleaningSupplies(Kitchen):
 
         cleaner_name = self.get_obj_lang("cleaner")
 
-        ep_meta["lang"] = f"Open the cabinet. Pick the {cleaner_name} and place it next to the sink. Then close the cabinet."
+        ep_meta[
+            "lang"
+        ] = f"Open the cabinet. Pick the {cleaner_name} and place it next to the sink. Then close the cabinet."
         return ep_meta
 
     def _reset_internal(self):
@@ -30,54 +34,60 @@ class OrganizeCleaningSupplies(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        cfgs.append(dict(
-            name="cleaner",
-            obj_groups="cleaner",
-            graspable=True,
-            placement=dict(
-                fixture=self.cab,
-                size=(0.50, 0.20),
-                pos=(0, -1.0),
-            ),
-        ))
-
-        cfgs.append(dict(
-            name="distr_counter_1",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="cleaner",
+                obj_groups="cleaner",
+                graspable=True,
+                placement=dict(
+                    fixture=self.cab,
+                    size=(0.50, 0.20),
+                    pos=(0, -1.0),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-                offset=(0.0, 0.30),
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="distr_counter_2",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="distr_counter_1",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                    offset=(0.0, 0.30),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-            ),
-        ))
+            )
+        )
+
+        cfgs.append(
+            dict(
+                name="distr_counter_2",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
+                ),
+            )
+        )
 
         return cfgs
-    
+
     def _obj_sink_dist(self, obj_name):
         sink_points = self.sink.get_ext_sites(all_points=True, relative=False)
         obj_point = self.sim.data.body_xpos[self.obj_body_id[obj_name]]
 
         all_dists = [np.linalg.norm(p1 - obj_point) for p1 in sink_points]
-        return np.min(all_dists) 
+        return np.min(all_dists)
 
     def _check_success(self):
 
@@ -88,11 +98,11 @@ class OrganizeCleaningSupplies(Kitchen):
         obj_sink_close = self._obj_sink_dist(obj_name) < 0.35
 
         door_state = self.cab.get_door_state(env=self)
-        
+
         door_closed = True
         for joint_p in door_state.values():
             if joint_p > 0.05:
                 door_closed = False
                 break
 
-        return gripper_obj_far and obj_on_counter and door_closed and obj_sink_close 
+        return gripper_obj_far and obj_on_counter and door_closed and obj_sink_close

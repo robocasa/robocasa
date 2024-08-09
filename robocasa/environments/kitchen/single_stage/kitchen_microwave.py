@@ -21,26 +21,30 @@ class MicrowavePressButton(Kitchen):
         elif self.behavior == "turn_off":
             ep_meta["lang"] = "press the stop button on the microwave"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
-        cfgs.append(dict(
-            name="obj",
-            obj_groups="all",
-            heatable=True,
-            placement=dict(
-                fixture=self.microwave,
-                size=(0.05, 0.05),
-                ensure_object_boundary_in_range=False,
-                try_to_place_in="container",
-            ),
-        ))
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups="all",
+                heatable=True,
+                placement=dict(
+                    fixture=self.microwave,
+                    size=(0.05, 0.05),
+                    ensure_object_boundary_in_range=False,
+                    try_to_place_in="container",
+                ),
+            )
+        )
 
         return cfgs
 
     def _check_success(self):
         turned_on = self.microwave.get_state()["turned_on"]
-        gripper_button_far = self.microwave.gripper_button_far(self, button="start_button" if self.behavior == "turn_on" else "stop_button")
+        gripper_button_far = self.microwave.gripper_button_far(
+            self, button="start_button" if self.behavior == "turn_on" else "stop_button"
+        )
 
         if self.behavior == "turn_on":
             return turned_on and gripper_button_far

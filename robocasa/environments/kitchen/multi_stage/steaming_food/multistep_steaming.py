@@ -12,14 +12,20 @@ class MultistepSteaming(Kitchen):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER, ref=self.sink))
-        self.stove_counter = self.register_fixture_ref("stove_counter", dict(id=FixtureType.COUNTER, ref=self.stove))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.sink)
+        )
+        self.stove_counter = self.register_fixture_ref(
+            "stove_counter", dict(id=FixtureType.COUNTER, ref=self.stove)
+        )
         self.init_robot_base_pos = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         vegetable_name = self.get_obj_lang("vegetable1")
-        ep_meta["lang"] = f"Turn on the sink. Then move the {vegetable_name} from the counter to the sink. Turn of the sink. Move the vegetable from the sink to the pot next to the stove. Finally, move the pot to the {self.knob.replace('_', ' ')} burner."
+        ep_meta[
+            "lang"
+        ] = f"Turn on the sink. Then move the {vegetable_name} from the counter to the sink. Turn of the sink. Move the vegetable from the sink to the pot next to the stove. Finally, move the pot to the {self.knob.replace('_', ' ')} burner."
         return ep_meta
 
     def _reset_internal(self):
@@ -38,48 +44,48 @@ class MultistepSteaming(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        cfgs.append(dict(
-            name="pot",
-            obj_groups="pot",
-            placement=dict(
-                fixture=self.stove_counter,
-                sample_region_kwargs=dict(
-                    ref=self.stove,
+        cfgs.append(
+            dict(
+                name="pot",
+                obj_groups="pot",
+                placement=dict(
+                    fixture=self.stove_counter,
+                    sample_region_kwargs=dict(
+                        ref=self.stove,
+                    ),
+                    size=(0.05, 0.05),
+                    pos=("ref", -0.7),
+                    rotation=np.pi / 2,
+                    ensure_object_boundary_in_range=False,
                 ),
-                size=(0.05, 0.05),
-                pos=("ref", -0.7),
-                rotation=np.pi/2,
-                ensure_object_boundary_in_range=False,
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="vegetable1",
-            obj_groups="vegetable",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right"
+        cfgs.append(
+            dict(
+                name="vegetable1",
+                obj_groups="vegetable",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.sink, loc="left_right"),
+                    size=(0.5, 0.5),
+                    pos=("ref", -1.0),
                 ),
-                size=(0.5, 0.5),
-                pos=("ref", -1.0),
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="obj",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right"
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.sink, loc="left_right"),
+                    size=(0.4, 0.4),
+                    pos=(-1.0, 0.0),
                 ),
-                size=(0.4, 0.4),
-                pos=(-1.0, 0.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
@@ -92,18 +98,20 @@ class MultistepSteaming(Kitchen):
         if obj_on_stove:
             for location, site in self.stove.burner_sites.items():
                 if site is not None:
-                    burner_pos = np.array(self.sim.data.get_site_xpos(site.get("name")))[0:2]
+                    burner_pos = np.array(
+                        self.sim.data.get_site_xpos(site.get("name"))
+                    )[0:2]
                     dist = np.linalg.norm(burner_pos - obj_pos)
 
-                    obj_on_site = (dist < threshold)
+                    obj_on_site = dist < threshold
                     if obj_on_site:
                         return location
-                    
+
         return None
-    
+
     def _check_success(self):
 
-        handle_state = self.sink.get_handle_state(env=self)        
+        handle_state = self.sink.get_handle_state(env=self)
         water_on = handle_state["water_on"]
 
         if water_on:
@@ -118,4 +126,10 @@ class MultistepSteaming(Kitchen):
 
         vegetable_in_pot = OU.check_obj_in_receptacle(self, "vegetable1", "pot")
 
-        return self.water_was_turned_on and self.vegetable_was_in_sink and (not water_on) and pot_on_burner and vegetable_in_pot
+        return (
+            self.water_was_turned_on
+            and self.vegetable_was_in_sink
+            and (not water_on)
+            and pot_on_burner
+            and vegetable_in_pot
+        )

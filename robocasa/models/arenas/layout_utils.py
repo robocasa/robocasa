@@ -1,31 +1,32 @@
+import os
+from copy import deepcopy
+
+import yaml
 from robosuite.utils.mjcf_utils import xml_path_completion
+
 import robocasa
 
-from copy import deepcopy
-import yaml
-import os
-
-
 # second keyword corresponds to positive end of axis
-AXES_KEYWORDS = {
-    0: ["left", "right"],
-    1: ["front", "back"],
-    2: ["bottom", "top"]
-}
+AXES_KEYWORDS = {0: ["left", "right"], 1: ["front", "back"], 2: ["bottom", "top"]}
 
 # arguments not to be passed into fixture classes when initializing
 IGNORE_ARGS = [
-    "name", "align_to", "side", "alignment", "type", 
-    "center", "offset",
-    "group_origin", "group_pos", "group_z_rot",
-
-    "stack_height", "stack_fixtures",
+    "name",
+    "align_to",
+    "side",
+    "alignment",
+    "type",
+    "center",
+    "offset",
+    "group_origin",
+    "group_pos",
+    "group_z_rot",
+    "stack_height",
+    "stack_fixtures",
 ]
 
 # arguments used to point to other fixtures
-ATTACH_ARGS = [
-    "interior_obj", "stack_on", "attach_to"
-]
+ATTACH_ARGS = ["interior_obj", "stack_on", "attach_to"]
 
 
 def initialize_fixture(config, cur_fixtures, rng=None):
@@ -53,7 +54,7 @@ def initialize_fixture(config, cur_fixtures, rng=None):
 
     if "pos" not in config:
         # need position to initialize fixture, adjusted later fo relative positioning
-        config["pos"] = [0., 0., 0.]
+        config["pos"] = [0.0, 0.0, 0.0]
 
     # update fixture pointers
     for k in ATTACH_ARGS:
@@ -72,7 +73,7 @@ def load_default_config(style, fixture_config):
     """
     # accounts for the different types of cabinets
     fixture_type = fixture_config["type"]
-    
+
     # cabinets, shelves, drawers, and boxes use the same default configurations
     if "cabinet" in fixture_type or "drawer" in fixture_type or "box" in fixture_type:
         fixture_type = "cabinet"
@@ -80,28 +81,32 @@ def load_default_config(style, fixture_config):
     # if fixture_type not in style:
     #     raise ValueError("Did not specify fixture type \"{}\" in chosen style".format(fixture_type))
     fixture_style = style.get(fixture_type, "default")
-    
-    yaml_path = os.path.join("kitchen_layouts", "fixture_defaults", fixture_type + "_default.yaml")
+
+    yaml_path = os.path.join(
+        "kitchen_layouts", "fixture_defaults", fixture_type + "_default.yaml"
+    )
     yaml_path = xml_path_completion(yaml_path, root=robocasa.models.assets_root)
-    with open(yaml_path, 'r') as f:
+    with open(yaml_path, "r") as f:
         default_configs = yaml.safe_load(f)
 
     # find which configuration to use
     if type(fixture_style) == dict and "config_name" not in fixture_config:
         if "default_config_name" in fixture_config:
-            config_ids = fixture_style.get(fixture_config["default_config_name"], fixture_style["default"])
+            config_ids = fixture_style.get(
+                fixture_config["default_config_name"], fixture_style["default"]
+            )
             del fixture_config["default_config_name"]
         else:
             config_ids = fixture_style["default"]
     elif "default_config_name" in fixture_config:
-        raise ValueError("Specified \"default_config_name\" but no default config found")
+        raise ValueError('Specified "default_config_name" but no default config found')
 
     elif "config_name" in fixture_config:
         config_ids = fixture_config["config_name"]
         del fixture_config["config_name"]
     else:
         config_ids = fixture_style
-    
+
     # search for config by name
     config = default_configs["default"]
     if not isinstance(config_ids, list):
@@ -113,10 +118,11 @@ def load_default_config(style, fixture_config):
             for k, v in additional_config.items():
                 config[k] = v
         else:
-            raise ValueError("Did not find style that matches \"{}\" for " \
-                        "fixture type \"{}\"".format(cfg_id, fixture_type))
+            raise ValueError(
+                'Did not find style that matches "{}" for '
+                'fixture type "{}"'.format(cfg_id, fixture_type)
+            )
     return config
-
 
 
 def get_relative_position(fixture, config, prev_fxtr, prev_fxtr_config):

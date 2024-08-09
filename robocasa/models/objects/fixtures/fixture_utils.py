@@ -1,5 +1,6 @@
 from robocasa.models.objects.fixtures import *
 
+
 def fixture_is_type(fixture, fixture_type):
     if fixture_type == FixtureType.COUNTER:
         return isinstance(fixture, Counter)
@@ -17,10 +18,15 @@ def fixture_is_type(fixture, fixture_type):
     elif fixture_type == FixtureType.STOVE:
         return isinstance(fixture, Stove)
     elif fixture_type == FixtureType.CABINET_TOP:
-        cls_check = any([isinstance(fixture, cls) for cls in [SingleCabinet, HingeCabinet, OpenCabinet]])
+        cls_check = any(
+            [
+                isinstance(fixture, cls)
+                for cls in [SingleCabinet, HingeCabinet, OpenCabinet]
+            ]
+        )
         if not cls_check:
             return False
-        if "stack" in fixture.name: # wall stack cabinets not valid
+        if "stack" in fixture.name:  # wall stack cabinets not valid
             return False
         fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
         height_check = 1.0 <= fxtr_bottom_z <= 1.60
@@ -28,35 +34,48 @@ def fixture_is_type(fixture, fixture_type):
     elif fixture_type == FixtureType.MICROWAVE:
         return isinstance(fixture, Microwave)
     elif fixture_type in [FixtureType.DOOR_HINGE, FixtureType.DOOR_TOP_HINGE]:
-        cls_check = any([isinstance(fixture, cls) for cls in [SingleCabinet, HingeCabinet, Microwave]])
+        cls_check = any(
+            [
+                isinstance(fixture, cls)
+                for cls in [SingleCabinet, HingeCabinet, Microwave]
+            ]
+        )
         if not cls_check:
             return False
         if fixture_type == FixtureType.DOOR_TOP_HINGE:
-            if "stack" in fixture.name: # wall stack cabinets not valid
+            if "stack" in fixture.name:  # wall stack cabinets not valid
                 return False
             fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
             height_check = 1.0 <= fxtr_bottom_z <= 1.60
             if not height_check:
                 return False
         return True
-    elif fixture_type in [FixtureType.DOOR_HINGE_SINGLE, FixtureType.DOOR_TOP_HINGE_SINGLE]:
-        cls_check = any([isinstance(fixture, cls) for cls in [SingleCabinet, Microwave]])
+    elif fixture_type in [
+        FixtureType.DOOR_HINGE_SINGLE,
+        FixtureType.DOOR_TOP_HINGE_SINGLE,
+    ]:
+        cls_check = any(
+            [isinstance(fixture, cls) for cls in [SingleCabinet, Microwave]]
+        )
         if not cls_check:
             return False
         if fixture_type == FixtureType.DOOR_TOP_HINGE_SINGLE:
-            if "stack" in fixture.name: # wall stack cabinets not valid
+            if "stack" in fixture.name:  # wall stack cabinets not valid
                 return False
             fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
             height_check = 1.0 <= fxtr_bottom_z <= 1.60
             if not height_check:
                 return False
         return True
-    elif fixture_type in [FixtureType.DOOR_HINGE_DOUBLE, FixtureType.DOOR_TOP_HINGE_DOUBLE]:
+    elif fixture_type in [
+        FixtureType.DOOR_HINGE_DOUBLE,
+        FixtureType.DOOR_TOP_HINGE_DOUBLE,
+    ]:
         cls_check = any([isinstance(fixture, cls) for cls in [HingeCabinet]])
         if not cls_check:
             return False
         if fixture_type == FixtureType.DOOR_TOP_HINGE_DOUBLE:
-            if "stack" in fixture.name: # wall stack cabinets not valid
+            if "stack" in fixture.name:  # wall stack cabinets not valid
                 return False
             fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
             height_check = 1.0 <= fxtr_bottom_z <= 1.60
@@ -66,7 +85,7 @@ def fixture_is_type(fixture, fixture_type):
     elif fixture_type == FixtureType.TOASTER:
         return isinstance(fixture, Toaster)
     elif fixture_type == FixtureType.TOP_DRAWER:
-        height_check =  0.7 <= fixture.pos[2] <= 0.9 
+        height_check = 0.7 <= fixture.pos[2] <= 0.9
         return height_check and isinstance(fixture, Drawer)
     elif fixture_type == FixtureType.STOOL:
         return isinstance(fixture, Stool)

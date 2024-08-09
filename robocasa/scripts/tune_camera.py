@@ -10,14 +10,11 @@ import time
 import xml.etree.ElementTree as ET
 
 import numpy as np
-from pynput.keyboard import Controller, Key, Listener
-
 import robosuite
 import robosuite.utils.transform_utils as T
+from pynput.keyboard import Controller, Key, Listener
 from robosuite.utils.camera_utils import CameraMover
 from robosuite.utils.mjcf_utils import find_elements, find_parent
-
-from pynput.keyboard import Listener, Key
 
 # some settings
 DELTA_POS_KEY_PRESS = 0.05  # delta camera position per key press
@@ -53,42 +50,66 @@ class KeyboardHandler:
             # controls for moving rotation
             if key == Key.up:
                 # rotate up
-                self.camera_mover.rotate_camera(point=None, axis=[1.0, 0.0, 0.0], angle=DELTA_ROT_KEY_PRESS)
+                self.camera_mover.rotate_camera(
+                    point=None, axis=[1.0, 0.0, 0.0], angle=DELTA_ROT_KEY_PRESS
+                )
             elif key == Key.down:
                 # rotate down
-                self.camera_mover.rotate_camera(point=None, axis=[-1.0, 0.0, 0.0], angle=DELTA_ROT_KEY_PRESS)
+                self.camera_mover.rotate_camera(
+                    point=None, axis=[-1.0, 0.0, 0.0], angle=DELTA_ROT_KEY_PRESS
+                )
             elif key == Key.left:
                 # rotate left
-                self.camera_mover.rotate_camera(point=None, axis=[0.0, 1.0, 0.0], angle=DELTA_ROT_KEY_PRESS)
+                self.camera_mover.rotate_camera(
+                    point=None, axis=[0.0, 1.0, 0.0], angle=DELTA_ROT_KEY_PRESS
+                )
             elif key == Key.right:
                 # rotate right
-                self.camera_mover.rotate_camera(point=None, axis=[0.0, -1.0, 0.0], angle=DELTA_ROT_KEY_PRESS)
+                self.camera_mover.rotate_camera(
+                    point=None, axis=[0.0, -1.0, 0.0], angle=DELTA_ROT_KEY_PRESS
+                )
 
             # controls for moving position
             elif key.char == "w":
                 # move forward
-                self.camera_mover.move_camera(direction=[0.0, 0.0, -1.0], scale=DELTA_POS_KEY_PRESS)
+                self.camera_mover.move_camera(
+                    direction=[0.0, 0.0, -1.0], scale=DELTA_POS_KEY_PRESS
+                )
             elif key.char == "s":
                 # move backward
-                self.camera_mover.move_camera(direction=[0.0, 0.0, 1.0], scale=DELTA_POS_KEY_PRESS)
+                self.camera_mover.move_camera(
+                    direction=[0.0, 0.0, 1.0], scale=DELTA_POS_KEY_PRESS
+                )
             elif key.char == "a":
                 # move left
-                self.camera_mover.move_camera(direction=[-1.0, 0.0, 0.0], scale=DELTA_POS_KEY_PRESS)
+                self.camera_mover.move_camera(
+                    direction=[-1.0, 0.0, 0.0], scale=DELTA_POS_KEY_PRESS
+                )
             elif key.char == "d":
                 # move right
-                self.camera_mover.move_camera(direction=[1.0, 0.0, 0.0], scale=DELTA_POS_KEY_PRESS)
+                self.camera_mover.move_camera(
+                    direction=[1.0, 0.0, 0.0], scale=DELTA_POS_KEY_PRESS
+                )
             elif key.char == "r":
                 # move up
-                self.camera_mover.move_camera(direction=[0.0, 1.0, 0.0], scale=DELTA_POS_KEY_PRESS)
+                self.camera_mover.move_camera(
+                    direction=[0.0, 1.0, 0.0], scale=DELTA_POS_KEY_PRESS
+                )
             elif key.char == "f":
                 # move down
-                self.camera_mover.move_camera(direction=[0.0, -1.0, 0.0], scale=DELTA_POS_KEY_PRESS)
+                self.camera_mover.move_camera(
+                    direction=[0.0, -1.0, 0.0], scale=DELTA_POS_KEY_PRESS
+                )
             elif key.char == ".":
                 # rotate counterclockwise
-                self.camera_mover.rotate_camera(point=None, axis=[0.0, 0.0, 1.0], angle=DELTA_ROT_KEY_PRESS)
+                self.camera_mover.rotate_camera(
+                    point=None, axis=[0.0, 0.0, 1.0], angle=DELTA_ROT_KEY_PRESS
+                )
             elif key.char == "/":
                 # rotate clockwise
-                self.camera_mover.rotate_camera(point=None, axis=[0.0, 0.0, -1.0], angle=DELTA_ROT_KEY_PRESS)
+                self.camera_mover.rotate_camera(
+                    point=None, axis=[0.0, 0.0, -1.0], angle=DELTA_ROT_KEY_PRESS
+                )
 
         except AttributeError as e:
             pass
@@ -119,10 +140,18 @@ def print_command(char, info):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", type=str, default="Lift")
-    parser.add_argument("--robots", nargs="+", type=str, default="Sawyer", help="Which robot(s) to use in the env")
+    parser.add_argument(
+        "--robots",
+        nargs="+",
+        type=str,
+        default="Sawyer",
+        help="Which robot(s) to use in the env",
+    )
     args = parser.parse_args()
 
-    print("\nWelcome to the camera tuning script! You will be able to tune a camera view")
+    print(
+        "\nWelcome to the camera tuning script! You will be able to tune a camera view"
+    )
     print("by moving it around using your keyboard. The controls are printed below.")
 
     print("")
@@ -145,7 +174,9 @@ if __name__ == "__main__":
         # if args.env != "Lift":
         #     raise Exception("ERROR: env must be Lift to run default example.")
         print("\nUsing an example tag corresponding to the frontview camera.")
-        print("This xml tag was copied from robosuite/models/assets/arenas/table_arena.xml")
+        print(
+            "This xml tag was copied from robosuite/models/assets/arenas/table_arena.xml"
+        )
         inp = '<camera mode="fixed" name="frontview" pos="1.6 0 1.45" quat="0.56 0.43 0.43 0.56"/>'
 
     # remember the tag and infer some properties
@@ -159,7 +190,9 @@ if __name__ == "__main__":
     print(notify_str)
     print("{}\n".format(inp))
 
-    cam_tree = ET.fromstring(inp) if from_tag else ET.Element("camera", attrib={"name": inp})
+    cam_tree = (
+        ET.fromstring(inp) if from_tag else ET.Element("camera", attrib={"name": inp})
+    )
     CAMERA_NAME = cam_tree.get("name")
 
     # make the environment
@@ -187,21 +220,32 @@ if __name__ == "__main__":
     # Infer initial camera pose
     if from_tag:
         initial_file_camera_pos = np.array(cam_tree.get("pos").split(" ")).astype(float)
-        initial_file_camera_quat = T.convert_quat(np.array(cam_tree.get("quat").split(" ")).astype(float), to="xyzw")
+        initial_file_camera_quat = T.convert_quat(
+            np.array(cam_tree.get("quat").split(" ")).astype(float), to="xyzw"
+        )
         # Set these values as well
-        camera_mover.set_camera_pose(pos=initial_file_camera_pos, quat=initial_file_camera_quat)
+        camera_mover.set_camera_pose(
+            pos=initial_file_camera_pos, quat=initial_file_camera_quat
+        )
         # Optionally set fov if specified
         cam_fov = cam_tree.get("fovy", None)
         if cam_fov is not None:
             env.sim.model.cam_fovy[camera_id] = float(cam_fov)
     else:
-        initial_file_camera_pos, initial_file_camera_quat = camera_mover.get_camera_pose()
+        (
+            initial_file_camera_pos,
+            initial_file_camera_quat,
+        ) = camera_mover.get_camera_pose()
     # Define initial file camera pose
-    initial_file_camera_pose = T.make_pose(initial_file_camera_pos, T.quat2mat(initial_file_camera_quat))
+    initial_file_camera_pose = T.make_pose(
+        initial_file_camera_pos, T.quat2mat(initial_file_camera_quat)
+    )
 
     # remember difference between camera pose in initial tag and absolute camera pose in world
     initial_world_camera_pos, initial_world_camera_quat = camera_mover.get_camera_pose()
-    initial_world_camera_pose = T.make_pose(initial_world_camera_pos, T.quat2mat(initial_world_camera_quat))
+    initial_world_camera_pose = T.make_pose(
+        initial_world_camera_pos, T.quat2mat(initial_world_camera_quat)
+    )
     world_in_file = initial_file_camera_pose.dot(T.pose_inv(initial_world_camera_pose))
 
     # register callbacks to handle key presses in the viewer
@@ -224,6 +268,13 @@ if __name__ == "__main__":
             camera_quat = T.convert_quat(camera_quat, to="wxyz")
 
             print("\n\ncurrent camera tag you should copy")
-            cam_tree.set("pos", "{} {} {}".format(camera_pos[0], camera_pos[1], camera_pos[2]))
-            cam_tree.set("quat", "{} {} {} {}".format(camera_quat[0], camera_quat[1], camera_quat[2], camera_quat[3]))
+            cam_tree.set(
+                "pos", "{} {} {}".format(camera_pos[0], camera_pos[1], camera_pos[2])
+            )
+            cam_tree.set(
+                "quat",
+                "{} {} {} {}".format(
+                    camera_quat[0], camera_quat[1], camera_quat[2], camera_quat[3]
+                ),
+            )
             print(ET.tostring(cam_tree, encoding="utf8").decode("utf8"))

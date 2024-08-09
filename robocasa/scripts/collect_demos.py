@@ -8,35 +8,44 @@ script.
 
 import argparse
 import datetime
-import imageio
 import json
 import os
 import time
 from glob import glob
-from termcolor import colored
 
 import h5py
+import imageio
+import mujoco
 import numpy as np
-
 import robosuite as suite
-import robocasa.macros as macros
 from robosuite import load_controller_config
 from robosuite.utils.input_utils import input2action
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
+from termcolor import colored
 
 import robocasa
+import robocasa.macros as macros
 from robocasa.models.objects.fixtures import FixtureType
 
-import mujoco
+assert (
+    mujoco.__version__ == "3.1.1"
+), "MuJoCo version must be 3.1.1. Please run pip install mujoco==3.1.1"
+
 
 def is_empty_input_spacemouse(action):
     if np.all(action[:6] == 0) and action[6] == -1 and np.all(action[7:11] == 0):
         return True
     return False
 
+
 def collect_human_trajectory(
-    env, device, arm, env_configuration, mirror_actions,
-    render=True, max_fr=None,
+    env,
+    device,
+    arm,
+    env_configuration,
+    mirror_actions,
+    render=True,
+    max_fr=None,
     print_info=True,
 ):
     """
@@ -67,13 +76,17 @@ def collect_human_trajectory(
         # ID = 2 always corresponds to agentview
         env.render()
 
-    task_completion_hold_count = -1  # counter to collect 10 timesteps after reaching goal
+    task_completion_hold_count = (
+        -1
+    )  # counter to collect 10 timesteps after reaching goal
     device.start_control()
 
     nonzero_ac_seen = False
 
     # Set active robot
-    active_robot = env.robots[0] if env_configuration == "bimanual" else env.robots[arm == "left"]
+    active_robot = (
+        env.robots[0] if env_configuration == "bimanual" else env.robots[arm == "left"]
+    )
 
     if active_robot.is_mobile:
         zero_action = np.array([0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1])
@@ -131,12 +144,14 @@ def collect_human_trajectory(
             # flip some actions
             base_action[0], base_action[1] = base_action[1], -base_action[0]
 
-            action = np.concatenate((
-                arm_actions,
-                np.repeat(input_action[6:7], env.robots[0].gripper[arm].dof),
-                base_action,
-                torso_action,
-            ))
+            action = np.concatenate(
+                (
+                    arm_actions,
+                    np.repeat(input_action[6:7], env.robots[0].gripper[arm].dof),
+                    base_action,
+                    torso_action,
+                )
+            )
             mode_action = input_action[-1]
 
             env.robots[0].enable_parts(base=True, right=True, left=True, torso=True)
@@ -147,10 +162,7 @@ def collect_human_trajectory(
         else:
             arm_actions = input_action
             action = env.robots[0].create_action_vector(
-                {
-                    arm: arm_actions[:-1], 
-                    f"{arm}_gripper": arm_actions[-1:]
-                }
+                {arm: arm_actions[:-1], f"{arm}_gripper": arm_actions[-1:]}
             )
 
         # Run environment step
@@ -186,7 +198,7 @@ def collect_human_trajectory(
         ep_directory = env.ep_directory
     else:
         ep_directory = None
-        
+
     # cleanup for end of data collection episodes
     env.close()
 
@@ -254,7 +266,7 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
 
         # # Add only the successful demonstration to dataset
         # if success:
-        
+
         # print("Demonstration is successful and has been saved")
         # Delete the last state. This is because when the DataCollector wrapper
         # recorded the states and actions, the states were recorded AFTER playing that action,
@@ -284,7 +296,7 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
         if len(actions_abs) > 0:
             print(np.array(actions_abs).shape)
             ep_data_grp.create_dataset("actions_abs", data=np.array(actions_abs))
-        
+
         # else:
         #     pass
         #     # print("Demonstration is unsuccessful and has NOT been saved")
@@ -315,30 +327,76 @@ if __name__ == "__main__":
         default=os.path.join(robocasa.models.assets_root, "demonstrations_private"),
     )
     parser.add_argument("--environment", type=str, default="Kitchen")
-    parser.add_argument("--robots", nargs="+", type=str, default="PandaMobile", help="Which robot(s) to use in the env")
     parser.add_argument(
-        "--config", type=str, default="single-arm-opposed", help="Specified environment configuration if necessary"
+        "--robots",
+        nargs="+",
+        type=str,
+        default="PandaMobile",
+        help="Which robot(s) to use in the env",
     )
-    parser.add_argument("--arm", type=str, default="right", help="Which arm to control (eg bimanual) 'right' or 'left'")
     parser.add_argument(
-        "--obj_groups", type=str, nargs='+', default=None, 
-        help="In kitchen environments, either the name of a group to sample object from or path to an .xml file"
+        "--config",
+        type=str,
+        default="single-arm-opposed",
+        help="Specified environment configuration if necessary",
+    )
+    parser.add_argument(
+        "--arm",
+        type=str,
+        default="right",
+        help="Which arm to control (eg bimanual) 'right' or 'left'",
+    )
+    parser.add_argument(
+        "--obj_groups",
+        type=str,
+        nargs="+",
+        default=None,
+        help="In kitchen environments, either the name of a group to sample object from or path to an .xml file",
     )
 
-    parser.add_argument("--camera", type=str, default=None, help="Which camera to use for collecting demos")
     parser.add_argument(
-        "--controller", type=str, default="OSC_POSE", help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'"
+        "--camera",
+        type=str,
+        default=None,
+        help="Which camera to use for collecting demos",
     )
-    parser.add_argument("--device", type=str, default="spacemouse", choices=["keyboard", "keyboardmobile", "spacemouse", "dummy"])
-    parser.add_argument("--pos-sensitivity", type=float, default=4.0, help="How much to scale position user inputs")
-    parser.add_argument("--rot-sensitivity", type=float, default=4.0, help="How much to scale rotation user inputs")
-    
+    parser.add_argument(
+        "--controller",
+        type=str,
+        default="OSC_POSE",
+        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="spacemouse",
+        choices=["keyboard", "keyboardmobile", "spacemouse", "dummy"],
+    )
+    parser.add_argument(
+        "--pos-sensitivity",
+        type=float,
+        default=4.0,
+        help="How much to scale position user inputs",
+    )
+    parser.add_argument(
+        "--rot-sensitivity",
+        type=float,
+        default=4.0,
+        help="How much to scale rotation user inputs",
+    )
+
     parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--renderer", type=str, default="mjviewer", choices=["mjviewer", "mujoco"])
-    parser.add_argument("--max_fr", default=30, type=int, help="If specified, limit the frame rate")
+    parser.add_argument(
+        "--renderer", type=str, default="mjviewer", choices=["mjviewer", "mujoco"]
+    )
+    parser.add_argument(
+        "--max_fr", default=30, type=int, help="If specified, limit the frame rate"
+    )
 
-    parser.add_argument("--layout", type=int, nargs='+', default=-1)
-    parser.add_argument("--style", type=int, nargs='+', default=[0, 1, 2, 3, 4, 5, 6, 7, 8, 11])
+    parser.add_argument("--layout", type=int, nargs="+", default=-1)
+    parser.add_argument(
+        "--style", type=int, nargs="+", default=[0, 1, 2, 3, 4, 5, 6, 7, 8, 11]
+    )
     parser.add_argument("--generative_textures", action="store_true")
     args = parser.parse_args()
 
@@ -362,9 +420,11 @@ if __name__ == "__main__":
         config["env_configuration"] = args.config
 
     # Mirror actions if using a kitchen environment
-    if env_name in ["Lift"]: # add other non-kitchen tasks here
+    if env_name in ["Lift"]:  # add other non-kitchen tasks here
         if args.obj_groups is not None:
-            print("Specifying 'obj_groups' in non-kitchen environment does not have an effect.")
+            print(
+                "Specifying 'obj_groups' in non-kitchen environment does not have an effect."
+            )
         mirror_actions = False
         if args.camera is None:
             args.camera = "agentview"
@@ -410,7 +470,7 @@ if __name__ == "__main__":
     env_info = json.dumps(config)
 
     t_now = time.time()
-    time_str = datetime.datetime.fromtimestamp(t_now).strftime('%Y-%m-%d-%H-%M-%S')
+    time_str = datetime.datetime.fromtimestamp(t_now).strftime("%Y-%m-%d-%H-%M-%S")
 
     if not args.debug:
         # wrap the environment with data collection wrapper
@@ -421,7 +481,9 @@ if __name__ == "__main__":
     if args.device == "keyboard":
         from robosuite.devices import Keyboard
 
-        device = Keyboard(pos_sensitivity=args.pos_sensitivity, rot_sensitivity=args.rot_sensitivity)
+        device = Keyboard(
+            pos_sensitivity=args.pos_sensitivity, rot_sensitivity=args.rot_sensitivity
+        )
     elif args.device == "spacemouse":
         from robosuite.devices import SpaceMouse
 
@@ -444,13 +506,20 @@ if __name__ == "__main__":
     while True:
         print()
         ep_directory, discard_traj = collect_human_trajectory(
-            env, device, args.arm, args.config, mirror_actions, render=(args.renderer != "mjviewer"),
+            env,
+            device,
+            args.arm,
+            args.config,
+            mirror_actions,
+            render=(args.renderer != "mjviewer"),
             max_fr=args.max_fr,
         )
 
         print("Keep traj?", not discard_traj)
-        
+
         if not args.debug:
             if discard_traj and ep_directory is not None:
-                excluded_eps.append(ep_directory.split('/')[-1])
-            gather_demonstrations_as_hdf5(tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps)
+                excluded_eps.append(ep_directory.split("/")[-1])
+            gather_demonstrations_as_hdf5(
+                tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
+            )

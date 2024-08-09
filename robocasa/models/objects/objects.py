@@ -3,15 +3,10 @@ import time
 import xml.etree.ElementTree as ET
 
 import numpy as np
-
 import robosuite
 import robosuite.utils.transform_utils as T
-from robosuite.utils.mjcf_utils import (
-    array_to_string,
-    string_to_array,
-)
-
 from robosuite.models.objects import MujocoXMLObject
+from robosuite.utils.mjcf_utils import array_to_string, string_to_array
 
 
 class MJCFObject(MujocoXMLObject):
@@ -105,7 +100,9 @@ class MJCFObject(MujocoXMLObject):
 
             old_path_split = old_path.split("/")
             # maybe replace all paths to robosuite assets
-            check_lst = [loc for loc, val in enumerate(old_path_split) if val == "robosuite"]
+            check_lst = [
+                loc for loc, val in enumerate(old_path_split) if val == "robosuite"
+            ]
             if len(check_lst) > 0:
                 ind = max(check_lst)  # last occurrence index
                 new_path_split = path_split + old_path_split[ind + 1 :]

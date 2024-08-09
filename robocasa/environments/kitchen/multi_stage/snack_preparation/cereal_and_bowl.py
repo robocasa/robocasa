@@ -4,17 +4,21 @@ from robocasa.environments.kitchen.kitchen import *
 class CerealAndBowl(Kitchen):
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.cab = self.register_fixture_ref("cab", dict(id=self.cab_id))
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER, ref=self.cab))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
+        )
         self.init_robot_base_pos = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"open the cabinet, pick the cereal and bowl from the cabinet and place it on the counter. Then close the cabinet"
+        ep_meta[
+            "lang"
+        ] = f"open the cabinet, pick the cereal and bowl from the cabinet and place it on the counter. Then close the cabinet"
         return ep_meta
 
     def _reset_internal(self):
@@ -26,56 +30,64 @@ class CerealAndBowl(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        #make sure bowl and cereal show up on diff sides randomly
+        # make sure bowl and cereal show up on diff sides randomly
         direction = self.rng.choice([1.0, -1.0])
 
-        cfgs.append(dict(
-            name="cereal",
-            obj_groups="boxed_food",
-            graspable=True,
-            placement=dict(
-                fixture=self.cab,
-                size=(0.30, 0.30),
-                pos=(1.0 * direction, -1.0),
-            ),
-        ))
-
-        cfgs.append(dict(
-            name="bowl",
-            obj_groups="bowl",
-            graspable=True,
-            placement=dict(
-                fixture=self.cab,
-                size=(0.50, 0.50),
-                pos=(-1.0 * direction, -1.0),
-            ),
-        ))
-
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.cab,
+        cfgs.append(
+            dict(
+                name="cereal",
+                obj_groups="boxed_food",
+                graspable=True,
+                placement=dict(
+                    fixture=self.cab,
+                    size=(0.30, 0.30),
+                    pos=(1.0 * direction, -1.0),
                 ),
-                size=(1.0, 0.30),
-                pos=(0.0, 1.0),
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="milk",
-            obj_groups="milk",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.cab,
+        cfgs.append(
+            dict(
+                name="bowl",
+                obj_groups="bowl",
+                graspable=True,
+                placement=dict(
+                    fixture=self.cab,
+                    size=(0.50, 0.50),
+                    pos=(-1.0 * direction, -1.0),
                 ),
-                size=(0.5, 0.30),
-                pos=(0.0, 0.0),
-            ),
-        ))
+            )
+        )
+
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.cab,
+                    ),
+                    size=(1.0, 0.30),
+                    pos=(0.0, 1.0),
+                ),
+            )
+        )
+
+        cfgs.append(
+            dict(
+                name="milk",
+                obj_groups="milk",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.cab,
+                    ),
+                    size=(0.5, 0.30),
+                    pos=(0.0, 0.0),
+                ),
+            )
+        )
 
         return cfgs
 

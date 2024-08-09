@@ -1,8 +1,11 @@
 import argparse
+
 from robocasa.models.objects.kitchen_objects import *
+
 
 def list_of_strings(arg):
     return arg.split(",")
+
 
 def get_items_by_type(types=["vegetable", "fruit"]):
 
@@ -15,6 +18,7 @@ def get_items_by_type(types=["vegetable", "fruit"]):
 
     return res
 
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -25,4 +29,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     res = get_items_by_type(args.types)
-    

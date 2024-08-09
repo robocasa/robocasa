@@ -1,33 +1,36 @@
 import numpy as np
-from robocasa.models.objects.objects import MJCFObject
-
 import robosuite.utils.transform_utils as T
 from robosuite.utils.mjcf_utils import (
     array_to_string,
-    xml_path_completion,
     string_to_array,
-    array_to_string
+    xml_path_completion,
 )
+
+from robocasa.models.objects.objects import MJCFObject
+
 
 def obj_inside_of(env, obj_name, fixture_id, partial_check=False):
     """
     whether an object (another mujoco object) is inside of fixture. applies for most fixtures
     """
     from robocasa.models.objects.fixtures import Fixture
+
     obj = env.objects[obj_name]
     fixture = env.get_fixture(fixture_id)
     assert isinstance(obj, MJCFObject)
     assert isinstance(fixture, Fixture)
-    
+
     # step 1: calculate fxiture points
-    fixtr_p0, fixtr_px, fixtr_py, fixtr_pz  = fixture.get_int_sites(relative=False)
+    fixtr_p0, fixtr_px, fixtr_py, fixtr_pz = fixture.get_int_sites(relative=False)
     u = fixtr_px - fixtr_p0
     v = fixtr_py - fixtr_p0
     w = fixtr_pz - fixtr_p0
 
     # get the position and quaternion of object
     obj_pos = np.array(env.sim.data.body_xpos[env.obj_body_id[obj.name]])
-    obj_quat = T.convert_quat(env.sim.data.body_xquat[env.obj_body_id[obj.name]], to="xyzw")
+    obj_quat = T.convert_quat(
+        env.sim.data.body_xquat[env.obj_body_id[obj.name]], to="xyzw"
+    )
 
     if partial_check:
         obj_points_to_check = [obj_pos]
@@ -35,14 +38,20 @@ def obj_inside_of(env, obj_name, fixture_id, partial_check=False):
     else:
         # calculate 8 boundary points of object
         obj_points_to_check = obj.get_bbox_points(trans=obj_pos, rot=obj_quat)
-        # threshold to mitigate false negatives: even if the bounding box point is out of bounds, 
+        # threshold to mitigate false negatives: even if the bounding box point is out of bounds,
         th = 0.05
 
     inside_of = True
     for obj_p in obj_points_to_check:
-        check1 = np.dot(u, fixtr_p0) - th <= np.dot(u, obj_p) <= np.dot(u, fixtr_px) + th
-        check2 = np.dot(v, fixtr_p0) - th <= np.dot(v, obj_p) <= np.dot(v, fixtr_py) + th
-        check3 = np.dot(w, fixtr_p0) - th <= np.dot(w, obj_p) <= np.dot(w, fixtr_pz) + th
+        check1 = (
+            np.dot(u, fixtr_p0) - th <= np.dot(u, obj_p) <= np.dot(u, fixtr_px) + th
+        )
+        check2 = (
+            np.dot(v, fixtr_p0) - th <= np.dot(v, obj_p) <= np.dot(v, fixtr_py) + th
+        )
+        check3 = (
+            np.dot(w, fixtr_p0) - th <= np.dot(w, obj_p) <= np.dot(w, fixtr_pz) + th
+        )
 
         if not (check1 and check2 and check3):
             inside_of = False
@@ -83,12 +92,9 @@ def get_rel_transform(fixture_A, fixture_B):
     T_WA = np.vstack((np.hstack((A_mat, A_trans[:, None])), [0, 0, 0, 1]))
     T_WB = np.vstack((np.hstack((B_mat, B_trans[:, None])), [0, 0, 0, 1]))
 
-    T_AB = np.matmul(
-        np.linalg.inv(T_WA),
-        T_WB
-    )
+    T_AB = np.matmul(np.linalg.inv(T_WA), T_WB)
 
-    return T_AB[:3, 3], T_AB[:3,:3]
+    return T_AB[:3, 3], T_AB[:3, :3]
 
 
 def compute_rel_transform(A_pos, A_mat, B_pos, B_mat):
@@ -103,10 +109,7 @@ def compute_rel_transform(A_pos, A_mat, B_pos, B_mat):
 def get_fixture_to_point_rel_offset(fixture, point):
     global_offset = point - fixture.pos
     T_WF = T.euler2mat([0, 0, fixture.rot])
-    rel_offset = np.matmul(
-        np.linalg.inv(T_WF),
-        global_offset
-    )
+    rel_offset = np.matmul(np.linalg.inv(T_WF), global_offset)
     return rel_offset
 
 
@@ -116,7 +119,7 @@ def get_pos_after_rel_offset(fixture, offset):
     """
     fixture_rot = np.array([0, 0, fixture.rot])
     fixture_mat = T.euler2mat(fixture_rot)
-    
+
     return fixture.pos + np.dot(fixture_mat, offset)
 
 
@@ -132,7 +135,7 @@ def project_point_to_line(P, A, B):
 
 
 def point_in_fixture(point, fixture, only_2d=False):
-    p0, px, py, pz  = fixture.get_ext_sites(relative=False)
+    p0, px, py, pz = fixture.get_ext_sites(relative=False)
     th = 0.00
     u = px - p0
     v = py - p0
@@ -145,35 +148,43 @@ def point_in_fixture(point, fixture, only_2d=False):
         return check1 and check2
     else:
         return check1 and check2 and check3
-    
+
 
 def obj_in_region(
-        obj, obj_pos, obj_quat,
-        p0, px, py, pz=None,
-    ):
+    obj,
+    obj_pos,
+    obj_quat,
+    p0,
+    px,
+    py,
+    pz=None,
+):
     from robocasa.models.objects.fixtures import Fixture
+
     if isinstance(obj, MJCFObject) or isinstance(obj, Fixture):
         obj_points = obj.get_bbox_points(trans=obj_pos, rot=obj_quat)
     else:
         radius = obj.horizontal_radius
-        obj_points = obj_pos + np.array([
-            [radius, 0, 0],
-            [-radius, 0, 0],
-            [0, radius, 0],
-            [0, -radius, 0],
-        ])
+        obj_points = obj_pos + np.array(
+            [
+                [radius, 0, 0],
+                [-radius, 0, 0],
+                [0, radius, 0],
+                [0, -radius, 0],
+            ]
+        )
 
     u = px - p0
     v = py - p0
     w = pz - p0 if pz is not None else None
-    
+
     for point in obj_points:
         check1 = np.dot(u, p0) <= np.dot(u, point) <= np.dot(u, px)
         check2 = np.dot(v, p0) <= np.dot(v, point) <= np.dot(v, py)
-        
+
         if not check1 or not check2:
             return False
-        
+
         if w is not None:
             check3 = np.dot(w, p0) <= np.dot(w, point) <= np.dot(w, pz)
             if not check3:
@@ -200,11 +211,15 @@ def objs_intersect(
     other_obj_quat,
 ):
     from robocasa.models.objects.fixtures import Fixture
-    bbox_check = (isinstance(obj, MJCFObject) or isinstance(obj, Fixture)) and \
-        (isinstance(other_obj, MJCFObject) or isinstance(other_obj, Fixture))
+
+    bbox_check = (isinstance(obj, MJCFObject) or isinstance(obj, Fixture)) and (
+        isinstance(other_obj, MJCFObject) or isinstance(other_obj, Fixture)
+    )
     if bbox_check:
         obj_points = obj.get_bbox_points(trans=obj_pos, rot=obj_quat)
-        other_obj_points = other_obj.get_bbox_points(trans=other_obj_pos, rot=other_obj_quat)
+        other_obj_points = other_obj.get_bbox_points(
+            trans=other_obj_pos, rot=other_obj_quat
+        )
 
         face_normals = [
             obj_points[1] - obj_points[0],
@@ -216,16 +231,18 @@ def objs_intersect(
         ]
 
         intersect = True
-        
+
         # noramlize length of normals
         for normal in face_normals:
             normal = np.array(normal) / np.linalg.norm(normal)
-        
+
             obj_projs = [np.dot(p, normal) for p in obj_points]
             other_obj_projs = [np.dot(p, normal) for p in other_obj_points]
 
             # see if gap detected
-            if np.min(other_obj_projs) > np.max(obj_projs) or np.min(obj_projs) > np.max(other_obj_projs):
+            if np.min(other_obj_projs) > np.max(obj_projs) or np.min(
+                obj_projs
+            ) > np.max(other_obj_projs):
                 intersect = False
                 break
     else:
@@ -234,16 +251,23 @@ def objs_intersect(
         """
         obj_x, obj_y, obj_z = obj_pos
         other_obj_x, other_obj_y, other_obj_z = other_obj_pos
-        xy_collision = np.linalg.norm((obj_x - other_obj_x, obj_y - other_obj_y)) <= other_obj.horizontal_radius + obj.horizontal_radius
+        xy_collision = (
+            np.linalg.norm((obj_x - other_obj_x, obj_y - other_obj_y))
+            <= other_obj.horizontal_radius + obj.horizontal_radius
+        )
         if obj_z > other_obj_z:
-            z_collision = (obj_z - other_obj_z <= other_obj.top_offset[-1] - obj.bottom_offset[-1])
+            z_collision = (
+                obj_z - other_obj_z <= other_obj.top_offset[-1] - obj.bottom_offset[-1]
+            )
         else:
-            z_collision = (other_obj_z - obj_z <= obj.top_offset[-1] - other_obj.bottom_offset[-1])
-        
+            z_collision = (
+                other_obj_z - obj_z <= obj.top_offset[-1] - other_obj.bottom_offset[-1]
+            )
+
         if xy_collision and z_collision:
             intersect = True
         else:
-            intersect = False    
+            intersect = False
 
     return intersect
 
@@ -260,8 +284,8 @@ def check_obj_in_receptacle(env, obj_name, receptacle_name, th=None):
     if th is None:
         th = recep.horizontal_radius * 0.7
     obj_in_recep = (
-        env.check_contact(obj, recep) and 
-        np.linalg.norm(obj_pos[:2] - recep_pos[:2]) < th
+        env.check_contact(obj, recep)
+        and np.linalg.norm(obj_pos[:2] - recep_pos[:2]) < th
     )
     return obj_in_recep
 
@@ -281,10 +305,10 @@ def gripper_obj_far(env, obj_name="obj", th=0.25):
 
 def obj_cos(env, obj_name="obj", ref=(0, 0, 1)):
     def cos(u, v):
-        return (np.dot(u, v) / max( np.linalg.norm(u) * np.linalg.norm(v), 1e-10 ))
+        return np.dot(u, v) / max(np.linalg.norm(u) * np.linalg.norm(v), 1e-10)
 
     obj_id = env.obj_body_id[obj_name]
     obj_quat = T.convert_quat(np.array(env.sim.data.body_xquat[obj_id]), to="xyzw")
     obj_mat = T.quat2mat(obj_quat)
 
-    return cos(obj_mat[:,2], np.array(ref))
+    return cos(obj_mat[:, 2], np.array(ref))
