@@ -435,7 +435,6 @@ class Counter(ProcGenFixture):
                     group=0,
                     density=10,
                     rgba="0.5 0 0 1",
-                    # rgba=a2s(np.concatenate((np.random.uniform(size=3), [1]))),
                 )
                 self._obj.append(g)
                 self._contact_geoms.append("top_{}_{}".format(side, i))
@@ -501,9 +500,6 @@ class Counter(ProcGenFixture):
             # make sure region is sufficiently large
             if this_top_size[0] >= top_size[0] and this_top_size[1] >= top_size[1]:
                 all_geoms.append(geom)
-
-        # # randomize order of geoms
-        # random.shuffle(valid_top_geoms)
 
         reset_regions = {}
 
