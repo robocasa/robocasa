@@ -2379,10 +2379,10 @@ def sample_kitchen_object_helper(
                     raise ValueError
             choices[reg] = reg_choices
 
-        chosen_reg = random.choices(
-            population=obj_registries,
-            weights=[len(choices[reg]) for reg in obj_registries],
-        )[0]
+        chosen_reg = rng.choice(
+            obj_registries,
+            p=np.array([len(choices[reg]) for reg in obj_registries]) / sum(len(choices[reg]) for reg in obj_registries)
+        )
 
         mjcf_path = rng.choice(choices[chosen_reg])
         mjcf_kwargs = OBJ_CATEGORIES[cat][chosen_reg].get_mjcf_kwargs()

@@ -14,13 +14,9 @@ DEFAULT_SEED = 3
 
 class TestEnvDeterminism(unittest.TestCase):
 
-    skip_envs = set(["AfterwashSorting", "BowlAndCup", "ClearingCleaningReceptacles",
-                     "Door", "DrinkwareConsolidation", "HumanoidTransport", "Lift",
-                     "NutAssembly", "NutAssemblyRound", "NutAssemblySingle", "NutAssemblySquare",
-                     "PickPlace", "PickPlaceBread", "PickPlaceCan", "PickPlaceCereal", 
-                     "PickPlaceMilk", "PickPlaceSingle", "PnP", "SetBowlsForSoup", "SetupJuicing", 
-                     "Stack", "ToolHang", "TwoArmHandover", "TwoArmLift", "TwoArmPegInHole",
-                     "TwoArmTransport", "WineServingPrep", "Wipe"])
+    skip_envs = set(["AfterwashSorting", "BowlAndCup", "ClearingCleaningReceptacles", 
+                     "DrinkwareConsolidation", "HumanoidTransport", "PnP", "SetBowlsForSoup", 
+                     "SetupJuicing", "WineServingPrep"])
     
     def create_env(self, config):
         env = robosuite.make(**config)
@@ -83,8 +79,10 @@ class TestEnvDeterminism(unittest.TestCase):
                 np.testing.assert_allclose(pos_1, pos_2, atol=1e-7)
                 np.testing.assert_allclose(quat_1, quat_2, atol=1e-7)
 
-        for i, env in enumerate(sorted(robosuite.ALL_ENVIRONMENTS)):
-            if env in self.skip_envs:
+        envs = sorted(robocasa.ALL_KITCHEN_ENVIRONMENTS)
+
+        for i, env in enumerate(envs):
+            if env in self.skip_envs or env.startswith("MG_"):
                 continue
 
             print(colored(f"Testing {env} environment...", "green"))

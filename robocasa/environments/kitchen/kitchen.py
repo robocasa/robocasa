@@ -14,6 +14,7 @@ from robosuite.utils.mjcf_utils import (
     xml_path_completion,
 )
 from robosuite.utils.observables import Observable, sensor
+from robosuite.environments.base import EnvMeta
 from scipy.spatial.transform import Rotation
 
 import robocasa
@@ -42,8 +43,20 @@ from robocasa.utils.texture_swap import (
     replace_wall_texture,
 )
 
+REGISTERED_KITCHEN_ENVS = {}
 
-class Kitchen(ManipulationEnv):
+def register_kitchen_env(target_class):
+    REGISTERED_KITCHEN_ENVS[target_class.__name__] = target_class
+
+class KitchenEnvMeta(EnvMeta):
+    """Metaclass for registering robocasa environments"""
+
+    def __new__(meta, name, bases, class_dict):
+        cls = super().__new__(meta, name, bases, class_dict)
+        register_kitchen_env(cls)
+        return cls
+
+class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     EXCLUDE_LAYOUTS = []
 
     def __init__(

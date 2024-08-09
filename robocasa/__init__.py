@@ -296,6 +296,8 @@ except ImportError:
         "WARNING: mimicgen environments not imported since mimicgen is not installed!"
     )
 
+from robocasa.environments import ALL_KITCHEN_ENVIRONMENTS
+
 from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
 from robosuite.environments import ALL_ENVIRONMENTS
 from robosuite.models.grippers import ALL_GRIPPERS
