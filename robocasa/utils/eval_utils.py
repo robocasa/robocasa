@@ -62,6 +62,8 @@ def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
     if video_path is not None:
         video_writer = imageio.get_writer(video_path, fps=20)
 
+    info = {}
+    num_success_rollouts = 0
     for rollout_i in tqdm(range(num_rollouts)):
         obs = env.reset()
         for step_i in range(num_steps):
@@ -75,9 +77,17 @@ def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
                 )[::-1]
                 video_writer.append_data(video_img)
 
+            if env._check_success():
+                num_success_rollouts += 1
+                break
+
     if video_writer is not None:
         video_writer.close()
-        print(colored(f"Saved video of rollouts to {video_path}", color="green"))
+        print(colored(f"Saved video of rollouts to {video_path}", color="yellow"))
+
+    info["num_success_rollouts"] = num_success_rollouts
+
+    return info
 
 
 if __name__ == "__main__":
@@ -86,4 +96,6 @@ if __name__ == "__main__":
         list(SINGLE_STAGE_TASK_DATASETS) + list(MULTI_STAGE_TASK_DATASETS)
     )
     env = create_eval_env(env_name=env_name)
-    run_random_rollouts(env, num_rollouts=3, num_steps=100, video_path="/tmp/test.mp4")
+    info = run_random_rollouts(
+        env, num_rollouts=3, num_steps=100, video_path="/tmp/test.mp4"
+    )
