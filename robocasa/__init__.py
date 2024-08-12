@@ -1,8 +1,6 @@
 from robosuite.environments.base import make
 
 # Manipulation environments
-from robosuite.environments.manipulation.lift import Lift
-
 from robocasa.environments.kitchen.kitchen import Kitchen, KitchenDemo
 from robocasa.environments.kitchen.multi_stage.baking.cupcake_cleanup import (
     CupcakeCleanup,
@@ -295,6 +293,8 @@ except ImportError:
     print(
         "WARNING: mimicgen environments not imported since mimicgen is not installed!"
     )
+
+from robocasa.environments import ALL_KITCHEN_ENVIRONMENTS
 
 from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
 from robosuite.environments import ALL_ENVIRONMENTS

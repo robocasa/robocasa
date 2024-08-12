@@ -41,7 +41,7 @@ class BreadSetupSlicing(Kitchen):
             )
         )
 
-        self.num_bread = random.choice([1, 2, 3])
+        self.num_bread = self.rng.choice([1, 2, 3])
         for i in range(self.num_bread):
             cfgs.append(
                 dict(

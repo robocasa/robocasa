@@ -245,7 +245,7 @@ class UniformRandomSampler(ObjectPositionSampler):
             rot_angle = self.rng.uniform(high=2 * np.pi, low=0)
         elif isinstance(self.rotation, collections.abc.Iterable):
             if isinstance(self.rotation[0], collections.abc.Iterable):
-                rotation = random.choice(self.rotation)
+                rotation = self.rng.choice(self.rotation)
             else:
                 rotation = self.rotation
             rot_angle = self.rng.uniform(high=max(rotation), low=min(rotation))
@@ -618,5 +618,5 @@ class MultiRegionSampler(ObjectPositionSampler):
 
     def sample(self, fixtures=None, reference=None, on_top=True):
         # randomly picks a sampler and calls its sample function
-        sampler = random.choice(self.samplers)
+        sampler = self.rng.choice(self.samplers)
         return sampler.sample(fixtures=fixtures, reference=reference, on_top=on_top)

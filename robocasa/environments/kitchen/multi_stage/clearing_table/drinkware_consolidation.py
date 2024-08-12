@@ -30,7 +30,7 @@ class DrinkwareConsolidation(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        self.num_drinkware = random.choice([1, 2, 3])
+        self.num_drinkware = self.rng.choice([1, 2, 3])
 
         for i in range(self.num_drinkware):
             cfgs.append(

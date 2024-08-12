@@ -33,7 +33,7 @@ class MeatTransfer(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        if random.random() < 0.5:
+        if self.rng.random() < 0.5:
             cfgs.append(
                 dict(
                     name="container",

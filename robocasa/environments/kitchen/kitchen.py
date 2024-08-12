@@ -14,6 +14,7 @@ from robosuite.utils.mjcf_utils import (
     xml_path_completion,
 )
 from robosuite.utils.observables import Observable, sensor
+from robosuite.environments.base import EnvMeta
 from scipy.spatial.transform import Rotation
 
 import robocasa
@@ -42,8 +43,20 @@ from robocasa.utils.texture_swap import (
     replace_wall_texture,
 )
 
+REGISTERED_KITCHEN_ENVS = {}
 
-class Kitchen(ManipulationEnv):
+def register_kitchen_env(target_class):
+    REGISTERED_KITCHEN_ENVS[target_class.__name__] = target_class
+
+class KitchenEnvMeta(EnvMeta):
+    """Metaclass for registering robocasa environments"""
+
+    def __new__(meta, name, bases, class_dict):
+        cls = super().__new__(meta, name, bases, class_dict)
+        register_kitchen_env(cls)
+        return cls
+
+class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     EXCLUDE_LAYOUTS = []
 
     def __init__(
@@ -225,6 +238,7 @@ class Kitchen(ManipulationEnv):
                 KU.LAYOUTS[self.layout_id], root=robocasa.models.assets_root
             ),
             style=self.style_id,
+            rng=self.rng,
         )
         # Arena always gets set to zero origin
         self.mujoco_arena.set_origin([0, 0, 0])
@@ -768,8 +782,8 @@ class Kitchen(ManipulationEnv):
     def _randomize_cameras(self):
         for camera in self._cam_configs:
             if "agentview" in camera:
-                pos_noise = np.random.normal(loc=0, scale=0.05, size=(1, 3))[0]
-                euler_noise = np.random.normal(loc=0, scale=3, size=(1, 3))[0]
+                pos_noise = self.rng.normal(loc=0, scale=0.05, size=(1, 3))[0]
+                euler_noise = self.rng.normal(loc=0, scale=3, size=(1, 3))[0]
             elif "eye_in_hand" in camera:
                 pos_noise = np.zeros_like(pos_noise)
                 euler_noise = np.zeros_like(euler_noise)
@@ -877,19 +891,25 @@ class Kitchen(ManipulationEnv):
         ):
             # sample textures
             assert self.generative_textures == "100p"
-            self._curr_gen_fixtures = get_random_textures()
+            self._curr_gen_fixtures = get_random_textures(self.rng)
 
             cab_tex = self._curr_gen_fixtures["cab_tex"]
             counter_tex = self._curr_gen_fixtures["counter_tex"]
             wall_tex = self._curr_gen_fixtures["wall_tex"]
             floor_tex = self._curr_gen_fixtures["floor_tex"]
 
-            result = replace_cab_textures(result, new_cab_texture_file=cab_tex)
-            result = replace_counter_top_texture(
-                result, new_counter_top_texture_file=counter_tex
+            result = replace_cab_textures(
+                self.rng, result, new_cab_texture_file=cab_tex
             )
-            result = replace_wall_texture(result, new_wall_texture_file=wall_tex)
-            result = replace_floor_texture(result, new_floor_texture_file=floor_tex)
+            result = replace_counter_top_texture(
+                self.rng, result, new_counter_top_texture_file=counter_tex
+            )
+            result = replace_wall_texture(
+                self.rng, result, new_wall_texture_file=wall_tex
+            )
+            result = replace_floor_texture(
+                self.rng, result, new_floor_texture_file=floor_tex
+            )
 
         return result
 
@@ -1163,7 +1183,7 @@ class Kitchen(ManipulationEnv):
                 ]
             assert len(matches) > 0
             # sample random key
-            key = random.sample(matches, 1)[0]
+            key = self.rng.choice(matches)
             return self.fixtures[key]
         else:
             ref_fixture = self.get_fixture(ref)
@@ -1193,7 +1213,7 @@ class Kitchen(ManipulationEnv):
             close_fixtures = [
                 fxtr for (fxtr, d) in zip(cand_fixtures, dists) if d - min_dist < 0.10
             ]
-            return random.sample(close_fixtures, 1)[0]
+            return self.rng.choice(close_fixtures)
 
     def register_fixture_ref(self, ref_name, fn_kwargs):
         if ref_name not in self.fixture_refs:

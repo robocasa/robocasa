@@ -427,9 +427,9 @@ WALL_TEX_NAMES = [
 ]
 
 
-def get_random_textures(frac=1.0):
+def get_random_textures(rng, frac=1.0):
     end_ind = int(frac * 100)
-    ind = np.random.randint(0, end_ind)
+    ind = rng.integers(0, end_ind)
 
     textures = dict(
         cab_tex=os.path.join(TEXTURES_DIR, "cabinet", CABINET_TEX_NAMES[ind]),
@@ -442,7 +442,7 @@ def get_random_textures(frac=1.0):
 
 
 def replace_counter_top_texture(
-    initial_state: str, new_counter_top_texture_file: str = None
+    rng, initial_state: str, new_counter_top_texture_file: str = None
 ):
     """
     This function replaces the counter top textures during playback.
@@ -457,7 +457,7 @@ def replace_counter_top_texture(
     asset = root.find("asset")
 
     if new_counter_top_texture_file is None:
-        new_counter_top_texture_file = get_random_textures()["counter_tex"]
+        new_counter_top_texture_file = get_random_textures(rng)["counter_tex"]
     else:
         new_counter_top_texture_file = os.path.join(
             TEXTURES_DIR, new_counter_top_texture_file
@@ -489,7 +489,7 @@ def replace_counter_top_texture(
     return ET.tostring(root).decode("utf-8")
 
 
-def replace_cab_textures(initial_state: str, new_cab_texture_file: str = None):
+def replace_cab_textures(rng, initial_state: str, new_cab_texture_file: str = None):
     """
     This function replaces the cabinet and counter base textures during playback.
 
@@ -503,7 +503,7 @@ def replace_cab_textures(initial_state: str, new_cab_texture_file: str = None):
     asset = root.find("asset")
 
     if new_cab_texture_file is None:
-        new_cab_texture_file = get_random_textures()["cab_tex"]
+        new_cab_texture_file = get_random_textures(rng)["cab_tex"]
     else:
         new_cab_texture_file = os.path.join(TEXTURES_DIR, new_cab_texture_file)
 
@@ -559,7 +559,7 @@ def replace_cab_textures(initial_state: str, new_cab_texture_file: str = None):
     return ET.tostring(root).decode("utf-8")
 
 
-def replace_floor_texture(initial_state: str, new_floor_texture_file: str = None):
+def replace_floor_texture(rng, initial_state: str, new_floor_texture_file: str = None):
     """
     This function replaces the counter top textures during playback.
 
@@ -573,7 +573,7 @@ def replace_floor_texture(initial_state: str, new_floor_texture_file: str = None
     asset = root.find("asset")
 
     if new_floor_texture_file is None:
-        new_floor_texture_file = get_random_textures()["floor_tex"]
+        new_floor_texture_file = get_random_textures(rng)["floor_tex"]
     else:
         new_floor_texture_file = os.path.join(TEXTURES_DIR, new_floor_texture_file)
 
@@ -605,7 +605,7 @@ def replace_floor_texture(initial_state: str, new_floor_texture_file: str = None
     return ET.tostring(root).decode("utf-8")
 
 
-def replace_wall_texture(initial_state: str, new_wall_texture_file: str = None):
+def replace_wall_texture(rng, initial_state: str, new_wall_texture_file: str = None):
     """
     This function replaces the counter top textures during playback.
 
@@ -619,7 +619,7 @@ def replace_wall_texture(initial_state: str, new_wall_texture_file: str = None):
     asset = root.find("asset")
 
     if new_wall_texture_file is None:
-        new_wall_texture_file = get_random_textures()["wall_tex"]
+        new_wall_texture_file = get_random_textures(rng)["wall_tex"]
     else:
         new_wall_texture_file = os.path.join(TEXTURES_DIR, new_wall_texture_file)
 

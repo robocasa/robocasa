@@ -24,6 +24,7 @@ class Window(CompositeBodyObject):
         trim_th=0.02,
         trim_size=0.015,
         num_windows=1,
+        rng=None,
     ):
         self.size = size
         self.origin_offset = [0, 0, 0]
@@ -85,7 +86,11 @@ class Window(CompositeBodyObject):
             joints=None,
         )
 
-    # change to create objects then create positions
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
+        # change to create objects then create positions
 
     def create_window(self):
         x, y, z = self.window_size
@@ -132,7 +137,6 @@ class Window(CompositeBodyObject):
         positions.append(np.array([0, 0, 0]))
 
         objects = []
-
         for obj_name, size in zip(names, sizes):
             if "door" in obj_name:
                 new_obj = BoxObject(
@@ -173,9 +177,6 @@ class Window(CompositeBodyObject):
         return rot[2]
 
 
-# sample the start and end offsets
-
-
 class FramedWindow(Window):
     def __init__(
         self,
@@ -190,6 +191,7 @@ class FramedWindow(Window):
         trim_size=0.015,
         num_windows=1,
         frame_width=0.05,
+        rng=None,
     ):
         self.frame_width = frame_width
         super().__init__(
@@ -203,6 +205,7 @@ class FramedWindow(Window):
             trim_th=trim_th,
             trim_size=trim_size,
             num_windows=num_windows,
+            rng=rng,
         )
 
     def create_window(self):

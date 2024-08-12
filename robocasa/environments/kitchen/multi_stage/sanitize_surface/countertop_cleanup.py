@@ -36,7 +36,7 @@ class CountertopCleanup(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
         # objects appear on different sides
-        direction = random.sample([1.0, -1.0], 1)[0]
+        direction = self.rng.choice([1.0, -1.0])
 
         cfgs.append(
             dict(

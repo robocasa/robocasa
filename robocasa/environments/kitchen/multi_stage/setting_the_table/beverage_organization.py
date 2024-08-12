@@ -40,7 +40,7 @@ class BeverageOrganization(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        self.num_bev = random.choice([2, 3, 4])
+        self.num_bev = self.rng.choice([2, 3, 4])
         for i in range(self.num_bev):
             cfgs.append(
                 dict(

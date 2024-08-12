@@ -30,7 +30,8 @@ class ManipulateSinkFaucet(Kitchen):
         cfgs = []
 
         # distractors
-        for i in range(np.random.randint(1, 4)):
+        num_distr = self.rng.integers(1, 4)
+        for i in range(num_distr):
             cfgs.append(
                 dict(
                     name=f"distr_counter_{i}",
@@ -116,7 +117,8 @@ class TurnSinkSpout(Kitchen):
         cfgs = []
 
         # distractors
-        for i in range(np.random.randint(1, 4)):
+        num_distr = self.rng.integers(1, 4)
+        for i in range(num_distr):
             cfgs.append(
                 dict(
                     name=f"distr_counter_{i}",

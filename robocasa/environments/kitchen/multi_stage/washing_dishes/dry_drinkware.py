@@ -35,7 +35,7 @@ class DryDrinkware(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
         x_positions = [-1, 1]
-        random.shuffle(x_positions)
+        self.rng.shuffle(x_positions)
 
         cfgs.append(
             dict(

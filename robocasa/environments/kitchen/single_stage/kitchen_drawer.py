@@ -49,7 +49,8 @@ class ManipulateDrawer(Kitchen):
             inits.append((robot_base_pos_right, robot_base_ori_right, "left"))
 
         assert len(inits) > 0
-        robot_base_pos, robot_base_ori, side = random.sample(inits, 1)[0]
+        random_index = self.rng.integers(len(inits))
+        robot_base_pos, robot_base_ori, side = inits[random_index]
         self.drawer_side = side
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
@@ -147,7 +148,7 @@ class OpenDrawer(ManipulateDrawer):
         )
 
         # distractors
-        num_distr = np.random.randint(1, 4)
+        num_distr = self.rng.integers(1, 4)
         for i in range(num_distr):
             cfgs.append(
                 dict(
@@ -191,7 +192,7 @@ class CloseDrawer(ManipulateDrawer):
         )
 
         # distractors
-        num_distr = np.random.randint(1, 4)
+        num_distr = self.rng.integers(1, 4)
         for i in range(num_distr):
             cfgs.append(
                 dict(

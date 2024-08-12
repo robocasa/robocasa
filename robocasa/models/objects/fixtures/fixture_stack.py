@@ -24,6 +24,7 @@ class FixtureStack:
         base_height=0.05,
         base_overhang=0.07,
         default_texture=None,
+        rng=None,
     ):
         self._check_config_syntax(config)
         self.config = config
@@ -41,6 +42,11 @@ class FixtureStack:
         self.scene_fixtures = scene_fixtures
         self.default_texture = default_texture
         self.fixtures = list()
+
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
 
         self._create_stack()
 
@@ -80,6 +86,7 @@ class FixtureStack:
 
             if self.default_texture is not None:
                 base_config["texture"] = self.default_texture
+            base_config["rng"] = self.rng
             base = initialize_fixture(base_config, self.scene_fixtures)
             self.scene_fixtures[base_name] = base
             self.scene_configs[base_name] = base_config
@@ -142,7 +149,9 @@ class FixtureStack:
                     fxtr_config["texture"] = self.default_texture
 
                 # initialize fixture and add to scene fixtures and configs
-                fixture = initialize_fixture(fxtr_config, self.scene_fixtures)
+                fixture = initialize_fixture(
+                    fxtr_config, self.scene_fixtures, rng=self.rng
+                )
                 self.scene_fixtures[fxtr_name] = fixture
                 self.scene_configs[fxtr_name] = fxtr_config
                 self.fixtures.append(fixture)

@@ -31,7 +31,7 @@ class CerealAndBowl(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
         # make sure bowl and cereal show up on diff sides randomly
-        direction = random.sample([1.0, -1.0], 1)[0]
+        direction = self.rng.choice([1.0, -1.0])
 
         cfgs.append(
             dict(

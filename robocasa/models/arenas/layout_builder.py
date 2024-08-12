@@ -110,7 +110,7 @@ def check_syntax(fixture):
             )
 
 
-def create_fixtures(yaml_path, style="playground"):
+def create_fixtures(yaml_path, style="playground", rng=None):
     try:
         style = int(style)
     except:
@@ -183,7 +183,12 @@ def create_fixtures(yaml_path, style="playground"):
         # stack of fixtures, handled separately
         if fixture_config["type"] == "stack":
             stack = FixtureStack(
-                fixture_config, fixtures, configs, style, default_texture=None
+                fixture_config,
+                fixtures,
+                configs,
+                style,
+                default_texture=None,
+                rng=rng,
             )
             fixtures[fixture_name] = stack
             configs[fixture_name] = fixture_config
@@ -210,7 +215,7 @@ def create_fixtures(yaml_path, style="playground"):
                     size[i] = ref_fxtr.size[i]
 
         # initialize fixture
-        fixture = initialize_fixture(fixture_config, fixtures)
+        fixture = initialize_fixture(fixture_config, fixtures, rng=rng)
         fixtures[fixture_name] = fixture
         configs[fixture_name] = fixture_config
 

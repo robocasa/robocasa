@@ -32,7 +32,7 @@ class AssembleCookingArray(Kitchen):
 
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         if self.knob_id == "random":
-            self.knob = random.sample(valid_knobs, 1)[0]
+            self.knob = self.rng.choice(list(valid_knobs))
         else:
             assert self.knob_id in valid_knobs
             self.knob = self.knob

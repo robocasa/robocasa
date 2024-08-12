@@ -74,6 +74,7 @@ class Fixture(MujocoXMLObject):
         scale=1,
         size=None,
         placement=None,
+        rng=None,
     ):
         if not xml.endswith(".xml"):
             xml = os.path.join(xml, "model.xml")
@@ -147,6 +148,11 @@ class Fixture(MujocoXMLObject):
         # placement config, for determining where to place fixture (most fixture will not use this)
         self._placement = placement
 
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
+
     def set_origin(self, origin):
         # compute new position
         fixture_rot = np.array([0, 0, self.rot])
@@ -185,7 +191,7 @@ class Fixture(MujocoXMLObject):
 
     def sample_reset_region(self, *args, **kwargs):
         regions = self.get_reset_regions(*args, **kwargs)
-        return random.sample(list(regions.values()), 1)[0]
+        return self.rng.choice(list(regions.values()))
 
     def get_site_info(self, sim):
         """
