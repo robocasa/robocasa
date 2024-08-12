@@ -15,8 +15,7 @@ DEFAULT_SEED = 3
 class TestEnvDeterminism(unittest.TestCase):
 
     skip_envs = set(["AfterwashSorting", "BowlAndCup", "ClearingCleaningReceptacles", 
-                     "DrinkwareConsolidation", "HumanoidTransport", "PnP", "SetBowlsForSoup", 
-                     "SetupJuicing", "WineServingPrep"])
+                     "DrinkwareConsolidation", "PnP", "SetBowlsForSoup", "WineServingPrep"])
     
     def create_env(self, config):
         env = robosuite.make(**config)
