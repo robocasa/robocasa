@@ -72,8 +72,8 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         human_path="v0.1/single_stage/kitchen_pnp/PnPCounterToStove/2024-04-26",
         mg_path="v0.1/single_stage/kitchen_pnp/PnPCounterToStove/mg/2024-05-04-22-14-20",
         download_links=dict(
-            human_raw="https://utexas.box.com/shared/static/emnl5i3s621sf5smgek5lu4twbc326jt.hdf5",
-            human_im="https://utexas.box.com/shared/static/z2t1kyto32thprw7xvq3r4tjvkdz0dl2.hdf5",
+            human_raw="https://utexas.box.com/shared/static/9z2k5iqspwdo2153yuutcvqb9zzzvtdu.hdf5",
+            human_im="https://utexas.box.com/shared/static/penrv5sysn192gxwj7n7f6k0gjceovfn.hdf5",
             mg_im="https://utexas.box.com/shared/static/1ytpoks6mp9f56wh36ni8k02fz0kbvmb.hdf5",
         ),
     ),
