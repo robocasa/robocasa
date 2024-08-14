@@ -25,6 +25,7 @@ def create_eval_env(
     ],
     camera_widths=128,
     camera_heights=128,
+    seed=None,
     # robocasa-related configs
     obj_instance_split="B",
     generative_textures=None,
