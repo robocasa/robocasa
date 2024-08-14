@@ -47,6 +47,7 @@ def create_eval_env(
         use_object_obs=True,
         use_camera_obs=True,
         camera_depths=False,
+        seed=seed,
         obj_instance_split=obj_instance_split,
         generative_textures=generative_textures,
         randomize_cameras=randomize_cameras,
