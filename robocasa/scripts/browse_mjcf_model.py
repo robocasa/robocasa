@@ -3,24 +3,19 @@
 
 import argparse
 import os
-import numpy as np
-from PIL import Image
-import cv2
 import time
-
-import robosuite
-from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
-
-import mujoco
-import mujoco.viewer
-
 import xml.etree.ElementTree as ET
 
-from robosuite.utils.mjcf_utils import (
-    find_elements,
-    string_to_array as s2a,
-    array_to_string as a2s,
-)
+import cv2
+import mujoco
+import mujoco.viewer
+import numpy as np
+import robosuite
+from PIL import Image
+from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import find_elements
+from robosuite.utils.mjcf_utils import string_to_array as s2a
 
 
 def edit_model_xml(xml_str):
@@ -52,9 +47,11 @@ def edit_model_xml(xml_str):
 
         old_path_split = old_path.split("/")
         # maybe replace all paths to robosuite assets
-        check_lst = [loc for loc, val in enumerate(old_path_split) if val == "robosuite"]
+        check_lst = [
+            loc for loc, val in enumerate(old_path_split) if val == "robosuite"
+        ]
         if len(check_lst) > 0:
-            ind = max(check_lst) # last occurrence index
+            ind = max(check_lst)  # last occurrence index
             new_path_split = path_split + old_path_split[ind + 1 :]
             new_path = "/".join(new_path_split)
             elem.set("file", new_path)
@@ -73,9 +70,9 @@ def read_model(
     assert (xml is not None) + (filepath is not None) == 1
 
     if filepath is not None:
-        with open(filepath, 'r') as file:
+        with open(filepath, "r") as file:
             xml = file.read()
-    
+
     xml = edit_model_xml(xml)
     root = ET.fromstring(xml)
 
@@ -108,27 +105,36 @@ def read_model(
             name = site.get("name", None)
             if name is not None:
                 sites[name] = s2a(site.get("pos"))
-        
+
         ext_bbox_center = None
         ext_bbox_size = None
         if "ext_p0" in sites:
-            ext_bbox_center = np.array([
-                np.mean([sites["ext_p0"][0], sites["ext_px"][0]]),
-                np.mean([sites["ext_p0"][1], sites["ext_py"][1]]),
-                np.mean([sites["ext_p0"][2], sites["ext_pz"][2]]),
-            ])
-            ext_bbox_size = np.array([
-                sites["ext_px"][0] - sites["ext_p0"][0],
-                sites["ext_py"][1] - sites["ext_p0"][1],
-                sites["ext_pz"][2] - sites["ext_p0"][2],
-            ])
+            ext_bbox_center = np.array(
+                [
+                    np.mean([sites["ext_p0"][0], sites["ext_px"][0]]),
+                    np.mean([sites["ext_p0"][1], sites["ext_py"][1]]),
+                    np.mean([sites["ext_p0"][2], sites["ext_pz"][2]]),
+                ]
+            )
+            ext_bbox_size = np.array(
+                [
+                    sites["ext_px"][0] - sites["ext_p0"][0],
+                    sites["ext_py"][1] - sites["ext_p0"][1],
+                    sites["ext_pz"][2] - sites["ext_p0"][2],
+                ]
+            )
         elif "bottom_site" in sites:
             ext_bbox_center = np.mean([sites["top_site"], sites["bottom_site"]], axis=0)
-            ext_bbox_size = np.array([
-                sites["horizontal_radius_site"][0],
-                sites["horizontal_radius_site"][1],
-                sites["top_site"][2] - ext_bbox_center[2],
-            ]) * 2
+            ext_bbox_size = (
+                np.array(
+                    [
+                        sites["horizontal_radius_site"][0],
+                        sites["horizontal_radius_site"][1],
+                        sites["top_site"][2] - ext_bbox_center[2],
+                    ]
+                )
+                * 2
+            )
 
         if (ext_bbox_center is not None) and (ext_bbox_size is not None):
             ext_bbox_site = ET.fromstring(
@@ -138,7 +144,6 @@ def read_model(
                 )
             )
             worldbody.append(ext_bbox_site)
-
 
     if hide_sites:
         # hide all sites
@@ -153,7 +158,7 @@ def read_model(
     info = {}
 
     # initialize model
-    xml = ET.tostring(root, encoding='unicode')
+    xml = ET.tostring(root, encoding="unicode")
     if filepath is not None:
         os.chdir(os.path.dirname(filepath))
     t = time.time()
@@ -195,22 +200,23 @@ def render_model(
 
     mujoco.viewer.launch(sim.model._model, sim.data._data)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mjcf", type=str, required=True)
     parser.add_argument(
         "--screenshot",
-        action='store_true',
+        action="store_true",
         help="save screenshot of model in same directory as filepath",
     )
     parser.add_argument(
         "--show_bbox",
-        action='store_true',
+        action="store_true",
         help="visualize exterior bounding box (based on ext_ sites)",
     )
     parser.add_argument(
         "--show_coll_geoms",
-        action='store_true',
+        action="store_true",
         help="whether to hide collision geoms (group 0)",
     )
     args = parser.parse_args()

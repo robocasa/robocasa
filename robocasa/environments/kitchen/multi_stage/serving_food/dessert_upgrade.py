@@ -2,13 +2,14 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DessertUpgrade(Kitchen):
-
     def __init__(self, *args, **kwargs):
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER_NON_CORNER, size=(1.0, 0.4)))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER_NON_CORNER, size=(1.0, 0.4))
+        )
         self.init_robot_base_pos = self.counter
 
     def get_ep_meta(self):
@@ -23,27 +24,25 @@ class DessertUpgrade(Kitchen):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        
 
     def _get_obj_cfgs(self):
-        cfgs = []        
-        cfgs.append(dict(
-            name="receptacle",
-            obj_groups="tray",
-            graspable=False,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    top_size=(1.0, 0.4)
+        cfgs = []
+        cfgs.append(
+            dict(
+                name="receptacle",
+                obj_groups="tray",
+                graspable=False,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(top_size=(1.0, 0.4)),
+                    size=(1, 0.4),
+                    pos=(0, -1),
                 ),
-                size=(1, 0.4),
-                pos=(0, -1),
-            ),
-        ))
+            )
+        )
 
-        
-
-        cfgs.append(dict(
+        cfgs.append(
+            dict(
                 name="dessert1",
                 obj_groups="sweets",
                 graspable=True,
@@ -51,8 +50,7 @@ class DessertUpgrade(Kitchen):
                     fixture=self.counter,
                     size=(1, 0.4),
                     pos=(0, -1),
-                    try_to_place_in = "plate"
-
+                    try_to_place_in="plate",
                 ),
             )
         )
@@ -66,18 +64,16 @@ class DessertUpgrade(Kitchen):
                     fixture=self.counter,
                     size=(1, 0.4),
                     pos=(0, -1),
-                    try_to_place_in = "plate"
+                    try_to_place_in="plate",
                 ),
             )
         )
 
-        
-
-        
-
         return cfgs
 
     def _check_success(self):
-        sweets_on_tray = OU.check_obj_in_receptacle(self, "dessert1", "receptacle") and OU.check_obj_in_receptacle(self, "dessert2", "receptacle")
+        sweets_on_tray = OU.check_obj_in_receptacle(
+            self, "dessert1", "receptacle"
+        ) and OU.check_obj_in_receptacle(self, "dessert2", "receptacle")
 
         return sweets_on_tray and OU.gripper_obj_far(self, "receptacle")

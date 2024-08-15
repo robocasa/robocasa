@@ -4,12 +4,14 @@ from robocasa.environments.kitchen.kitchen import *
 class FoodCleanup(Kitchen):
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.cab = self.register_fixture_ref("cab", dict(id=self.cab_id))
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER, ref=self.cab))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
+        )
         self.init_robot_base_pos = self.cab
 
     def get_ep_meta(self):
@@ -17,7 +19,9 @@ class FoodCleanup(Kitchen):
         items = self.get_obj_lang("food0")
         for i in range(1, self.num_food):
             items += f", {self.get_obj_lang(f'food{i}')}"
-        ep_meta["lang"] = f"Pick the {items} from the counter and place it in the cabinet. Then close the cabinet"
+        ep_meta[
+            "lang"
+        ] = f"Pick the {items} from the counter and place it in the cabinet. Then close the cabinet"
         return ep_meta
 
     def _reset_internal(self):
@@ -29,30 +33,34 @@ class FoodCleanup(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        self.num_food = random.choice([i for i in range(1, 4)])
+        self.num_food = self.rng.choice([i for i in range(1, 4)])
         for i in range(self.num_food):
-            cfgs.append(dict(
-                name=f"food{i}",
-                obj_groups=["fruit", "vegetable", "boxed_food"],
-                graspable=True,
-                placement=dict(
-                    fixture=self.counter,
-                    sample_region_kwargs=dict(
-                        ref=self.cab,
+            cfgs.append(
+                dict(
+                    name=f"food{i}",
+                    obj_groups=["fruit", "vegetable", "boxed_food"],
+                    graspable=True,
+                    placement=dict(
+                        fixture=self.counter,
+                        sample_region_kwargs=dict(
+                            ref=self.cab,
+                        ),
+                        size=(0.30, 0.30),
+                        pos=("ref", -1.0),
+                        offset=(0.05, 0.0),
                     ),
-                    size=(0.30, 0.30),
-                    pos=("ref", -1.0),
-                    offset=(0.05, 0.0),
-                ),
-            ))
+                )
+            )
 
         return cfgs
 
     def _check_success(self):
-        food_inside_cab = all([OU.obj_inside_of(self, f"food{i}", self.cab) for i in range(self.num_food)])
+        food_inside_cab = all(
+            [OU.obj_inside_of(self, f"food{i}", self.cab) for i in range(self.num_food)]
+        )
         cab_closed = True
         door_state = self.cab.get_door_state(env=self)
-        
+
         for joint_p in door_state.values():
             if joint_p > 0.05:
                 cab_closed = False

@@ -1,16 +1,26 @@
-from copy import deepcopy
-import numpy as np
-import random
 import math
+import random
+from copy import deepcopy
 
-from robosuite.utils.mjcf_utils import array_to_string as a2s, string_to_array as s2a, find_elements, xml_path_completion, new_geom
-from robocasa.models.objects.fixtures.fixture import ProcGenFixture
-from robocasa.utils.object_utils import get_rel_transform, get_pos_after_rel_offset, get_fixture_to_point_rel_offset
-from robocasa.models.objects.fixtures.fixture import get_texture_name_from_file
+import numpy as np
+from robosuite.utils.mjcf_utils import array_to_string as a2s
+from robosuite.utils.mjcf_utils import find_elements, new_geom
+from robosuite.utils.mjcf_utils import string_to_array as s2a
+from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
+from robocasa.models.objects.fixtures.fixture import (
+    ProcGenFixture,
+    get_texture_name_from_file,
+)
+from robocasa.utils.object_utils import (
+    get_fixture_to_point_rel_offset,
+    get_pos_after_rel_offset,
+    get_rel_transform,
+)
 
 SIDES = ["left", "right", "front", "back"]
+
 
 class Counter(ProcGenFixture):
     def __init__(
@@ -18,30 +28,25 @@ class Counter(ProcGenFixture):
         name="counter",
         size=(0.72, 0.60, 0.60),
         overhang=0,
-
         # top
         top_texture=None,
         top_thickness=0.03,
         half_top=[False, False],  # for aligning corner counters
-
         # base, can use both
         base_texture=None,
         base_color=None,
         base_opening=[False, False],
-
         # to add bottom row cabinets inside
         # [back, front]
         hollow=[False, True],
-
         # for sinks, cooktops
         interior_obj=None,
         obj_y_percent=0.5,
         obj_x_percent=0.5,
-        
         *args,
         **kwargs,
     ):
-        self.has_opening = (interior_obj is not None)
+        self.has_opening = interior_obj is not None
         if self.has_opening:
             xml = "fixtures/counters/counter_with_opening"
         else:
@@ -87,61 +92,66 @@ class Counter(ProcGenFixture):
 
         # set sites
         x, y, z = np.array(self.size) / 2
-        self.set_bounds_sites({
-            "ext_p0": [-x, -y + self.overhang, -z],
-            "ext_px": [x, -y + self.overhang , -z],
-            "ext_py": [-x, y, -z],
-            "ext_pz": [-x, -y + self.overhang, z],
-        })
+        self.set_bounds_sites(
+            {
+                "ext_p0": [-x, -y + self.overhang, -z],
+                "ext_px": [x, -y + self.overhang, -z],
+                "ext_py": [-x, y, -z],
+                "ext_pz": [-x, -y + self.overhang, z],
+            }
+        )
 
     def _set_texture(self, top_texture, base_texture, base_color):
         # set top and bottom textures
-        self.top_texture = xml_path_completion(top_texture, root=robocasa.models.assets_root)
-        self.base_texture = xml_path_completion(base_texture, root=robocasa.models.assets_root)
-        
+        self.top_texture = xml_path_completion(
+            top_texture, root=robocasa.models.assets_root
+        )
+        self.base_texture = xml_path_completion(
+            base_texture, root=robocasa.models.assets_root
+        )
+
         # set top texture and materials
         texture = find_elements(
-            self.root, tags="texture", 
-            attribs={"name": "tex_top_2d"},
-            return_first=True
+            self.root, tags="texture", attribs={"name": "tex_top_2d"}, return_first=True
         )
         tex_name = get_texture_name_from_file(self.top_texture) + "_2d"
         texture.set("name", tex_name)
         texture.set("file", self.top_texture)
         material = find_elements(
-            self.root, tags="material", 
+            self.root,
+            tags="material",
             attribs={"name": "{}_counter_top".format(self.name)},
-            return_first=True
+            return_first=True,
         )
         material.set("texture", tex_name)
-        
+
         texture = find_elements(
-            self.root, tags="texture", 
-            attribs={"name": "tex_base"},
-            return_first=True
+            self.root, tags="texture", attribs={"name": "tex_base"}, return_first=True
         )
         tex_name = get_texture_name_from_file(self.base_texture)
         texture.set("name", tex_name)
         texture.set("file", self.base_texture)
         material = find_elements(
-            self.root, tags="material", 
+            self.root,
+            tags="material",
             attribs={"name": "{}_counter_base".format(self.name)},
-            return_first=True
+            return_first=True,
         )
         material.set("texture", tex_name)
 
         # need to look at this later, not sure why
         prefix = self.naming_prefix if self.name != "counter" else ""
-        
+
         # set base color
         if base_color is not None:
             self.base_color = base_color
             base_material = find_elements(
-                self.root, "material", 
-                attribs={"name": prefix + "counter_base"}, 
-                return_first=True
+                self.root,
+                "material",
+                attribs={"name": prefix + "counter_base"},
+                return_first=True,
             )
-            
+
             if len(self.base_color) == 3:
                 self.base_color.append(1)
             base_material.set("rgba", a2s(self.base_color))
@@ -153,11 +163,11 @@ class Counter(ProcGenFixture):
 
         geoms = dict()
         for side in SIDES:
-            geoms["base" + '_' + side] = list()
-        
+            geoms["base" + "_" + side] = list()
+
         if self.has_opening:
             for side in SIDES:
-                geoms["top" + '_' + side] = list()
+                geoms["top" + "_" + side] = list()
         else:
             geoms["top"] = list()
 
@@ -167,14 +177,14 @@ class Counter(ProcGenFixture):
                     root=self._obj,
                     tags="geom",
                     attribs={"name": "{}_{}{}".format(self.name, geom_name, postfix)},
-                    return_first=True
+                    return_first=True,
                 )
                 geoms[geom_name].append(g)
         return geoms
 
     def _place_interior_obj(self):
         """
-        calculates and sets the position of the sink, 
+        calculates and sets the position of the sink,
         calculates and returns the sizes of padding around the sink.
 
         x_percent/y_percent specifies at what percent of the fixture's entire width/depth
@@ -184,7 +194,11 @@ class Counter(ProcGenFixture):
         x_percent, y_percent = self.obj_x_percent, self.obj_y_percent
 
         # remove overhang from consideration for placement
-        top_size = [self.size[0], self.size[1] - self.overhang, self.size[2]] # remove the overhang
+        top_size = [
+            self.size[0],
+            self.size[1] - self.overhang,
+            self.size[2],
+        ]  # remove the overhang
 
         # respect boundaires: limit range of x_percent and y_percent so interior object doesn't overflow
         gap = 0.02
@@ -205,26 +219,34 @@ class Counter(ProcGenFixture):
         # calculate the size of padding around the sink
         left_pad = x_percent * top_size[0] - self.interior_obj.width / 2
         right_pad = (1 - x_percent) * top_size[0] - self.interior_obj.width / 2
-        front_pad = y_percent * top_size[1] - self.interior_obj.depth / 2 + self.overhang # add the overhang to the front
+        front_pad = (
+            y_percent * top_size[1] - self.interior_obj.depth / 2 + self.overhang
+        )  # add the overhang to the front
         back_pad = (1 - y_percent) * top_size[1] - self.interior_obj.depth / 2
 
         return [left_pad, right_pad, front_pad, back_pad]
 
     def _get_chunks(self, pos, size, chunk_size=0.5):
-        top_x_sizes = np.array(math.ceil(size[0]/chunk_size) * [chunk_size])
+        top_x_sizes = np.array(math.ceil(size[0] / chunk_size) * [chunk_size])
         top_x_sizes[-1] = size[0] - np.sum(top_x_sizes[:-1])
 
         chunk_sizes = [np.array([x_size, size[1], size[2]]) for x_size in top_x_sizes]
-        left_pos = pos - np.array([size[0]/2, 0, 0])
+        left_pos = pos - np.array([size[0] / 2, 0, 0])
         chunk_positions = []
         for i in range(len(top_x_sizes)):
-            chunk_positions.append(np.array([
-                left_pos[0] + np.sum(top_x_sizes[:max(0, i)]) + top_x_sizes[i] / 2,
-                pos[1],
-                pos[2],
-            ]))
+            chunk_positions.append(
+                np.array(
+                    [
+                        left_pos[0]
+                        + np.sum(top_x_sizes[: max(0, i)])
+                        + top_x_sizes[i] / 2,
+                        pos[1],
+                        pos[2],
+                    ]
+                )
+            )
         return chunk_positions, chunk_sizes
-    
+
     def _make_counter(self):
         w, d, h = np.array(self.size)
         th = self.th
@@ -233,14 +255,14 @@ class Counter(ProcGenFixture):
 
         # get the base geoms
         for side in SIDES:
-            geoms["base" + '_' + side] = list()
+            geoms["base" + "_" + side] = list()
         for geom_name in geoms.keys():
             for postfix in ["", "_visual"]:
                 g = find_elements(
                     root=self._obj,
                     tags="geom",
                     attribs={"name": "{}_{}{}".format(self.name, geom_name, postfix)},
-                    return_first=True
+                    return_first=True,
                 )
                 geoms[geom_name].append(g)
 
@@ -251,7 +273,7 @@ class Counter(ProcGenFixture):
         else:
             # used for aligning corner counters
             size = np.array([w / 2, d, th])
-            if (self.half_top[1]):
+            if self.half_top[1]:
                 # keep right half
                 pos = np.array([w / 4, 0, h / 2 - th / 2])
             else:
@@ -306,7 +328,7 @@ class Counter(ProcGenFixture):
                 else:
                     elem.set("pos", a2s(base_pos[side]))
                     elem.set("size", a2s(base_size[side]))
-    
+
     def _make_counter_with_opening(self, padding):
         """
         calculates and set the size and position of each component in the counter
@@ -320,8 +342,10 @@ class Counter(ProcGenFixture):
         left_pad, right_pad, front_pad, back_pad = padding
 
         if front_pad < self.overhang:
-            raise ValueError("Overhang value is too large, must be lower " \
-                             "than front padding ({:.2f})".format(front_pad))
+            raise ValueError(
+                "Overhang value is too large, must be lower "
+                "than front padding ({:.2f})".format(front_pad)
+            )
 
         # calculate the (full) size of each component
         top_size = dict(
@@ -335,9 +359,9 @@ class Counter(ProcGenFixture):
         # the origin is the bottom-left corner of the entire fixture
         top_pos = dict(
             back=[left_pad, front_pad + self.interior_obj.depth, -th],
-            front=[left_pad, self.overhang, - th],
+            front=[left_pad, self.overhang, -th],
             left=[0, self.overhang, -th],
-            right=[left_pad + self.interior_obj.width, self.overhang, - th],
+            right=[left_pad + self.interior_obj.width, self.overhang, -th],
         )
 
         base_size = dict(
@@ -362,22 +386,22 @@ class Counter(ProcGenFixture):
         geoms = dict()
         # get the base geoms
         for side in SIDES:
-            geoms["base" + '_' + side] = list()
+            geoms["base" + "_" + side] = list()
         for geom_name in geoms.keys():
             for postfix in ["", "_visual"]:
                 g = find_elements(
                     root=self._obj,
                     tags="geom",
                     attribs={"name": "{}_{}{}".format(self.name, geom_name, postfix)},
-                    return_first=True
+                    return_first=True,
                 )
                 geoms[geom_name].append(g)
-        
+
         for side in SIDES:
             # convert coordinate of bottom-left corner to coordinate of center
             # the origin is now the center of the entire fixture
-            top_pos[side][0] = (top_pos[side][0] + top_size[side][0] / 2 - w / 2)
-            top_pos[side][1] = (top_pos[side][1] + top_size[side][1] / 2 - d / 2)
+            top_pos[side][0] = top_pos[side][0] + top_size[side][0] / 2 - w / 2
+            top_pos[side][1] = top_pos[side][1] + top_size[side][1] / 2 - d / 2
             top_pos[side][2] /= 2
 
             base_pos[side] = np.array(base_pos[side]) / 2
@@ -408,7 +432,7 @@ class Counter(ProcGenFixture):
             geom_name = self._name + "_top_{}".format(side)
 
             half_size = size / 2
-            
+
             g_vis = new_geom(
                 name=geom_name + "_visual",
                 type="box",
@@ -435,11 +459,10 @@ class Counter(ProcGenFixture):
                     group=0,
                     density=10,
                     rgba="0.5 0 0 1",
-                    # rgba=a2s(np.concatenate((np.random.uniform(size=3), [1]))),
                 )
                 self._obj.append(g)
                 self._contact_geoms.append("top_{}_{}".format(side, i))
-    
+
     def _get_base_dimensions(self):
         # divide everything by 2 per mujoco convention
         x, y, z = np.array(self.size) / 2
@@ -448,8 +471,8 @@ class Counter(ProcGenFixture):
         side_th = 0.1 if sum(self.base_opening) == 1 else 0.0001
 
         base_size = dict(
-            back=[x-side_th*2, th, z - th],
-            front=[x-side_th*2,  th, z - th],
+            back=[x - side_th * 2, th, z - th],
+            front=[x - side_th * 2, th, z - th],
             left=[side_th, y - overhang, z - th],
             right=[side_th, y - overhang, z - th],
         )
@@ -472,11 +495,11 @@ class Counter(ProcGenFixture):
     @property
     def width(self):
         return self.size[0]
-    
+
     @property
     def depth(self):
         return self.size[1]
-    
+
     @property
     def height(self):
         return self.size[2]
@@ -487,7 +510,7 @@ class Counter(ProcGenFixture):
         if self.interior_obj is not None:
             self._place_interior_obj()
 
-    def get_reset_regions(self, env, ref=None, loc="nn", top_size=(0.4, 0.4) ):
+    def get_reset_regions(self, env, ref=None, loc="nn", top_size=(0.4, 0.4)):
         """
         returns dictionary of reset regions, each region defined as offsets and size
         """
@@ -501,9 +524,6 @@ class Counter(ProcGenFixture):
             # make sure region is sufficiently large
             if this_top_size[0] >= top_size[0] and this_top_size[1] >= top_size[1]:
                 all_geoms.append(geom)
-
-        # # randomize order of geoms
-        # random.shuffle(valid_top_geoms)
 
         reset_regions = {}
 
@@ -525,7 +545,7 @@ class Counter(ProcGenFixture):
                 g_pos = get_pos_after_rel_offset(self, s2a(g.get("pos")))
                 rel_offset = get_fixture_to_point_rel_offset(ref_fixture, g_pos)
                 fixture_to_geom_offsets.append(rel_offset)
-            
+
             valid_geoms = []
 
             if loc == "nn":
@@ -548,7 +568,7 @@ class Counter(ProcGenFixture):
                 valid_geoms = all_geoms
             else:
                 raise ValueError
-            
+
             geom_i = 0
             for g in valid_geoms:
                 top_pos = s2a(g.get("pos"))

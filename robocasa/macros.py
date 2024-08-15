@@ -9,7 +9,7 @@ To make sure global reference is maintained, should import these settings as:
 
 SHOW_SITES = False
 
-# whether to print debugging information 
+# whether to print debugging information
 VERBOSE = False
 
 # Spacemouse settings. Used by SpaceMouse class in robosuite/devices/spacemouse.py
@@ -21,9 +21,12 @@ DATASET_BASE_PATH = None
 try:
     from robocasa.macros_private import *
 except ImportError:
-    import robocasa
     from robosuite.utils.log_utils import ROBOSUITE_DEFAULT_LOGGER
+
+    import robocasa
 
     ROBOSUITE_DEFAULT_LOGGER.warn("No private macro file found!")
     ROBOSUITE_DEFAULT_LOGGER.warn("It is recommended to use a private macro file")
-    ROBOSUITE_DEFAULT_LOGGER.warn("To setup, run: python {}/scripts/setup_macros.py".format(robocasa.__path__[0]))
+    ROBOSUITE_DEFAULT_LOGGER.warn(
+        "To setup, run: python {}/scripts/setup_macros.py".format(robocasa.__path__[0])
+    )

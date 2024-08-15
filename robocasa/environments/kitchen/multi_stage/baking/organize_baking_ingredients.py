@@ -1,15 +1,18 @@
 import numpy as np
+
 from robocasa.environments.kitchen.kitchen import *
 
 
 class OrganizeBakingIngredients(Kitchen):
     def __init__(self, *args, **kwargs):
-        super().__init__( *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
-        self.counter = self.register_fixture_ref("counter", dict(id=FixtureType.COUNTER, ref=self.sink))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.sink)
+        )
         self.init_robot_base_pos = self.counter
 
     def get_ep_meta(self):
@@ -26,73 +29,81 @@ class OrganizeBakingIngredients(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        cfgs.append(dict(
-            name="bowl",
-            obj_groups="bowl",
-            graspable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="bowl",
+                obj_groups="bowl",
+                graspable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.40, 0.40),
+                    pos=(0.0, -1.0),
                 ),
-                size=(0.40, 0.40),
-                pos=(0.0, -1.0),
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="egg1",
-            obj_groups="egg",
-            graspable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="egg1",
+                obj_groups="egg",
+                graspable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.3, 0.3),
+                    pos=(-1.0, -0.4),
                 ),
-                size=(0.3, 0.3),
-                pos=(-1.0, -0.4),
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="egg2",
-            obj_groups="egg",
-            graspable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="egg2",
+                obj_groups="egg",
+                graspable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.3, 0.3),
+                    pos=(-1.0, -0.4),
+                    offset=(0.2, 0.0),
                 ),
-                size=(0.3, 0.3),
-                pos=(-1.0, -0.4),
-                offset=(0.2, 0.0)
-            ),
-        ))
+            )
+        )
 
-        cfgs.append(dict(
-            name="milk",
-            obj_groups="milk",
-            graspable=True,
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.sink,
-                    loc="left_right",
+        cfgs.append(
+            dict(
+                name="milk",
+                obj_groups="milk",
+                graspable=True,
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink,
+                        loc="left_right",
+                    ),
+                    size=(0.5, 0.5),
+                    pos=(1.0, -1.0),
                 ),
-                size=(0.5, 0.5),
-                pos=(1.0, -1.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
     def _check_success(self):
 
         th = 0.2
-        
+
         bowl_pos = self.sim.data.body_xpos[self.obj_body_id["bowl"]]
         egg1_pos = self.sim.data.body_xpos[self.obj_body_id["egg1"]]
         egg2_pos = self.sim.data.body_xpos[self.obj_body_id["egg2"]]
