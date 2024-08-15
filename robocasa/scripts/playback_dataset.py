@@ -65,6 +65,9 @@ def playback_trajectory_with_env(
     if action_playback:
         assert states.shape[0] == actions.shape[0]
 
+    if render is False:
+        print(colored("Running episode...", "yellow"))
+
     for i in range(traj_len):
         start = time.time()
 
@@ -72,7 +75,7 @@ def playback_trajectory_with_env(
             env.step(actions[i])
             if i < traj_len - 1:
                 # check whether the actions deterministically lead to the same recorded states
-                state_playback = env.get_state()["states"]
+                state_playback = np.array(env.sim.get_state().flatten())
                 if not np.all(np.equal(states[i + 1], state_playback)):
                     err = np.linalg.norm(states[i + 1] - state_playback)
                     print("warning: playback diverged by {} at step {}".format(err, i))
@@ -81,7 +84,6 @@ def playback_trajectory_with_env(
 
         # on-screen render
         if render:
-            # env.render(mode="human", camera_name=camera_names[0])
             if env.viewer is None:
                 env.initialize_renderer()
 
@@ -99,7 +101,6 @@ def playback_trajectory_with_env(
             if video_count % video_skip == 0:
                 video_img = []
                 for cam_name in camera_names:
-                    # video_img.append(env.render(mode="rgb_array", height=512, width=512, camera_name=cam_name))
                     im = env.sim.render(height=512, width=512, camera_name=cam_name)[
                         ::-1
                     ]
@@ -108,10 +109,15 @@ def playback_trajectory_with_env(
                     video_img, axis=1
                 )  # concatenate horizontally
                 video_writer.append_data(video_img)
+
             video_count += 1
 
         if first:
             break
+
+    if render:
+        env.viewer.close()
+        env.viewer = None
 
 
 def playback_trajectory_with_obs(
@@ -344,7 +350,7 @@ def playback_dataset(args):
 
     for ind in range(len(demos)):
         ep = demos[ind]
-        print(colored("Playing back episode: {}".format(ep), "yellow"))
+        print(colored("\nPlaying back episode: {}".format(ep), "yellow"))
 
         if args.use_obs:
             playback_trajectory_with_obs(
@@ -386,6 +392,7 @@ def playback_dataset(args):
 
     f.close()
     if write_video:
+        print(colored(f"Saved video to {args.video_path}", "yellow"))
         video_writer.close()
 
     if env is not None:
