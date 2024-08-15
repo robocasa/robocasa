@@ -1,28 +1,29 @@
-import numpy as np
-from copy import deepcopy
 import abc
-import random
 import os
+import random
 import xml.etree.ElementTree as ET
+from copy import deepcopy
+from enum import IntEnum
 
+import numpy as np
+import robosuite.utils.transform_utils as T
 from robosuite.utils.mjcf_utils import (
     array_to_string,
+    find_elements,
+    find_parent,
     string_to_array,
     xml_path_completion,
-    find_elements,
 )
-from robocasa.models.objects import MujocoXMLObject
-from robocasa.utils.object_utils import get_pos_after_rel_offset
-from robosuite.utils.mjcf_utils import find_parent
-import robosuite.utils.transform_utils as T
-import robocasa.macros as macros
 
 import robocasa
+import robocasa.macros as macros
+from robocasa.models.objects import MujocoXMLObject
+from robocasa.utils.object_utils import get_pos_after_rel_offset
 
-from enum import IntEnum
 
 def site_pos(site):
     return string_to_array(site.get("pos"))
+
 
 def get_texture_name_from_file(file):
     """
@@ -33,10 +34,12 @@ def get_texture_name_from_file(file):
     name = suffix_path.split(".")[0]
     return name
 
+
 class FixtureType(IntEnum):
     """
     Enum for fixture types in robosuite kitchen environments.
     """
+
     COUNTER = 1
     MICROWAVE = 2
     STOVE = 3
@@ -60,6 +63,7 @@ class FixtureType(IntEnum):
     ISLAND = 21
     COUNTER_NON_CORNER = 22
 
+
 class Fixture(MujocoXMLObject):
     def __init__(
         self,
@@ -70,6 +74,7 @@ class Fixture(MujocoXMLObject):
         scale=1,
         size=None,
         placement=None,
+        rng=None,
     ):
         if not xml.endswith(".xml"):
             xml = os.path.join(xml, "model.xml")
@@ -86,7 +91,16 @@ class Fixture(MujocoXMLObject):
 
         # set up exterior and interior sites
         self._bounds_sites = dict()
-        for postfix in ["ext_p0", "ext_px", "ext_py", "ext_pz", "int_p0", "int_px", "int_py", "int_pz"]:
+        for postfix in [
+            "ext_p0",
+            "ext_px",
+            "ext_py",
+            "ext_pz",
+            "int_p0",
+            "int_px",
+            "int_py",
+            "int_pz",
+        ]:
             site = find_elements(
                 self.worldbody,
                 tags="site",
@@ -118,11 +132,13 @@ class Fixture(MujocoXMLObject):
                 px = site_pos(self._bounds_sites["ext_px"])
                 py = site_pos(self._bounds_sites["ext_py"])
                 pz = site_pos(self._bounds_sites["ext_pz"])
-                self.origin_offset = np.array([
-                    np.mean((p0[0], px[0])),
-                    np.mean((p0[1], py[1])),
-                    np.mean((p0[2], pz[2])),
-                ])
+                self.origin_offset = np.array(
+                    [
+                        np.mean((p0[0], px[0])),
+                        np.mean((p0[1], py[1])),
+                        np.mean((p0[2], pz[2])),
+                    ]
+                )
             except KeyError:
                 self.origin_offset = [0, 0, 0]
         else:
@@ -132,25 +148,30 @@ class Fixture(MujocoXMLObject):
         # placement config, for determining where to place fixture (most fixture will not use this)
         self._placement = placement
 
-    def set_origin(self, origin):        
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
+
+    def set_origin(self, origin):
         # compute new position
         fixture_rot = np.array([0, 0, self.rot])
         fixture_mat = T.euler2mat(fixture_rot)
-    
+
         pos = origin + np.dot(fixture_mat, -self.origin_offset)
         self.set_pos(pos)
 
     def set_scale_from_size(self, size):
         # check that the argument is valid
         assert len(size) == 3
-        
+
         # calculate and set scale according to specification
         scale = [None, None, None]
         cur_size = [self.width, self.depth, self.height]
         for (i, t) in enumerate(size):
             if t is not None:
                 scale[i] = t / cur_size[i]
-        
+
         scale[0] = scale[0] or scale[2] or scale[1]
         scale[1] = scale[1] or scale[0] or scale[2]
         scale[2] = scale[2] or scale[0] or scale[1]
@@ -170,7 +191,7 @@ class Fixture(MujocoXMLObject):
 
     def sample_reset_region(self, *args, **kwargs):
         regions = self.get_reset_regions(*args, **kwargs)
-        return random.sample(list(regions.values()), 1)[0]
+        return self.rng.choice(list(regions.values()))
 
     def get_site_info(self, sim):
         """
@@ -189,7 +210,7 @@ class Fixture(MujocoXMLObject):
         get the current state of the fixture
         """
         return
-    
+
     @abc.abstractmethod
     def update_state(self, env):
         """
@@ -200,7 +221,7 @@ class Fixture(MujocoXMLObject):
     @property
     def pos(self):
         return string_to_array(self._obj.get("pos"))
-    
+
     @property
     def quat(self):
         quat = self._obj.get("quat")
@@ -208,7 +229,7 @@ class Fixture(MujocoXMLObject):
             # no rotation applied
             quat = "0 0 0 0"
         return string_to_array(quat)
-    
+
     @property
     def euler(self):
         euler = self._obj.get("euler")
@@ -216,7 +237,7 @@ class Fixture(MujocoXMLObject):
             # no rotation applied
             euler = "0 0 0"
         return np.array(string_to_array(euler))
-    
+
     @property
     def horizontal_radius(self):
         """
@@ -227,11 +248,11 @@ class Fixture(MujocoXMLObject):
         )
         site_values = string_to_array(horizontal_radius_site.get("pos"))
         return np.linalg.norm(site_values[0:2])
-            
+
     @property
     def bottom_offset(self):
         return site_pos(self._bounds_sites["ext_p0"])
-    
+
     @property
     def width(self):
         """
@@ -245,7 +266,7 @@ class Fixture(MujocoXMLObject):
             return w
         else:
             return None
-        
+
     @property
     def depth(self):
         """
@@ -259,7 +280,7 @@ class Fixture(MujocoXMLObject):
             return d
         else:
             return None
-        
+
     @property
     def height(self):
         """
@@ -297,9 +318,9 @@ class Fixture(MujocoXMLObject):
 
         if relative is False:
             sites = [get_pos_after_rel_offset(self, offset) for offset in sites]
-        
+
         return sites
-    
+
     def get_int_sites(self, all_points=False, relative=True):
         sites = [
             site_pos(self._bounds_sites["int_p0"]),
@@ -319,9 +340,9 @@ class Fixture(MujocoXMLObject):
 
         if relative is False:
             sites = [get_pos_after_rel_offset(self, offset) for offset in sites]
-        
+
         return sites
-    
+
     def get_bbox_points(self, trans=None, rot=None):
         """
         Get the full set of bounding box points of the object
@@ -339,7 +360,7 @@ class Fixture(MujocoXMLObject):
 
         points = [(np.matmul(rot, p) + trans) for p in bbox_offsets]
         return points
-    
+
     def _remove_element(self, elem):
         # # This method not currently working
         # parent_elem = find_parent(self._obj, elem)
@@ -355,6 +376,7 @@ class Fixture(MujocoXMLObject):
     def nat_lang(self):
         return self.name
 
+
 class ProcGenFixture(Fixture):
     def exclude_from_prefixing(self, inp):
         """
@@ -365,7 +387,7 @@ class ProcGenFixture(Fixture):
 
         Returns:
             bool: True if we should exclude the associated name(s) with @inp from being prefixed with naming_prefix
-        """        
+        """
         if "tex" in inp:
             return True
 

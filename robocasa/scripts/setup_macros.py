@@ -17,12 +17,14 @@ if __name__ == "__main__":
     macros_private_path = os.path.join(base_path, "macros_private.py")
 
     print("Setting up private macros file...")
-    
+
     if not os.path.exists(macros_path):
         print("{} does not exist! Aborting...".format(macros_path))
 
     if os.path.exists(macros_private_path):
-        ans = input("{} already exists! \noverwrite? (y/n)\n".format(macros_private_path))
+        ans = input(
+            "{} already exists! \noverwrite? (y/n)\n".format(macros_private_path)
+        )
 
         if ans == "y":
             print("REMOVING")

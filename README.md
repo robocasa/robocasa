@@ -2,7 +2,9 @@
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/robocasa-banner.jpg" width="100%" />
 
-This is the official RoboCasa codebase. Please refer to the accompanying [paper](https://robocasa.ai/assets/robocasa_rss24.pdf) and [project website](https://robocasa.ai) for additional information.
+This is the official codebase of RoboCasa, a large-scale simulation framework for training generally capable robots to perform everyday tasks. This guide contains information about installation and setup. Please refer to the following resources for additional information:
+
+[**[Home page]**](https://robocasa.ai) &ensp; [**[Documentation]**](https://robocasa.ai/docs/introduction/overview.html) &ensp; [**[Paper]**](https://robocasa.ai/assets/robocasa_rss24.pdf)
 
 -------
 ## Installation
@@ -69,40 +71,12 @@ python -m robocasa.demos.demo_teleop
 Note: If using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`.
 
 -------
-## Datasets
-RoboCasa comes with a large selection of demonstrations to faciliate training agents. This includes human trajectories and machine-generated trajectories from [MimicGen]([https://www.anaconda.com/](https://mimicgen.github.io/)). At this time we are releasing human datasets and plan to release MimicGen datasets in the near future.
-
-Here are a few ways to download the datasets:
-```
-python -m robocasa.scripts.download_datasets                                            # downloads all datasets
-python -m robocasa.scripts.download_datasets --tasks PnPCounterToCab ArrangeVegetables  # downloads datasets for specific tasks
-python -m robocasa.scripts.download_datasets --overwrite                                # overwrites existing datasets
-python -m robocasa.scripts.download_datasets --ds_types human_raw                       # lite download: download human datasets without images
-```
-
-By default, all datasets are stored under `datasets/` in the root robocasa directory.
-
--------
-## Key files
-- `robocasa/demos/`: interactive scripts to explore tasks and environments (see quick start section for details)
-- `robocasa/environments/kitchen/`: all implementations for kitchen tasks
-  - `kitchen.py`: base class from which all kitchen tasks extend from
-  - `single_stage/`: implementations of all single-stage tasks
-  - `multi_stage/`: implementations of all multi-stage (aka "composite") tasks
-- `robocasa/scripts/`: utility scripts
-  - `collect_demos.py`: collect demonstration trajectories for any task and environment
-  - `download_kitchen_assets.py`: downloads all assets. called automatically during setup in `setup.sh`
-  - `download_datasets.py`: downloads datasets (see datasets section for details)
-- `robocasa/models/assets/`: assets and implementations for objects and environment fixtures
-  - `assets/objects/`: raw assets for all objects
-  - `assets/fixtures/`: raw assets for all environment fixtures
-  - `assets/kitchen_layouts/`: blueprints for kitchen layouts and designs
-  - `objects/kitchen_objects.py`: registry for all object categories and groups
-  - `objects/fixtures/`: implementations of all fixture classes
+## Tasks, datasets, policy learning, and additional use cases
+Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for information about tasks and assets, downloading datasets, policy learning, API docs, and more.
  
 -------
 ## Citation
-```
+```bibtex
 @inproceedings{robocasa2024,
   title={RoboCasa: Large-Scale Simulation of Everyday Tasks for Generalist Robots},
   author={Soroush Nasiriany and Abhiram Maddukuri and Lance Zhang and Adeet Parikh and Aaron Lo and Abhishek Joshi and Ajay Mandlekar and Yuke Zhu},

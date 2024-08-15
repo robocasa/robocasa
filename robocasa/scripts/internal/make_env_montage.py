@@ -1,11 +1,11 @@
 import argparse
-import imageio
 import os
 import random
-from tqdm import tqdm
 
+import imageio
 import robosuite
 from robosuite import load_controller_config
+from tqdm import tqdm
 
 ENVS = [
     "KitchenPnPCounterToCab",
@@ -50,6 +50,3 @@ for i in tqdm(range(50)):
     del env
 
 video_writer.close()
-
-
-

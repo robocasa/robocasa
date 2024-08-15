@@ -1,26 +1,31 @@
+import numpy as np
+
 from robocasa.models.arenas.layout_utils import *
 from robocasa.models.objects.fixtures.cabinets import *
 from robocasa.models.objects.fixtures.others import Box
 
-import numpy as np
-
 # fixtures that can be used to form a stack
 STACKABLE = {
-    "single_cabinet": SingleCabinet, 
-    "hinge_cabinet": HingeCabinet, 
+    "single_cabinet": SingleCabinet,
+    "hinge_cabinet": HingeCabinet,
     "drawer": Drawer,
     "panel_cabinet": PanelCabinet,
-    "box": Box
+    "box": Box,
 }
 
 
-class FixtureStack():
+class FixtureStack:
     def __init__(
-            self, config, 
-            scene_fixtures, scene_configs, scene_style,
-            base_height=0.05, base_overhang=0.07,
-            default_texture=None
-        ):
+        self,
+        config,
+        scene_fixtures,
+        scene_configs,
+        scene_style,
+        base_height=0.05,
+        base_overhang=0.07,
+        default_texture=None,
+        rng=None,
+    ):
         self._check_config_syntax(config)
         self.config = config
 
@@ -31,12 +36,17 @@ class FixtureStack():
         # for base
         self.base_height = base_height
         self.base_overhang = base_overhang
-        
+
         self.scene_style = scene_style
         self.scene_configs = scene_configs
         self.scene_fixtures = scene_fixtures
         self.default_texture = default_texture
         self.fixtures = list()
+
+        if rng is not None:
+            self.rng = rng
+        else:
+            self.rng = np.random.default_rng()
 
         self._create_stack()
 
@@ -48,11 +58,12 @@ class FixtureStack():
             self.pos = self.config["pos"]
         else:
             self.pos = get_relative_position(
-                self, self.config,
+                self,
+                self.config,
                 self.scene_fixtures[self.config["align_to"]],
-                self.scene_configs[self.config["align_to"]]
+                self.scene_configs[self.config["align_to"]],
             )
-        
+
         x_stack, y, z_stack = self.pos
         # incremented as levels are stacked
         z_current = z_stack - height_stack / 2
@@ -72,9 +83,10 @@ class FixtureStack():
             for k in ["group_origin", "group_pos", "group_z_rot"]:
                 if k in self.config:
                     base_config[k] = self.config[k]
-            
+
             if self.default_texture is not None:
                 base_config["texture"] = self.default_texture
+            base_config["rng"] = self.rng
             base = initialize_fixture(base_config, self.scene_fixtures)
             self.scene_fixtures[base_name] = base
             self.scene_configs[base_name] = base_config
@@ -86,15 +98,17 @@ class FixtureStack():
                 # two fixtures in this level
                 fixtures = [
                     [level[0], [x_stack - width_stack / 4, width_stack / 2]],
-                    [level[1], [x_stack + width_stack / 4, width_stack / 2]]
+                    [level[1], [x_stack + width_stack / 4, width_stack / 2]],
                 ]
             else:
                 fixtures = [[level, [x_stack, width_stack]]]
-            
+
             for fixture, (x, width) in fixtures:
                 if fixture not in STACKABLE:
-                    raise ValueError("\"{}\" is not a stackable fixture type".format(fixture))
-                
+                    raise ValueError(
+                        '"{}" is not a stackable fixture type'.format(fixture)
+                    )
+
                 # find size and position of fixture
                 height = height_stack * self.config["percentages"][i]
                 z = z_current + height / 2
@@ -107,9 +121,9 @@ class FixtureStack():
                 if "cabinet" in fixture:
                     fxtr_config["panel_config"] = fxtr_config.get("panel_config", {})
                     fxtr_config["panel_config"]["handle_vpos"] = "top"
-                
+
                 fxtr_count += 1
-                fxtr_name = self.config["name"] + '_' + str(fxtr_count)
+                fxtr_name = self.config["name"] + "_" + str(fxtr_count)
                 fxtr_config["name"] = fxtr_name
                 fxtr_config["type"] = STACKABLE[fixture]
 
@@ -135,26 +149,34 @@ class FixtureStack():
                     fxtr_config["texture"] = self.default_texture
 
                 # initialize fixture and add to scene fixtures and configs
-                fixture = initialize_fixture(fxtr_config, self.scene_fixtures)
+                fixture = initialize_fixture(
+                    fxtr_config, self.scene_fixtures, rng=self.rng
+                )
                 self.scene_fixtures[fxtr_name] = fixture
                 self.scene_configs[fxtr_name] = fxtr_config
                 self.fixtures.append(fixture)
-        
+
             # increment z to move up a level
             z_current += height
 
     @staticmethod
     def _check_config_syntax(config):
         if "size" not in config or None in config["size"]:
-            raise ValueError("Size for stacks must be specified explicitely, " \
-                             "received:", config["size"])
+            raise ValueError(
+                "Size for stacks must be specified explicitely, " "received:",
+                config["size"],
+            )
         if "levels" not in config or "percentages" not in config:
-            raise ValueError("Both \"levels\" and \"percentages\" " \
-                             "must be specified for fixture stack")
+            raise ValueError(
+                'Both "levels" and "percentages" ' "must be specified for fixture stack"
+            )
         if len(config["levels"]) != len(config["percentages"]):
-            raise ValueError("\"levels\" and \"percentages\" must have " \
-                             "the same length for fixture stacks")
+            raise ValueError(
+                '"levels" and "percentages" must have '
+                "the same length for fixture stacks"
+            )
         for level in config["levels"]:
             if type(level) == list and len(level) != 2:
-                raise ValueError("There can be at most 2 fixtures per level " \
-                                 "in fixture stacks")
+                raise ValueError(
+                    "There can be at most 2 fixtures per level " "in fixture stacks"
+                )

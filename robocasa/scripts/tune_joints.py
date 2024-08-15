@@ -18,9 +18,8 @@ RELEVANT KEY PRESSES:
 import argparse
 
 import numpy as np
-from pynput.keyboard import Controller, Key, Listener
-
 import robosuite
+from pynput.keyboard import Controller, Key, Listener
 from robosuite.robots import SingleArm
 
 
@@ -39,7 +38,9 @@ class KeyboardHandler:
         self.active_robot_num = 0
         self.active_arm_joint = 1
         self.active_arm = "right"  # only relevant for bimanual robots
-        self.current_joints_pos = env.sim.data.qpos[self.active_robot._ref_joint_pos_indexes[: self.num_joints]]
+        self.current_joints_pos = env.sim.data.qpos[
+            self.active_robot._ref_joint_pos_indexes[: self.num_joints]
+        ]
 
         # make a thread to listen to keyboard and register our callback functions
         self.listener = Listener(on_press=self.on_press, on_release=self.on_release)
@@ -74,7 +75,11 @@ class KeyboardHandler:
             # controls for setting active arm
             elif key.char == "0":
                 # Notify use that joint indexes are 1-indexed
-                print("Joint Indexes are 1-Indexed. Available joints are 1 - {}".format(self.num_joints))
+                print(
+                    "Joint Indexes are 1-Indexed. Available joints are 1 - {}".format(
+                        self.num_joints
+                    )
+                )
             elif key.char == "1":
                 # Make sure range is valid; if so, update this specific joint
                 if self._check_valid_joint(1):
@@ -170,7 +175,11 @@ class KeyboardHandler:
         """
         if i > self.num_joints:
             # Print error
-            print("Error: Requested joint {} is out of range; available joints are 1 - {}".format(i, self.num_joints))
+            print(
+                "Error: Requested joint {} is out of range; available joints are 1 - {}".format(
+                    i, self.num_joints
+                )
+            )
             return False
         else:
             return True
@@ -202,7 +211,9 @@ class KeyboardHandler:
         self.current_joints_pos[i - 1] += delta
         if isinstance(self.active_robot, SingleArm):
             robot = self.active_robot_num
-            self.env.sim.data.qpos[self.active_robot._ref_joint_pos_indexes] = self.current_joints_pos
+            self.env.sim.data.qpos[
+                self.active_robot._ref_joint_pos_indexes
+            ] = self.current_joints_pos
         else:  # Bimanual case
             robot = self.active_arm
             if self.active_arm == "right":
@@ -251,9 +262,19 @@ def print_command(char, info):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", type=str, default="Lift")
-    parser.add_argument("--robots", nargs="+", type=str, default="Panda", help="Which robot(s) to use in the env")
     parser.add_argument(
-        "--init_qpos", nargs="+", type=float, default=0, help="Initial qpos to use. 0 defaults to all zeros"
+        "--robots",
+        nargs="+",
+        type=str,
+        default="Panda",
+        help="Which robot(s) to use in the env",
+    )
+    parser.add_argument(
+        "--init_qpos",
+        nargs="+",
+        type=float,
+        default=0,
+        help="Initial qpos to use. 0 defaults to all zeros",
     )
 
     args = parser.parse_args()
@@ -266,18 +287,24 @@ if __name__ == "__main__":
 
     print("")
     print_command("Keys", "Command")
-    print_command("1-N", "Active Joint being tuned (N=number of joints for the active arm)")
+    print_command(
+        "1-N", "Active Joint being tuned (N=number of joints for the active arm)"
+    )
     print_command("t", "Toggle between robot arms in the environment")
     print_command("r", "Reset active arm joints to all 0s")
     print_command("up/down", "incr/decrement the active joint angle")
-    print_command("right/left", "incr/decrement the delta joint angle per up/down keypress")
+    print_command(
+        "right/left", "incr/decrement the delta joint angle per up/down keypress"
+    )
     print("")
 
     # Setup printing options for numbers
     np.set_printoptions(formatter={"float": lambda x: "{0:0.3f}".format(x)})
 
     # Define the controller
-    controller_config = robosuite.load_controller_config(default_controller="JOINT_POSITION")
+    controller_config = robosuite.load_controller_config(
+        default_controller="JOINT_POSITION"
+    )
 
     # make the environment
     env = robosuite.make(
