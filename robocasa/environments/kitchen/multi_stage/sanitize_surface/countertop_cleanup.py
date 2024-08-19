@@ -2,6 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CountertopCleanup(Kitchen):
+    """
+    Countertop Cleanup: composite task for Sanitize Surface activity.
+
+    Simulates the task of cleaning the countertop.
+
+    Steps:
+        Pick the fruit and vegetable from the counter and place it in the cabinet.
+        Then, open the drawer and pick the cleaner and sponge from the drawer and
+        place it on the counter.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

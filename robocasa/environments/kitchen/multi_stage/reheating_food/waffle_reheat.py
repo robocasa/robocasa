@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class WaffleReheat(Kitchen):
+    """
+    Waffle Reheat: composite task for Reheating Food activity.
+
+    Simulates the task of reheating a waffle.
+
+    Steps:
+        Open the microwave. Place the bowl with waffle inside the microwave, then
+        close the microwave door and turn it on.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

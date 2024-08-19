@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CandleCleanup(Kitchen):
+    """
+    Candle Cleanup: composite task for Clearing Table activity.
+
+    Simulates the process of efficiently clearing the dining table decorations.
+
+    Steps:
+        Pick the decorations from the dining table and place it in the open cabinet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the decorations
+            are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -9,6 +23,7 @@ class CandleCleanup(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.cab = self.register_fixture_ref("cab", dict(id=self.cab_id))
+        # dining table is a sufficiently large counter where there are chairs nearby
         self.dining_table = self.register_fixture_ref(
             "dining_table",
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),

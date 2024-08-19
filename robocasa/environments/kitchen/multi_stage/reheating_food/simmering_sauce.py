@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SimmeringSauce(Kitchen):
+    """
+    Simmering Sauce: composite task for Reheating Food activity.
+
+    Simulates the task of simmering a sauce.
+
+    Steps:
+        Place the pan on a specific burner on the stove, then place the tomato and
+        the onion in the pan and turn on the burner.
+
+    Args:
+        knob_id (str): The id of the knob who's burner the pan will be placed on.
+            If "random", a random knob is chosen.
+    """
+
     def __init__(self, knob_id="random", *args, **kwargs):
         self.knob_id = knob_id
         super().__init__(*args, **kwargs)
@@ -45,6 +59,8 @@ class SimmeringSauce(Kitchen):
                 obj_groups="pan",
                 placement=dict(
                     fixture=self.counter,
+                    # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                     sample_region_kwargs=dict(ref=self.stove, top_size=(0.50, 0.40)),
                     size=(0.25, 0.05),
@@ -86,6 +102,10 @@ class SimmeringSauce(Kitchen):
         return cfgs
 
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if the object is on the stove and close to a burner.
+        Returns the location of the burner if the object is on the stove and close to a burner. None otherwise.
+        """
 
         obj = self.objects[obj_name]
         obj_pos = np.array(self.sim.data.body_xpos[self.obj_body_id[obj.name]])[0:2]
@@ -106,7 +126,7 @@ class SimmeringSauce(Kitchen):
         return None
 
     def _check_success(self):
-        pan_on_stove = self._check_obj_location_on_stove("pan") is not None
+        pan_on_stove = self._check_obj_location_on_stove("pan") == self.knob
         tomato_in_pan = OU.check_obj_in_receptacle(self, "tomato", "pan")
         onion_in_pan = OU.check_obj_in_receptacle(self, "onion", "pan")
 

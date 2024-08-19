@@ -2,6 +2,23 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SetBowlsForSoup(Kitchen):
+    """
+    Set Bowls For Soup: composite task for Setting The Table activity.
+
+    Simulates the task of setting the table with bowls for soup.
+
+    Steps:
+        Move the bowls from the cabinet to the plates on the dining table.
+
+    Restricted to layouts which have a dining table (long counter area with
+    stools).
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the bowls are
+            picked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -32,6 +49,7 @@ class SetBowlsForSoup(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
+        # set both plates' ref as self.cab to put the plates in a similar area since dining table can be large
         cfgs.append(
             dict(
                 name="plate1",

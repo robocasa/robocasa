@@ -12,11 +12,21 @@ from termcolor import colored
 
 DEFAULT_SEED = 3
 
+
 class TestEnvDeterminism(unittest.TestCase):
 
-    skip_envs = set(["AfterwashSorting", "BowlAndCup", "ClearingCleaningReceptacles", 
-                     "DrinkwareConsolidation", "PnP", "SetBowlsForSoup", "WineServingPrep"])
-    
+    skip_envs = set(
+        [
+            "AfterwashSorting",
+            "BowlAndCup",
+            "ClearingCleaningReceptacles",
+            "DrinkwareConsolidation",
+            "PnP",
+            "SetBowlsForSoup",
+            "WineServingPrep",
+        ]
+    )
+
     def create_env(self, config):
         env = robosuite.make(**config)
         env.reset()
@@ -34,9 +44,9 @@ class TestEnvDeterminism(unittest.TestCase):
         Tests environment determinism for all Kichen environments excluding those in
         skip_envs (defined above). We test for similarity in scene layout, style, all
         objects and fixtures in the scene including their position and orientation,
-        and randomized cameras. 
+        and randomized cameras.
         """
-        
+
         def compare_scene_appearance(env_1, env_2):
             """
             Compares the appearance of two environments based on their layout
@@ -89,14 +99,16 @@ class TestEnvDeterminism(unittest.TestCase):
             config = {
                 "env_name": env,
                 "robots": "PandaMobile",
-                "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+                "controller_configs": load_controller_config(
+                    default_controller="OSC_POSE"
+                ),
                 "has_renderer": False,
                 "has_offscreen_renderer": False,
                 "ignore_done": True,
                 "use_camera_obs": False,
                 "control_freq": 20,
                 "seed": DEFAULT_SEED,
-                "randomize_cameras": False
+                "randomize_cameras": False,
             }
 
             env_1 = self.create_env(config)
@@ -114,7 +126,7 @@ class TestEnvDeterminism(unittest.TestCase):
 
     def test_random_generative_textures(self):
         """
-        Tests env determinism when using generative textures to ensure random generation 
+        Tests env determinism when using generative textures to ensure random generation
         of textures results in the same generated texture replacement file.
         """
 
@@ -129,19 +141,19 @@ class TestEnvDeterminism(unittest.TestCase):
             "control_freq": 20,
             "seed": DEFAULT_SEED,
             "randomize_cameras": False,
-            "generative_textures": "100p"
+            "generative_textures": "100p",
         }
 
         env_1 = self.create_env(config)
         env_2 = self.create_env(config)
 
-        texture_names = ["cab_tex",
-                         "counter_tex",
-                         "wall_tex",
-                         "floor_tex"]
-        
+        texture_names = ["cab_tex", "counter_tex", "wall_tex", "floor_tex"]
+
         for texture_name in texture_names:
-            self.assertEqual(env_1._curr_gen_fixtures[texture_name], env_2._curr_gen_fixtures[texture_name])
+            self.assertEqual(
+                env_1._curr_gen_fixtures[texture_name],
+                env_2._curr_gen_fixtures[texture_name],
+            )
 
     def test_randomized_cameras(self):
         """
@@ -164,11 +176,20 @@ class TestEnvDeterminism(unittest.TestCase):
 
         env_1 = self.create_env(config)
         env_2 = self.create_env(config)
-        
-        self.assertListEqual(list(env_1._cam_configs.keys()), list(env_2._cam_configs.keys()))
+
+        self.assertListEqual(
+            list(env_1._cam_configs.keys()), list(env_2._cam_configs.keys())
+        )
         for camera_name in env_1._cam_configs.keys():
-            self.assertEqual(env_1._cam_configs[camera_name]["pos"], env_2._cam_configs[camera_name]["pos"])
-            self.assertEqual(env_1._cam_configs[camera_name]["quat"], env_2._cam_configs[camera_name]["quat"])
+            self.assertEqual(
+                env_1._cam_configs[camera_name]["pos"],
+                env_2._cam_configs[camera_name]["pos"],
+            )
+            self.assertEqual(
+                env_1._cam_configs[camera_name]["quat"],
+                env_2._cam_configs[camera_name]["quat"],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

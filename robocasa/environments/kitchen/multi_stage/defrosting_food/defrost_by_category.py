@@ -3,6 +3,16 @@ from robocasa.models.objects.fixtures import *
 
 
 class DefrostByCategory(Kitchen):
+    """
+    Defrost By Category: composite task for Defrosting Food activity.
+
+    Simulates the task of arranging and defrosting fruits and vegetables by type.
+
+    Steps:
+        Pick place all of the fruits in the running sink and all of the
+        vegetables in a bowl on the counter.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

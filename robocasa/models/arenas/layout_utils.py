@@ -33,6 +33,12 @@ def initialize_fixture(config, cur_fixtures, rng=None):
     """
     initializes a fixture object based on the given configuration
     ignores positional arguments as it is changed later
+
+    Args:
+        config (dict): dictionary containing the fixture configuration.
+                       Serves as the arguments to initialize the fixture
+
+        cur_fixtures (dict): dictionary containing the current fixtures
     """
 
     config = deepcopy(config)
@@ -67,9 +73,16 @@ def initialize_fixture(config, cur_fixtures, rng=None):
     return fixture
 
 
-def load_default_config(style, fixture_config):
+def load_style_config(style, fixture_config):
     """
-    Loads the default configuration of a fixture based on a given style
+    Loads the style information for a given fixture. Style information can consist of
+    which xml to use if there are multiple instances of a fixture, which texture to apply,
+    which subcomponents to apply (panels/handles for a cab), etc.
+
+    Args:
+        style (dict): dictionary containing the style information for each fixture type
+
+        fixture_config (dict): dictionary containing the fixture configuration
     """
     # accounts for the different types of cabinets
     fixture_type = fixture_config["type"]

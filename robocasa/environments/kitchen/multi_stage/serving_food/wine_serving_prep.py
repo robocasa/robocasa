@@ -2,6 +2,23 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class WineServingPrep(Kitchen):
+    """
+    Wine Serving Prep: composite task for Serving Food activity.
+
+    Simulates the task of serving wine.
+
+    Steps:
+        Move the wine and the cup from the cabinet to the dining table.
+
+    Restricted to layouts which have a dining table (long counter area
+    with stools).
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the wine and
+            cup are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

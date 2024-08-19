@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PrepareCoffee(Kitchen):
+    """
+    Prepare Coffee: composite task for Brewing activity.
+
+    Simulates the process of preparing coffee.
+
+    Steps:
+        Pick the mug from the cabinet, place it under the coffee machine dispenser,
+        and press the start button.
+
+    Args:
+        cab_id (str): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the mug is
+            picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

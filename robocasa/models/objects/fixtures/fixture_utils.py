@@ -2,6 +2,14 @@ from robocasa.models.objects.fixtures import *
 
 
 def fixture_is_type(fixture, fixture_type):
+    """
+    Check if a fixture is of a certain type
+
+    Args:
+        fixture (Fixture): The fixture to check
+
+        fixture_type (FixtureType): The type to check against
+    """
     if fixture_type == FixtureType.COUNTER:
         return isinstance(fixture, Counter)
     elif fixture_type == FixtureType.DINING_COUNTER:
@@ -28,6 +36,7 @@ def fixture_is_type(fixture, fixture_type):
             return False
         if "stack" in fixture.name:  # wall stack cabinets not valid
             return False
+        # check the height of the cabinet to see if it is a top cabinet
         fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
         height_check = 1.0 <= fxtr_bottom_z <= 1.60
         return height_check

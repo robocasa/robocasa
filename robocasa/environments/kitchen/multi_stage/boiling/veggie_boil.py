@@ -2,8 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class VeggieBoil(Kitchen):
+    """
+    Veggie Boil: composite task for Boiling activity.
+
+    Simulates the process of boiling vegetables.
+
+    Steps:
+        Take the pot from the counter and place it in the sink. Turn on the sink and
+        let the pot fill up with water. Turn the sink off and move the pot to the
+        stove. Turn on the stove and place the food in the pot for boiling.
+    """
+
     def __init__(self, *args, **kwargs):
+        # whether the pot is filled with water
         self.pot_filled = False
+        # how long the pot has been filled with water
         self.filled_time = 0
         super().__init__(*args, **kwargs)
 
@@ -49,6 +62,8 @@ class VeggieBoil(Kitchen):
                     ),
                     size=(0.05, 0.05),
                     pos=("ref", -0.55),
+                    # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                 ),
             )
@@ -109,6 +124,18 @@ class VeggieBoil(Kitchen):
 
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
 
+        """
+        Check if the object is placed on any of the stove burners
+
+        Args:
+            obj_name (str): object name
+
+            threshold (float): distance threshold from object center to stove burner site center
+
+        Returns:
+            str: location of the stove burner site if the object is placed on it, None otherwise.
+        """
+
         knobs_state = self.stove.get_knobs_state(env=self)
         obj = self.objects[obj_name]
         obj_pos = np.array(self.sim.data.body_xpos[self.obj_body_id[obj.name]])[0:2]
@@ -134,6 +161,11 @@ class VeggieBoil(Kitchen):
         return None
 
     def _check_success(self):
+        """
+        Check if the task is successful.
+        First check if the object is inside the sink and the water is on. Then make sure the pot is filled with water for enough
+        time (10 timesteps). Once the pot is filled, check if the pot is on the stove and the food is in the pot.
+        """
         pot_in_sink = OU.obj_inside_of(self, "pot", self.sink)
         water_on = self.sink.get_handle_state(env=self)["water_on"]
 

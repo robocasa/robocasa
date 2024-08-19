@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class RestockPantry(Kitchen):
+    """
+    Restock Pantry: composite task for Restocking Supplies activity.
+
+    Simulates the task of organizing cans when restocking them.
+
+    Steps:
+        Pick the cans from the counter and place them on the side of the cabinet
+        that already has a can.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -63,6 +73,7 @@ class RestockPantry(Kitchen):
             )
         )
 
+        # randomize the side of the cabinet that already has a can
         side = int(self.rng.choice([-1, 1]))
 
         cfgs.append(
@@ -111,6 +122,18 @@ class RestockPantry(Kitchen):
         return cfgs
 
     def _close_to_cab_cans(self, obj_name, ratio=2):
+        """
+        Check if the object is closer to the cabinet cans than the other object
+
+        Args:
+            obj_name (str): name of the object
+
+            ratio (float): ratio of the distance between the object and the cabinet cans to the distance
+                between the object and the other object
+
+        Returns:
+            bool: True if the object is closer to the cabinet cans than the other object, False otherwise
+        """
         obj = self.objects[obj_name]
         can = self.objects["cab_obj1"]
         other_obj = self.objects["cab_obj2"]

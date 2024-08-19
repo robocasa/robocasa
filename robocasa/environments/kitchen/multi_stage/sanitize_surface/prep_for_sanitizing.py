@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PrepForSanitizing(Kitchen):
+    """
+    Prep For Sanitizing: composite task for Sanitize Surface activity.
+
+    Simulates the preparation for sanitizing the surface.
+
+    Steps:
+        Pick the cleaners from the cabinet and place it on the counter.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the
+            cleaners are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

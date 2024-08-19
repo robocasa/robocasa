@@ -6,6 +6,10 @@ from robocasa.models.objects.fixtures.fixture import Fixture
 
 
 class Hood(Fixture):
+    """
+    Hood fixture class
+    """
+
     def __init__(
         self, xml="fixtures/hoods/basic_silver.xml", name="hood", *args, **kwargs
     ):

@@ -12,8 +12,24 @@ import robocasa
 from robocasa.models.objects.fixtures.fixture import Fixture
 
 
-# used to fill in gaps on corners & beneath bottom cabinets
 class Box(BoxObject):
+    """
+    Initializes a box object. Mainly used for filling in gaps in the environment like in corners or beneath bottom cabinets
+
+    Args:
+        pos (list): position of the object
+
+        size (list): size of the object
+
+        name (str): name of the object
+
+        texture (str): path to texture file
+
+        mat_attrib (dict): material attributes
+
+        tex_attrib (dict): texture attributes
+    """
+
     def __init__(
         self,
         pos,
@@ -59,6 +75,12 @@ class Box(BoxObject):
             self.rng = np.random.default_rng()
 
     def set_pos(self, pos):
+        """
+        Set the position of the object
+
+        Args:
+            pos (list): position of the object
+        """
         self.pos = pos
         self._obj.set("pos", a2s(pos))
 
@@ -67,11 +89,46 @@ class Box(BoxObject):
 
     @property
     def rot(self):
+        """
+        Returns the rotation of the object only on the z-axis
+
+        Returns:
+            float: rotation
+        """
         rot = s2a(self._obj.get("euler", "0.0 0.0 0.0"))
         return rot[2]
 
 
 class Wall(BoxObject):
+    """
+    Initializes a wall object. Used for creating walls in the environment
+
+    Args:
+        name (str): name of the object
+
+        texture (str): path to texture file
+
+        pos (list): position of the object
+
+        quat (list): quaternion of the object
+
+        size (list): size of the object
+
+        wall_side (str): which side the wall is on (back, front, left, right, floor)
+
+        mat_attrib (dict): material attributes
+
+        tex_attrib (dict): texture attributes
+
+        backing (bool): whether this is a backing wall
+
+        backing_extended (list): whether the backing is extended on the left and right
+
+        default_wall_th (float): default thickness of the wall
+
+        default_backing_th (float): default thickness of the backing
+    """
+
     def __init__(
         self,
         name="wall",
@@ -166,10 +223,22 @@ class Wall(BoxObject):
             self.rng = np.random.default_rng()
 
     def set_pos(self, pos):
+        """
+        Set the position of the object
+
+        Args:
+            pos (list): position of the object
+        """
         self.pos = pos
         self._obj.set("pos", a2s(pos))
 
     def get_quat(self):
+        """
+        Returns the quaternion of the object based on the wall side
+
+        Returns:
+            list: quaternion
+        """
         side_rots = {
             "back": [-0.707, 0.707, 0, 0],
             "front": [0, 0, 0.707, -0.707],

@@ -2,12 +2,23 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SizeSorting(Kitchen):
+
+    """
+    Size Sorting: composite task for Setting The Table activity.
+
+    Simulates the task of stacking objects by size.
+
+    Steps:
+        Stack the objects from largest to smallest.
+    """
+
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
+        # sample a large enough counter for multiple stackable categories
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, size=(1, 0.4))
         )
@@ -31,6 +42,7 @@ class SizeSorting(Kitchen):
         self.objs = self.rng.choice([2, 3, 4])
         stack_cat = self.rng.choice(["cup", "bowl"])
         scale = 0.8
+        # pass in object scale to the config to make the objects smaller and thus stackable
         for i in range(self.objs):
             cfgs.append(
                 dict(

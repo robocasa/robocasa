@@ -15,6 +15,26 @@ STACKABLE = {
 
 
 class FixtureStack:
+    """
+    Class for encapsulating a stack of stackable fixtures
+
+    Args:
+        config (dict): configuration for the stack. Contains at least the following keys:
+            - size (list): [width, depth, height] of the stack
+            - levels (list): list of fixtures to stack on top of each other
+            - percentages (list): list of percentages of the height of each level
+
+        scene_fixtures (dict): dictionary of fixtures in the scene
+
+        scene_configs (dict): dictionary of configurations for fixtures in the scene
+
+        scene_style (dict): dictionary of style information for fixtures in the scene
+
+        base_height (float): height of the base of the stack
+
+        base_overhang (float): how much the stack should overhang the base
+    """
+
     def __init__(
         self,
         config,
@@ -51,6 +71,10 @@ class FixtureStack:
         self._create_stack()
 
     def _create_stack(self):
+        """
+        Creates the stack of fixtures by updating the scene fixtures and configs and placing their positions on top of each other
+        and next to each other if a level has two fixtures
+        """
         self.size = self.config["size"]
         width_stack, depth, height_stack = self.size
 
@@ -75,7 +99,7 @@ class FixtureStack:
             z_base = z_stack - height_stack / 2 - self.base_height / 2
             base_name = self.config["name"] + "_base"
 
-            base_config = load_default_config(self.scene_style, {"type": "box"})
+            base_config = load_style_config(self.scene_style, {"type": "box"})
             base_config["pos"] = [x_stack, y + self.base_overhang / 2, z_base]
             base_config["size"] = [width_stack, depth_base, self.base_height]
             base_config["name"] = base_name
@@ -114,7 +138,7 @@ class FixtureStack:
                 z = z_current + height / 2
 
                 # get fixture config for fixture
-                fxtr_config = load_default_config(self.scene_style, {"type": fixture})
+                fxtr_config = load_style_config(self.scene_style, {"type": fixture})
                 fxtr_config["pos"] = [x, y, z]
                 fxtr_config["size"] = [width, depth, height]
 
@@ -161,6 +185,16 @@ class FixtureStack:
 
     @staticmethod
     def _check_config_syntax(config):
+        """
+        Checks the syntax of the config dictionary for the stack by making sure all required keys are present
+        and the values are well-formed
+
+        Args:
+            config (dict): configuration for the stack
+
+        Raises:
+            ValueError: [description]
+        """
         if "size" not in config or None in config["size"]:
             raise ValueError(
                 "Size for stacks must be specified explicitely, " "received:",

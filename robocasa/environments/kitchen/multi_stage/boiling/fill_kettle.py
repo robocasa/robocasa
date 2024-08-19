@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class FillKettle(Kitchen):
+    """
+    Fill Kettle: composite task for Boiling activity.
+
+    Simulates the process of filling up a kettle with water from the sink.
+
+    Steps:
+        Take the kettle from the cabinet and fill it with water from the sink.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -43,7 +52,6 @@ class FillKettle(Kitchen):
         )
 
         # distractors
-
         cfgs.append(
             dict(
                 name="distr_sink",

@@ -111,6 +111,16 @@ def check_syntax(fixture):
 
 
 def create_fixtures(yaml_path, style="playground", rng=None):
+    """
+    Initializes fixtures based on the given layout yaml file and style type
+
+    Args:
+        yaml_path (str): path to the file containing the fixture layout
+
+        style (str) or (int): style or style id of the kitchen to load
+
+        rng (np.random.Generator): random number generator used for initializing fixture state
+    """
     try:
         style = int(style)
     except:
@@ -131,11 +141,18 @@ def create_fixtures(yaml_path, style="playground", rng=None):
     # load arena
     with open(yaml_path, "r") as f:
         arena_config = yaml.safe_load(f)
+
+    # contains all fixtures with updated configs
     arena = list()
 
+    # Update each fixture config. First iterate through groups: subparts of the arena that can be
+    # rotated and displaced together. example: island group, right group, room group, etc
     for group_name, group_config in arena_config.items():
         group_fixtures = list()
+        # each group is further divded into similar subcollections of fixtures
+        # ex: main group counter accessories, main group top cabinets, etc
         for k, fixture_list in group_config.items():
+            # these values are rotations/displacements that are applied to all fixtures in the group
             if k in ["group_origin", "group_z_rot", "group_pos"]:
                 continue
             elif type(fixture_list) != list:
@@ -170,12 +187,14 @@ def create_fixtures(yaml_path, style="playground", rng=None):
         # addto overall fixture list
         arena.extend(group_fixtures)
 
+    # maps each fixture name to its object class
     fixtures = dict()
+    # maps each fixture name to its configuration
     configs = dict()
     # names of composites, delete from fixtures before returning
     composites = list()
 
-    # initialize each fixture in the arena
+    # initialize each fixture in the arena by processing config
     for fixture_config in arena:
         check_syntax(fixture_config)
         fixture_name = fixture_config["name"]
@@ -195,11 +214,11 @@ def create_fixtures(yaml_path, style="playground", rng=None):
             composites.append(fixture_name)
             continue
 
-        # load fixture defaults
-        default_config = load_default_config(style, fixture_config)
+        # load style information and update config to include it
+        default_config = load_style_config(style, fixture_config)
         if default_config is not None:
-            for k, fixture_list in fixture_config.items():
-                default_config[k] = fixture_list
+            for k, v in fixture_config.items():
+                default_config[k] = v
             fixture_config = default_config
 
         # set fixture type

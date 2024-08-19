@@ -5,6 +5,17 @@ from robocasa.utils.get_all_items_by_type import get_items_by_type
 
 
 class AfterwashSorting(Kitchen):
+    """
+    Afterwash Sorting: composite task for Washing Fruits And Vegetables activity.
+
+    Simulates the task of sorting washed fruits and vegetables.
+
+    Steps:
+        Pick the foods of the same kind from the sink and place them in one bowl.
+        Place the food of a different kind in the other bowl. Then, turn off the
+        sink.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

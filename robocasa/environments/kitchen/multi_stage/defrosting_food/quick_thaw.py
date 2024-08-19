@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class QuickThaw(Kitchen):
+    """
+    Quick Thaw: composite task for Defrosting Food activity.
+
+    Simulates the task of defrosting meat on a stove.
+
+    Steps:
+        Pick the meat from the counter and place it in a pot on a burner.
+        Then turn on the burner.
+
+    Args:
+        knob_id (str): The id of the knob who's burner the pot will be placed on.
+            If "random", a random knob is chosen.
+    """
+
     def __init__(self, knob_id="random", *args, **kwargs):
         self.knob_id = knob_id
         super().__init__(*args, **kwargs)
@@ -52,6 +66,8 @@ class QuickThaw(Kitchen):
                 ),
             )
         )
+
+        # place the pot on the specific burner we chose earlier
         cfgs.append(
             dict(
                 name="container",

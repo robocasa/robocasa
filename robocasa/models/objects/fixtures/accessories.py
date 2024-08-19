@@ -5,8 +5,18 @@ from robosuite.utils.mjcf_utils import string_to_array as s2a
 from robocasa.models.objects.fixtures.fixture import Fixture
 
 
-# For air fryers, etc.
 class Accessory(Fixture):
+    """
+    Base class for all accessories/Miscellaneous objects
+
+    Args:
+        xml (str): path to mjcf xml file
+
+        name (str): name of the object
+
+        pos (list): position of the object
+    """
+
     def __init__(self, xml, name, pos=None, *args, **kwargs):
         super().__init__(
             xml=xml,
@@ -19,15 +29,21 @@ class Accessory(Fixture):
 
 
 class CoffeeMachine(Accessory):
+    """
+    Coffee machine object. Supports turning on coffee machine, and simulated coffee pouring
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._turned_on = False
-
+        # site where coffee liquid is poured
         self._receptacle_pouring_site = self.worldbody.find(
             "./body/body/site[@name='{}{}']".format(
                 self.naming_prefix, "receptacle_place_site"
             )
         )
+
+        # sites which act as the simulated coffee liquid which pours out when the start button is pressed
         self._coffee_liquid_site_names = []
         for postfix in ["coffee_liquid_left", "coffee_liquid_right", "coffee_liquid"]:
             name = "{}{}".format(self.naming_prefix, postfix)
@@ -37,7 +53,7 @@ class CoffeeMachine(Accessory):
 
     def get_reset_regions(self, *args, **kwargs):
         """
-        returns dictionary of reset regions, each region defined as position, x_bounds, y_bounds
+        returns dictionary of reset regions, usually used when initialzing a mug under the coffee machine
         """
         return {
             "bottom": {
@@ -47,12 +63,22 @@ class CoffeeMachine(Accessory):
         }
 
     def get_state(self):
+        """
+        returns whether the coffee machine is turned on or off as a dictionary with the turned_on key
+        """
         state = dict(
             turned_on=self._turned_on,
         )
         return state
 
     def update_state(self, env):
+        """
+        Checks if the gripper is pressing the start button. If this is the first time the gripper pressed the button,
+        the coffee machine is turned on, and the coffee liquid sites are turned on.
+
+        Args:
+            env (MujocoEnv): The environment to check the state of the coffee machine in
+        """
         start_button_pressed = env.check_contact(
             env.robots[0].gripper["right"], "{}_start_button".format(self.name)
         )
@@ -70,6 +96,16 @@ class CoffeeMachine(Accessory):
     def check_receptacle_placement_for_pouring(self, env, obj_name, xy_thresh=0.04):
         """
         check whether receptacle is placed under coffee machine for pouring
+
+        Args:
+            env (MujocoEnv): The environment to check the state of the coffee machine in
+
+            obj_name (str): name of the object
+
+            xy_thresh (float): threshold for xy distance between object and receptacle
+
+        Returns:
+            bool: True if object is placed under coffee machine, False otherwise
         """
         obj_pos = np.array(env.sim.data.body_xpos[env.obj_body_id[obj_name]])
         pour_site_name = "{}{}".format(self.naming_prefix, "receptacle_place_site")
@@ -80,6 +116,17 @@ class CoffeeMachine(Accessory):
         return xy_check and z_check
 
     def gripper_button_far(self, env, th=0.15):
+        """
+        check whether gripper is far from the start button
+
+        Args:
+            env (MujocoEnv): The environment to check the state of the coffee machine in
+
+            th (float): threshold for distance between gripper and button
+
+        Returns:
+            bool: True if gripper is far from the button, False otherwise
+        """
         button_id = env.sim.model.geom_name2id(
             "{}{}".format(self.naming_prefix, "start_button")
         )
@@ -109,6 +156,21 @@ class Stool(Accessory):
 
 # For outlets, clocks, paintings, etc.
 class WallAccessory(Fixture):
+    """
+    Class for wall accessories. These are objects that are attached to walls, such as outlets, clocks, paintings, etc.
+
+    Args:
+        xml (str): path to mjcf xml file
+
+        name (str): name of the object
+
+        pos (list): position of the object
+
+        attach_to (Wall): The wall to attach the object to
+
+        protrusion (float): How much to protrude out of the wall when placing the object
+    """
+
     def __init__(
         self, xml, name, pos, attach_to=None, protrusion=0.02, *args, **kwargs
     ):
@@ -139,6 +201,9 @@ class WallAccessory(Fixture):
         self._place_accessory()
 
     def _place_accessory(self):
+        """
+        Place the accessory on the wall
+        """
         if self.wall is None:
             # absolute position was specified
             return
@@ -146,6 +211,7 @@ class WallAccessory(Fixture):
         x, y, z = self.pos
         # print(self.wall.wall_side, self.name)
 
+        # update position and rotation of the object based on the wall it attaches to
         if self.wall.wall_side == "back":
             y = self.wall.pos[1] - self.protrusion
         elif self.wall.wall_side == "front":

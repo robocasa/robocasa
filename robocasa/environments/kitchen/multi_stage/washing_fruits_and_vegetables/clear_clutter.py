@@ -2,7 +2,18 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ClearClutter(Kitchen):
+    """
+    Clear Clutter: composite task for Washing Fruits And Vegetables activity.
+
+    Simulates the task of washing fruits and vegetables.
+
+    Steps:
+        Pick up the fruits and vegetables and place them in the sink turn on the
+        sink to wash them. Then, turn the sink off, put them in the tray.
+    """
+
     def __init__(self, *args, **kwargs):
+        # internal state variables to keep track of task progress
         self.food_washed = False
         self.washed_time = 0
         super().__init__(*args, **kwargs)
@@ -11,6 +22,7 @@ class ClearClutter(Kitchen):
         super()._setup_kitchen_references()
 
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
+        # sample large enough region to place the food items
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.6, 0.6))
         )
@@ -59,6 +71,7 @@ class ClearClutter(Kitchen):
                 dict(
                     name=f"unwashable_obj_{i}",
                     obj_groups="all",
+                    # make the object not washable and make sure there aren't 2 trays
                     exclude_obj_groups=["food", "tray"],
                     washable=False,
                     placement=dict(
@@ -104,6 +117,7 @@ class ClearClutter(Kitchen):
             ]
         )
         water_on = self.sink.get_handle_state(env=self)["water_on"]
+        # make sure the food has been washed for suffient time (10 steps)
         if food_in_sink and unwashables_not_in_sink and water_on:
             self.washed_time += 1
             self.food_washed = self.washed_time > 10

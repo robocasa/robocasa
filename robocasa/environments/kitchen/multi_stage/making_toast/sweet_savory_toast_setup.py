@@ -2,6 +2,22 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SweetSavoryToastSetup(Kitchen):
+    """
+    Sweet Savory Toast Setup: composite task for Making Toast activity.
+
+    Simulates the task of setting up the ingredients for making sweet and savory
+    toast.
+
+    Steps:
+        Pick the avocado and bread from the counter and place it on the plate.
+        Then pick the jam from the cabinet and place it next to the plate.
+        Lastly, close the cabinet door.
+
+    Args:
+        cab_id (str): Enum which serves as a unique identifier for different
+            cabinet types. Used to specify the cabinet where the jam is placed.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -20,7 +36,7 @@ class SweetSavoryToastSetup(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"Pick the avocado and bread from the counter and place it on the plate. Then pick the jam from the cabinet and place it next to the plate. Lastly, close the cabinet door"
+        ] = f"Pick the avocado and bread from the counter and place it on the plate. Then pick the jam from the cabinet and place it next to the plate. Lastly, close the cabinet door."
         return ep_meta
 
     def _reset_internal(self):

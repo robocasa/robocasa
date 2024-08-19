@@ -2,10 +2,28 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ArrangeBreadBasket(Kitchen):
-    def __init__(self, layout_ids=-4, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
+    """
+    Arrange Bread Basket: composite task for Setting The Table activity.
+
+    Simulates the task of arranging the bread basket.
+
+    Steps:
+        Pick the bread from the cabinet and place it in the bowl. Then move the bowl
+        to the dining counter.
+
+    Restricted to layouts which have a dining table (long counter area with
+    stools).
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the bread is
+            picked.
+    """
+
+    def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
 
         self.cab_id = cab_id
-        super().__init__(layout_ids=layout_ids, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()

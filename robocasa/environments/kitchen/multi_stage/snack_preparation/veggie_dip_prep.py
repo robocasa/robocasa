@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class VeggieDipPrep(Kitchen):
+    """
+    Veggie Dip Prep: composite task for Snack Preparation activity.
+
+    Simulates the preparation of a vegetable dip snack.
+
+    Steps:
+        Place the two vegetables and a bowl onto the tray for setting up a vegetable
+        dip station.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

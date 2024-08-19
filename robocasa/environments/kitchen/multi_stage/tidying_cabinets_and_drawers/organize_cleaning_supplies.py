@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class OrganizeCleaningSupplies(Kitchen):
+    """
+    Organize Cleaning Supplies: composite task for Tidying Cabinets And Drawers activity.
+
+    Simulates the task of preparing to clean the sink.
+
+    Steps:
+        Open the cabinet. Pick the cleaner and place it next to the sink.
+        Then close the cabinet.
+
+    Args:
+        cab_id (str): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the cleaner is
+            picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -83,6 +98,9 @@ class OrganizeCleaningSupplies(Kitchen):
         return cfgs
 
     def _obj_sink_dist(self, obj_name):
+        """
+        Returns the distance of the object from the sink
+        """
         sink_points = self.sink.get_ext_sites(all_points=True, relative=False)
         obj_point = self.sim.data.body_xpos[self.obj_body_id[obj_name]]
 
@@ -91,6 +109,7 @@ class OrganizeCleaningSupplies(Kitchen):
 
     def _check_success(self):
 
+        # must make sure the cleaner is on the counter and close to the sink
         gripper_obj_far = OU.gripper_obj_far(self, obj_name="cleaner")
         obj_on_counter = OU.check_obj_fixture_contact(self, "cleaner", self.counter)
 

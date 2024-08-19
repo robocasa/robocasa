@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PrepareSoupServing(Kitchen):
+    """
+    Prepare Soup Serving: composite task for Serving Food activity.
+
+    Simulates the task of serving soup.
+
+    Steps:
+        Move the ladle from the cabinet to the pot. Then, close the cabinet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the ladle is
+            picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -40,6 +54,7 @@ class PrepareSoupServing(Kitchen):
                     fixture=self.cabinet,
                     size=(0.50, 0.20),
                     pos=(0, -1.0),
+                    # rotation is such that the ladle fits in the cabinet
                     rotation=(np.pi / 2 - np.pi / 8, np.pi / 2 + np.pi / 8),
                 ),
             )

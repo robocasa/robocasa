@@ -1,8 +1,19 @@
 from robocasa.environments.kitchen.kitchen import *
 from robocasa.environments.kitchen.single_stage.kitchen_drawer import *
 
-
+# inherit from ManipulateDrawer class to start off the task with the drawer open
 class PantryMishap(ManipulateDrawer):
+    """
+    Pantry Mishap: composite task for Tidying Cabinets And Drawers activity.
+
+    Simulates the task of organizing the pantry after a mishap from the incorrect
+    placement of items in the cabinet.
+
+    Steps:
+        Open the cabinet. Pick the vegetable and place it on the counter. Pick the
+        canned food and place it in the drawer. Close the cabinet.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(behavior="close", *args, **kwargs)
 

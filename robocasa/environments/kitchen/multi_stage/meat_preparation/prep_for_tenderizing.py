@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PrepForTenderizing(Kitchen):
+    """
+    Prep For Tenderizing: composite task for Meat Preparation activity.
+
+    Simulates the task of preparing meat for tenderizing.
+
+    Steps:
+        Retrieve a rolling pin from the cabinet and place it next to the meat on
+        the cutting board to prepare for tenderizing.
+
+    Args:
+        cab_id (str): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the rolling pin
+            is picked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

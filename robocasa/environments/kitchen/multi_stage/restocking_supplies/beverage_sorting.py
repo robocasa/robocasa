@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class BeverageSorting(Kitchen):
+    """
+    Beverage Sorting: composite task for Restocking Supplies activity.
+
+    Simulates the task of sorting beverages.
+
+    Steps:
+        Sort all alcoholic drinks to one cabinet, and non-alcoholic drinks to the
+        other.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

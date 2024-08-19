@@ -43,6 +43,7 @@ from robocasa.utils.texture_swap import (
     replace_wall_texture,
 )
 
+
 REGISTERED_KITCHEN_ENVS = {}
 
 
@@ -60,6 +61,137 @@ class KitchenEnvMeta(EnvMeta):
 
 
 class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
+    """
+    Initialized a Base Kitchen environment.
+
+    Args:
+        robots: Specification for specific robot arm(s) to be instantiated within this env
+            (e.g: "Sawyer" would generate one arm; ["Panda", "Panda", "Sawyer"] would generate three robot arms)
+
+        env_configuration (str): Specifies how to position the robot(s) within the environment. Default is "default",
+            which should be interpreted accordingly by any subclasses.
+
+        controller_configs (str or list of dict): If set, contains relevant controller parameters for creating a
+            custom controller. Else, uses the default controller for this specific task. Should either be single
+            dict if same controller is to be used for all robots or else it should be a list of the same length as
+            "robots" param
+
+        base_types (None or str or list of str): type of base, used to instantiate base models from base factory.
+            Default is "default", which is the default base associated with the robot(s) the 'robots' specification.
+            None results in no base, and any other (valid) model overrides the default base. Should either be
+            single str if same base type is to be used for all robots or else it should be a list of the same
+            length as "robots" param
+
+        gripper_types (None or str or list of str): type of gripper, used to instantiate
+            gripper models from gripper factory. Default is "default", which is the default grippers(s) associated
+            with the robot(s) the 'robots' specification. None removes the gripper, and any other (valid) model
+            overrides the default gripper. Should either be single str if same gripper type is to be used for all
+            robots or else it should be a list of the same length as "robots" param
+
+        initialization_noise (dict or list of dict): Dict containing the initialization noise parameters.
+            The expected keys and corresponding value types are specified below:
+
+            :`'magnitude'`: The scale factor of uni-variate random noise applied to each of a robot's given initial
+                joint positions. Setting this value to `None` or 0.0 results in no noise being applied.
+                If "gaussian" type of noise is applied then this magnitude scales the standard deviation applied,
+                If "uniform" type of noise is applied then this magnitude sets the bounds of the sampling range
+            :`'type'`: Type of noise to apply. Can either specify "gaussian" or "uniform"
+
+            Should either be single dict if same noise value is to be used for all robots or else it should be a
+            list of the same length as "robots" param
+
+            :Note: Specifying "default" will automatically use the default noise settings.
+                Specifying None will automatically create the required dict with "magnitude" set to 0.0.
+
+        use_camera_obs (bool): if True, every observation includes rendered image(s)
+
+        placement_initializer (ObjectPositionSampler): if provided, will be used to place objects on every reset,
+            else a UniformRandomSampler is used by default.
+
+        has_renderer (bool): If true, render the simulation state in
+            a viewer instead of headless mode.
+
+        has_offscreen_renderer (bool): True if using off-screen rendering
+
+        render_camera (str): Name of camera to render if `has_renderer` is True. Setting this value to 'None'
+            will result in the default angle being applied, which is useful as it can be dragged / panned by
+            the user using the mouse
+
+        render_collision_mesh (bool): True if rendering collision meshes in camera. False otherwise.
+
+        render_visual_mesh (bool): True if rendering visual meshes in camera. False otherwise.
+
+        render_gpu_device_id (int): corresponds to the GPU device id to use for offscreen rendering.
+            Defaults to -1, in which case the device will be inferred from environment variables
+            (GPUS or CUDA_VISIBLE_DEVICES).
+
+        control_freq (float): how many control signals to receive in every second. This sets the abase of
+            simulation time that passes between every action input.
+
+        horizon (int): Every episode lasts for exactly @horizon timesteps.
+
+        ignore_done (bool): True if never terminating the environment (ignore @horizon).
+
+        hard_reset (bool): If True, re-loads model, sim, and render object upon a reset call, else,
+            only calls sim.reset and resets all robosuite-internal variables
+
+        camera_names (str or list of str): name of camera to be rendered. Should either be single str if
+            same name is to be used for all cameras' rendering or else it should be a list of cameras to render.
+
+            :Note: At least one camera must be specified if @use_camera_obs is True.
+
+            :Note: To render all robots' cameras of a certain type (e.g.: "robotview" or "eye_in_hand"), use the
+                convention "all-{name}" (e.g.: "all-robotview") to automatically render all camera images from each
+                robot's camera list).
+
+        camera_heights (int or list of int): height of camera frame. Should either be single int if
+            same height is to be used for all cameras' frames or else it should be a list of the same length as
+            "camera names" param.
+
+        camera_widths (int or list of int): width of camera frame. Should either be single int if
+            same width is to be used for all cameras' frames or else it should be a list of the same length as
+            "camera names" param.
+
+        camera_depths (bool or list of bool): True if rendering RGB-D, and RGB otherwise. Should either be single
+            bool if same depth setting is to be used for all cameras or else it should be a list of the same length as
+            "camera names" param.
+
+        renderer (str): Specifies which renderer to use.
+
+        renderer_config (dict): dictionary for the renderer configurations
+
+        init_robot_base_pos (str): name of the fixture to place the near. If None, will randomly select a fixture.
+
+        seed (int): environment seed. Default is None, where environment is unseeded, ie. random
+
+        scene_split (str): string for specifying a custom set of layouts and styles to use for the kitchen. If
+            set, only one of scene_split, (layout_ids and style_ids), or layout_and_style_ids should be set.
+
+        layout_and_style_ids (list of list of int): list of layout and style ids to use for the kitchen.
+
+        layout_ids (int or list of int):  layout id(s) to use for the kitchen. -1 and None specify all layouts
+            -2 specifies layouts not involving islands/wall stacks, -3 specifies layouts involving islands/wall stacks,
+            -4 specifies layouts with dining areas.
+
+        style_ids (int or list of int): style id(s) to use for the kitchen. -1 and None specify all styles.
+
+        generative_textures (str): if set to "100p", will use AI generated textures
+
+        obj_registries (tuple of str): tuple containing the object registries to use for sampling objects.
+            can contain "objaverse" and/or "aigen" to sample objects from objaverse, AI generated, or both.
+
+        obj_instance_split (str): string for specifying a custom set of object instances to use. "A" specifies
+            all but the last 3 object instances (or the first half - whichever is larger), "B" specifies the
+            rest, and None specifies all.
+
+        use_distractors (bool): if True, will add distractor objects to the scene
+
+        translucent_robot (bool): if True, will make the robot appear translucent during rendering
+
+        randomize_cameras (bool): if True, will add gaussian noise to the position and rotation of the
+            wrist and agentview cameras
+    """
+
     EXCLUDE_LAYOUTS = []
 
     def __init__(
@@ -371,6 +503,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 self.model.merge_objects([model])
 
                 try_to_place_in = cfg["placement"].get("try_to_place_in", None)
+
+                # place object in a container and add container as an object to the scene
                 if try_to_place_in and (
                     "in_container" in cfg["info"]["groups_containing_sampled_obj"]
                 ):
@@ -453,6 +587,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         1. find the nearest counter to this fixture
         2. compute offset relative to this counter
         3. transform offset to global coordinates
+
+        Args:
+            ref_fixture (Fixture): reference fixture to place th robot near
+
+            offset (list): offset to add to the base position
+
         """
         # step 1: find vase fixture closest to robot
         base_fixture = None
@@ -510,6 +650,20 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         return robot_base_pos, robot_base_ori
 
     def _get_placement_initializer(self, cfg_list, z_offset=0.01):
+
+        """
+        Creates a placement initializer for the objects/fixtures based on the specifications in the configurations list
+
+        Args:
+            cfg_list (list): list of object configurations
+
+            z_offset (float): offset in z direction
+
+        Returns:
+            SequentialCompositeSampler: placement initializer
+
+        """
+
         placement_initializer = SequentialCompositeSampler(
             name="SceneSampler", rng=self.rng
         )
@@ -726,6 +880,15 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             policy_step = False
 
     def _get_obj_cfgs(self):
+        """
+        Returns a list of object configurations to use in the environment.
+        The object configurations are usually environment-specific and should
+        be implemented in the subclass.
+
+        Returns:
+            list: list of object configurations
+        """
+
         return []
 
     def get_ep_meta(self):
@@ -761,12 +924,25 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         return ep_meta
 
     def find_object_cfg_by_name(self, name):
+        """
+        Finds and returns the object configuration with the given name.
+
+        Args:
+            name (str): name of the object configuration to find
+
+        Returns:
+            dict: object configuration with the given name
+        """
         for cfg in self.object_cfgs:
             if cfg["name"] == name:
                 return cfg
         raise ValueError
 
     def set_cameras(self):
+        """
+        Adds new kitchen-relevant cameras to the environment. Will randomize cameras if specified.
+        """
+
         self._cam_configs = deepcopy(KU.CAM_CONFIGS)
         if self.randomize_cameras:
             self._randomize_cameras()
@@ -783,6 +959,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             )
 
     def _randomize_cameras(self):
+        """
+        Randomizes the position and rotation of the wrist and agentview cameras.
+        Note: This function is called only if randomize_cameras is set to True.
+        """
         for camera in self._cam_configs:
             if "agentview" in camera:
                 pos_noise = self.rng.normal(loc=0, scale=0.05, size=(1, 3))[0]
@@ -809,8 +989,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         This function postprocesses the model.xml collected from a MuJoCo demonstration
         for retrospective model changes.
+
         Args:
             xml_str (str): Mujoco sim demonstration XML file as string
+
         Returns:
             str: Post-processed xml file as string
         """
@@ -931,6 +1113,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     def _setup_observables(self):
         """
         Sets up observables to be used for this environment. Creates object-based observables if enabled
+
         Returns:
             OrderedDict: Dictionary mapping observable names to its corresponding Observable object
         """
@@ -981,9 +1164,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         Helper function to create sensors for a given object. This is abstracted in a separate function call so that we
         don't have local function naming collisions during the _setup_observables() call.
+
         Args:
             obj_name (str): Name of object to create sensors for
+
             modality (str): Modality to assign to all sensors
+
         Returns:
             2-tuple:
                 sensors (list): Array of sensors for the given obj
@@ -1046,6 +1232,18 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         return sensors, names
 
     def _post_action(self, action):
+        """
+        Do any housekeeping after taking an action.
+
+        Args:
+            action (np.array): Action to execute within the environment
+
+        Returns:
+            3-tuple:
+                - (float) reward from the environment
+                - (bool) whether the current episode is completed or not
+                - (dict) information about the current state of the environment
+        """
         reward, done, info = super()._post_action(action)
 
         # Check if stove is turned on or not
@@ -1090,6 +1288,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         return action_abs
 
     def update_state(self):
+        """
+        Updates the state of the environment.
+        This involves updating the state of all fixtures in the environment.
+        """
         super().update_state()
 
         for fixtr in self.fixtures.values():
@@ -1118,10 +1320,25 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 rgba[-1] = 1.0
 
     def reward(self, action=None):
+        """
+        Reward function for the task. The reward function is based on the task
+        and to be implemented in the subclasses. Returns 0 by default.
+
+        Returns:
+            float: Reward for the task
+        """
         reward = 0
         return reward
 
     def _check_success(self):
+        """
+        Checks if the task has been successfully completed.
+        Success condition is based on the task and to be implemented in the
+        subclasses. Returns False by default.
+
+        Returns:
+            bool: True if the task is successfully completed, False otherwise
+        """
         return False
 
     def sample_object(
@@ -1138,6 +1355,42 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         max_size=(None, None, None),
         object_scale=None,
     ):
+        """
+        Sample a kitchen object from the specified groups and within max_size bounds.
+
+        Args:
+            groups (list or str): groups to sample from or the exact xml path of the object to spawn
+
+            exclude_groups (str or list): groups to exclude
+
+            graspable (bool): whether the sampled object must be graspable
+
+            washable (bool): whether the sampled object must be washable
+
+            microwavable (bool): whether the sampled object must be microwavable
+
+            cookable (bool): whether whether the sampled object must be cookable
+
+            freezable (bool): whether whether the sampled object must be freezable
+
+            split (str): split to sample from. Split "A" specifies all but the last 3 object instances
+                        (or the first half - whichever is larger), "B" specifies the  rest, and None
+                        specifies all.
+
+            obj_registries (tuple): registries to sample from
+
+            max_size (tuple): max size of the object. If the sampled object is not within bounds of max size,
+                            function will resample
+
+            object_scale (float): scale of the object. If set will multiply the scale of the sampled object by this value
+
+
+        Returns:
+            dict: kwargs to apply to the MJCF model for the sampled object
+
+            dict: info about the sampled object - the path of the mjcf, groups which the object's category belongs to,
+            the category of the object the sampling split the object came from, and the groups the object was sampled from
+        """
         return sample_kitchen_object(
             groups,
             exclude_groups=exclude_groups,
@@ -1154,13 +1407,35 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         )
 
     def _is_fxtr_valid(self, fxtr, size):
+        """
+        checks if counter is valid for object placement by making sure it is large enough
+
+        Args:
+            fxtr (Fixture): fixture to check
+            size (tuple): minimum size (x,y) that the counter region must be to be valid
+
+        Returns:
+            bool: True if fixture is valid, False otherwise
+        """
         for region in fxtr.get_reset_regions(self).values():
             if region["size"][0] >= size[0] and region["size"][1] >= size[1]:
                 return True
         return False
 
     def get_fixture(self, id, ref=None, size=(0.2, 0.2)):
-        """search fixture by id (name, object, or type)"""
+        """
+        search fixture by id (name, object, or type)
+
+        Args:
+            id (str, Fixture, FixtureType): id of fixture to search for
+
+            ref (str, Fixture, FixtureType): if specified, will search for fixture close to ref (within 0.10m)
+
+            size (tuple): if sampling counter, minimum size (x,y) that the counter region must be
+
+        Returns:
+            Fixture: fixture object
+        """
         # case 1: id refers to fixture object directly
         if isinstance(id, Fixture):
             return id
@@ -1219,11 +1494,33 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             return self.rng.choice(close_fixtures)
 
     def register_fixture_ref(self, ref_name, fn_kwargs):
+        """
+        Registers a fixture reference for later use. Initializes the fixture
+        if it has not been initialized yet.
+
+        Args:
+            ref_name (str): name of the reference
+
+            fn_kwargs (dict): keyword arguments to pass to get_fixture
+
+        Returns:
+            Fixture: fixture object
+        """
         if ref_name not in self.fixture_refs:
             self.fixture_refs[ref_name] = self.get_fixture(**fn_kwargs)
         return self.fixture_refs[ref_name]
 
     def get_obj_lang(self, obj_name="obj", get_preposition=False):
+        """
+        gets a formatted language string for the object (replaces underscores with spaces)
+
+        Args:
+            obj_name (str): name of object
+            get_preposition (bool): if True, also returns preposition for object
+
+        Returns:
+            str: language string for object
+        """
         obj_cfg = None
         for cfg in self.object_cfgs:
             if cfg["name"] == obj_name:

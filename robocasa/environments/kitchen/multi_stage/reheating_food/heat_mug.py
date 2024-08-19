@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class HeatMug(Kitchen):
+    """
+    Heat Mug: composite task for Reheating Food activity.
+
+    Simulates the task of reheating a mug.
+
+    Steps:
+        Open the cabinet, pick the mug, place it inside the microwave, and close
+        the microwave.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

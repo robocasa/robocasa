@@ -2,8 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ServeSteak(Kitchen):
-    def __init__(self, layout_ids=-4, *args, **kwargs):
-        super().__init__(layout_ids=layout_ids, *args, **kwargs)
+    """
+    Serve Steak: composite task for Serving Food activity.
+
+    Simulates the task of serving steak.
+
+    Steps:
+        Pick up the pan with the steak in it and place it on the dining table.
+        Then, place the steak on the plate.
+
+    Restricted to layouts which have a dining table (long counter area with
+    stools).
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()

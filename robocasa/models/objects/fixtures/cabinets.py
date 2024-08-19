@@ -26,6 +26,29 @@ from robocasa.utils.object_utils import (
 class Cabinet(ProcGenFixture):
     """
     Cabinet class. Procedurally defined with primitive geoms
+
+    Args:
+        xml (str): path to xml file
+
+        name (str): name of the cabinet
+
+        size (list): size of the cabinet [w, d, h]
+
+        thickness (float): thickness of the cabinet walls
+
+        door_gap (float): gap for the doors applied to height and width
+
+        handle_type (str): type of handle attached to cabinet
+
+        handle_config (dict): configuration for handle. contains keyword arguments for handle class
+
+        panel_type (str): type of panel used for cabinet
+
+        panel_config (dict): configuration for panel. contains keyword arguments for panel class
+
+        open_top (bool): whether to remove top element
+
+        texture (str): path to texture file
     """
 
     def __init__(
@@ -79,6 +102,9 @@ class Cabinet(ProcGenFixture):
         self._set_texture()
 
     def _set_texture(self):
+        """
+        Set the texture for the cabinet
+        """
         if self.texture is None:
             return
 
@@ -105,6 +131,10 @@ class Cabinet(ProcGenFixture):
         material.set("texture", tex_name)
 
     def get_reset_regions(self, env):
+        """
+        Get the reset regions for the cabinet. This is used to reset the object to a specific location.
+        Reset region is defined as the bottom of the cabinet
+        """
         p0, px, py, pz = self.get_int_sites()
         return {
             "bottom": {
@@ -119,6 +149,27 @@ class Cabinet(ProcGenFixture):
     def _add_door(
         self, w, h, th, pos, parent_body, handle_hpos, handle_vpos, door_name="door"
     ):
+        """
+        Places a door on the cabinet
+
+        Args:
+            w (float): width of the door
+
+            h (float): height of the door
+
+            th (float): thickness of the door
+
+            pos (list): position of the door
+
+            parent_body (ET.Element): parent body element
+
+            handle_hpos (str): horizontal position of the handle
+
+            handle_vpos (str): vertical position of the handle
+
+            door_name (str): name of the door
+
+        """
         if self.panel_type == "slab" or self.panel_type is None:
             panel_class = SlabCabinetPanel
         elif self.panel_type == "shaker":
@@ -166,6 +217,15 @@ class Cabinet(ProcGenFixture):
 
 
 class SingleCabinet(Cabinet):
+    """
+    Creates a SingleCabinet object which is a cabinet with a single door that either opens left or right
+
+    Args:
+        orientation (str): The direction in which the cabinet opens when facing the cabinet. "left" or "right"
+
+        name (str): name of the cabinet
+    """
+
     def __init__(
         self,
         name="single_cab",
@@ -187,6 +247,12 @@ class SingleCabinet(Cabinet):
         )
 
     def _get_cab_components(self):
+        """
+        Finds and returns all geoms, bodies, and joints used for single cabinets
+
+        Returns:
+            dicts for geoms, bodies, and joints, mapping names to elements
+        """
         geom_names = ["top", "bottom", "back", "right", "left", "shelf", "door"]
         body_names = ["hingedoor"]
         joint_names = ["doorhinge"]
@@ -194,6 +260,11 @@ class SingleCabinet(Cabinet):
         return self._get_elements_by_name(geom_names, body_names, joint_names)
 
     def _create_cab(self):
+        """
+        Creates the full cabinet. This involves setting the sizes and positions for the cabinet and the door,
+        creating the door class, and determining the handle orientation. This also involves calculating the exterior
+        and interior bounding boxes.
+        """
         # divide everything by 2 according to mujoco convention
         x, y, z = [dim / 2 for dim in self.size]
         th = self.thickness / 2
@@ -232,6 +303,7 @@ class SingleCabinet(Cabinet):
 
         # create door
         door_pos = [0, -y + th, 0]
+        # if the door opens right the handle must be on the left side of the door and vice versa
         handle_hpos = "right" if self.orientation == "left" else "left"
         handle_vpos = self.panel_config.get("handle_vpos", "bottom")
 
@@ -260,6 +332,19 @@ class SingleCabinet(Cabinet):
         )
 
     def set_door_state(self, min, max, env, rng):
+        """
+        Sets how open the door is. Chooses a random amount between min and max.
+        Min and max are percentages of how open the door is
+
+        Args:
+            min (float): minimum percentage of how open the door is
+
+            max (float): maximum percentage of how open the door is
+
+            env (MujocoEnv): environment
+
+            rng (np.random.Generator): random number generator
+        """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
         joint_min = 0
@@ -276,6 +361,13 @@ class SingleCabinet(Cabinet):
         )
 
     def get_door_state(self, env):
+        """
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps door name to a percentage of how open the door is
+        """
         sim = env.sim
         hinge_qpos = sim.data.qpos[sim.model.joint_name2id(f"{self.name}_doorhinge")]
         sign = -1 if self.orientation == "left" else 1
@@ -298,6 +390,13 @@ class SingleCabinet(Cabinet):
 
 
 class HingeCabinet(Cabinet):
+    """
+    Creates a HingeCabinet object which is a cabinet with two doors that open outwards
+
+    Args:
+        name (str): name of the cabinet
+    """
+
     def __init__(
         self,
         name="hinge_cab",
@@ -317,7 +416,10 @@ class HingeCabinet(Cabinet):
 
     def _get_cab_components(self):
         """
-        searches for and returns all geoms used for hinge cabinets
+        Finds and returns all geoms, bodies, and joints used for single cabinets
+
+        Returns:
+            dicts for geoms, bodies, and joints, mapping names to elements
         """
 
         geom_names = [
@@ -334,6 +436,11 @@ class HingeCabinet(Cabinet):
         return self._get_elements_by_name(geom_names, body_names, joint_names)
 
     def _create_cab(self):
+        """
+        Creates the full cabinet. This involves setting the sizes and positions for the cabinet and the doors,
+        creating the door classes. This also involves calculating the exterior
+        and interior bounding boxes.
+        """
         # divide sizes by two according to mujoco conventions
         x, y, z = [dim / 2 if dim is not None else None for dim in self.size]
         th = self.thickness / 2
@@ -398,6 +505,13 @@ class HingeCabinet(Cabinet):
         )
 
     def get_state(self, sim):
+        """
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps joint names to joint values
+        """
         # angle of two door joints
         state = dict()
         for j in self._joints:
@@ -407,6 +521,19 @@ class HingeCabinet(Cabinet):
         return state
 
     def set_door_state(self, min, max, env, rng):
+        """
+        Sets how open the doors are. Chooses a random amount between min and max.
+        Min and max are percentages of how open the doors are
+
+        Args:
+            min (float): minimum percentage of how open the door is
+
+            max (float): maximum percentage of how open the door is
+
+            env (MujocoEnv): environment
+
+            rng (np.random.Generator): random number generator
+        """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
         joint_min = 0
@@ -424,6 +551,13 @@ class HingeCabinet(Cabinet):
         )
 
     def get_door_state(self, env):
+        """
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps door names to a percentage of how open they are
+        """
         sim = env.sim
         right_hinge_qpos = sim.data.qpos[
             sim.model.joint_name2id(f"{self.name}_rightdoorhinge")
@@ -455,6 +589,15 @@ class HingeCabinet(Cabinet):
 
 
 class OpenCabinet(Cabinet):
+    """
+    Creates a OpenCabinet object which is a cabinet with open shelves
+
+    Args:
+        name (str): name of the cabinet
+
+        num_shelves (int): number of shelves in the cabinet
+    """
+
     def __init__(
         self,
         name="shelves",
@@ -472,10 +615,20 @@ class OpenCabinet(Cabinet):
         )
 
     def _get_cab_components(self):
+        """
+        Finds and returns all geoms, bodies, and joints used for open cabinets
+
+        Returns:
+            dicts for geoms, bodies, and joints, mapping names to elements
+        """
         geom_names = ["top", "bottom"]
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_cab(self):
+        """
+        Creates the full cabinet. This involves setting the sizes and positions for each shelf.
+        This also involves calculating the exterior and interior bounding boxes.
+        """
         # no need to divide size here
         x, y, z = self.size
         th = self.thickness
@@ -524,6 +677,15 @@ class OpenCabinet(Cabinet):
 
 
 class Drawer(Cabinet):
+    """
+    Creates a Drawer
+
+    Args:
+        name (str): name of the cabinet
+
+        handle_config (dict): configuration for handle. contains keyword arguments for handle class
+    """
+
     def __init__(
         self,
         name="drawer",
@@ -548,6 +710,11 @@ class Drawer(Cabinet):
         )
 
     def _get_cab_components(self):
+        """
+        Finds and returns all geoms, bodies, and joints used for drawers
+        returns:
+            dicts for geoms, bodies, and joints, mapping names to elements
+        """
         geom_names = [
             "top",
             "bottom",
@@ -565,6 +732,10 @@ class Drawer(Cabinet):
         return self._get_elements_by_name(geom_names, body_names, joint_names)
 
     def _create_cab(self):
+        """
+        Creates the full cabinet. This involves setting the sizes and positions for the cabinet and the door,
+        creating the door class. This also involves calculating the exterior and interior bounding boxes.
+        """
         # divide everything by 2 according to mujoco convention
         x, y, z = [dim / 2 for dim in self.size]
         th = self.thickness / 2
@@ -640,6 +811,14 @@ class Drawer(Cabinet):
         return "drawer"
 
     def update_state(self, env):
+        """
+        Updates the interior bounding boxes of the drawer to be matched with
+        how open the drawer is. This is needed when determining if an object
+        is inside the drawer or when placing an object inside an open drawer.
+
+        Args:
+            env (MujocoEnv): environment
+        """
         int_sites = {}
         for site in ["int_p0", "int_px", "int_py", "int_pz"]:
             int_sites[site] = get_fixture_to_point_rel_offset(
@@ -648,6 +827,19 @@ class Drawer(Cabinet):
         self.set_bounds_sites(int_sites)
 
     def set_door_state(self, min, max, env, rng):
+        """
+        Sets how open the drawer is. Chooses a random amount between min and max.
+        Min and max are percentages of how open the drawer is.
+
+        Args:
+            min (float): minimum percentage of how open the drawer is
+
+            max (float): maximum percentage of how open the drawer is
+
+            env (MujocoEnv): environment
+
+            rng (np.random.Generator): random number generator
+        """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
         joint_min = 0
@@ -664,6 +856,13 @@ class Drawer(Cabinet):
         )
 
     def get_door_state(self, env):
+        """
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps door name to a percentage of how open the door is
+        """
         sim = env.sim
         hinge_qpos = sim.data.qpos[sim.model.joint_name2id(f"{self.name}_slidejoint")]
         sign = -1
@@ -684,6 +883,16 @@ class Drawer(Cabinet):
 
 
 class PanelCabinet(Cabinet):
+    """
+    Creates a PanelCabinet object which is a cabinet with a panel door but no handle.
+    This is mainly used in a fixture stack where there is an unopenable cabinet/drawer
+
+    Args:
+        name (str): name of the cabinet
+
+        solid_body (bool): whether to create a solid body for the cabinet behind the panel
+    """
+
     def __init__(
         self,
         name="panel_cab",
@@ -713,6 +922,10 @@ class PanelCabinet(Cabinet):
         return self._get_elements_by_name(geom_names, body_names, joint_names)
 
     def _create_cab(self):
+        """
+        Creates the panel cabinet. This involves setting the sizes and positions for door, and
+        if solid_body is True, creating a solid body for the cabinet behind the panel.
+        """
         x, y, z = [dim / 2 for dim in self.size]
         th = self.thickness / 2
 
@@ -768,6 +981,21 @@ class PanelCabinet(Cabinet):
 
 
 class HousingCabinet(Cabinet):
+    """
+    Creates a HousingCabinet object which is a cabinet which is hollowed out to contain another object
+
+    Args:
+        interior_obj (Fixture): Fixture to be placed inside the cabinet
+
+        size (list): Size of the cabinet in [x, y, z]
+
+        padding (list): Thickness of the cabinet walls in [[-x, x], [-y, y], [-z, z]]. For each dimension, if size is specified,
+
+        padding is optional and vice versa.
+
+        name (str): Name of the cabinet
+    """
+
     def __init__(
         self,
         interior_obj,
@@ -833,6 +1061,12 @@ class HousingCabinet(Cabinet):
         self._place_interior_obj()
 
     def set_pos(self, pos):
+        """
+        Sets the position of the cabinet and the interior object
+
+        Args:
+            pos (list): position of the cabinet
+        """
         super().set_pos(pos)
         # we have to set the postion of the interior object as well
         if self.interior_obj is not None:
@@ -855,6 +1089,10 @@ class HousingCabinet(Cabinet):
         self.interior_obj.set_origin(interior_origin)
 
     def _create_cab(self):
+        """
+        Creates the housing cabinet. This involves setting the sizes and positions for the sourrounding walls of the
+        housing cabinet, and setting exterior and interior bounding box sites.
+        """
         # divide sizes by two according to mujoco conventions
         x, y, z = [dim / 2 for dim in self.size]
 

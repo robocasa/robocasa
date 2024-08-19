@@ -2,6 +2,10 @@ from robocasa.models.objects.fixtures.fixture import Fixture
 
 
 class Fridge(Fixture):
+    """
+    Fridge fixture class
+    """
+
     def __init__(
         self,
         xml="fixtures/appliances/fridges/pack_1/model.xml",

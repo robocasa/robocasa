@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DessertAssembly(Kitchen):
+    """
+    Dessert Assembly: composite task for Clearing Table activity.
+
+    Simulates the task of assembling desserts.
+
+    Steps:
+        Pick the container with the dessert on it and place in on the tray.
+        Pick the cupcake and place it on the tray.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

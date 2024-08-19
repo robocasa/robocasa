@@ -2,6 +2,24 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DateNight(Kitchen):
+    """
+    Date Night: composite task for Setting The Table activity.
+
+    Simulates the task of setting the table for a date night.
+
+    Steps:
+        Pick up the decoration and the alcohol from the cabinet and move them to the
+        dining counter.
+
+    Restricted to layouts which have a dining table (long counter area with
+    stools).
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the decoration
+            and alcohol are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

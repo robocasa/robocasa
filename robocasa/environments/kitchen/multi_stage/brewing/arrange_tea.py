@@ -2,11 +2,24 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ArrangeTea(Kitchen):
+    """
+    Arrange Tea: composite task for Brewing activity.
+
+    Simulates the task of arranging tea.
+
+    Steps:
+        Take the kettle from the counter and place it on the tray.
+        Take the mug from the cabinet and place it on the tray.
+        Close the cabinet doors.
+    """
+
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
+        # use a double door cabinet so that area below is large enough to initialize all the objects
         self.cab = self.register_fixture_ref(
             "cab", dict(id=FixtureType.DOOR_TOP_HINGE_DOUBLE)
         )
+        # set the size argument to sample a large enough counter region
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab, size=(0.6, 0.4))
         )

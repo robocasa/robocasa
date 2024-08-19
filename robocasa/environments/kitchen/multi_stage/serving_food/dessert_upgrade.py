@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DessertUpgrade(Kitchen):
+    """
+    Dessert Upgrade: composite task for Serving Food activity.
+
+    Simulates the task of serving dessert.
+
+    Steps:
+        Move the dessert items from the plate to the tray.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

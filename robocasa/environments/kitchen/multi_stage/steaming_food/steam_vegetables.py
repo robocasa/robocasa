@@ -2,8 +2,24 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SteamVegetables(Kitchen):
+    """
+    Steam Vegetables: composite task for Steaming Food activity.
+
+    Simulates the task of steaming vegetables based on their cooking time.
+
+    Steps:
+        Place vegetables into the pot based on the amount of time it would take to
+        steam each. e.g. potatoes and carrots would take the longest. Then, turn
+        off the burner beneath the pot.
+
+    Args:
+        knob_id (str): The id of the knob who's burner the pot will be placed on.
+            If "random", a random knob is chosen.
+    """
+
     def __init__(self, knob_id="random", *args, **kwargs):
         self.knob_id = knob_id
+        # Used to see if the vegetables were placed in the wrong order. If so, task always fails.
         self.task_failed = False
         super().__init__(*args, **kwargs)
 
@@ -75,6 +91,8 @@ class SteamVegetables(Kitchen):
                 obj_groups="pot",
                 placement=dict(
                     fixture=self.stove,
+                    # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                     sample_region_kwargs=dict(
                         locs=[self.knob],

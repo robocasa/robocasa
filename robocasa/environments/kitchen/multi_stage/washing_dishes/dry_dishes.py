@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DryDishes(Kitchen):
+    """
+    Dry Dishes: composite task for Washing Dishes activity.
+
+    Simulates the task of drying dishes.
+
+    Steps:
+        Pick the cup and bowl from the sink and place them on the counter for drying.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -38,6 +47,7 @@ class DryDishes(Kitchen):
                 washable=True,
                 placement=dict(
                     fixture=self.sink,
+                    # hard code the cup to be in corners so that the cup and bowl fit in the sink
                     size=(0.1, 0.1),
                     # offset=(0.25, 0.25)
                     pos=cup_pos,
@@ -52,6 +62,8 @@ class DryDishes(Kitchen):
                 washable=True,
                 placement=dict(
                     fixture=self.sink,
+                    # place the bowl in the middle of the sink and turn of ensure_object_boundary_in_range
+                    # otherwise it becomes difficult to initialize since the bowl is so big
                     size=(0.05, 0.05),
                     ensure_object_boundary_in_range=False,
                 ),

@@ -2,7 +2,22 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CerealAndBowl(Kitchen):
+    """
+    Cereal And Bowl: composite task for Snack Preparation activity.
+
+    Simulates the preparation of a cereal snack.
+
+    Steps:
+        Pick the cereal and bowl from the cabinet and place them on the counter.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the bowl and
+            cereal are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
+        # use double door cabinet as default to have space for the bowl and cereal
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
 

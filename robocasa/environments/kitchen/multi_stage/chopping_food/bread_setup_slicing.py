@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class BreadSetupSlicing(Kitchen):
+    """
+    Bread Setup Slicing: composite task for Chopping Food activity.
+
+    Simulates the task of setting up bread for slicing.
+
+    Steps:
+        Place all breads on the cutting board.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

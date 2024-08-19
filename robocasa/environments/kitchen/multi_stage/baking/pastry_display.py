@@ -4,6 +4,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PastryDisplay(Kitchen):
+    """
+    Pastry Display: composite task for Baking activity.
+
+    Simulates the task of displaying pastries.
+
+    Steps:
+        Place the pastries on the plates.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -65,6 +74,7 @@ class PastryDisplay(Kitchen):
             )
         )
 
+        # use offserts and to make it easier to initialuze pastry1 and pastry2
         cfgs.append(
             dict(
                 name="pastry1",

@@ -1,0 +1,16 @@
+# Codebase Overview
+- `robocasa/demos/`: interactive scripts to explore tasks and environments (see quick start section for details)
+- `robocasa/environments/kitchen/`: all implementations for kitchen tasks
+  - `kitchen.py`: base class from which all kitchen tasks extend from
+  - `single_stage/`: implementations of all single-stage tasks
+  - `multi_stage/`: implementations of all multi-stage (aka “composite”) tasks
+- `robocasa/scripts/`: utility scripts
+  - `collect_demos.py`: collect demonstration trajectories for any task and environment
+  - `download_kitchen_assets.py`: downloads all assets. called automatically during setup in `setup.sh`
+  - `download_datasets.py`: downloads datasets (see datasets section for details)
+- `robocasa/models/assets/`: assets and implementations for objects and environment fixtures
+  - `assets/objects/`: raw assets for all objects
+  - `assets/fixtures/`: raw assets for all environment fixtures
+  - `assets/kitchen_layouts/`: blueprints for kitchen layouts and designs
+  - `objects/kitchen_objects.py`: registry for all object categories and groups
+  - `objects/fixtures/`: implementations of all fixture classes

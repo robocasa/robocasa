@@ -2,6 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SteamInMicrowave(Kitchen):
+    """
+    Steam In Microwave: composite task for Steaming Food activity.
+
+    Simulates the task of steaming a vegetable in a microwave.
+
+    Steps:
+        Pick the vegetable from the sink and place it in the bowl. Then pick the
+        bowl and place it in the microwave. Then close the microwave door and press
+        the start button.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

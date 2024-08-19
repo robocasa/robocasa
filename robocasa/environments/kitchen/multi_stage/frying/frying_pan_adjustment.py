@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class FryingPanAdjustment(Kitchen):
+    """
+    Frying Pan Adjustment: composite task for Frying activity.
+
+    Simulates the task of adjusting the frying pan on the stove.
+
+    Steps:
+        Move the pan from the current burner to another burner and turn on
+        the burner.
+    """
+
     def __init__(self, *args, **kwargs):
         self.start_loc = None
         super().__init__(*args, **kwargs)
@@ -15,6 +25,9 @@ class FryingPanAdjustment(Kitchen):
         """
         Resets simulation internal configurations.
         """
+
+        # First call super reset so that the pan is placed on the stove
+        # then determine where it is placed and turn on the corresponding burner and update the start_loc
         super()._reset_internal()
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         pan_loc = self._check_obj_location_on_stove("obj")
@@ -52,6 +65,10 @@ class FryingPanAdjustment(Kitchen):
 
     # TODO Move this function to OU
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if the object is on the stove and close to a burner
+        Returns the location of the burner if the object is on the stove and close to a burner. None otherwise.
+        """
 
         obj = self.objects[obj_name]
         obj_pos = np.array(self.sim.data.body_xpos[self.obj_body_id[obj.name]])[0:2]
@@ -72,10 +89,13 @@ class FryingPanAdjustment(Kitchen):
         return None
 
     def _check_success(self):
+        # get the current location of the pan on the stove
         curr_loc = self._check_obj_location_on_stove("obj")
         knobs_state = self.stove.get_knobs_state(env=self)
         knob_on_loc = False
         if curr_loc is not None and curr_loc in knobs_state:
+            # check if burner is on where the pan is placed
             knob_on_loc = 0.35 <= np.abs(knobs_state[curr_loc]) <= 2 * np.pi - 0.35
 
+        # return success if the pan is on a burner, the burner is on, and the burner is not the same as the start location
         return OU.gripper_obj_far(self) and knob_on_loc and curr_loc != self.start_loc

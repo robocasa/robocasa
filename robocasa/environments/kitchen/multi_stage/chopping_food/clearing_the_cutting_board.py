@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ClearingTheCuttingBoard(Kitchen):
+    """
+    Clearing The Cutting Board: composite task for Chopping Food activity.
+
+    Simulates the task of clearing the cutting board.
+
+    Steps:
+        Clear the non-vegetable object off the cutting board and place the
+        vegetables onto it.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

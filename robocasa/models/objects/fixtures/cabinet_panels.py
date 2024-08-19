@@ -12,6 +12,27 @@ from robocasa.utils.object_utils import set_geom_dimensions
 
 
 class CabinetPanel(MujocoXMLObject):
+    """
+    Base class for cabinet panels which are attached to the cabinet body.
+
+    Args:
+        xml (str): Path to the xml file for the cabinet panel.
+
+        size (list): Size of the cabinet panel in [w, d, h] format.
+
+        name (str): Name of the cabinet panel.
+
+        handle_type (str): Type of handle to attach to the cabinet panel.
+
+        handle_config (dict): Configuration for the handle.
+
+        handle_hpos (str): Horizontal position of the handle.
+
+        handle_vpos (str): Vertical position of the handle.
+
+        texture (str): Path to the texture file for the cabinet panel.
+    """
+
     def __init__(
         self,
         xml,
@@ -70,6 +91,9 @@ class CabinetPanel(MujocoXMLObject):
         return False
 
     def _set_texture(self):
+        """
+        Set the texture for the cabinet panel.
+        """
         if self.texture is None:
             return
 
@@ -96,6 +120,10 @@ class CabinetPanel(MujocoXMLObject):
         material.set("texture", tex_name)
 
     def _add_handle(self):
+        """
+        Add a handle to the cabinet panel. Creates the handle object, positions it based off the handle_hpos and handle_vpos,
+        and appends it to the cabinet panel body.
+        """
         if self.handle_type is None:
             return
         elif self.handle_type == "bar":
@@ -151,15 +179,25 @@ class CabinetPanel(MujocoXMLObject):
 
 
 class SlabCabinetPanel(CabinetPanel):
+    """
+    Initialize a slab cabinet panel, which is a simple flat panel.
+    """
+
     def __init__(self, *args, **kwargs):
         xml = "fixtures/cabinets/cabinet_panels/slab.xml"
         super().__init__(xml=xml, *args, **kwargs)
 
     def _get_components(self):
+        """
+        Gets the geoms for the cabinet panel.
+        """
         geom_names = ["door"]
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_panel(self):
+        """
+        Creates the cabinet panel. This involves setting the size and position of the panel's geom
+        """
         geoms = self._get_components()
 
         # divide by 2 for mujoco convention
@@ -171,6 +209,15 @@ class SlabCabinetPanel(CabinetPanel):
 
 
 class ShakerCabinetPanel(CabinetPanel):
+    """
+    Initialize a shaker cabinet panel, which is a simple flat panel with a trim.
+
+    Args:
+        trim_th (float): Thickness of the trim (depth).
+
+        trim_size (float): Size of the trim (width/height).
+    """
+
     def __init__(self, name, trim_th=0.02, trim_size=0.08, *args, **kwargs):
         self.trim_th = trim_th
         self.trim_size = trim_size
@@ -179,10 +226,16 @@ class ShakerCabinetPanel(CabinetPanel):
         super().__init__(xml=xml, name=name, *args, **kwargs)
 
     def _get_components(self):
+        """
+        Gets the geoms for the cabinet panel. This includes the door and the 4 sorrounding trims.
+        """
         geom_names = ["door", "trim_left", "trim_right", "trim_bottom", "trim_top"]
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_panel(self):
+        """
+        Creates the cabinet panel. This involves setting the size and position of the panel's door and trim geoms
+        """
         # divide by 2 for mujoco convention
         x, y, z = self.size
         x, y, z = x / 2, y / 2, z / 2
@@ -213,6 +266,17 @@ class ShakerCabinetPanel(CabinetPanel):
 
 
 class RaisedCabinetPanel(CabinetPanel):
+    """
+    Initialize a raised cabinet panel, similar to the shaker panel, but with a raised door portion.
+
+    Args:
+        trim_th (float): Thickness of the trim (depth).
+
+        trim_size (float): Size of the trim (width/height).
+
+        raised_gap (float): Gap between the raised portion and the sorrounding trims
+    """
+
     def __init__(
         self, name, trim_th=0.02, trim_size=0.08, raised_gap=0.01, *args, **kwargs
     ):
@@ -224,6 +288,9 @@ class RaisedCabinetPanel(CabinetPanel):
         super().__init__(xml=xml, name=name, *args, **kwargs)
 
     def _get_components(self):
+        """
+        Gets the geoms for the cabinet panel. This includes the door, the 4 sorrounding trims, and the raised portion.
+        """
         geom_names = [
             "door",
             "door_raised",
@@ -235,6 +302,10 @@ class RaisedCabinetPanel(CabinetPanel):
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_panel(self):
+        """
+        Creates the cabinet panel. This involves setting the size and position of the panel's door, trim, and raised portion geoms
+        """
+
         # place the trims accordingly
         ShakerCabinetPanel._create_panel(self)
 
@@ -259,6 +330,18 @@ class RaisedCabinetPanel(CabinetPanel):
 
 
 class DividedWindowCabinetPanel(CabinetPanel):
+    """
+    Initialize a divided window cabinet panel, which is a panel with a windowed door, trims around, and
+    a 2 trims running down the middle of the window (horizontally and vertically aligned).
+
+    Args:
+        name (str): Name of the cabinet panel.
+
+        trim_th (float): Thickness of the trim (depth).
+
+        trim_size (float): Size of the trims (width/height).
+    """
+
     def __init__(self, name, trim_th=0.02, trim_size=0.08, *args, **kwargs):
 
         self.trim_th = trim_th
@@ -268,6 +351,10 @@ class DividedWindowCabinetPanel(CabinetPanel):
         super().__init__(xml=xml, name=name, *args, **kwargs)
 
     def _get_components(self):
+        """
+        Gets the geoms for the cabinet panel. This includes the door, the 4 sorrounding trims,
+        and the 2 trims running down the middle of the window.
+        """
         geom_names = [
             "door",
             "trim_left",
@@ -280,6 +367,9 @@ class DividedWindowCabinetPanel(CabinetPanel):
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_panel(self):
+        """
+        Creates the cabinet panel. This involves setting the size and position of the panel's door, trims, and window trims
+        """
         # divide by 2 for mujoco convention
         x, y, z = self.size
         x, y, z = x / 2, y / 2, z / 2
@@ -314,6 +404,20 @@ class DividedWindowCabinetPanel(CabinetPanel):
 
 
 class FullWindowedCabinetPanel(CabinetPanel):
+    """
+    Initialize a full windowed cabinet panel, which is a panel with a windowed door and trims around.
+    Same as the divided window panel but without the middle trims running through the window.
+
+    Args:
+        name (str): Name of the cabinet panel.
+
+        trim_th (float): Thickness of the trim (depth).
+
+        trim_size (float): Size of the trims (width/height).
+
+        opacity (float): Opacity of the window. Defaults to 0.5 to create a "frosted" effect.
+    """
+
     def __init__(
         self, name, trim_th=0.02, trim_size=0.08, opacity=0.5, *args, **kwargs
     ):
@@ -325,15 +429,24 @@ class FullWindowedCabinetPanel(CabinetPanel):
         super().__init__(xml=xml, name=name, *args, **kwargs)
 
     def _get_components(self):
+        """
+        Gets the geoms for the cabinet panel. This includes the door and the 4 sorrounding trims.
+        """
         geom_names = ["door", "trim_left", "trim_right", "trim_bottom", "trim_top"]
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_panel(self):
+        """
+        Creates the cabinet panel. This involves setting the size and position of the panel's door and trim geoms
+        """
         # place the trims accordingly
         ShakerCabinetPanel._create_panel(self)
         self._set_opacity()
 
     def _set_opacity(self):
+        """
+        Set the opacity of the window.
+        """
         transparent_mat = find_elements(
             self.root,
             tags="material",
@@ -344,6 +457,19 @@ class FullWindowedCabinetPanel(CabinetPanel):
 
 
 class CabinetShelf(MujocoXMLObject):
+    """
+    Initialize a cabinet shelf, which is a simple flat panel but rotated 90 degrees.
+
+    Args:
+        size (list): Size of the cabinet shelf in [w, d, h] format.
+
+        texture (str): Path to the texture file for the cabinet shelf.
+
+        name (str): Name of the cabinet shelf.
+
+        pos (list): Position of the cabinet shelf.
+    """
+
     def __init__(
         self,
         size,  # format: [w, d, h]
@@ -372,8 +498,10 @@ class CabinetShelf(MujocoXMLObject):
         """
         Exclude all shared materials and their associated names from being prefixed.
 
+
         Args:
             inp (ET.Element or str): Element or its attribute to check for prefixing.
+
 
         Returns:
             bool: True if we should exclude the associated name(s) with @inp from being prefixed with naming_prefix
@@ -388,6 +516,9 @@ class CabinetShelf(MujocoXMLObject):
         return False
 
     def _set_texture(self):
+        """
+        Set the texture for the cabinet shelf.
+        """
         if self.texture is None:
             return
 
@@ -413,10 +544,16 @@ class CabinetShelf(MujocoXMLObject):
         material.set("texture", tex_name)
 
     def _get_components(self):
+        """
+        Gets the geoms for the cabinet shelf.
+        """
         geom_names = ["shelf"]
         return self._get_elements_by_name(geom_names)[0]
 
     def _create_panel(self):
+        """
+        Creates the cabinet shelf. This involves setting the size and position of the panel's geom
+        """
         geoms = self._get_components()
 
         sizes = {"shelf": self.size / 2}

@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SpicyMarinade(Kitchen):
+    """
+    Spicy Marinade: composite task for Mixing And Blending activity.
+
+    Simulates the task of preparing a spicy marinade.
+
+    Steps:
+        Open the cabinet. Place the bowl and condiment on the counter. Then place
+        the lime and garlic on the cutting board.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

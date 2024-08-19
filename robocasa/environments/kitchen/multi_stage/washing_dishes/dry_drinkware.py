@@ -4,6 +4,19 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DryDrinkware(Kitchen):
+    """
+    Dry Drinkware: composite task for Washing Dishes activity.
+
+    Simulates the task of drying drinkware.
+
+    Steps:
+        Pick the mug from the counter and place it upside down in the open cabinet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet in which the mug is placed.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -112,6 +125,7 @@ class DryDrinkware(Kitchen):
 
     def _check_success(self):
         mug_rot = self.sim.data.xquat[self.obj_body_id["mug"]]
+        # make sure the mug is placed upside down
         mug_rot = self.euler_from_quaternion(*mug_rot)
         return (
             OU.gripper_obj_far(self, obj_name="mug")

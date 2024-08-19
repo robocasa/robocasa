@@ -16,7 +16,17 @@ STOVE_LOCATIONS = [
 
 
 class Stove(Fixture):
+    """
+    Stove fixture class. The stove has knob joints that can be turned on and off to simulate burner flames
+
+    Args:
+        xml (str): path to mjcf xml file
+
+        name (str): name of the object
+    """
+
     def __init__(self, xml="fixtures/stoves/stove_orig", name="stove", *args, **kwargs):
+
         self._knob_joints = None
         self._burner_sites = None
 
@@ -25,6 +35,18 @@ class Stove(Fixture):
         )
 
     def get_reset_regions(self, env, locs=None):
+        """
+        Returns dictionary of reset regions, usually used when initializing a receptacle on the stove.
+        The regions are the sites where the burner flames are located.
+
+        Args:
+            env (MujocoEnv): environment
+
+            locs (list): list of locations to get reset regions for. If None, uses all locations
+
+        Returns:
+            dict: dictionary of reset regions
+        """
         regions = dict()
 
         if locs is None:
@@ -52,6 +74,12 @@ class Stove(Fixture):
         return regions
 
     def update_state(self, env):
+        """
+        Updates the burner flames of the stove based on the knob joint positions
+
+        Args:
+            env (MujocoEnv): environment
+        """
         for location in STOVE_LOCATIONS:
             site = self.burner_sites[location]
             if site is None:
@@ -79,6 +107,18 @@ class Stove(Fixture):
                 env.sim.model.site_rgba[site_id][3] = 0.0
 
     def set_knob_state(self, env, rng, knob, mode="on"):
+        """
+        Sets the state of the knob joint based on the mode parameter
+
+        Args:
+            env (MujocoEnv): environment
+
+            rng (np.random.RandomState): random number generator
+
+            knob (str): location of the knob
+
+            mode (str): "on" or "off"
+        """
         assert mode in ["on", "off"]
         if mode == "off":
             joint_val = 0.0
@@ -93,6 +133,15 @@ class Stove(Fixture):
         )
 
     def get_knobs_state(self, env):
+        """
+        Gets the angle of which knob joints are turned
+
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps location of knob to the angle of the knob joint
+        """
         knobs_state = {}
         for location in STOVE_LOCATIONS:
             joint = self.knob_joints[location]
@@ -116,6 +165,9 @@ class Stove(Fixture):
 
     @property
     def knob_joints(self):
+        """
+        Returns the knob joints of the stove
+        """
         if self._knob_joints is None:
             self._knob_joints = {}
             for location in STOVE_LOCATIONS:
@@ -130,6 +182,9 @@ class Stove(Fixture):
 
     @property
     def burner_sites(self):
+        """
+        Returns the burner sites of the stove
+        """
         if self._burner_sites is None:
             self._burner_sites = {}
             for location in STOVE_LOCATIONS:
@@ -148,11 +203,29 @@ class Stove(Fixture):
 
 
 class Stovetop(Stove):
+    """
+    Stovetop fixture class. The stovetop has knob joints that can be turned on and off to simulate burner flames
+
+    Args:
+        xml (str): path to mjcf xml file
+
+        name (str): name of the object
+    """
+
     def __init__(self, xml="fixtures/stoves/stove_orig", name="stove", *args, **kwargs):
         super().__init__(xml=xml, name=name, *args, **kwargs)
 
 
 class Oven(Fixture):
+    """
+    Oven fixture class
+
+    Args:
+        xml (str): path to mjcf xml file
+
+        name (str): name of the object
+    """
+
     def __init__(self, xml="fixtures/ovens/samsung", name="oven", *args, **kwargs):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs

@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MakeLoadedPotato(Kitchen):
+    """
+    Make Loaded Potato: composite task for Reheating Food activity.
+
+    Simulates the task of making a loaded potato.
+
+    Steps:
+        Retrieve the reheated potato from the microwave, then place it on the
+        cutting board along with cheese and a bottle of condiment.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

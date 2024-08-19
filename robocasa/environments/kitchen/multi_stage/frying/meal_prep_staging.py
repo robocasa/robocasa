@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MealPrepStaging(Kitchen):
+    """
+    Meal Prep Staging: composite task for Frying activity.
+
+    Simulates the task of cooking various ingredients.
+
+    Steps:
+        Place the pans on different burners, then place the vegetable
+        and meat on different pans.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -96,6 +106,10 @@ class MealPrepStaging(Kitchen):
         return cfgs
 
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if object is on a burner site on the stove.
+        Returns the location of the burner if the object is on the stove and close to a burner. None otherwise.
+        """
 
         obj = self.objects[obj_name]
         obj_pos = np.array(self.sim.data.body_xpos[self.obj_body_id[obj.name]])[0:2]

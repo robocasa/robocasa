@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ManipulateStoveKnob(Kitchen):
+    """
+    Class encapsulating the atomic manipulate stove knob tasks.
+
+    Args:
+        knob_id (str): The stove knob id to manipulate. If set to "random", a random knob will be selected.
+
+        behavior (str): "turn_on" or "turn_off". Used to define the desired
+            stove knob manipulation behavior for the task.
+    """
+
     def __init__(self, knob_id="random", behavior="turn_on", *args, **kwargs):
         assert behavior in ["turn_on", "turn_off"]
         self.behavior = behavior
@@ -9,6 +19,10 @@ class ManipulateStoveKnob(Kitchen):
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
+        """
+        Setup the kitchen references for the stove knob tasks
+        This includes the stove and the stove knob to manipulate, and the burner to place the cookware on.
+        """
         super()._setup_kitchen_references()
         self.stove = self.get_fixture(FixtureType.STOVE)
         if "task_refs" in self._ep_meta:
@@ -31,6 +45,10 @@ class ManipulateStoveKnob(Kitchen):
         self.init_robot_base_pos = self.stove
 
     def get_ep_meta(self):
+        """
+        Get the episode metadata for the stove knob tasks.
+        This includes the language description of the task and the task references.
+        """
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
@@ -42,6 +60,10 @@ class ManipulateStoveKnob(Kitchen):
         return ep_meta
 
     def _reset_internal(self):
+        """
+        Reset the environment internal state for the stove knob tasks.
+        This includes setting the stove knob state based on the behavior.
+        """
         super()._reset_internal()
 
         if self.behavior == "turn_on":
@@ -52,6 +74,14 @@ class ManipulateStoveKnob(Kitchen):
             self.stove.set_knob_state(mode="on", knob=self.knob, env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):
+        """
+        Get the object configurations for the stove knob tasks.
+        This includes the object placement configurations.
+        Place the cookware on the stove burner.
+
+        Returns:
+            list: List of object configurations
+        """
         cfgs = []
 
         cfgs.append(
@@ -73,6 +103,12 @@ class ManipulateStoveKnob(Kitchen):
         return cfgs
 
     def _check_success(self):
+        """
+        Check if the stove knob manipulation task is successful.
+
+        Returns:
+            bool: True if the task is successful, False otherwise.
+        """
         knobs_state = self.stove.get_knobs_state(env=self)
         knob_value = knobs_state[self.knob]
 

@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SortingCleanup(Kitchen):
+    """
+    Sorting Cleanup: composite task for Washing Dishes activity.
+
+    Simulates the task of sorting and cleaning dishes.
+
+    Steps:
+        Pick the mug and place it in the sink. Pick the bowl and place it in the
+        cabinet and then close the cabinet.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -59,7 +69,10 @@ class SortingCleanup(Kitchen):
                 placement=dict(
                     fixture=self.counter,
                     sample_region_kwargs=dict(
-                        ref=self.sink, loc="left_right", top_size=(0.5, 0.5)
+                        ref=self.sink,
+                        loc="left_right",
+                        # large enough region to sample the bowl
+                        top_size=(0.5, 0.5),
                     ),
                     size=(0.7, 0.7),
                     pos=("ref", -1),

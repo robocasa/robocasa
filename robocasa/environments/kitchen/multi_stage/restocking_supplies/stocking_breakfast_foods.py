@@ -2,6 +2,23 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class StockingBreakfastFoods(Kitchen):
+    """
+    Stocking Breakfast Foods: composite task for Restocking Supplies activity.
+
+    Simulates the task of restocking breakfast foods.
+
+    Steps:
+        Restock two packaged foods from the counter to the cabinet.
+
+    Args:
+        cab_id1 (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the first cabinet to which the foods
+            are restocked.
+        cab_id2 (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the second cabinet to which the foods
+            are restocked.
+    """
+
     def __init__(
         self,
         cab_id1=FixtureType.CABINET_TOP,
@@ -25,7 +42,7 @@ class StockingBreakfastFoods(Kitchen):
             self.cab1 = self.register_fixture_ref("cab1", dict(id=self.cab_id1))
 
             while True:
-                # would like different cabinets per notes on task redo
+                # sample until 2 different cabinets are selected
                 self.cab2 = self.get_fixture(self.cab_id2)
                 if self.cab2 != self.cab1:
                     break

@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MeatTransfer(Kitchen):
+    """
+    Meat Transfer: composite task for Chopping Food activity.
+
+    Simulates the task of transferring meat to a container.
+
+    Steps:
+        Retrieve a container (either a pan or a bowl) from the cabinet, then place
+        the raw meat into the container to avoid contamination.
+
+    Args:
+        cab_id: Enum which serves as a unique identifier for different cabinets.
+            Default to FixtureType.DOOR_TOP_HINGE_DOUBLE to have space for
+            initializing bowl/pan
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
@@ -41,9 +56,13 @@ class MeatTransfer(Kitchen):
                     graspable=True,
                     placement=dict(
                         fixture=self.cab,
+                        # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                        # bounding box making it hard to place it if set to True
                         ensure_object_boundary_in_range=False,
                         size=(0.05, 0.02),
                         pos=(0, 0),
+                        # apply a custom rotation for the pan so that it fits better in the cabinet
+                        # (if the handle sticks out it may not fit)
                         rotation=(2 * np.pi / 8, 3 * np.pi / 8),
                     ),
                 )

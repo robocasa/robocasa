@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ColorfulSalsa(Kitchen):
+    """
+    Colorful Salsa: composite task for Mixing And Blending activity.
+
+    Simulates the task of preparing a colorful salsa.
+
+    Steps:
+        Place the avocado, onion, tomato and bell pepper on the cutting board.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
