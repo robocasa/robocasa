@@ -45,8 +45,10 @@ from robocasa.utils.texture_swap import (
 
 REGISTERED_KITCHEN_ENVS = {}
 
+
 def register_kitchen_env(target_class):
     REGISTERED_KITCHEN_ENVS[target_class.__name__] = target_class
+
 
 class KitchenEnvMeta(EnvMeta):
     """Metaclass for registering robocasa environments"""
@@ -55,6 +57,7 @@ class KitchenEnvMeta(EnvMeta):
         cls = super().__new__(meta, name, bases, class_dict)
         register_kitchen_env(cls)
         return cls
+
 
 class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     EXCLUDE_LAYOUTS = []
@@ -706,7 +709,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 )
 
         # step through a few timesteps to settle objects
-        action = np.zeros(12)  # apply empty action
+        action = np.zeros(self.action_spec[0].shape)  # apply empty action
 
         # Since the env.step frequency is slower than the mjsim timestep frequency, the internal controller will output
         # multiple torque commands in between new high level action commands. Therefore, we need to denote via
