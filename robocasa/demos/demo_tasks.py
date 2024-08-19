@@ -135,6 +135,7 @@ if __name__ == "__main__":
 
         parser.render = not args.render_offscreen
         parser.use_actions = False
+        parser.use_abs_actions = False
         parser.render_image_names = ["robot0_agentview_center"]
         parser.use_obs = False
         parser.n = 1 if args.task is None else None
