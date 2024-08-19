@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SearingMeat(Kitchen):
+    """
+    Searing Meat: composite task for Frying activity.
+
+    Simulates the task of searing meat.
+
+    Steps:
+        Place the pan on the specified burner on the stove,
+        then place the meat on the pan and turn the burner on.
+
+    Args:
+        knob_id (str): The id of the knob who's burner the pan will be placed on.
+            If "random", a random knob is chosen.
+    """
+
     def __init__(self, knob_id="random", *args, **kwargs):
         self.knob_id = knob_id
         super().__init__(*args, **kwargs)
@@ -78,6 +92,11 @@ class SearingMeat(Kitchen):
         return cfgs
 
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if the object is on the stove and close to a burner and the knob is on.
+        Returns the location of the burner if the object is on the stove, close to a burner, and the burner is on.
+        None otherwise.
+        """
 
         knobs_state = self.stove.get_knobs_state(env=self)
         obj = self.objects[obj_name]
@@ -105,6 +124,6 @@ class SearingMeat(Kitchen):
 
     def _check_success(self):
         gripper_obj_far = OU.gripper_obj_far(self, obj_name="meat")
-        pan_loc = self._check_obj_location_on_stove("pan", threshold=0.15)
+        pan_loc = self._check_obj_location_on_stove("pan", threshold=0.15) == self.knob
         meat_in_pan = OU.check_obj_in_receptacle(self, "meat", "pan", th=0.07)
         return gripper_obj_far and pan_loc and meat_in_pan

@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class StackBowlsInSink(Kitchen):
+    """
+    Stack Bowls: composite task for Washing Dishes activity.
+
+    Simulates the task of stacking bowls in the sink.
+
+    Steps:
+        Stack the bowls in the sink.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

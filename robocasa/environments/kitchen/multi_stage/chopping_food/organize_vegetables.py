@@ -2,8 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class OrganizeVegetables(Kitchen):
-    def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
-        self.cab_id = cab_id
+    """
+    Organize Vegetables: composite task for Chopping Food activity.
+
+    Simulates the task of organizing vegetables on cutting boards.
+
+    Steps:
+        Place the vegetables on separate cutting boards
+    """
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
@@ -96,6 +104,9 @@ class OrganizeVegetables(Kitchen):
         return cfgs
 
     def _check_success(self):
+        """
+        Make sure vegetables are on different cutting boards
+        """
         vegetable1_cutting_board_contact1 = OU.check_obj_in_receptacle(
             self, "vegetable1", "cutting_board1"
         )

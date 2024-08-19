@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PushUtensilsToSink(Kitchen):
+    """
+    Push Utensils To Sink: composite task for Sanitize Surface activity.
+
+    Simulates the task of pushing (since utensils are difficult to grasp)
+    utensils into the sink.
+
+    Steps:
+        Push the utensils into the sink.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

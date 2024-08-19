@@ -428,6 +428,19 @@ WALL_TEX_NAMES = [
 
 
 def get_random_textures(rng, frac=1.0):
+    """
+    This function returns a dictionary of random textures for cabinet, counter top, floor, and wall.
+
+    Args:
+        rng (np.random.Generator): Random number generator used for texture selection
+
+        frac (float): Fraction of textures to select from the list of available textures
+            Default: 1.0 (select from all textures)
+
+    Returns:
+        textures (dict): Dictionary of texture paths
+    """
+
     end_ind = int(frac * 100)
     ind = rng.integers(0, end_ind)
 
@@ -448,7 +461,10 @@ def replace_counter_top_texture(
     This function replaces the counter top textures during playback.
 
     Args:
+        rng (np.random.Generator): Random number generator used for texture selection
+
         initial_state (str): Initial env XML string
+
         new_counter_top_texture_file (str): New texture file for counter top: i.e "marble/dark_marble.png"
             If None (default), will replace with a random texture from marble directory
     """
@@ -494,7 +510,10 @@ def replace_cab_textures(rng, initial_state: str, new_cab_texture_file: str = No
     This function replaces the cabinet and counter base textures during playback.
 
     Args:
+        rng (np.random.Generator): Random number generator used for texture selection
+
         initial_state (str): Initial env XML string
+
         new_cab_texture_file (str): New texture file for counter base and cabinets: i.e "cabinet/..."
             If None (default), will replace with a random texture from flat or wood directories
     """
@@ -564,7 +583,10 @@ def replace_floor_texture(rng, initial_state: str, new_floor_texture_file: str =
     This function replaces the counter top textures during playback.
 
     Args:
+        rng (np.random.Generator): Random number generator used for texture selection
+
         initial_state (str): Initial env XML string
+
         new_floor_texture_file (str): New texture file for counter top: i.e "wood/dark_wood_planks_2.png"
             If None (default), will replace with a random texture from wood directory
     """
@@ -610,7 +632,10 @@ def replace_wall_texture(rng, initial_state: str, new_wall_texture_file: str = N
     This function replaces the counter top textures during playback.
 
     Args:
+        rng (np.random.Generator): Random number generator used for texture selection
+
         initial_state (str): Initial env XML string
+
         new_wall_texture_file (str): New texture file for counter top: i.e "wood/dark_wood_planks_2.png"
             If None (default), will replace with a random texture from wood directory
     """

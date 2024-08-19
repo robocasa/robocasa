@@ -23,6 +23,38 @@ SIDES = ["left", "right", "front", "back"]
 
 
 class Counter(ProcGenFixture):
+    """
+    Initializes a counter fixture.
+
+    Args:
+        name (str): name of the counter
+
+        size (tuple): size of the counter (width, depth, height)
+
+        overhang (float): amount which the top of the counter overhangs the base
+
+        top_texture (str): path to the texture file for the top of the counter
+
+        top_thickness (float): thickness of the top of the counter
+
+        half_top (list): list of booleans to specify if the counter is half-sized and extends right or left
+
+        base_texture (str): path to the texture file for the base of the counter
+
+        base_color (list): list of 4 floats specifying the color of the base
+
+        base_opening (list): list of booleans to specify if the counter has an opening in the front or back
+
+        hollow (list): list of booleans to specify if the should exclude the front, back, or the whole the base.
+                        Both hollow and base_opening cannot be set at the same time if they are, base_opening takes precedence.
+
+        interior_obj (ProcGenFixture): object to be placed inside the counter
+
+        obj_y_percent (float): Percentage of the counter's depth taken up by the interior object
+
+        obj_x_percent (float): Percentage of the counter's width taken up by the interior object
+    """
+
     def __init__(
         self,
         name="counter",
@@ -159,6 +191,7 @@ class Counter(ProcGenFixture):
     def _get_counter_geoms(self):
         """
         searches for geoms corresponding to each of the four components of the counter.
+        Currently does not return collision geoms for top because does not account for the chunking!
         """
 
         geoms = dict()
@@ -189,6 +222,10 @@ class Counter(ProcGenFixture):
 
         x_percent/y_percent specifies at what percent of the fixture's entire width/depth
         the center of the sink should be placed.
+
+        Returns:
+            list: list of padding values [left, right, front, back],
+            which are distance between the edge of the counter and (the edge of the interior object + gap)
         """
 
         x_percent, y_percent = self.obj_x_percent, self.obj_y_percent
@@ -227,6 +264,16 @@ class Counter(ProcGenFixture):
         return [left_pad, right_pad, front_pad, back_pad]
 
     def _get_chunks(self, pos, size, chunk_size=0.5):
+        """
+        Breaks the top width into chunks of size `chunk_size`
+
+        Args:
+            pos (np.array): position of the center of the top
+
+            size (np.array): size of the top
+
+            chunk_size (float): size of each chunk
+        """
         top_x_sizes = np.array(math.ceil(size[0] / chunk_size) * [chunk_size])
         top_x_sizes[-1] = size[0] - np.sum(top_x_sizes[:-1])
 
@@ -248,6 +295,9 @@ class Counter(ProcGenFixture):
         return chunk_positions, chunk_sizes
 
     def _make_counter(self):
+        """
+        Creates a contigious counter with a top and possibly a base.
+        """
         w, d, h = np.array(self.size)
         th = self.th
 
@@ -266,6 +316,7 @@ class Counter(ProcGenFixture):
                 )
                 geoms[geom_name].append(g)
 
+        # counters with half-top can only either be right or left
         assert sum(self.half_top) < 2
         if sum(self.half_top) == 0:
             pos = np.array([0, 0, h / 2 - th / 2])
@@ -299,6 +350,7 @@ class Counter(ProcGenFixture):
         # manually update visual geoms registry
         self._visual_geoms.append("top_visual")
 
+        # break the top width into chunks
         chunk_positions, chunk_sizes = self._get_chunks(pos, size, chunk_size=0.5)
         for i in range(len(chunk_sizes)):
             g = new_geom(
@@ -318,11 +370,13 @@ class Counter(ProcGenFixture):
 
         for side in SIDES:
             for elem in geoms["base_{}".format(side)]:
+                # remove appropriate part of the base if based on hollow specification
                 if side == "front" and self.hollow[1]:
                     self._remove_element(elem)
                 elif side == "back" and self.hollow[0]:
                     self._remove_element(elem)
                 # houses bottom row cabinets
+                # remove right and left base geoms if any of hollow is True
                 elif sum(self.base_opening) == 0 and sum(self.hollow) > 0:
                     self._remove_element(elem)
                 else:
@@ -335,6 +389,11 @@ class Counter(ProcGenFixture):
 
         coordinate system change may or may not be necessary. currently all other fixtures
         use Mujoco's center-based coordinate system
+
+        Args:
+            padding (list): list of padding values [left, right, front, back],
+
+            which are distance between the edge of the counter and (the edge of the interior object + gap)
         """
         w, d, h = self.size
         th = self.th
@@ -377,8 +436,8 @@ class Counter(ProcGenFixture):
             right=[w - side_th, self.overhang, -th],
         )
 
+        # move panel to middle of the island this will create an opening under the counter in the front/back
         if self.base_opening[0]:
-            # move panel to middle of the island
             base_pos["front"] = [0, 0, -th]
         elif self.base_opening[1]:
             base_pos["back"] = [0, 0, -th]
@@ -407,6 +466,7 @@ class Counter(ProcGenFixture):
             base_pos[side] = np.array(base_pos[side]) / 2
 
             for elem in geoms["base_{}".format(side)]:
+                # remove appropriate part of the base, based on hollow specification
                 if side == "front" and self.hollow[1]:
                     self._remove_element(elem)
                 elif side == "back" and self.hollow[0]:
@@ -464,6 +524,12 @@ class Counter(ProcGenFixture):
                 self._contact_geoms.append("top_{}_{}".format(side, i))
 
     def _get_base_dimensions(self):
+        """
+        Returns the size and position of the base components. Considers the base opening specifications
+
+        Returns:
+            tuple: tuple of dictionaries containing the size and position of each base component
+        """
         # divide everything by 2 per mujoco convention
         x, y, z = np.array(self.size) / 2
         overhang = self.overhang / 2
@@ -513,9 +579,28 @@ class Counter(ProcGenFixture):
     def get_reset_regions(self, env, ref=None, loc="nn", top_size=(0.4, 0.4)):
         """
         returns dictionary of reset regions, each region defined as offsets and size
+
+        Args:
+            env (Kitchen): the kitchen environment which contains this counter
+
+            ref (str): reference fixture used in determining sampling location
+
+            loc (str): sampling method, one of ["nn", "left", "right", "left_right", "any"]
+                        nn: chooses the closest top geom to the reference fixture
+                        left: chooses the any top geom within 0.3 distance of the left side of the reference fixture
+                        right: chooses the any top geom within 0.3 distance of the right side of the reference fixture
+                        left_right: chooses the any top geom within 0.3 distance of the left or right side of the reference fixture
+                        any: chooses any top geom
+
+            top_size (tuple): minimum size of the top region to return
+
+
+        Returns:
+            dict: dictionary of reset regions
         """
         all_geoms = []
         for (k, v) in self._get_counter_geoms().items():
+            # only reset on top geoms
             if not k.startswith("top"):
                 continue
             geom = v[-1]

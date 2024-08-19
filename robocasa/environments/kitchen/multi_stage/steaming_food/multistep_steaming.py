@@ -2,8 +2,23 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MultistepSteaming(Kitchen):
+    """
+    Multistep Steaming: composite task for Steaming Food activity.
+
+    Simulates the task of steaming a vegetable.
+
+    Steps:
+        Turn on the sink. Then move the vegetable from the counter to the sink.
+        Turn of the sink. Move the vegetable from the sink to the pot next to the
+        stove. Finally, move the pot to the stove burner.
+
+    Args:
+        knob_id (str): The id of the knob who's burner the pot will be placed on.
+    """
+
     def __init__(self, knob_id="random", *args, **kwargs):
         self.knob_id = knob_id
+        # Flags to keep track of the task progress
         self.water_was_turned_on = False
         self.vegetable_was_in_sink = False
         super().__init__(*args, **kwargs)
@@ -56,6 +71,8 @@ class MultistepSteaming(Kitchen):
                     size=(0.05, 0.05),
                     pos=("ref", -0.7),
                     rotation=np.pi / 2,
+                    # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                 ),
             )
@@ -90,6 +107,10 @@ class MultistepSteaming(Kitchen):
         return cfgs
 
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if the object is on any of the burners of the stove
+        Returns the location of the burner if the object is on it. Otherwise, returns None
+        """
 
         obj = self.objects[obj_name]
         obj_pos = np.array(self.sim.data.body_xpos[self.obj_body_id[obj.name]])[0:2]
@@ -121,7 +142,9 @@ class MultistepSteaming(Kitchen):
         pot_on_burner = pot_loc == self.knob
 
         vegetable_in_sink = OU.obj_inside_of(self, "vegetable1", self.sink)
-        if vegetable_in_sink:
+
+        # make sure the vegetable was in the sink when the water was turned
+        if vegetable_in_sink and water_on:
             self.vegetable_was_in_sink = True
 
         vegetable_in_pot = OU.check_obj_in_receptacle(self, "vegetable1", "pot")

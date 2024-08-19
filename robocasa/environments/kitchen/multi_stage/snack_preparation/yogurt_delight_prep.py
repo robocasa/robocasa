@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class YogurtDelightPrep(Kitchen):
+    """
+    Yogurt Delight Prep: composite task for Snack Preparation activity.
+
+    Simulates the preparation of a yogurt delight snack.
+
+    Steps:
+        Place the yogurt and fruit onto the counter.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

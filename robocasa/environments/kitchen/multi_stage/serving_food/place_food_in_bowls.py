@@ -2,7 +2,23 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PlaceFoodInBowls(Kitchen):
+    """
+    Place Food In Bowls: composite task for Serving Food activity.
+
+    Simulates the task of placing food in bowls.
+
+    Steps:
+        Pick up two bowls and place them on the counter.
+        Then, pick up two food items and place them in the bowls.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the bowls are
+            picked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
+        # use double door cabinet as default to have space for two bowls
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
 
@@ -122,6 +138,7 @@ class PlaceFoodInBowls(Kitchen):
             self, "receptacle1", self.counter
         ) and OU.check_obj_fixture_contact(self, "receptacle2", self.counter)
 
+        # make sure food are in different bowls
         food_in_bowls = (food1_in_receptacle1 and food2_in_receptacle2) or (
             food1_in_receptacle2 and food2_in_receptacle1
         )

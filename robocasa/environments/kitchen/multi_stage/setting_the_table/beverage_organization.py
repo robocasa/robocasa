@@ -2,9 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class BeverageOrganization(Kitchen):
-    def __init__(self, layout_ids=-4, *args, **kwargs):
+    """
+    Beverage Organization: composite task for Setting The Table activity.
 
-        super().__init__(layout_ids=layout_ids, *args, **kwargs)
+    Simulates the task of organizing beverages.
+
+    Steps:
+        Move the drinks to the dining counter.
+
+    Restricted to layouts which have a dining table (long counter area with
+    stools).
+    """
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()

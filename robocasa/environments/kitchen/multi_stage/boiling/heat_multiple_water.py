@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class HeatMultipleWater(Kitchen):
+    """
+    Heat Multiple Water: composite task for Boiling activity.
+
+    Simulates the process of heating water in a pot and a kettle.
+
+    Steps:
+        Take the kettle from the cabinet and place it on a stove burner.
+        Take the pot from the counter and place it on another stove burner.
+        Turn both burners on.
+
+    Args:
+        init_robot_base_pos (str): Specifies a fixture to initialize the robot
+            in front of. Default is "stove".
+    """
+
     def __init__(self, init_robot_base_pos="stove", *args, **kwargs):
         super().__init__(init_robot_base_pos=init_robot_base_pos, *args, **kwargs)
 
@@ -33,6 +48,8 @@ class HeatMultipleWater(Kitchen):
                     ),
                     size=(0.35, 0.35),
                     pos=("ref", 0),
+                    # ensure_object_boundary_in_range=False because the pots handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                 ),
             )
@@ -71,6 +88,17 @@ class HeatMultipleWater(Kitchen):
             self.stove.set_knob_state(mode="off", knob=knob, env=self, rng=self.rng)
 
     def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if the object is placed on any of the stove burners
+
+        Args:
+            obj_name (str): object name
+
+            threshold (float): distance threshold from object center to stove burner site center
+
+        Returns:
+            str: location of the stove burner site if the object is placed on it, None otherwise.
+        """
 
         knobs_state = self.stove.get_knobs_state(env=self)
         obj = self.objects[obj_name]

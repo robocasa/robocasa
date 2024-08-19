@@ -118,6 +118,7 @@ class MJCFObject(MujocoXMLObject):
 
         Args:
             root (ET.Element): Root of xml element tree to start recursively searching through
+
             _parent (ET.Element): Parent of the root element tree. Should not be used externally; only set
                 during the recursive call
 

@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SetupJuicing(Kitchen):
+    """
+    Setup Juicing: composite task for Mixing And Blending activity.
+
+    Simulates the task of setting up juicing.
+
+    Steps:
+        Open the cabinet, pick all fruits from the cabinet and place them on the
+        counter.
+
+    Args:
+        cab_id (str): Enum which serves as a unique identifier for different
+            cabinet types. Used to specify the cabinet to pick the fruits from.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

@@ -4,6 +4,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CupcakeCleanup(Kitchen):
+    """
+    Cupcake Cleanup: composite task for Baking activity.
+
+    Simulates the task of cleaning up after baking cupcakes.
+
+    Steps:
+        Move the cupcake off the tray onto the counter, and place the bowl used for
+        mixing into the sink.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -2,6 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MicrowaveThawing(Kitchen):
+    """
+    Microwave Thawing: composite task for Defrosting Food activity.
+
+    Simulates the task of defrosting food in a microwave.
+
+    Steps:
+        Pick the food from the counter and place it in the microwave.
+        Then turn on the microwave.
+    """
+
+    # exclude layout 8 because the microwave is far from counters
     EXCLUDE_LAYOUTS = [8]
 
     def __init__(self, *args, **kwargs):

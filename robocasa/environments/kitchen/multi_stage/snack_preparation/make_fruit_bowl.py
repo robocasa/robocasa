@@ -2,6 +2,20 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class MakeFruitBowl(Kitchen):
+    """
+    Make Fruit Bowl: composite task for Snack Preparation activity.
+
+    Simulates the preparation of a fruit bowl snack.
+
+    Steps:
+        Pick the fruit from the cabinet and place them in the bowl.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the fruit are
+            picked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

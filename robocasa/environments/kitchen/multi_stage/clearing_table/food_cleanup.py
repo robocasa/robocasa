@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class FoodCleanup(Kitchen):
+    """
+    Food Cleanup: composite task for Clearing Table activity.
+
+    Simulates the task of cleaning up various food items left on the counter.
+
+    Steps:
+        Pick the food items from the counter and place them in the cabinet.
+        Then close the cabinet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the
+            food items are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

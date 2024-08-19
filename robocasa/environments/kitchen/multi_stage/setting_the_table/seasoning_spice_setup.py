@@ -2,6 +2,24 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class SeasoningSpiceSetup(Kitchen):
+    """
+    Seasoning Spice Setup: composite task for Setting The Table activity.
+
+    Simulates the task of setting the table with seasoning and spices.
+
+    Steps:
+        Move the seasoning and spices from the cabinet directly in front to the
+        dining counter.
+
+    Restricted to layouts which have a dining table (long counter area with
+    stools).
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the seasoning
+            and spices are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
 
         self.cab_id = cab_id

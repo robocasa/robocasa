@@ -2,6 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class BowlAndCup(Kitchen):
+    """
+    Bowl And Cup: composite task for Clearing Table activity.
+
+    Simulates the process of efficiently clearing the table.
+
+    Steps:
+        Place the cup inside the bowl on the island and move it to any counter.
+
+    Restricted to layouts with an island.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -2,7 +2,19 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DrainVeggies(Kitchen):
+    """
+    Drain Veggies: composite task for Washing Fruits And Vegetables activity.
+
+    Simulates the task of draining washed vegetables.
+
+    Steps:
+        Dump the vegetables from the pot into the sink. Then turn on the sink and
+        wash the vegetables. Then turn off the sink and put the vegetables back in
+        the pot.
+    """
+
     def __init__(self, *args, **kwargs):
+        # internal state variables for the task
         self.vegetables_washed = False
         self.washed_time = 0
         super().__init__(*args, **kwargs)
@@ -26,6 +38,7 @@ class DrainVeggies(Kitchen):
         return ep_meta
 
     def _reset_internal(self):
+        # reset task progress variables
         self.vegetables_washed = False
         self.washed_time = 0
         super()._reset_internal()
@@ -54,6 +67,7 @@ class DrainVeggies(Kitchen):
     def _check_success(self):
         vegetables_in_sink = OU.obj_inside_of(self, f"obj", self.sink)
         water_on = self.sink.get_handle_state(env=self)["water_on"]
+        # make sure the vegetables are washed for at least 10 steps
         if vegetables_in_sink and water_on:
             self.washed_time += 1
             self.vegetables_washed = self.washed_time > 10

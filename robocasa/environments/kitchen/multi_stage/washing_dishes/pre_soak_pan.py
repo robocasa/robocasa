@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PreSoakPan(Kitchen):
+    """
+    Pre Soak Pan: composite task for Washing Dishes activity.
+
+    Simulates the task of pre-soaking a pan.
+
+    Steps:
+        Pick the pan and sponge and place them into the sink. Then turn on the sink.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -35,11 +44,15 @@ class PreSoakPan(Kitchen):
                 placement=dict(
                     fixture=self.counter,
                     sample_region_kwargs=dict(
-                        ref=self.sink, loc="left_right", top_size=(0.6, 0.4)
+                        ref=self.sink,
+                        loc="left_right",
+                        # make sure sampled counter region is large enough to place the pan
+                        top_size=(0.6, 0.4),
                     ),
                     size=(0.35, 0.55),
                     pos=("ref", -1.0),
                 ),
+                # make sure the sampled pan would fit in the sink basin
                 max_size=(0.35, 0.45, None),
             )
         )

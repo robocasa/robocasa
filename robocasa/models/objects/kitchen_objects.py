@@ -12,7 +12,7 @@ import robocasa
 
 BASE_ASSET_ZOO_PATH = os.path.join(robocasa.models.assets_root, "objects")
 
-
+# Constant that contains information about each object category. These will be used to generate the ObjCat classes for each category
 OBJ_CATEGORIES = dict(
     liquor=dict(
         types=("drink", "alcohol"),
@@ -2021,6 +2021,43 @@ OBJ_CATEGORIES = dict(
 
 
 class ObjCat:
+    """
+    Class that encapsulates data for an object category.
+
+    Args:
+        name (str): name of the object category
+
+        types (tuple) or (str): type(s)/categories the object belongs to. Examples include meat, sweets, fruit, etc.
+
+        model_folders (list): list of folders containing the MJCF models for the object category
+
+        exclude (list): list of model names to exclude
+
+        graspable (bool): whether the object is graspable
+
+        washable (bool): whether the object is washable
+
+        microwavable (bool): whether the object is microwavable
+
+        cookable (bool): whether the object is cookable
+
+        freezable (bool): whether the object is freezable
+
+        scale (float): scale of the object meshes/geoms
+
+        solimp (tuple): solimp values for the object meshes/geoms
+
+        solref (tuple): solref values for the object meshes/geoms
+
+        density (float): density of the object meshes/geoms
+
+        friction (tuple): friction values for the object meshes/geoms
+
+        priority: priority of the object
+
+        aigen_cat (bool): True if the object is an AI-generated object otherwise its an objaverse object
+    """
+
     def __init__(
         self,
         name,
@@ -2076,6 +2113,9 @@ class ObjCat:
         self.mjcf_paths = sorted(cat_mjcf_paths)
 
     def get_mjcf_kwargs(self):
+        """
+        returns relevant data to apply to the MJCF model for the object category
+        """
         return deepcopy(
             dict(
                 scale=self.scale,
@@ -2088,7 +2128,11 @@ class ObjCat:
         )
 
 
+# update OBJ_CATEGORIES with ObjCat instances. Maps name to the different registries it can belong to
+# and then maps the registry to the ObjCat instance
 for (name, kwargs) in OBJ_CATEGORIES.items():
+
+    # get the properties that are common to both registries
     common_properties = deepcopy(kwargs)
     for k in common_properties.keys():
         assert k in [
@@ -2106,6 +2150,7 @@ for (name, kwargs) in OBJ_CATEGORIES.items():
     assert "scale" not in kwargs
     OBJ_CATEGORIES[name] = {}
 
+    # create instances
     if objaverse_kwargs is not None:
         objaverse_kwargs.update(common_properties)
         OBJ_CATEGORIES[name]["objaverse"] = ObjCat(name=name, **objaverse_kwargs)
@@ -2128,11 +2173,13 @@ for k in OBJ_CATEGORIES:
 # OBJ_GROUPS["heatable"] = [cat for (cat, cat_meta) in OBJ_CATEGORIES.items() if cat_meta.heatable is True]
 
 all_types = set()
+# populate all_types
 for (cat, cat_meta_dict) in OBJ_CATEGORIES.items():
     # types are common to both so we only need to examine one
     k = "objaverse" if "objaverse" in cat_meta_dict else "aigen"
     all_types = all_types.union(cat_meta_dict[k].types)
 
+# populate OBJ_GROUPS which maps types to categories associated with the type
 for t in all_types:
     cats = []
     for (cat, cat_meta_dict) in OBJ_CATEGORIES.items():
@@ -2143,6 +2190,8 @@ for t in all_types:
 
 food_groups = []
 container_groups = []
+
+# populate food and container groups
 for (cat, cat_meta_dict) in OBJ_CATEGORIES.items():
     k = "objaverse" if "objaverse" in cat_meta_dict else "aigen"
     cat_meta = cat_meta_dict[k]
@@ -2219,6 +2268,42 @@ def sample_kitchen_object(
     max_size=(None, None, None),
     object_scale=None,
 ):
+    """
+    Sample a kitchen object from the specified groups and within max_size bounds.
+
+    Args:
+        groups (list or str): groups to sample from or the exact xml path of the object to spawn
+
+        exclude_groups (str or list): groups to exclude
+
+        graspable (bool): whether the sampled object must be graspable
+
+        washable (bool): whether the sampled object must be washable
+
+        microwavable (bool): whether the sampled object must be microwavable
+
+        cookable (bool): whether whether the sampled object must be cookable
+
+        freezable (bool): whether whether the sampled object must be freezable
+
+        rng (np.random.Generator): random number object
+
+        obj_registries (tuple): registries to sample from
+
+        split (str): split to sample from. Split "A" specifies all but the last 3 object instances
+                    (or the first half - whichever is larger), "B" specifies the  rest, and None specifies all.
+
+        max_size (tuple): max size of the object. If the sampled object is not within bounds of max size, function will resample
+
+        object_scale (float): scale of the object. If set will multiply the scale of the sampled object by this value
+
+
+    Returns:
+        dict: kwargs to apply to the MJCF model for the sampled object
+
+        dict: info about the sampled object - the path of the mjcf, groups which the object's category belongs to, the category of the object
+              the sampling split the object came from, and the groups the object was sampled from
+    """
     valid_object_sampled = False
     while valid_object_sampled is False:
         mjcf_kwargs, info = sample_kitchen_object_helper(
@@ -2282,6 +2367,40 @@ def sample_kitchen_object_helper(
     split=None,
     object_scale=None,
 ):
+    """
+    Helper function to sample a kitchen object.
+
+    Args:
+        groups (list or str): groups to sample from or the exact xml path of the object to spawn
+
+        exclude_groups (str or list): groups to exclude
+
+        graspable (bool): whether the sampled object must be graspable
+
+        washable (bool): whether the sampled object must be washable
+
+        microwavable (bool): whether the sampled object must be microwavable
+
+        cookable (bool): whether whether the sampled object must be cookable
+
+        freezable (bool): whether whether the sampled object must be freezable
+
+        rng (np.random.Generator): random number object
+
+        obj_registries (tuple): registries to sample from
+
+        split (str): split to sample from. Split "A" specifies all but the last 3 object instances
+                    (or the first half - whichever is larger), "B" specifies the  rest, and None specifies all.
+
+        object_scale (float): scale of the object. If set will multiply the scale of the sampled object by this value
+
+
+    Returns:
+        dict: kwargs to apply to the MJCF model for the sampled object
+
+        dict: info about the sampled object - the path of the mjcf, groups which the object's category belongs to, the category of the object
+              the sampling split the object came from, and the groups the object was sampled from
+    """
     if rng is None:
         rng = np.random.default_rng()
 
@@ -2369,6 +2488,8 @@ def sample_kitchen_object_helper(
                 choices[reg] = []
                 continue
             reg_choices = deepcopy(OBJ_CATEGORIES[cat][reg].mjcf_paths)
+
+            # exclude out objects based on split
             if split is not None:
                 split_th = max(len(choices) - 3, int(math.ceil(len(reg_choices) / 2)))
                 if split == "A":

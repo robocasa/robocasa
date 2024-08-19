@@ -2,6 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CleanMicrowave(Kitchen):
+    """
+    Clean Microwave: composite task for Sanitize Surface activity.
+
+    Simulates the preparation for cleaning the microwave.
+
+    Steps:
+        Open the microwave, pick the sponge from the counter and place it in the
+        microwave.
+    """
+
+    # Exclude layout 8 because the microwave is far from counters
     EXCLUDE_LAYOUTS = [8]
 
     def __init__(self, *args, **kwargs):

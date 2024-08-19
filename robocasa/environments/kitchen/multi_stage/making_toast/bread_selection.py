@@ -2,6 +2,19 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class BreadSelection(Kitchen):
+    """
+    Bread Selection: composite task for Making Toast activity.
+
+    Simulates the task of setting up ingredients for making a bread snack.
+
+    Steps:
+        Place a croissant and a jar of jam on the cutting board.
+
+    Args:
+        cab_id (str): Enum which serves as a unique identifier for different
+            cabinet types. Used to specify the cabinet where the jam is placed.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

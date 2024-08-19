@@ -2,8 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class AssembleCookingArray(Kitchen):
-    def __init__(self, knob_id="random", *args, **kwargs):
-        self.knob_id = knob_id
+    """
+    Assemble Cooking Array: composite task for Frying activity.
+
+    Simulates the task of assembling ingredients for cooking.
+
+    Steps:
+        Move the meat onto the pan on the stove. Then, move the condiment and
+        vegetable from the cabinet to the counter where the plate is.
+    """
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
@@ -29,15 +38,6 @@ class AssembleCookingArray(Kitchen):
 
     def _reset_internal(self):
         super()._reset_internal()
-
-        valid_knobs = self.stove.get_knobs_state(env=self).keys()
-        if self.knob_id == "random":
-            self.knob = self.rng.choice(list(valid_knobs))
-        else:
-            assert self.knob_id in valid_knobs
-            self.knob = self.knob
-
-        self.stove.set_knob_state(mode="off", knob=self.knob, env=self, rng=self.rng)
         self.cab.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):
@@ -49,6 +49,8 @@ class AssembleCookingArray(Kitchen):
                 obj_groups=("pan"),
                 placement=dict(
                     fixture=self.stove,
+                    # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                     size=(0.05, 0.05),
                 ),

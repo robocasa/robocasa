@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class BreadAndCheese(Kitchen):
+    """
+    Bread And Cheese: composite task for Snack Preparation activity.
+
+    Simulates the preparation of a bread and cheese snack.
+
+    Steps:
+        Pick the bread and cheese, place them on the cutting board.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

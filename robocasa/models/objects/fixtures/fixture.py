@@ -65,6 +65,23 @@ class FixtureType(IntEnum):
 
 
 class Fixture(MujocoXMLObject):
+    """
+    Base class for fixtures in robosuite kitchen environments.
+
+    Args:
+        xml (str): Path to the MJCF xml file to load the fixture from
+
+        name (str): Name of the fixture
+
+        duplicate_collision_geoms (bool): If set, will guarantee that each collision geom has a visual geom copy
+
+        pos (3-tuple): (x, y, z) position of the fixture
+
+        scale (float): 3D Scaling factor for the fixture
+
+        size (3-tuple): desired (width, depth, height) of the fixture
+    """
+
     def __init__(
         self,
         xml,
@@ -154,6 +171,12 @@ class Fixture(MujocoXMLObject):
             self.rng = np.random.default_rng()
 
     def set_origin(self, origin):
+        """
+        Set the origin of the fixture to a specified position
+
+        Args:
+            origin (3-tuple): new (x, y, z) position of the fixture
+        """
         # compute new position
         fixture_rot = np.array([0, 0, self.rot])
         fixture_mat = T.euler2mat(fixture_rot)
@@ -162,6 +185,13 @@ class Fixture(MujocoXMLObject):
         self.set_pos(pos)
 
     def set_scale_from_size(self, size):
+        """
+        Set the scale of the fixture based on the desired size. If any of the dimensions are None,
+        the scaling factor will be the same as one of the other two dimensions
+
+        Args:
+            size (3-tuple): (width, depth, height) of the fixture
+        """
         # check that the argument is valid
         assert len(size) == 3
 
@@ -296,10 +326,27 @@ class Fixture(MujocoXMLObject):
             return None
 
     def set_bounds_sites(self, pos_dict):
+        """
+        Set the positions of the exterior and interior bounding box sites of the object
+
+        Args:
+            pos_dict (dict): Dictionary of sites and their new positions
+        """
         for (name, pos) in pos_dict.items():
             self._bounds_sites[name].set("pos", array_to_string(pos))
 
     def get_ext_sites(self, all_points=False, relative=True):
+        """
+        Get the exterior bounding box points of the object
+
+        Args:
+            all_points (bool): If True, will return all 8 points of the bounding box
+
+            relative (bool): If True, will return the points relative to the object's position
+
+        Returns:
+            list: 4 or 8 points
+        """
         sites = [
             site_pos(self._bounds_sites["ext_p0"]),
             site_pos(self._bounds_sites["ext_px"]),
@@ -322,6 +369,17 @@ class Fixture(MujocoXMLObject):
         return sites
 
     def get_int_sites(self, all_points=False, relative=True):
+        """
+        Get the interior bounding box points of the object
+
+        Args:
+            all_points (bool): If True, will return all 8 points of the bounding box
+
+            relative (bool): If True, will return the points relative to the object's position
+
+        Returns:
+            list: 4 or 8 points
+        """
         sites = [
             site_pos(self._bounds_sites["int_p0"]),
             site_pos(self._bounds_sites["int_px"]),

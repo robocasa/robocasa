@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ManipulateDoor(Kitchen):
+    """
+    Class encapsulating the atomic manipulate door tasks.
+
+    Args:
+        behavior (str): "open" or "close". Used to define the desired
+            door manipulation behavior for the task.
+
+        door_id (str): The door fixture id to manipulate.
+    """
+
     def __init__(
         self, behavior="open", door_id=FixtureType.DOOR_TOP_HINGE, *args, **kwargs
     ):
@@ -11,11 +21,21 @@ class ManipulateDoor(Kitchen):
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
+        """
+        Setup the kitchen references for the door tasks.
+        """
         super()._setup_kitchen_references()
         self.door_fxtr = self.register_fixture_ref("door_fxtr", dict(id=self.door_id))
         self.init_robot_base_pos = self.door_fxtr
 
     def get_ep_meta(self):
+        """
+        Get the episode metadata for the door tasks.
+        This includes the language description of the task.
+
+        Returns:
+            dict: Episode metadata.
+        """
         ep_meta = super().get_ep_meta()
         if isinstance(self.door_fxtr, Microwave):
             door_fxtr_name = "microwave"
@@ -33,7 +53,10 @@ class ManipulateDoor(Kitchen):
         return ep_meta
 
     def _reset_internal(self):
-
+        """
+        Reset the environment internal state for the door tasks.
+        This includes setting the door state based on the behavior.
+        """
         if self.behavior == "open":
             self.door_fxtr.set_door_state(min=0.0, max=0.0, env=self, rng=self.rng)
         elif self.behavior == "close":
@@ -42,6 +65,12 @@ class ManipulateDoor(Kitchen):
         super()._reset_internal()
 
     def _check_success(self):
+        """
+        Check if the door manipulation task is successful.
+
+        Returns:
+            bool: True if the task is successful, False otherwise.
+        """
         door_state = self.door_fxtr.get_door_state(env=self)
 
         success = True
@@ -58,6 +87,10 @@ class ManipulateDoor(Kitchen):
         return success
 
     def _get_obj_cfgs(self):
+        """
+        Get the object configurations for the door tasks. This includes the object placement configurations.
+        Place one object inside the door fixture and 1-4 distractors on the counter.
+        """
         cfgs = []
 
         cfgs.append(

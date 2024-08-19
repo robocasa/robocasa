@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PrewashFoodAssembly(Kitchen):
+    """
+    Prewash Food Assembly: composite task for Washing Fruits And Vegetables activity.
+
+    Simulates the process of assembling fruits and vegetables in a bowl and
+    prewashing them.
+
+    Steps:
+        Pick the fruit/vegetable from the cabinet and place it in the bowl. Then
+        pick the bowl and place it in the sink. Then turn on the sink facuet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which food is picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

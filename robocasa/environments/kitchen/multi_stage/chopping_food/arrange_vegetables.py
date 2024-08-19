@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ArrangeVegetables(Kitchen):
+    """
+    Arrange Vegetables: composite task for Chopping Food activity.
+
+    Simulates the task of arranging vegetables on the cutting board.
+
+    Steps:
+        Take the vegetables from the sink and place them on the cutting board.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

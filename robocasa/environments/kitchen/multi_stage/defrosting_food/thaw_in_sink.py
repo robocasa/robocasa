@@ -2,6 +2,19 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ThawInSink(Kitchen):
+    """
+    Thaw In Sink: composite task for Defrosting Food activity.
+
+    Simulates the task of defrosting food in a sink.
+
+    Steps:
+        Pick the food from the counter and place it in the sink.
+        Then turn on the sink faucet.
+
+    Args:
+        obj_groups (str): The object groups to sample from for the task
+    """
+
     def __init__(self, obj_groups="all", *args, **kwargs):
         self.obj_groups = obj_groups
         super().__init__(*args, **kwargs)

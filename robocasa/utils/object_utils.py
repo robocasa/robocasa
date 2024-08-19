@@ -62,6 +62,19 @@ def obj_inside_of(env, obj_name, fixture_id, partial_check=False):
 
 # used for cabinets, cabinet panels, counters, etc.
 def set_geom_dimensions(sizes, positions, geoms, rotated=False):
+    """
+    set the dimensions of geoms in a fixture
+
+    Args:
+        sizes (dict): dictionary of sizes for each side
+
+        positions (dict): dictionary of positions for each side
+
+        geoms (dict): dictionary of geoms for each side
+
+        rotated (bool): whether the fixture is rotated. Fixture may be rotated to make texture appear uniform
+                        due to mujoco texture conventions
+    """
     if rotated:
         # rotation trick to make texture appear uniform
         # see .xml file
@@ -80,6 +93,9 @@ def set_geom_dimensions(sizes, positions, geoms, rotated=False):
 
 
 def get_rel_transform(fixture_A, fixture_B):
+    """
+    Gets fixture_B's position and rotation relative to fixture_A's frame
+    """
     A_trans = np.array(fixture_A.pos)
     B_trans = np.array(fixture_B.pos)
 
@@ -98,6 +114,9 @@ def get_rel_transform(fixture_A, fixture_B):
 
 
 def compute_rel_transform(A_pos, A_mat, B_pos, B_mat):
+    """
+    Gets B's position and rotation relative to A's frame
+    """
     T_WA = np.vstack((np.hstack((A_mat, A_pos[:, None])), [0, 0, 0, 1]))
     T_WB = np.vstack((np.hstack((B_mat, B_pos[:, None])), [0, 0, 0, 1]))
 
@@ -107,6 +126,9 @@ def compute_rel_transform(A_pos, A_mat, B_pos, B_mat):
 
 
 def get_fixture_to_point_rel_offset(fixture, point):
+    """
+    get offset relative to fixture's frame, given a global point
+    """
     global_offset = point - fixture.pos
     T_WF = T.euler2mat([0, 0, fixture.rot])
     rel_offset = np.matmul(np.linalg.inv(T_WF), global_offset)
@@ -135,6 +157,16 @@ def project_point_to_line(P, A, B):
 
 
 def point_in_fixture(point, fixture, only_2d=False):
+    """
+    check if point is inside of the exterior bounding boxes of the fixture
+
+    Args:
+        point (np.array): point to check
+
+        fixture (Fixture): fixture object
+
+        only_2d (bool): whether to check only in 2D
+    """
     p0, px, py, pz = fixture.get_ext_sites(relative=False)
     th = 0.00
     u = px - p0
@@ -159,6 +191,10 @@ def obj_in_region(
     py,
     pz=None,
 ):
+    """
+    check if object is in the region defined by the points.
+    Uses either the objects bounding box or the object's horizontal radius
+    """
     from robocasa.models.objects.fixtures import Fixture
 
     if isinstance(obj, MJCFObject) or isinstance(obj, Fixture):
@@ -194,6 +230,9 @@ def obj_in_region(
 
 
 def fixture_pairwise_dist(f1, f2):
+    """
+    Gets the distance between two fixtures by finding the minimum distance between their exterior bounding box points
+    """
     f1_points = f1.get_ext_sites(all_points=True, relative=False)
     f2_points = f2.get_ext_sites(all_points=True, relative=False)
 
@@ -201,7 +240,6 @@ def fixture_pairwise_dist(f1, f2):
     return np.min(all_dists)
 
 
-# check if two objects intersect
 def objs_intersect(
     obj,
     obj_pos,
@@ -210,6 +248,9 @@ def objs_intersect(
     other_obj_pos,
     other_obj_quat,
 ):
+    """
+    check if two objects intersect
+    """
     from robocasa.models.objects.fixtures import Fixture
 
     bbox_check = (isinstance(obj, MJCFObject) or isinstance(obj, Fixture)) and (
@@ -273,10 +314,16 @@ def objs_intersect(
 
 
 def normalize_joint_value(raw, joint_min, joint_max):
+    """
+    normalize raw value to be between 0 and 1
+    """
     return (raw - joint_min) / (joint_max - joint_min)
 
 
 def check_obj_in_receptacle(env, obj_name, receptacle_name, th=None):
+    """
+    check if object is in receptacle object based on threshold
+    """
     obj = env.objects[obj_name]
     recep = env.objects[receptacle_name]
     obj_pos = np.array(env.sim.data.body_xpos[env.obj_body_id[obj_name]])
@@ -291,12 +338,18 @@ def check_obj_in_receptacle(env, obj_name, receptacle_name, th=None):
 
 
 def check_obj_fixture_contact(env, obj_name, fixture_name):
+    """
+    check if object is in contact with fixture
+    """
     obj = env.objects[obj_name]
     fixture = env.get_fixture(fixture_name)
     return env.check_contact(obj, fixture)
 
 
 def gripper_obj_far(env, obj_name="obj", th=0.25):
+    """
+    check if gripper is far from object based on distance defined by threshold
+    """
     obj_pos = env.sim.data.body_xpos[env.obj_body_id[obj_name]]
     gripper_site_pos = env.sim.data.site_xpos[env.robots[0].eef_site_id["right"]]
     gripper_obj_far = np.linalg.norm(gripper_site_pos - obj_pos) > th

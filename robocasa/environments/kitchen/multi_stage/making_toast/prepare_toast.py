@@ -2,6 +2,16 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PrepareToast(Kitchen):
+    """
+    Prepare Toast: composite task for Making Toast activity.
+
+    Simulates the task of preparing toast.
+
+    Steps:
+        Open the cabinet, pick the bread, place it on the cutting board, pick the jam,
+        place it on the counter, and close the cabinet
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -2,13 +2,24 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class ClearingCleaningReceptacles(Kitchen):
-    def __init__(self, knob_id="random", *args, **kwargs):
-        self.knob_id = knob_id
+    """
+    Clearing Cleaning Receptacles: composite task for Clearing Table activity.
+
+    Simulates the process of clearing receptacles from the dining table and
+    cleaning them in the sink.
+
+    Steps:
+        Pick the receptacles from the dining table and place them in the sink.
+        Then, turn on the water.
+    """
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
+        # dining_table is a sufficiently large counter closest to the stools
         self.dining_table = self.register_fixture_ref(
             "dining_table",
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),

@@ -2,6 +2,17 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CheesyBread(Kitchen):
+    """
+    Cheesy Bread: composite task for Making Toast activity.
+
+    Simulates the task of making cheesy bread.
+
+    Steps:
+        Start with a slice of bread already on a plate and a wedge of cheese on the
+        counter. Pick up the wedge of cheese and place it on the slice of bread to
+        prepare a simple cheese on bread dish.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

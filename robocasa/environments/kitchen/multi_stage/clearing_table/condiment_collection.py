@@ -2,6 +2,21 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CondimentCollection(Kitchen):
+    """
+    Condiment Collection: composite task for Clearing Table activity.
+
+    Simulates the task of collecting condiments from the counter and placing
+    them in the cabinet.
+
+    Steps:
+        Pick the condiments from the counter and place them in the cabinet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet from which the
+            condiments are picked.
+    """
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

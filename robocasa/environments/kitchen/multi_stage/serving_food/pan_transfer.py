@@ -2,8 +2,18 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class PanTransfer(Kitchen):
-    def __init__(self, layout_ids=-4, *args, **kwargs):
-        super().__init__(layout_ids=layout_ids, *args, **kwargs)
+    """
+    Pan Transfer: composite task for Serving Food activity.
+
+    Simulates the task of transferring vegetables from a pan to a plate.
+
+    Steps:
+        Pick up the pan and dump the vegetables in it onto the plate.
+        Then, return the pan to the stove.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()

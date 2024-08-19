@@ -4,6 +4,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class OrganizeBakingIngredients(Kitchen):
+    """
+    Organize Baking Ingredients: composite task for Baking activity.
+
+    Simulates the task of organizing baking ingredients.
+
+    Steps:
+        Place the eggs and milk near the bowl on the counter.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -109,6 +118,7 @@ class OrganizeBakingIngredients(Kitchen):
         egg2_pos = self.sim.data.body_xpos[self.obj_body_id["egg2"]]
         milk_pos = self.sim.data.body_xpos[self.obj_body_id["milk"]]
 
+        # check if the objects are near the bowl
         bowl_egg1_close = np.linalg.norm(bowl_pos - egg1_pos) < th
         bowl_egg2_close = np.linalg.norm(bowl_pos - egg2_pos) < th
         bowl_milk_close = np.linalg.norm(bowl_pos - milk_pos) < th

@@ -1,8 +1,18 @@
 from robocasa.environments.kitchen.kitchen import *
 from robocasa.environments.kitchen.single_stage.kitchen_drawer import *
 
-
+# Inherit from ManipulateDrawer class since the class starts off with the drawer open
 class ShakerShuffle(ManipulateDrawer):
+    """
+    Shaker Shuffle: composite task for Tidying Cabinets And Drawers activity.
+
+    Simulates the task of reorganizing the pantry by only placing the shakers in
+    the drawer.
+
+    Steps:
+        Open the cabinet. Place the shakers in the drawer. Close the cabinet.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(behavior="close", *args, **kwargs)
 
@@ -66,6 +76,7 @@ class ShakerShuffle(ManipulateDrawer):
         return cfgs
 
     def _check_success(self):
+        # make sure only the shakers were placed in the drawer!
         shaker_in_drawer = (
             OU.obj_inside_of(self, "shaker1", self.drawer)
             and OU.obj_inside_of(self, "shaker2", self.drawer)

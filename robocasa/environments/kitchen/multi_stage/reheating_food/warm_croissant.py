@@ -2,6 +2,19 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class WarmCroissant(Kitchen):
+    """
+    Warm Croissant: composite task for Reheating Food activity.
+
+    Simulates the task of warming a croissant.
+
+    Steps:
+        Place the croissant on the pan and turn on the stove to warm the croissant.
+
+    Args:
+        knob_id (str): The id of the knob who's burner the pan will be placed on.
+            If "random", a random knob is chosen.
+    """
+
     def __init__(self, knob_id="random", *args, **kwargs):
         self.knob_id = knob_id
         super().__init__(*args, **kwargs)
@@ -24,10 +37,9 @@ class WarmCroissant(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = (
-            "Frozen meat rests on a plate on the counter. Retrieve "
-            "the meat and place it in a pot on a burner. Then, turn the burner on."
-        )
+        ep_meta[
+            "lang"
+        ] = "Pick the croissant and place it on the pan. Then turn on the stove to warm the croissant."
         ep_meta["knob"] = self.knob
         return ep_meta
 
@@ -59,6 +71,8 @@ class WarmCroissant(Kitchen):
                 obj_groups="pan",
                 placement=dict(
                     fixture=self.stove,
+                    # ensure_object_boundary_in_range=False because the pans handle is a part of the
+                    # bounding box making it hard to place it if set to True
                     ensure_object_boundary_in_range=False,
                     sample_region_kwargs=dict(
                         locs=[self.knob],

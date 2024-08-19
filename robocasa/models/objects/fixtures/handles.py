@@ -12,6 +12,25 @@ from robocasa.models.objects.fixtures.fixture import get_texture_name_from_file
 
 
 class Handle(MujocoXMLObject):
+    """
+    Base class for all handles attached to cabinet/drawer panels
+
+    Args:
+        name (str): Name of the handle
+
+        xml (str): Path to the xml file of the handle
+
+        panel_w (float): Width of the panel to attach the handle to
+
+        panel_h (float): Height of the panel to attach the handle to
+
+        texture (str): Path to the texture file of the handle
+
+        orientation (str): Orientation of the handle. Can be either "horizontal" (for drawers) or "vertical"
+
+        length (float): Length of the handle
+    """
+
     def __init__(
         self,
         name,
@@ -68,6 +87,9 @@ class Handle(MujocoXMLObject):
         return False
 
     def _set_texture(self):
+        """
+        Set the texture of the handle
+        """
         # set texture
         texture = find_elements(
             self.root, tags="texture", attribs={"name": "tex"}, return_first=True
@@ -86,6 +108,15 @@ class Handle(MujocoXMLObject):
 
 
 class BarHandle(Handle):
+    """
+    Creates a bar handle
+
+    Args:
+        length (float): Length of the handle
+
+        handle_pad (float): A minimum difference between handle length and cabinet panel height
+    """
+
     def __init__(
         self,
         length=0.24,
@@ -105,6 +136,9 @@ class BarHandle(Handle):
         )
 
     def _get_components(self):
+        """
+        Get the geoms of the handle
+        """
         geom_names = ["handle", "handle_connector_top", "handle_connector_bottom"]
         body_names = []
         joint_names = []
@@ -124,6 +158,7 @@ class BarHandle(Handle):
             #                      "bar handles.".format(self.panel_h))
 
         offset = self.length / 2 * 0.60  # - self.connector_pad
+        # distance between main handle and door
         conn_len = 0.05
 
         # calculate positions for each component
@@ -161,6 +196,15 @@ class BarHandle(Handle):
 
 
 class BoxedHandle(Handle):
+    """
+    Creates a boxed handle
+
+    Args:
+        length (float): Length of the handle
+
+        handle_pad (float):  A minimum difference between handle length and cabinet panel height
+    """
+
     def __init__(self, length=0.24, handle_pad=0.04, *args, **kwargs):
         self.handle_pad = handle_pad
         super().__init__(
@@ -168,6 +212,9 @@ class BoxedHandle(Handle):
         )
 
     def _get_components(self):
+        """
+        Get the geoms of the handle
+        """
         geom_names = ["handle", "handle_connector_top", "handle_connector_bottom"]
         body_names = []
         joint_names = []
@@ -222,6 +269,10 @@ class BoxedHandle(Handle):
 
 
 class KnobHandle(Handle):
+    """
+    Creates a knob handle
+    """
+
     def __init__(self, handle_pad=0.07, *args, **kwargs):
         super().__init__(
             xml="fixtures/handles/knob_handle.xml",
@@ -234,19 +285,24 @@ class KnobHandle(Handle):
         self.handle_pad = handle_pad
 
     def _get_components(self):
+        """
+        Get the geoms of the handle
+        """
         geom_names = ["handle"]
         body_names = []
         joint_names = []
         return self._get_elements_by_name(geom_names, body_names, joint_names)
 
     def _create_handle(self):
-        # calculate the positions of the handles
-        # by default set handle to bottom of cabient
+        """
+        Calculates and sets and positions and sizes of each component of the handles
+        """
 
         # calculate positions for each component
         positions = {
             "handle": np.array([0, -0.017, 0]),
         }
+        # radius, depth
         sizes = {
             "handle": [0.015, 0.017],
         }

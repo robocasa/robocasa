@@ -2,6 +2,15 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class DrinkwareConsolidation(Kitchen):
+    """
+    Drinkware Consolidation: composite task for Clearing Table activity.
+
+    Simulates the task of clearing the island drinkware and placing them back in a cabinet.
+
+    Steps:
+        Pick the drinkware from the island and place them in the open cabinet.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

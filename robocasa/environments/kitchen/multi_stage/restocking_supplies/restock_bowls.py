@@ -2,7 +2,22 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class RestockBowls(Kitchen):
+    """
+    Restock Bowls: composite task for Restocking Supplies activity.
+
+    Simulates the task of restocking bowls.
+
+    Steps:
+        Restock two bowls from the counter to the cabinet.
+
+    Args:
+        cab_id (int): Enum which serves as a unique identifier for different
+            cabinet types. Used to choose the cabinet to which the bowls are
+            restocked.
+    """
+
     def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
+        # use double door cabinet as default to have space for two bowls
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
 

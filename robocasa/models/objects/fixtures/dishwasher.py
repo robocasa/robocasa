@@ -2,6 +2,10 @@ from robocasa.models.objects.fixtures.fixture import Fixture
 
 
 class Dishwasher(Fixture):
+    """
+    Dishwasher fixture class
+    """
+
     def __init__(
         self,
         xml="fixtures/appliances/dishwashers/pack_1/model.xml",

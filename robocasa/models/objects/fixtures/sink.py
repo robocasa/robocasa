@@ -6,6 +6,15 @@ from robocasa.models.objects.fixtures.fixture import Fixture
 
 
 class Sink(Fixture):
+    """
+    Sink fixture class. The sink has a handle_joint that can be turned on and off to simulate water flow
+
+    Args:
+        xml (str): path to mjcf xml file
+
+        name (str): name of the object
+    """
+
     def __init__(self, xml="fixtures/sink.xml", name="sink", *args, **kwargs):
         self._handle_joint = None
         self._water_site = None
@@ -15,6 +24,12 @@ class Sink(Fixture):
         )
 
     def update_state(self, env):
+        """
+        Updates the water flowing of the sink based on the handle_joint position
+
+        Args:
+            env (MujocoEnv): environment
+        """
         state = self.get_handle_state(env)
         water_on = state["water_on"]
 
@@ -26,6 +41,16 @@ class Sink(Fixture):
             env.sim.model.site_rgba[site_id][3] = 0.0
 
     def set_handle_state(self, env, rng, mode="on"):
+        """
+        Sets the state of the handle_joint based on the mode parameter
+
+        Args:
+            env (MujocoEnv): environment
+
+            rng (np.random.Generator): random number generator
+
+            mode (str): "on", "off", or "random"
+        """
         assert mode in ["on", "off", "random"]
         if mode == "random":
             mode = rng.choice(["on", "off"])
@@ -40,6 +65,16 @@ class Sink(Fixture):
         )
 
     def get_handle_state(self, env):
+        """
+        Gets the state of the handle_joint
+
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps handle_joint to the angle of the handle_joint, water_on to whether the water is flowing,
+            spout_joint to the angle of the spout_joint, and spout_ori to the orientation of the spout (left, right, center)
+        """
         handle_state = {}
         if self.handle_joint is None:
             return handle_state
@@ -74,6 +109,9 @@ class Sink(Fixture):
 
     @property
     def handle_joint(self):
+        """
+        Returns the joint element which represents the handle_joint of the sink
+        """
         if self._handle_joint is None:
             self._handle_joint = self.worldbody.find(
                 "./body/body/body/joint[@name='{}handle_joint']".format(
@@ -85,6 +123,9 @@ class Sink(Fixture):
 
     @property
     def water_site(self):
+        """
+        Returns the site element which represents the water flow of the sink
+        """
         if self._water_site is None:
             self._water_site = self.worldbody.find(
                 "./body/body/body/site[@name='{}water']".format(self.naming_prefix)
