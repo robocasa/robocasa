@@ -78,7 +78,14 @@ def playback_trajectory_with_env(
                 state_playback = np.array(env.sim.get_state().flatten())
                 if not np.all(np.equal(states[i + 1], state_playback)):
                     err = np.linalg.norm(states[i + 1] - state_playback)
-                    print("warning: playback diverged by {} at step {}".format(err, i))
+                    print(
+                        colored(
+                            "warning: playback diverged by {} at step {}".format(
+                                err, i
+                            ),
+                            "yellow",
+                        )
+                    )
         else:
             reset_to(env, {"states": states[i]})
 
@@ -270,7 +277,9 @@ def playback_dataset(args):
     if args.video_path is None:
         args.video_path = args.dataset.split(".hdf5")[0] + ".mp4"
         if args.use_actions:
-            args.video_path = args.dataset.split(".mp4")[0] + "_use_actions.mp4"
+            args.video_path = args.dataset.split(".hdf5")[0] + "_use_actions.mp4"
+        elif args.use_abs_actions:
+            args.video_path = args.dataset.split(".hdf5")[0] + "_use_abs_actions.mp4"
     assert not (args.render and write_video)  # either on-screen or video but not both
 
     # Auto-fill camera rendering info if not specified
@@ -286,7 +295,7 @@ def playback_dataset(args):
     if args.use_obs:
         assert write_video, "playback with observations can only write to video"
         assert (
-            not args.use_actions
+            not args.use_actions and not args.use_abs_actions
         ), "playback with observations is offline and does not support action playback"
 
     env = None
@@ -304,7 +313,10 @@ def playback_dataset(args):
         # initialize_obs_utils_with_obs_specs(obs_modality_specs=dummy_spec)
 
         env_meta = get_env_metadata_from_dataset(dataset_path=args.dataset)
-        # env_meta["env_kwargs"]["controller_configs"]["control_delta"] = False # absolute action space
+        if args.use_abs_actions:
+            env_meta["env_kwargs"]["controller_configs"][
+                "control_delta"
+            ] = False  # absolute action space
 
         env_kwargs = env_meta["env_kwargs"]
         env_kwargs["env_name"] = env_meta["env_name"]
@@ -373,9 +385,13 @@ def playback_dataset(args):
 
         # supply actions if using open-loop action playback
         actions = None
+        assert not (
+            args.use_actions and args.use_abs_actions
+        )  # cannot use both relative and absolute actions
         if args.use_actions:
             actions = f["data/{}/actions".format(ep)][()]
-            # actions = f["data/{}/actions_abs".format(ep)][()] # absolute actions
+        elif args.use_abs_actions:
+            actions = f["data/{}/actions_abs".format(ep)][()]  # absolute actions
 
         playback_trajectory_with_env(
             env=env,
@@ -392,7 +408,7 @@ def playback_dataset(args):
 
     f.close()
     if write_video:
-        print(colored(f"Saved video to {args.video_path}", "yellow"))
+        print(colored(f"Saved video to {args.video_path}", "green"))
         video_writer.close()
 
     if env is not None:
@@ -433,6 +449,13 @@ if __name__ == "__main__":
         "--use-actions",
         action="store_true",
         help="use open-loop action playback instead of loading sim states",
+    )
+
+    # Playback stored dataset absolute actions open-loop instead of loading from simulation states.
+    parser.add_argument(
+        "--use-abs-actions",
+        action="store_true",
+        help="use open-loop action playback with absolute position actions instead of loading sim states",
     )
 
     # Whether to render playback to screen

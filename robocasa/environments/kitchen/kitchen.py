@@ -709,7 +709,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 )
 
         # step through a few timesteps to settle objects
-        action = np.zeros(12)  # apply empty action
+        action = np.zeros(self.action_spec[0].shape)  # apply empty action
 
         # Since the env.step frequency is slower than the mjsim timestep frequency, the internal controller will output
         # multiple torque commands in between new high level action commands. Therefore, we need to denote via
