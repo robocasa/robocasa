@@ -2415,9 +2415,9 @@ def sample_kitchen_object_helper(
             for reg in obj_registries:
                 if (
                     reg in OBJ_CATEGORIES[cand_cat]
-                    and mjcf_path in OBJ_CATEGORIES[reg][cand_cat].mjcf_paths
+                    and mjcf_path in OBJ_CATEGORIES[cand_cat][reg].mjcf_paths
                 ):
-                    mjcf_kwargs = OBJ_CATEGORIES[reg][cand_cat].get_mjcf_kwargs()
+                    mjcf_kwargs = OBJ_CATEGORIES[cand_cat][reg].get_mjcf_kwargs()
                     cat = cand_cat
                     obj_found = True
                     break
