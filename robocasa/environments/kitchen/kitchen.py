@@ -22,10 +22,6 @@ import robocasa.macros as macros
 import robocasa.utils.kitchen_utils as KU
 import robocasa.utils.object_utils as OU
 from robocasa.models.arenas import KitchenArena
-
-# from robocasa.models.objects.fixtures import (
-#     FixtureType, Fixture, fixture_is_type, Counter, Stove, Stovetop, HousingCabinet, Fridge, Dishwasher
-# )
 from robocasa.models.objects.fixtures import *
 from robocasa.models.objects.kitchen_objects import sample_kitchen_object
 from robocasa.models.objects.objects import MJCFObject
@@ -33,8 +29,6 @@ from robocasa.utils.placement_samplers import (
     SequentialCompositeSampler,
     UniformRandomSampler,
 )
-
-# from robocasa.models.arenas.layout_utils import *
 from robocasa.utils.texture_swap import (
     get_random_textures,
     replace_cab_textures,
