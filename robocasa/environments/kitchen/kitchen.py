@@ -1248,24 +1248,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         # Check if stove is turned on or not
         self.update_state()
-
-        # base_mode = (action[-1] > 0.0)
-        # if base_mode:
-        #     info["actions_abs"] = action
-        # else:
-        #     controller = self.robots[0].controller["right"]
-        #     eef_goal_pos = np.array(controller.goal_pos)
-        #     eef_goal_ori = np.array(controller.goal_ori)
-        #     # convert to actions relative to robot base
-        #     base_pos, base_ori = self.robots[0].get_base_pose()
-        #     ac_pos, ac_ori = OU.compute_rel_transform(base_pos, base_ori, eef_goal_pos, eef_goal_ori)
-        #     ac_ori = Rotation.from_matrix(ac_ori).as_rotvec()
-        #     info["actions_abs"] = np.hstack([
-        #         ac_pos,
-        #         ac_ori,
-        #         action[6:],
-        #     ])
-
         return reward, done, info
 
     def convert_rel_to_abs_action(self, rel_action):
