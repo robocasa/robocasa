@@ -519,12 +519,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                         for k, v in container_kwargs.values():
                             container_cfg[k] = v
 
-                    # # increase size for conainer placement
-                    # container_cfg["placement"]["size"] = (
-                    #     container_cfg["placement"]["size"][0] + 0.15,
-                    #     container_cfg["placement"]["size"][1] + 0.15,
-                    # )
-
                     # add in the new object to the model
                     addl_obj_cfgs.append(container_cfg)
                     model, info = _create_obj(container_cfg)
