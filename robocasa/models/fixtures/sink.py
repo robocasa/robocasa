@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from robocasa.models.objects.fixtures.fixture import Fixture
+from robocasa.models.fixtures import Fixture
 
 
 class Sink(Fixture):

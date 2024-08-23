@@ -1,15 +1,15 @@
-from robocasa.models.objects.fixtures.fixture import Fixture
+from robocasa.models.fixtures import Fixture
 
 
-class Fridge(Fixture):
+class Dishwasher(Fixture):
     """
-    Fridge fixture class
+    Dishwasher fixture class
     """
 
     def __init__(
         self,
-        xml="fixtures/appliances/fridges/pack_1/model.xml",
-        name="fridge",
+        xml="fixtures/appliances/dishwashers/pack_1/model.xml",
+        name="dishwasher",
         *args,
         **kwargs
     ):
@@ -19,4 +19,4 @@ class Fridge(Fixture):
 
     @property
     def nat_lang(self):
-        return "fridge"
+        return "dishwasher"

@@ -1,7 +1,7 @@
 import numpy as np
 
 import robocasa.utils.object_utils as OU
-from robocasa.models.objects.fixtures.fixture import Fixture
+from robocasa.models.fixtures import Fixture
 
 
 class Microwave(Fixture):

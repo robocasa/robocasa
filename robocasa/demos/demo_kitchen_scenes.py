@@ -9,7 +9,7 @@ from robosuite import load_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
-from robocasa.models.arenas.layout_builder import STYLES
+from robocasa.models.scenes.scene_registry import LayoutType, StyleType
 from robocasa.scripts.collect_demos import collect_human_trajectory
 
 
@@ -68,24 +68,23 @@ if __name__ == "__main__":
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
     args = parser.parse_args()
 
-    layouts = OrderedDict(
-        [
-            (0, "One wall"),
-            (1, "One wall w/ island"),
-            (2, "L-shaped"),
-            (3, "L-shaped w/ island"),
-            (4, "Galley"),
-            (5, "U-shaped"),
-            (6, "U-shaped w/ island"),
-            (7, "G-shaped"),
-            (8, "G-shaped (large)"),
-            (9, "Wraparound"),
-        ]
+    raw_layouts = dict(
+        map(lambda item: (item.value, item.name.lower().capitalize()), LayoutType)
     )
+    layouts = OrderedDict()
+    for k in sorted(raw_layouts.keys()):
+        if k < -0:
+            continue
+        layouts[k] = raw_layouts[k]
 
+    raw_styles = dict(
+        map(lambda item: (item.value, item.name.lower().capitalize()), StyleType)
+    )
     styles = OrderedDict()
-    for k in sorted(STYLES.keys()):
-        styles[k] = STYLES[k].capitalize()
+    for k in sorted(raw_styles.keys()):
+        if k < 0:
+            continue
+        styles[k] = raw_styles[k]
 
     # Create argument configuration
     config = {
@@ -101,7 +100,7 @@ if __name__ == "__main__":
 
     env = robosuite.make(
         **config,
-        has_renderer=(args.renderer != "mjviewer"),
+        has_renderer=True,
         has_offscreen_renderer=False,
         render_camera=None,
         ignore_done=True,

@@ -9,7 +9,7 @@ from robosuite.utils.mjcf_utils import string_to_array as s2a
 from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
-from robocasa.models.objects.fixtures.fixture import (
+from robocasa.models.fixtures.fixture import (
     ProcGenFixture,
     get_texture_name_from_file,
 )
