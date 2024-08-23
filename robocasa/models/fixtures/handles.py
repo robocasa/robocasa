@@ -8,7 +8,7 @@ from robosuite.utils.mjcf_utils import find_elements, xml_path_completion
 
 import robocasa
 from robocasa.models.objects import MujocoXMLObject
-from robocasa.models.objects.fixtures.fixture import get_texture_name_from_file
+from robocasa.models.fixtures.fixture import get_texture_name_from_file
 
 
 class Handle(MujocoXMLObject):

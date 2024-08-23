@@ -1,16 +1,7 @@
-LAYOUTS = {
-    0: "kitchen_layouts/one_wall_small_arena.yaml",
-    1: "kitchen_layouts/one_wall_large_arena.yaml",
-    2: "kitchen_layouts/L_shaped_small_arena.yaml",
-    3: "kitchen_layouts/L_shaped_large_arena.yaml",
-    4: "kitchen_layouts/galley_arena.yaml",
-    5: "kitchen_layouts/U_shaped_small_arena.yaml",
-    6: "kitchen_layouts/U_shaped_large_arena.yaml",
-    7: "kitchen_layouts/G_shaped_small_arena.yaml",
-    8: "kitchen_layouts/G_shaped_large_arena.yaml",
-    9: "kitchen_layouts/wraparound_arena.yaml",
-    -1: "kitchen_layouts/playground.yaml",
-}
+"""
+Collection of constants for cameras / robots / etc
+in kitchen environments
+"""
 
 # default free cameras for different kitchen layouts
 LAYOUT_CAMS = {
@@ -51,16 +42,6 @@ DEFAULT_LAYOUT_CAM = {
     "distance": 5,
     "azimuth": 89.70301806083651,
     "elevation": -18.02177994296577,
-}
-
-SCENE_SPLITS = {
-    "5_scenes": [
-        [3, 0],
-        [0, 4],
-        [4, 5],
-        [5, 4],
-        [6, 1],
-    ],  # split for sampling from 5 percent of kitchens
 }
 
 CAM_CONFIGS = dict(

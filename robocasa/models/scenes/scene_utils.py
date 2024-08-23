@@ -1,10 +1,10 @@
-import os
+from collections import OrderedDict
 from copy import deepcopy
-
 import yaml
 from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
+
 
 # second keyword corresponds to positive end of axis
 AXES_KEYWORDS = {0: ["left", "right"], 1: ["front", "back"], 2: ["bottom", "top"]}
@@ -95,10 +95,10 @@ def load_style_config(style, fixture_config):
     #     raise ValueError("Did not specify fixture type \"{}\" in chosen style".format(fixture_type))
     fixture_style = style.get(fixture_type, "default")
 
-    yaml_path = os.path.join(
-        "kitchen_layouts", "fixture_defaults", fixture_type + "_default.yaml"
+    yaml_path = xml_path_completion(
+        f"kitchen_layouts/fixture_defaults/{fixture_type}_default.yaml",
+        root=robocasa.models.assets_root,
     )
-    yaml_path = xml_path_completion(yaml_path, root=robocasa.models.assets_root)
     with open(yaml_path, "r") as f:
         default_configs = yaml.safe_load(f)
 

@@ -9,7 +9,7 @@ from robosuite.utils.mjcf_utils import string_to_array as s2a
 from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
-from robocasa.models.objects.fixtures.fixture import Fixture
+from robocasa.models.fixtures import Fixture
 
 
 class Box(BoxObject):

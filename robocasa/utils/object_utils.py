@@ -13,7 +13,7 @@ def obj_inside_of(env, obj_name, fixture_id, partial_check=False):
     """
     whether an object (another mujoco object) is inside of fixture. applies for most fixtures
     """
-    from robocasa.models.objects.fixtures import Fixture
+    from robocasa.models.fixtures import Fixture
 
     obj = env.objects[obj_name]
     fixture = env.get_fixture(fixture_id)
@@ -195,7 +195,7 @@ def obj_in_region(
     check if object is in the region defined by the points.
     Uses either the objects bounding box or the object's horizontal radius
     """
-    from robocasa.models.objects.fixtures import Fixture
+    from robocasa.models.fixtures import Fixture
 
     if isinstance(obj, MJCFObject) or isinstance(obj, Fixture):
         obj_points = obj.get_bbox_points(trans=obj_pos, rot=obj_quat)
@@ -251,7 +251,7 @@ def objs_intersect(
     """
     check if two objects intersect
     """
-    from robocasa.models.objects.fixtures import Fixture
+    from robocasa.models.fixtures import Fixture
 
     bbox_check = (isinstance(obj, MJCFObject) or isinstance(obj, Fixture)) and (
         isinstance(other_obj, MJCFObject) or isinstance(other_obj, Fixture)

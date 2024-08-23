@@ -15,6 +15,8 @@ class ServeSteak(Kitchen):
     stools).
     """
 
+    EXCLUDE_LAYOUTS = [0, 2, 4, 5]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

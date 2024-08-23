@@ -13,6 +13,8 @@ class BowlAndCup(Kitchen):
     Restricted to layouts with an island.
     """
 
+    EXCLUDE_LAYOUTS = [0, 2, 4, 5, 7, 8, 9]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -25,7 +25,7 @@ from termcolor import colored
 
 import robocasa
 import robocasa.macros as macros
-from robocasa.models.objects.fixtures import FixtureType
+from robocasa.models.fixtures import FixtureType
 
 assert (
     mujoco.__version__ == "3.1.1"

@@ -8,7 +8,6 @@ from robosuite import load_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
-from robocasa.models.arenas.layout_builder import STYLES
 from robocasa.scripts.collect_demos import collect_human_trajectory
 
 
@@ -88,10 +87,6 @@ if __name__ == "__main__":
             ("PrepareCoffee", "make coffee"),
         ]
     )
-
-    styles = OrderedDict()
-    for k in sorted(STYLES.keys()):
-        styles[k] = STYLES[k]
 
     if args.task is None:
         args.task = choose_option(
