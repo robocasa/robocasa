@@ -20,6 +20,8 @@ class DateNight(Kitchen):
             and alcohol are picked.
     """
 
+    EXCLUDE_LAYOUTS = [0, 2, 4, 5]
+
     def __init__(self, cab_id=FixtureType.CABINET_TOP, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
