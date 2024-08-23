@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     env = robosuite.make(
         **config,
-        has_renderer=(args.renderer != "mjviewer"),
+        has_renderer=True,
         has_offscreen_renderer=False,
         render_camera=None,
         ignore_done=True,

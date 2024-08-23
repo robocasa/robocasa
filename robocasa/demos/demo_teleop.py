@@ -113,7 +113,7 @@ if __name__ == "__main__":
     print(colored(f"Initializing environment...", "yellow"))
     env = robosuite.make(
         **config,
-        has_renderer=(args.renderer != "mjviewer"),
+        has_renderer=True,
         has_offscreen_renderer=False,
         render_camera="robot0_frontview",
         ignore_done=True,
