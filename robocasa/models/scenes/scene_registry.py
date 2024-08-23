@@ -82,6 +82,10 @@ def get_layout_path(layout_id):
     else:
         raise ValueError
 
+    # special case: if name starts with one letter, capitalize it
+    if layout_name[1] == "_":
+        layout_name = layout_name.capitalize()
+
     return xml_path_completion(
         f"kitchen_layouts/{layout_name}_arena.yaml",
         root=robocasa.models.assets_root,
