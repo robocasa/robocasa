@@ -69,6 +69,11 @@ if __name__ == "__main__":
     parser.add_argument("--robot", type=str, help="robot")
     args = parser.parse_args()
 
+    robots = OrderedDict([
+        (0, "PandaMobile"),
+        (1, "GR1FloatingBody")
+    ])
+
     raw_layouts = dict(
         map(lambda item: (item.value, item.name.lower().capitalize()), LayoutType)
     )
@@ -87,10 +92,16 @@ if __name__ == "__main__":
             continue
         styles[k] = raw_styles[k]
 
+    if args.robot is None:
+            robot_choice = choose_option(robots, "robot", default=0, default_message="PandaMobile")
+            robot = robots[robot_choice]
+    else:
+        robot = args.robot
+
     # Create argument configuration
     config = {
         "env_name": args.task,
-        "robots": "PandaMobile",
+        "robots": robot,
         "controller_configs": load_controller_config(default_controller="OSC_POSE"),
         "translucent_robot": False,
     }

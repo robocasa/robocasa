@@ -54,6 +54,10 @@ class KitchenEnvMeta(EnvMeta):
         register_kitchen_env(cls)
         return cls
 
+_ROBOT_POS_OFFSETS: dict[str, list[float]] = {
+    "GR1FloatingBody": [0, 0, 0.97],
+    "GR1": [0, 0, 0.97]
+}
 
 class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     """
@@ -1014,6 +1018,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 cam_root = find_elements(
                     root=worldbody, tags="body", attribs={"name": parent_body}
                 )
+                if cam_root is None:
+                    # camera config refers to body that doesnt exist on the robot
+                    continue
 
             cam = find_elements(
                 root=cam_root, tags="camera", attribs={"name": cam_name}

@@ -67,6 +67,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device", type=str, default="keyboard", choices=["keyboard", "spacemouse"]
     )
+    parser.add_argument("--robot", type=str, help="robot")
     args = parser.parse_args()
 
     tasks = OrderedDict(
@@ -92,6 +93,14 @@ if __name__ == "__main__":
         args.task = choose_option(
             tasks, "task", default="PnPCounterToCab", show_keys=True
         )
+    robots = OrderedDict([
+        (0, "PandaMobile"),
+        (1, "GR1FloatingBody")
+    ])
+
+    if args.robot is None:
+        robot_choice = choose_option(robots, "robot", default=0, default_message="PandaMobile")
+        args.robot = robots[robot_choice]
 
     # Create argument configuration
     config = {
