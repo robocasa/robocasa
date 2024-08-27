@@ -144,8 +144,10 @@ def collect_human_trajectory(
             action = env.robots[0].create_action_vector(
                 {
                     env.robots[0].base: base_action,
-                    arm: arm_actions, 
-                    f"{arm}_gripper": np.repeat(input_action[6:7], env.robots[0].gripper[arm].dof)
+                    arm: arm_actions,
+                    f"{arm}_gripper": np.repeat(
+                        input_action[6:7], env.robots[0].gripper[arm].dof
+                    ),
                 }
             )
             mode_action = input_action[-1]
@@ -153,13 +155,14 @@ def collect_human_trajectory(
             if mode_action > 0:
                 env.robots[0].enable_parts(base=True, right=True, left=True, torso=True)
             else:
-                env.robots[0].enable_parts(base=False, right=True, left=True, torso=False)
+                env.robots[0].enable_parts(
+                    base=False, right=True, left=True, torso=False
+                )
         else:
             arm_actions = input_action
             action = env.robots[0].create_action_vector(
                 {arm: arm_actions[:-1], f"{arm}_gripper": arm_actions[-1:]}
             )
-        
 
         # Run environment step
         obs, _, _, _ = env.step(action)

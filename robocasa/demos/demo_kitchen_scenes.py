@@ -69,10 +69,7 @@ if __name__ == "__main__":
     parser.add_argument("--robot", type=str, help="robot")
     args = parser.parse_args()
 
-    robots = OrderedDict([
-        (0, "PandaMobile"),
-        (1, "GR1FloatingBody")
-    ])
+    robots = OrderedDict([(0, "PandaMobile"), (1, "GR1FloatingBody")])
 
     raw_layouts = dict(
         map(lambda item: (item.value, item.name.lower().capitalize()), LayoutType)
@@ -93,8 +90,10 @@ if __name__ == "__main__":
         styles[k] = raw_styles[k]
 
     if args.robot is None:
-            robot_choice = choose_option(robots, "robot", default=0, default_message="PandaMobile")
-            robot = robots[robot_choice]
+        robot_choice = choose_option(
+            robots, "robot", default=0, default_message="PandaMobile"
+        )
+        robot = robots[robot_choice]
     else:
         robot = args.robot
 

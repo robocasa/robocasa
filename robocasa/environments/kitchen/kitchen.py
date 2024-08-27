@@ -54,10 +54,12 @@ class KitchenEnvMeta(EnvMeta):
         register_kitchen_env(cls)
         return cls
 
+
 _ROBOT_POS_OFFSETS: dict[str, list[float]] = {
     "GR1FloatingBody": [0, 0, 0.97],
-    "GR1": [0, 0, 0.97]
+    "GR1": [0, 0, 0.97],
 }
+
 
 class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     """
@@ -224,7 +226,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         layout_and_style_ids=None,
         layout_ids=None,
         style_ids=None,
-        scene_split=None, # unsued, for backwards compatibility 
+        scene_split=None,  # unsued, for backwards compatibility
         generative_textures=None,
         obj_registries=("objaverse",),
         obj_instance_split=None,
@@ -612,7 +614,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         robot_class_name = robot_model.__class__.__name__
         if robot_class_name in _ROBOT_POS_OFFSETS:
             for dimension in range(0, 3):
-                robot_base_pos[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][dimension]
+                robot_base_pos[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][
+                    dimension
+                ]
 
         return robot_base_pos, robot_base_ori
 
