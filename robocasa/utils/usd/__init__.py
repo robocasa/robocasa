@@ -1,4 +1,4 @@
-from .exporter import *
 from .component import *
-from .utils import *
+from .exporter import *
 from .shapes import *
+from .utils import *

@@ -1,17 +1,17 @@
 import argparse
-import imageio
 import os
-from tqdm import tqdm
 
-from robosuite.models.objects.kitchen_objects import OBJ_GROUPS, OBJ_CATEGORIES
+import imageio
+from robosuite.models.objects.kitchen_objects import OBJ_CATEGORIES, OBJ_GROUPS
 from robosuite.scripts.browse_mjcf_model import get_model_screenshot
+from tqdm import tqdm
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--obj_group", type=str, default="all")
     parser.add_argument("--video_path", type=str, required=True)
     args = parser.parse_args()
-    
+
     mjcf_paths = []
     for cat_name in OBJ_GROUPS[args.obj_group]:
         cat = OBJ_CATEGORIES[cat_name]

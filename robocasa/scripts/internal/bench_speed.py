@@ -4,15 +4,17 @@ to generate a learning curriculum (see `demo_learning_curriculum.py`).
 The demonstrations can be played back using the `playback_demonstrations_from_pkl.py`
 script.
 """
-import time
 import argparse
-import numpy as np
-from termcolor import colored
 import os
-import robocasa
+import time
+
+import numpy as np
 import robosuite as suite
 from robosuite import load_controller_config
+from termcolor import colored
 from tianshou.env import SubprocVectorEnv
+
+import robocasa
 
 
 def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
@@ -45,14 +47,14 @@ def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
         ac_dim = env.action_spec[0].shape
 
     t_start = time.time()
-    
+
     for _ in range(num_steps):
         # Get the newest action
         action = np.random.normal(size=ac_dim)
 
         # Run environment step
         obs, _, _, _ = env.step(action)
-        
+
         # import cv2
         # im = obs["robot0_agentview_left_image"]
         # cv2.imshow("offscreen render", im)
@@ -81,16 +83,39 @@ if __name__ == "__main__":
     parser.add_argument("--env", type=str, default="Lift")
     parser.add_argument("--num_envs", type=int, default=1)
     parser.add_argument("--n_objs", type=int, default=None)
-    parser.add_argument("--robots", nargs="+", type=str, default="PandaMobile", help="Which robot(s) to use in the env")
-    parser.add_argument("--config", type=str, default="single-arm-opposed",
-                        help="Specified environment configuration if necessary")
-    parser.add_argument("--arm", type=str, default="right", help="Which arm to control (eg bimanual) 'right' or 'left'")
-    parser.add_argument("--camera", type=str, default="robot0_agentview_center", help="Which camera to use for collecting demos")
-    parser.add_argument("--controller", type=str, default="OSC_POSE",
-                        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'")
+    parser.add_argument(
+        "--robots",
+        nargs="+",
+        type=str,
+        default="PandaMobile",
+        help="Which robot(s) to use in the env",
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="single-arm-opposed",
+        help="Specified environment configuration if necessary",
+    )
+    parser.add_argument(
+        "--arm",
+        type=str,
+        default="right",
+        help="Which arm to control (eg bimanual) 'right' or 'left'",
+    )
+    parser.add_argument(
+        "--camera",
+        type=str,
+        default="robot0_agentview_center",
+        help="Which camera to use for collecting demos",
+    )
+    parser.add_argument(
+        "--controller",
+        type=str,
+        default="OSC_POSE",
+        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'",
+    )
     parser.add_argument("--no_render", action="store_true")
     args = parser.parse_args()
-
 
     # Get controller config
     controller_config = load_controller_config(default_controller=args.controller)
@@ -114,11 +139,15 @@ if __name__ == "__main__":
     if args.env in ["Mugs1", "Mugs5", "ObjPlay"]:
         import robosuite_model_zoo
         from robosuite_model_zoo.utils.object_play_env import ObjectPlayEnv
+
         config.update(
             env_name="ObjectPlayEnv",
-            obj_mjcf_path=os.path.join(robosuite_model_zoo.__path__[0], "assets/shapenet_core/mugs/5fe74bab/model.xml"),
+            obj_mjcf_path=os.path.join(
+                robosuite_model_zoo.__path__[0],
+                "assets/shapenet_core/mugs/5fe74bab/model.xml",
+            ),
             x_range=(-0.20, 0.20),
-            y_range=(-0.20, 0.20), 
+            y_range=(-0.20, 0.20),
         )
         if args.env == "Mugs1":
             config["num_objects"] = 1
@@ -140,15 +169,16 @@ if __name__ == "__main__":
     config["camera_names"] = [
         "robot0_agentview_left",
         "robot0_agentview_right",
-        "robot0_eye_in_hand"
+        "robot0_eye_in_hand",
     ]
     config["layout_ids"] = 0
     config["style_ids"] = 0
-        
+
     def create_env():
         if config["env_name"] == "ObjectPlayEnv":
             import robosuite_model_zoo
             from robosuite_model_zoo.utils.object_play_env import ObjectPlayEnv
+
             del config["env_name"]
             env = ObjectPlayEnv(
                 **config,
@@ -165,13 +195,14 @@ if __name__ == "__main__":
     else:
         env = create_env()
 
-
     # collect demonstrations
     steps_per_sec_list = []
     reset_time_list = []
     for ep in range(10):
-        reset_time, steps_per_sec = run_rollout(env, args.arm, args.config, render=False, num_steps=100)
-        print("ep #{}".format(ep+1))
+        reset_time, steps_per_sec = run_rollout(
+            env, args.arm, args.config, render=False, num_steps=100
+        )
+        print("ep #{}".format(ep + 1))
         print("   {:.2f}s reset time".format(reset_time))
         print("   {:.2f} fps".format(steps_per_sec))
         print()

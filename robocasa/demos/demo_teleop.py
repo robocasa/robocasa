@@ -2,16 +2,18 @@ import argparse
 import json
 import time
 from collections import OrderedDict
-from termcolor import colored
 
 import robosuite
 from robosuite import load_controller_config
-from robocasa.scripts.collect_demos import collect_human_trajectory
 from robosuite.wrappers import VisualizationWrapper
+from termcolor import colored
 
-from robocasa.models.arenas.layout_builder import STYLES
+from robocasa.scripts.collect_demos import collect_human_trajectory
 
-def choose_option(options, option_name, show_keys=False, default=None, default_message=None):
+
+def choose_option(
+    options, option_name, show_keys=False, default=None, default_message=None
+):
     """
     Prints out environment options, and returns the selected env_name choice
 
@@ -36,10 +38,12 @@ def choose_option(options, option_name, show_keys=False, default=None, default_m
             print("[{}] {}".format(i, v))
     print()
     try:
-        s = input("Choose an option 0 to {}, or any other key for default ({}): ".format(
-            len(options) - 1,
-            default_message,
-        ))
+        s = input(
+            "Choose an option 0 to {}, or any other key for default ({}): ".format(
+                len(options) - 1,
+                default_message,
+            )
+        )
         # parse input into a number within range
         k = min(max(int(s), 0), len(options) - 1)
         choice = list(options.keys())[k]
@@ -60,35 +64,34 @@ if __name__ == "__main__":
     parser.add_argument("--task", type=str, help="task (choose among 100+ tasks)")
     parser.add_argument("--layout", type=int, help="kitchen layout (choose number 0-9)")
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
-    parser.add_argument("--device", type=str, default="keyboard", choices=["keyboard", "spacemouse"])
-    parser.add_argument("--robot", type=str, help="robot")
-
+    parser.add_argument(
+        "--device", type=str, default="keyboard", choices=["keyboard", "spacemouse"]
+    )
     args = parser.parse_args()
 
-
-    tasks = OrderedDict([
-        ("PnPCounterToCab", "pick and place from counter to cabinet"),
-        ("PnPCounterToSink", "pick and place from counter to sink"),
-        ("PnPMicrowaveToCounter", "pick and place from microwave to counter"),
-        ("PnPStoveToCounter", "pick and place from stove to counter"),
-        ("OpenSingleDoor", "open cabinet or microwave door"),
-        ("CloseDrawer", "close drawer"),
-        ("TurnOnMicrowave", "turn on microwave"),
-        ("TurnOnSinkFaucet", "turn on sink faucet"),
-        ("TurnOnStove", "turn on stove"),
-        ("ArrangeVegetables", "arrange vegetables on a cutting board"),
-        ("MicrowaveThawing", "place frozen food in microwave for thawing"),
-        ("RestockPantry", "restock cans in pantry"),
-        ("PreSoakPan", "prepare pan for washing"),
-        ("PrepareCoffee", "make coffee"),
-    ])
-
-    styles = OrderedDict()
-    for k in sorted(STYLES.keys()):
-        styles[k] = STYLES[k]
+    tasks = OrderedDict(
+        [
+            ("PnPCounterToCab", "pick and place from counter to cabinet"),
+            ("PnPCounterToSink", "pick and place from counter to sink"),
+            ("PnPMicrowaveToCounter", "pick and place from microwave to counter"),
+            ("PnPStoveToCounter", "pick and place from stove to counter"),
+            ("OpenSingleDoor", "open cabinet or microwave door"),
+            ("CloseDrawer", "close drawer"),
+            ("TurnOnMicrowave", "turn on microwave"),
+            ("TurnOnSinkFaucet", "turn on sink faucet"),
+            ("TurnOnStove", "turn on stove"),
+            ("ArrangeVegetables", "arrange vegetables on a cutting board"),
+            ("MicrowaveThawing", "place frozen food in microwave for thawing"),
+            ("RestockPantry", "restock cans in pantry"),
+            ("PreSoakPan", "prepare pan for washing"),
+            ("PrepareCoffee", "make coffee"),
+        ]
+    )
 
     if args.task is None:
-        args.task = choose_option(tasks, "task", default="PnPCounterToCab", show_keys=True)
+        args.task = choose_option(
+            tasks, "task", default="PnPCounterToCab", show_keys=True
+        )
 
     # Create argument configuration
     config = {
@@ -101,11 +104,11 @@ if __name__ == "__main__":
     }
 
     args.renderer = "mjviewer"
-    
+
     print(colored(f"Initializing environment...", "yellow"))
     env = robosuite.make(
         **config,
-        has_renderer=(args.renderer != "mjviewer"),
+        has_renderer=True,
         has_offscreen_renderer=False,
         render_camera="robot0_frontview",
         ignore_done=True,
@@ -138,7 +141,12 @@ if __name__ == "__main__":
     # collect demonstrations
     while True:
         ep_directory, discard_traj = collect_human_trajectory(
-            env, device, "right", "single-arm-opposed", mirror_actions=True, render=(args.renderer != "mjviewer"),
+            env,
+            device,
+            "right",
+            "single-arm-opposed",
+            mirror_actions=True,
+            render=(args.renderer != "mjviewer"),
             max_fr=30,
         )
         print()

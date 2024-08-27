@@ -1,6 +1,6 @@
+import os
 from collections import OrderedDict
 from copy import deepcopy
-import os
 from pathlib import Path
 
 import robocasa
@@ -72,8 +72,8 @@ SINGLE_STAGE_TASK_DATASETS = OrderedDict(
         human_path="v0.1/single_stage/kitchen_pnp/PnPCounterToStove/2024-04-26",
         mg_path="v0.1/single_stage/kitchen_pnp/PnPCounterToStove/mg/2024-05-04-22-14-20",
         download_links=dict(
-            human_raw="https://utexas.box.com/shared/static/emnl5i3s621sf5smgek5lu4twbc326jt.hdf5",
-            human_im="https://utexas.box.com/shared/static/z2t1kyto32thprw7xvq3r4tjvkdz0dl2.hdf5",
+            human_raw="https://utexas.box.com/shared/static/9z2k5iqspwdo2153yuutcvqb9zzzvtdu.hdf5",
+            human_im="https://utexas.box.com/shared/static/penrv5sysn192gxwj7n7f6k0gjceovfn.hdf5",
             mg_im="https://utexas.box.com/shared/static/1ytpoks6mp9f56wh36ni8k02fz0kbvmb.hdf5",
         ),
     ),
@@ -307,6 +307,7 @@ MULTI_STAGE_TASK_DATASETS = OrderedDict(
     ),
 )
 
+
 def get_ds_path(task, ds_type, return_info=False):
     if task in SINGLE_STAGE_TASK_DATASETS:
         ds_config = SINGLE_STAGE_TASK_DATASETS[task]
@@ -314,7 +315,7 @@ def get_ds_path(task, ds_type, return_info=False):
         ds_config = MULTI_STAGE_TASK_DATASETS[task]
     else:
         raise ValueError
-    
+
     if ds_type == "human_raw":
         folder = ds_config["human_path"]
         fname = "demo.hdf5"
@@ -325,19 +326,23 @@ def get_ds_path(task, ds_type, return_info=False):
         elif task in MULTI_STAGE_TASK_DATASETS:
             fname = "demo_im128.hdf5"
     elif ds_type == "mg_im":
-        folder = ds_config["mg_path"]
+        # mg dataset is not available for all tasks
+        folder = ds_config.get("mg_path", None)
         fname = "demo_gentex_im128_randcams.hdf5"
     else:
         raise ValueError
-    
+
     # if dataset type is not registered, return None
     if folder is None:
-        return None
+        ret = (None, None) if return_info is True else None
+        return ret
 
     if macros.DATASET_BASE_PATH is None:
-        ds_base_path = os.path.join(Path(robocasa.__path__[0]).parent.absolute(), "datasets")
+        ds_base_path = os.path.join(
+            Path(robocasa.__path__[0]).parent.absolute(), "datasets"
+        )
     else:
-        ds_base_path = macros.DATASET_BASE_PATH 
+        ds_base_path = macros.DATASET_BASE_PATH
     ds_path = os.path.join(ds_base_path, folder, fname)
 
     if return_info is False:
