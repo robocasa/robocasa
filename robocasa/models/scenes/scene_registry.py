@@ -87,7 +87,7 @@ def get_layout_path(layout_id):
         layout_name = layout_name.capitalize()
 
     return xml_path_completion(
-        f"kitchen_layouts/{layout_name}_arena.yaml",
+        f"kitchen_scenes/{layout_name}_arena.yaml",
         root=robocasa.models.assets_root,
     )
 
@@ -113,7 +113,7 @@ def get_style_path(style_id):
         raise ValueError
 
     return xml_path_completion(
-        f"kitchen_layouts/styles/{style_name}.yaml",
+        f"kitchen_scenes/styles/{style_name}.yaml",
         root=robocasa.models.assets_root,
     )
 
