@@ -96,7 +96,7 @@ def load_style_config(style, fixture_config):
     fixture_style = style.get(fixture_type, "default")
 
     yaml_path = xml_path_completion(
-        f"kitchen_scenes/fixture_defaults/{fixture_type}_default.yaml",
+        f"fixtures/fixture_registry/{fixture_type}.yaml",
         root=robocasa.models.assets_root,
     )
     with open(yaml_path, "r") as f:

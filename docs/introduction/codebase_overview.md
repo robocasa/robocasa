@@ -8,9 +8,9 @@
   - `collect_demos.py`: collect demonstration trajectories for any task and environment
   - `download_kitchen_assets.py`: downloads all assets. called automatically during setup in `setup.sh`
   - `download_datasets.py`: downloads datasets (see datasets section for details)
-- `robocasa/models/assets/`: assets and implementations for objects and environment fixtures
+- `robocasa/models/`: assets and implementations for objects and environment fixtures
   - `assets/objects/`: raw assets for all objects
   - `assets/fixtures/`: raw assets for all environment fixtures
-  - `assets/kitchen_layouts/`: blueprints for kitchen layouts and designs
+  - `assets/kitchen_scenes/`: blueprints for kitchen layouts and designs
   - `objects/kitchen_objects.py`: registry for all object categories and groups
-  - `objects/fixtures/`: implementations of all fixture classes
+  - `fixtures/`: implementations of all fixture classes
