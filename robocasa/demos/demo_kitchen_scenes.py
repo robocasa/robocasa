@@ -115,7 +115,7 @@ if __name__ == "__main__":
     # initialize device
     from robosuite.devices import Keyboard
 
-    device = Keyboard(pos_sensitivity=4.0, rot_sensitivity=4.0)
+    device = Keyboard(env=env, pos_sensitivity=4.0, rot_sensitivity=4.0)
 
     # collect demonstrations
     while True:

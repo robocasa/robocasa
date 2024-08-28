@@ -127,11 +127,12 @@ if __name__ == "__main__":
     if args.device == "keyboard":
         from robosuite.devices import Keyboard
 
-        device = Keyboard(pos_sensitivity=4.0, rot_sensitivity=4.0)
+        device = Keyboard(env=env, pos_sensitivity=4.0, rot_sensitivity=4.0)
     elif args.device == "spacemouse":
         from robosuite.devices import SpaceMouse
 
         device = SpaceMouse(
+            env=env,
             pos_sensitivity=4.0,
             rot_sensitivity=4.0,
         )
