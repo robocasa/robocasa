@@ -6,8 +6,8 @@ from robosuite.utils.mjcf_utils import find_elements, xml_path_completion
 
 import robocasa
 from robocasa.models.objects import MujocoXMLObject
-from robocasa.models.objects.fixtures.fixture import get_texture_name_from_file
-from robocasa.models.objects.fixtures.handles import *
+from robocasa.models.fixtures.fixture import get_texture_name_from_file
+from robocasa.models.fixtures.handles import *
 from robocasa.utils.object_utils import set_geom_dimensions
 
 

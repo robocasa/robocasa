@@ -1,8 +1,8 @@
 import numpy as np
 
-from robocasa.models.arenas.layout_utils import *
-from robocasa.models.objects.fixtures.cabinets import *
-from robocasa.models.objects.fixtures.others import Box
+from robocasa.models.scenes.scene_utils import *
+from robocasa.models.fixtures.cabinets import *
+from robocasa.models.fixtures.others import Box
 
 # fixtures that can be used to form a stack
 STACKABLE = {

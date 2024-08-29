@@ -1,4 +1,4 @@
-from robocasa.models.objects.fixtures import *
+from robocasa.models.fixtures import *
 
 
 def fixture_is_type(fixture, fixture_type):

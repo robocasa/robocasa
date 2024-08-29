@@ -1,13 +1,11 @@
-import random
-
 import numpy as np
-import robosuite
 import yaml
 from robosuite.utils.mjcf_utils import array_to_string as a2s
 from robosuite.utils.mjcf_utils import string_to_array as s2a
 
-from robocasa.models.arenas.layout_utils import *
-from robocasa.models.objects.fixtures import *
+from robocasa.models.scenes.scene_registry import get_layout_path, get_style_path
+from robocasa.models.scenes.scene_utils import *
+from robocasa.models.fixtures import *
 
 # fixture string to class
 FIXTURES = dict(
@@ -50,21 +48,6 @@ FIXTURES_INTERIOR = dict(
 )
 
 ALL_SIDES = ["left", "right", "front", "back", "bottom", "top"]
-
-STYLES = {
-    0: "industrial",
-    1: "scandanavian",
-    2: "coastal",
-    3: "modern_1",
-    4: "modern_2",
-    5: "traditional_1",
-    6: "traditional_2",
-    7: "farmhouse",
-    8: "rustic",
-    9: "mediterranean",  # held out for potential testing
-    10: "transitional_1",  # held out for potential testing
-    11: "transitional_2",
-}
 
 
 def check_syntax(fixture):
@@ -110,14 +93,14 @@ def check_syntax(fixture):
             )
 
 
-def create_fixtures(yaml_path, style="playground", rng=None):
+def create_fixtures(layout_id, style_id, rng=None):
     """
     Initializes fixtures based on the given layout yaml file and style type
 
     Args:
-        yaml_path (str): path to the file containing the fixture layout
+        layout_id (int or LayoutType): layout of the kitchen to load
 
-        style (str) or (int): style or style id of the kitchen to load
+        style_id (int or StyleType): style of the kitchen to load
 
         rng (np.random.Generator): random number generator used for initializing fixture state
     """
@@ -126,20 +109,15 @@ def create_fixtures(yaml_path, style="playground", rng=None):
     except:
         pass
 
-    if style not in STYLES.keys() and style not in STYLES.values():
-        raise ValueError('Unrecognized style: "{}"'.format(style))
-    if type(style) == int:
-        style = STYLES[style]
+    layout_path = get_layout_path(layout_id=layout_id)
+    style_path = get_style_path(style_id=style_id)
 
-    style_yaml_path = os.path.join("kitchen_layouts", "styles", style + ".yaml")
-    style_yaml_path = xml_path_completion(
-        style_yaml_path, root=robocasa.models.assets_root
-    )
-    with open(style_yaml_path, "r") as f:
+    # load style
+    with open(style_path, "r") as f:
         style = yaml.safe_load(f)
 
     # load arena
-    with open(yaml_path, "r") as f:
+    with open(layout_path, "r") as f:
         arena_config = yaml.safe_load(f)
 
     # contains all fixtures with updated configs

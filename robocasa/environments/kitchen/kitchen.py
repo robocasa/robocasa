@@ -19,22 +19,17 @@ from scipy.spatial.transform import Rotation
 
 import robocasa
 import robocasa.macros as macros
-import robocasa.utils.kitchen_utils as KU
+import robocasa.utils.camera_utils as CamUtils
 import robocasa.utils.object_utils as OU
-from robocasa.models.arenas import KitchenArena
-
-# from robocasa.models.objects.fixtures import (
-#     FixtureType, Fixture, fixture_is_type, Counter, Stove, Stovetop, HousingCabinet, Fridge, Dishwasher
-# )
-from robocasa.models.objects.fixtures import *
+import robocasa.models.scenes.scene_registry as SceneRegistry
+from robocasa.models.scenes import KitchenArena
+from robocasa.models.fixtures import *
 from robocasa.models.objects.kitchen_objects import sample_kitchen_object
 from robocasa.models.objects.objects import MJCFObject
 from robocasa.utils.placement_samplers import (
     SequentialCompositeSampler,
     UniformRandomSampler,
 )
-
-# from robocasa.models.arenas.layout_utils import *
 from robocasa.utils.texture_swap import (
     get_random_textures,
     replace_cab_textures,
@@ -164,16 +159,13 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         seed (int): environment seed. Default is None, where environment is unseeded, ie. random
 
-        scene_split (str): string for specifying a custom set of layouts and styles to use for the kitchen. If
-            set, only one of scene_split, (layout_ids and style_ids), or layout_and_style_ids should be set.
-
         layout_and_style_ids (list of list of int): list of layout and style ids to use for the kitchen.
 
-        layout_ids (int or list of int):  layout id(s) to use for the kitchen. -1 and None specify all layouts
+        layout_ids ((list of) LayoutType or int):  layout id(s) to use for the kitchen. -1 and None specify all layouts
             -2 specifies layouts not involving islands/wall stacks, -3 specifies layouts involving islands/wall stacks,
             -4 specifies layouts with dining areas.
 
-        style_ids (int or list of int): style id(s) to use for the kitchen. -1 and None specify all styles.
+        style_ids ((list of) StyleType or int): style id(s) to use for the kitchen. -1 and None specify all styles.
 
         generative_textures (str): if set to "100p", will use AI generated textures
 
@@ -203,9 +195,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         base_types="default",
         initialization_noise="default",
         use_camera_obs=True,
-        use_object_obs=True,  # for backwards compatibility
-        reward_scale=1.0,  # for backwards compatibility
-        reward_shaping=False,  # for backwards compatibility
+        use_object_obs=True,  # currently unused variable
+        reward_scale=1.0,  # currently unused variable
+        reward_shaping=False,  # currently unused variables
         placement_initializer=None,
         has_renderer=False,
         has_offscreen_renderer=True,
@@ -225,10 +217,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         renderer_config=None,
         init_robot_base_pos=None,
         seed=None,
-        scene_split=None,
         layout_and_style_ids=None,
         layout_ids=None,
         style_ids=None,
+        scene_split=None,  # unsued, for backwards compatibility
         generative_textures=None,
         obj_registries=("objaverse",),
         obj_instance_split=None,
@@ -243,47 +235,19 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         self.obj_registries = obj_registries
         self.obj_instance_split = obj_instance_split
 
-        # set layouts and styles
-        self.scene_split = scene_split
-        if scene_split is not None:
+        if layout_and_style_ids is not None:
             assert (
-                layout_ids is None
-                and style_ids is None
-                and layout_and_style_ids is None
-            )
-            self.layout_and_style_ids = KU.SCENE_SPLITS[scene_split]
-        elif layout_and_style_ids is not None:
-            assert layout_ids is None and style_ids is None
+                layout_ids is None and style_ids is None
+            ), "layout_ids and style_ids must both be set to None if layout_and_style_ids is set"
             self.layout_and_style_ids = layout_and_style_ids
         else:
-            if layout_ids is None or layout_ids == -1 or layout_ids == [-1]:
-                layout_ids = list(range(10))
-            elif layout_ids == -2 or layout_ids == [
-                -2
-            ]:  # NOT involving islands/wall stacks
-                layout_ids = [0, 2, 4, 5, 7]
-            elif layout_ids == -3 or layout_ids == [
-                -3
-            ]:  # involving islands/wall stacks
-                layout_ids = [1, 3, 6, 8, 9]
-            elif layout_ids == -4 or layout_ids == [-4]:  # layouts with dinings areas
-                layout_ids = [1, 3, 6, 7, 8, 9]
-            if not isinstance(layout_ids, list):
-                layout_ids = [layout_ids]
-
-            if style_ids is None or style_ids == -1 or style_ids == [-1]:
-                style_ids = list(range(11))
-            if not isinstance(style_ids, list):
-                style_ids = [style_ids]
-
-            self.layout_and_style_ids = []
-            for l in layout_ids:
-                for s in style_ids:
-                    self.layout_and_style_ids.append([l, s])
+            layout_ids = SceneRegistry.unpack_layout_ids(layout_ids)
+            style_ids = SceneRegistry.unpack_style_ids(style_ids)
+            self.layout_and_style_ids = [(l, s) for l in layout_ids for s in style_ids]
 
         # remove excluded layouts
         self.layout_and_style_ids = [
-            (l, s)
+            (int(l), int(s))
             for (l, s) in self.layout_and_style_ids
             if l not in self.EXCLUDE_LAYOUTS
         ]
@@ -296,7 +260,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         self.randomize_cameras = randomize_cameras
 
         # intialize cameras
-        self._cam_configs = deepcopy(KU.CAM_CONFIGS)
+        self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
 
         initial_qpos = None
         if isinstance(robots, str):
@@ -313,6 +277,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     0.69615947,
                 ),
             )
+
+        # set up currently unused variables (used in robosuite)
+        self.use_object_obs = use_object_obs
+        self.reward_scale = reward_scale
+        self.reward_shaping = reward_shaping
 
         super().__init__(
             robots=robots,
@@ -366,13 +335,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         self._curr_gen_fixtures = None
 
         # setup scene
-        if self.layout_id not in KU.LAYOUTS:
-            raise ValueError('Invalid layout id: "{}"'.format(self.layout_id))
         self.mujoco_arena = KitchenArena(
-            xml_path_completion(
-                KU.LAYOUTS[self.layout_id], root=robocasa.models.assets_root
-            ),
-            style=self.style_id,
+            layout_id=self.layout_id,
+            style_id=self.style_id,
             rng=self.rng,
         )
         # Arena always gets set to zero origin
@@ -381,7 +346,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         # setup rendering for this layout
         if self.renderer == "mjviewer":
-            camera_config = KU.LAYOUT_CAMS.get(self.layout_id, KU.DEFAULT_LAYOUT_CAM)
+            camera_config = CamUtils.LAYOUT_CAMS.get(
+                self.layout_id, CamUtils.DEFAULT_LAYOUT_CAM
+            )
             self.renderer_config = {"cam_config": camera_config}
 
         # setup fixtures
@@ -518,12 +485,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     if container_kwargs is not None:
                         for k, v in container_kwargs.values():
                             container_cfg[k] = v
-
-                    # # increase size for conainer placement
-                    # container_cfg["placement"]["size"] = (
-                    #     container_cfg["placement"]["size"][0] + 0.15,
-                    #     container_cfg["placement"]["size"][1] + 0.15,
-                    # )
 
                     # add in the new object to the model
                     addl_obj_cfgs.append(container_cfg)
@@ -943,7 +904,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         Adds new kitchen-relevant cameras to the environment. Will randomize cameras if specified.
         """
 
-        self._cam_configs = deepcopy(KU.CAM_CONFIGS)
+        self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
         if self.randomize_cameras:
             self._randomize_cameras()
 
@@ -1248,24 +1209,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         # Check if stove is turned on or not
         self.update_state()
-
-        # base_mode = (action[-1] > 0.0)
-        # if base_mode:
-        #     info["actions_abs"] = action
-        # else:
-        #     controller = self.robots[0].controller["right"]
-        #     eef_goal_pos = np.array(controller.goal_pos)
-        #     eef_goal_ori = np.array(controller.goal_ori)
-        #     # convert to actions relative to robot base
-        #     base_pos, base_ori = self.robots[0].get_base_pose()
-        #     ac_pos, ac_ori = OU.compute_rel_transform(base_pos, base_ori, eef_goal_pos, eef_goal_ori)
-        #     ac_ori = Rotation.from_matrix(ac_ori).as_rotvec()
-        #     info["actions_abs"] = np.hstack([
-        #         ac_pos,
-        #         ac_ori,
-        #         action[6:],
-        #     ])
-
         return reward, done, info
 
     def convert_rel_to_abs_action(self, rel_action):

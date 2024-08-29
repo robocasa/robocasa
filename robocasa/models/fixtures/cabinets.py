@@ -12,8 +12,8 @@ from robosuite.utils.mjcf_utils import (
 
 import robocasa
 import robocasa.utils.object_utils as OU
-from robocasa.models.objects.fixtures.cabinet_panels import *
-from robocasa.models.objects.fixtures.fixture import (
+from robocasa.models.fixtures.cabinet_panels import *
+from robocasa.models.fixtures.fixture import (
     ProcGenFixture,
     get_texture_name_from_file,
 )

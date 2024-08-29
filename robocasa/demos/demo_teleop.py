@@ -8,7 +8,6 @@ from robosuite import load_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
-from robocasa.models.arenas.layout_builder import STYLES
 from robocasa.scripts.collect_demos import collect_human_trajectory
 
 
@@ -89,10 +88,6 @@ if __name__ == "__main__":
         ]
     )
 
-    styles = OrderedDict()
-    for k in sorted(STYLES.keys()):
-        styles[k] = STYLES[k]
-
     if args.task is None:
         args.task = choose_option(
             tasks, "task", default="PnPCounterToCab", show_keys=True
@@ -113,7 +108,7 @@ if __name__ == "__main__":
     print(colored(f"Initializing environment...", "yellow"))
     env = robosuite.make(
         **config,
-        has_renderer=(args.renderer != "mjviewer"),
+        has_renderer=True,
         has_offscreen_renderer=False,
         render_camera="robot0_frontview",
         ignore_done=True,
@@ -132,11 +127,12 @@ if __name__ == "__main__":
     if args.device == "keyboard":
         from robosuite.devices import Keyboard
 
-        device = Keyboard(pos_sensitivity=4.0, rot_sensitivity=4.0)
+        device = Keyboard(env=env, pos_sensitivity=4.0, rot_sensitivity=4.0)
     elif args.device == "spacemouse":
         from robosuite.devices import SpaceMouse
 
         device = SpaceMouse(
+            env=env,
             pos_sensitivity=4.0,
             rot_sensitivity=4.0,
         )

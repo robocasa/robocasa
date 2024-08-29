@@ -1,5 +1,5 @@
 from robocasa.environments.kitchen.kitchen import Kitchen
-from robocasa.models.objects.fixtures import *
+from robocasa.models.fixtures import *
 
 
 class DefrostByCategory(Kitchen):

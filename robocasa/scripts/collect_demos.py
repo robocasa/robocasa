@@ -25,7 +25,7 @@ from termcolor import colored
 
 import robocasa
 import robocasa.macros as macros
-from robocasa.models.objects.fixtures import FixtureType
+from robocasa.models.fixtures import FixtureType
 
 assert (
     mujoco.__version__ == "3.1.1"
@@ -454,7 +454,7 @@ if __name__ == "__main__":
     # Create environment
     env = suite.make(
         **config,
-        has_renderer=(args.renderer != "mjviewer"),
+        has_renderer=True,
         has_offscreen_renderer=False,
         render_camera=args.camera,
         ignore_done=True,
