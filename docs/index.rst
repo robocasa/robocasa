@@ -13,7 +13,6 @@ Welcome to RoboCasa's documentation!
    introduction/overview
    introduction/installation
    introduction/quick_start
-   introduction/basic_usage
    introduction/codebase_overview
 
 .. toctree::
@@ -37,6 +36,7 @@ Welcome to RoboCasa's documentation!
    :maxdepth: 1
    :caption: Use Cases
 
+   use_cases/basic_usage
    use_cases/policy_learning
 
 .. toctree::
