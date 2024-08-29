@@ -1,4 +1,4 @@
-## Object Categories
+## Objects
 
 RoboCasa offers over 2,500 objects across over 150 object categories. Some are sourced from [Objaverse 1.0](https://objaverse.allenai.org/objaverse-1.0), while the remianing majority are AI generated from [Luma.ai](https://luma.ai/). See the breakdown of object categories as follows:
 
