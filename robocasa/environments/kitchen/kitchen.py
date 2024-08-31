@@ -202,9 +202,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         base_types="default",
         initialization_noise="default",
         use_camera_obs=True,
-        use_object_obs=True,  # unsued, for backwards compatibility
-        reward_scale=1.0,  # unsued, for backwards compatibility
-        reward_shaping=False,  # unsued, for backwards compatibility
+        use_object_obs=True,  # currently unused variable
+        reward_scale=1.0,  # currently unused variable
+        reward_shaping=False,  # currently unused variables
         placement_initializer=None,
         has_renderer=False,
         has_offscreen_renderer=True,
@@ -284,6 +284,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     0.69615947,
                 ),
             )
+
+        # set up currently unused variables (used in robosuite)
+        self.use_object_obs = use_object_obs
+        self.reward_scale = reward_scale
+        self.reward_shaping = reward_shaping
 
         super().__init__(
             robots=robots,

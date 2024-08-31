@@ -83,7 +83,7 @@ language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
+# This pattern also affects htmlstatic_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
@@ -110,11 +110,11 @@ html_logo = "robocasa_logo.svg"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+htmlstatic_path = ["static"]
 
 # html_context = {
 #     'css_files': [
-#         '_static/theme_overrides.css',  # override wide tables in RTD theme
+#         'static/theme_overrides.css',  # override wide tables in RTD theme
 #     ],
 # }
 

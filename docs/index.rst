@@ -12,8 +12,23 @@ Welcome to RoboCasa's documentation!
 
    introduction/overview
    introduction/installation
-   introduction/getting_started
+   introduction/quick_start
    introduction/codebase_overview
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Use Cases
+
+   use_cases/basic_usage
+   use_cases/policy_learning
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Datasets
+
+   datasets/downloading_datasets
+   datasets/using_datasets
+   datasets/creating_datasets
 
 .. toctree::
    :maxdepth: 1
@@ -22,22 +37,7 @@ Welcome to RoboCasa's documentation!
    tasks_scenes_assets/atomic_tasks
    tasks_scenes_assets/composite_tasks
    tasks_scenes_assets/kitchen_scenes
-   tasks_scenes_assets/object_categories
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Datasets
-
-   datasets/downloading
-   datasets/inspecting
-   datasets/creating
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Use Cases
-
-   use_cases/evaluation
-   use_cases/policy_learning
+   tasks_scenes_assets/objects
 
 .. toctree::
    :maxdepth: 4

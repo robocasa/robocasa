@@ -350,4 +350,5 @@ def get_ds_path(task, ds_type, return_info=False):
 
     ds_info = {}
     ds_info["url"] = ds_config["download_links"][ds_type]
+    ds_info["horizon"] = ds_config["horizon"]
     return ds_path, ds_info

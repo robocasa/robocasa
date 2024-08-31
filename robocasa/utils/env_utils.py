@@ -13,7 +13,7 @@ from tqdm import tqdm
 from termcolor import colored
 
 
-def create_eval_env(
+def create_env(
     env_name,
     # robosuite-related configs
     robots="PandaMobile",
@@ -27,10 +27,12 @@ def create_eval_env(
     camera_heights=128,
     seed=None,
     # robocasa-related configs
-    obj_instance_split="B",
+    obj_instance_split=None,
     generative_textures=None,
     randomize_cameras=False,
-    layout_and_style_ids=((1, 1), (2, 2), (4, 4), (6, 9), (7, 10)),
+    layout_and_style_ids=None,
+    layout_ids=None,
+    style_ids=None,
 ):
     controller_configs = load_controller_config(default_controller=controllers)
 
@@ -52,6 +54,8 @@ def create_eval_env(
         generative_textures=generative_textures,
         randomize_cameras=randomize_cameras,
         layout_and_style_ids=layout_and_style_ids,
+        layout_ids=layout_ids,
+        style_ids=style_ids,
         translucent_robot=False,
     )
 
