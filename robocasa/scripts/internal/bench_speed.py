@@ -4,17 +4,16 @@ to generate a learning curriculum (see `demo_learning_curriculum.py`).
 The demonstrations can be played back using the `playback_demonstrations_from_pkl.py`
 script.
 """
+
 import argparse
 import os
 import time
 
 import numpy as np
-import robosuite as suite
-from robosuite import load_controller_config
 from termcolor import colored
 from tianshou.env import SubprocVectorEnv
 
-import robocasa
+# import robocasa
 
 
 def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
@@ -87,7 +86,7 @@ if __name__ == "__main__":
         "--robots",
         nargs="+",
         type=str,
-        default="PandaMobile",
+        default=None,
         help="Which robot(s) to use in the env",
     )
     parser.add_argument(
@@ -105,7 +104,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--camera",
         type=str,
-        default="robot0_agentview_center",
+        default="robot0_eye_in_hand",
         help="Which camera to use for collecting demos",
     )
     parser.add_argument(
@@ -117,76 +116,48 @@ if __name__ == "__main__":
     parser.add_argument("--no_render", action="store_true")
     args = parser.parse_args()
 
-    # Get controller config
-    controller_config = load_controller_config(default_controller=args.controller)
-
-    # Create argument configuration
-    config = dict(
-        robots=args.robots,
-        controller_configs=controller_config,
-        env_name=args.env,
-        has_renderer=(not args.no_render),
-        has_offscreen_renderer=(not args.no_render),
-        use_camera_obs=(not args.no_render),
-        render_camera=args.camera,
-        ignore_done=True,
-        reward_shaping=True,
-        control_freq=20,
-        camera_heights=84,
-        camera_widths=84,
-    )
-
-    if args.env in ["Mugs1", "Mugs5", "ObjPlay"]:
-        import robosuite_model_zoo
-        from robosuite_model_zoo.utils.object_play_env import ObjectPlayEnv
-
-        config.update(
-            env_name="ObjectPlayEnv",
-            obj_mjcf_path=os.path.join(
-                robosuite_model_zoo.__path__[0],
-                "assets/shapenet_core/mugs/5fe74bab/model.xml",
-            ),
-            x_range=(-0.20, 0.20),
-            y_range=(-0.20, 0.20),
-        )
-        if args.env == "Mugs1":
-            config["num_objects"] = 1
-        elif args.env == "Mugs5":
-            config["num_objects"] = 5
-        elif args.env == "ObjPlay":
-            config["obj_mjcf_path"] = args.mjcf_path
-            if args.n_objs is not None:
-                config["num_objects"] = args.n_objs
-
-    if args.env in ["KitchenDemo"]:
-        config["env_name"] = "KitchenDemo"
-        if args.n_objs is not None:
-            config["num_objs"] = args.n_objs
-
-    if args.env == "Kitchen":
-        config["env_name"] = "Kitchen"
-
-    config["camera_names"] = [
-        "robot0_agentview_left",
-        "robot0_agentview_right",
-        "robot0_eye_in_hand",
-    ]
-    config["layout_ids"] = 0
-    config["style_ids"] = 0
-
     def create_env():
-        if config["env_name"] == "ObjectPlayEnv":
-            import robosuite_model_zoo
-            from robosuite_model_zoo.utils.object_play_env import ObjectPlayEnv
+        import robosuite as suite
+        from robosuite import load_controller_config
+        from robocasa import ALL_KITCHEN_ENVIRONMENTS
+        import robocasa
 
-            del config["env_name"]
-            env = ObjectPlayEnv(
-                **config,
-            )
+        # Get controller config
+        controller_config = load_controller_config(default_controller=args.controller)
+
+        # Create argument configuration
+        config = dict(
+            robots=args.robots,
+            controller_configs=controller_config,
+            env_name=args.env,
+            has_renderer=(not args.no_render),
+            has_offscreen_renderer=(not args.no_render),
+            use_camera_obs=(not args.no_render),
+            render_camera=args.camera,
+            ignore_done=True,
+            reward_shaping=True,
+            control_freq=20,
+            camera_heights=84,
+            camera_widths=84,
+        )
+
+        if args.env in ALL_KITCHEN_ENVIRONMENTS:
+            config["camera_names"] = [
+                "robot0_agentview_left",
+                "robot0_agentview_right",
+                "robot0_eye_in_hand",
+            ]
+            config["layout_ids"] = 0
+            config["style_ids"] = 0
+
+            if args.env == "KitchenDemo" and args.n_objs is not None:
+                config["num_objs"] = args.n_objs
+            
+            config["robots"] = args.robots or "PandaMobile"
         else:
-            env = suite.make(
-                **config,
-            )
+            config["robots"] = args.robots or "Panda"
+
+        env = suite.make(**config)
         return env
 
     if args.num_envs > 1:
