@@ -481,12 +481,15 @@ if __name__ == "__main__":
         from robosuite.devices import Keyboard
 
         device = Keyboard(
-            pos_sensitivity=args.pos_sensitivity, rot_sensitivity=args.rot_sensitivity
+            env=env,
+            pos_sensitivity=args.pos_sensitivity,
+            rot_sensitivity=args.rot_sensitivity,
         )
     elif args.device == "spacemouse":
         from robosuite.devices import SpaceMouse
 
         device = SpaceMouse(
+            env=env,
             pos_sensitivity=args.pos_sensitivity,
             rot_sensitivity=args.rot_sensitivity,
             vendor_id=macros.SPACEMOUSE_VENDOR_ID,
