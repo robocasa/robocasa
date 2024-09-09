@@ -5,6 +5,7 @@ import random
 from copy import deepcopy
 import os
 from scipy.spatial.transform import Rotation
+import trimesh
 
 from robosuite.models.tasks import ManipulationTask
 from robosuite.environments.manipulation.manipulation_env import ManipulationEnv
@@ -763,12 +764,28 @@ class Kitchen(ManipulationEnv):
             for elem in doc.xpath('//*[attribute::name]'):
                 if (
                     # rm robot
-                    "robot0" in elem.attrib['name'] or "base0" in elem.attrib['name'] or "gripper0" in elem.attrib['name'] or "omniron" in elem.attrib["name"] or
-                    # rm extra stuff
-                    "vis" in elem.attrib["name"]
+                    "robot0" in elem.attrib['name'] or "base0" in elem.attrib['name'] or "gripper0" in elem.attrib['name'] or "omniron" in elem.attrib["name"]
                 ):
                     parent=elem.getparent()
                     parent.remove(elem)
+
+            # Recreate the scales
+            for elem in doc.xpath('//*[attribute::scale]'):
+                # parse out the scale
+                scal = elem.attrib["scale"].split()
+                scal = [float(s) for s in scal]
+                # multiscale but not uniform
+                if (len(scal) == 3 and not (scal[0] == scal[1] and scal[1] == scal[2])):
+                    # recreate the object with the new scaled object
+                    file_name = elem.attrib["file"]
+                    mesh = trimesh.load_mesh(file_name)
+                    mesh.apply_scale(scal)
+                    new_filename = os.path.abspath(f"{file_name.split('/')[-1]}")
+                    mesh.export(new_filename)
+                    elem.attrib["file"] = new_filename
+                    del elem.attrib["scale"]
+
+
             new_xml_str = (le.tostring(doc)).decode('utf-8')
             f.write(new_xml_str)
             # f.write(result)
