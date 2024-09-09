@@ -4,6 +4,8 @@ import math
 import numpy as np
 from xml.dom import minidom
 
+XML_FILE = "example.xml"
+
 def quaternion_to_rotation_matrix(quat):
     """Convert a quaternion to a rotation matrix."""
     w, x, y, z = quat
@@ -338,6 +340,7 @@ def convert_geoms_to_obj(xml_file, output_file="geom.xml"):
 # xml_file = "mve_cabinet.xml"  # Replace with your XML file containing multiple geom tags
 # convert_geoms_to_obj(xml_file)
 
-from most_recent_xml import most_recent_file
-convert_geoms_to_obj(most_recent_file)
+# from most_recent_xml import most_recent_file
+# convert_geoms_to_obj(most_recent_file)
 
+convert_geoms_to_obj(XML_FILE)
