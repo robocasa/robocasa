@@ -101,7 +101,6 @@ def playback_trajectory_with_env(
         ],
         output_directory_name=f"{ep_name}",
         output_directory_root=save_dir,
-        specialized_materials_file="C:/Users/abhishek/Documents/research/robomimic-kitchen/robomimic/scripts/omniverse_materials.json",
     )
 
     traj_len = states.shape[0]

@@ -13,17 +13,14 @@ Welcome to RoboCasa's documentation!
    introduction/overview
    introduction/installation
    introduction/quick_start
-   introduction/basic_usage
    introduction/codebase_overview
 
 .. toctree::
    :maxdepth: 1
-   :caption: Tasks, Scenes, and Assets
+   :caption: Use Cases
 
-   tasks_scenes_assets/atomic_tasks
-   tasks_scenes_assets/composite_tasks
-   tasks_scenes_assets/kitchen_scenes
-   tasks_scenes_assets/objects
+   use_cases/basic_usage
+   use_cases/policy_learning
 
 .. toctree::
    :maxdepth: 1
@@ -35,9 +32,12 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Use Cases
+   :caption: Tasks, Scenes, and Assets
 
-   use_cases/policy_learning
+   tasks_scenes_assets/atomic_tasks
+   tasks_scenes_assets/composite_tasks
+   tasks_scenes_assets/kitchen_scenes
+   tasks_scenes_assets/objects
 
 .. toctree::
    :maxdepth: 4
