@@ -1,8 +1,6 @@
 """
-A script to collect a batch of human demonstrations that can be used
-to generate a learning curriculum (see `demo_learning_curriculum.py`).
-The demonstrations can be played back using the `playback_demonstrations_from_pkl.py`
-script.
+A script to run benchmarking on environments.
+Runs several rollouts and logs the reset times and fps of the environment.
 """
 
 import argparse
@@ -12,8 +10,6 @@ import time
 import numpy as np
 from termcolor import colored
 from tianshou.env import SubprocVectorEnv
-
-# import robocasa
 
 
 def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
@@ -127,7 +123,6 @@ if __name__ == "__main__":
 
         # Create argument configuration
         config = dict(
-            robots=args.robots,
             controller_configs=controller_config,
             env_name=args.env,
             has_renderer=(not args.no_render),
@@ -152,7 +147,7 @@ if __name__ == "__main__":
 
             if args.env == "KitchenDemo" and args.n_objs is not None:
                 config["num_objs"] = args.n_objs
-            
+
             config["robots"] = args.robots or "PandaMobile"
         else:
             config["robots"] = args.robots or "Panda"
