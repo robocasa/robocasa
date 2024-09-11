@@ -35,6 +35,9 @@ from robocasa.utils.texture_swap import (
 )
 import robocasa.macros as macros
 
+from robocasa.drake_conversion.just_geom_conversion import convert_geoms_to_obj
+from robocasa.drake_conversion.auto_texture import execute
+
 
 class Kitchen(ManipulationEnv):
     EXCLUDE_LAYOUTS = []
@@ -759,7 +762,8 @@ class Kitchen(ManipulationEnv):
             result = replace_floor_texture(result, new_floor_texture_file=floor_tex)
 
         from datetime import datetime 
-        with open(f"model_{datetime.now()}.xml", "w") as f:
+        xml_filename = f"model_{datetime.now()}.xml"
+        with open(xml_filename, "w") as f:
             doc = le.fromstring(result) 
             for elem in doc.xpath('//*[attribute::name]'):
                 if (
@@ -768,6 +772,11 @@ class Kitchen(ManipulationEnv):
                 ):
                     parent=elem.getparent()
                     parent.remove(elem)
+
+            new_foldername = os.path.abspath(f"objs")
+            if not os.path.exists(new_foldername):
+                os.makedirs(new_foldername)
+
 
             # Recreate the scales
             for elem in doc.xpath('//*[attribute::scale]'):
@@ -780,7 +789,9 @@ class Kitchen(ManipulationEnv):
                     file_name = elem.attrib["file"]
                     mesh = trimesh.load_mesh(file_name)
                     mesh.apply_scale(scal)
-                    new_filename = os.path.abspath(f"{file_name.split('/')[-1]}")
+                    new_filename = os.path.abspath(f"objs/{file_name.split('/')[-1]}")
+                    print(file_name.split('/')[-1])
+                    print(new_filename)
                     mesh.export(new_filename)
                     elem.attrib["file"] = new_filename
                     del elem.attrib["scale"]
@@ -788,6 +799,9 @@ class Kitchen(ManipulationEnv):
 
             new_xml_str = (le.tostring(doc)).decode('utf-8')
             f.write(new_xml_str)
+
+            convert_geoms_to_obj(xml_filename)
+            execute(xml_filename)
             # f.write(result)
 
         return result
