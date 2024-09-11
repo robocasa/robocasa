@@ -38,7 +38,7 @@ def execute(xml_filename):
                 material_to_file[material_name] = texture_file
             else:
                 # TODO: WHAT TO DO ABOUT THESE GUYS?
-                material_to_file[material_name] = "objs/grey.png"
+                # material_to_file[material_name] = "objs/grey.png"
                 print(f"Material {material_name} with texture {texture_name} not found!")
         ### GET MESH NAME TO OBJ
         meshes = asset.findall("mesh")
