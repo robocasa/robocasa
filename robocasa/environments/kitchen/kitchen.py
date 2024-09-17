@@ -24,7 +24,7 @@ import robocasa.utils.object_utils as OU
 import robocasa.models.scenes.scene_registry as SceneRegistry
 from robocasa.models.scenes import KitchenArena
 from robocasa.models.fixtures import *
-from robocasa.models.objects.kitchen_objects import sample_kitchen_object
+from robocasa.models.objects.kitchen_object_utils import sample_kitchen_object
 from robocasa.models.objects.objects import MJCFObject
 from robocasa.utils.placement_samplers import (
     SequentialCompositeSampler,
