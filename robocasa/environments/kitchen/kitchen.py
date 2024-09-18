@@ -1265,8 +1265,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # Run superclass method first
         super().visualize(vis_settings=vis_settings)
 
-        robot_model = self.robots[0].robot_model
-        visual_geom_names = robot_model.visual_geoms
+        visual_geom_names = []
+
+        for robot in self.robots:
+            robot_model = robot.robot_model
+            visual_geom_names += robot_model.visual_geoms
 
         for name in visual_geom_names:
             rgba = self.sim.model.geom_rgba[self.sim.model.geom_name2id(name)]
