@@ -2049,8 +2049,10 @@ all_types = set()
 # populate all_types
 for (cat, cat_meta_dict) in OBJ_CATEGORIES.items():
     # types are common to both so we only need to examine one
-    k = "objaverse" if "objaverse" in cat_meta_dict else "aigen"
-    all_types = all_types.union(cat_meta_dict["types"])
+    cat_types = cat_meta_dict["types"]
+    if isinstance(cat_types, str):
+        cat_types = [cat_types]
+    all_types = all_types.union(cat_types)
 
 for t in all_types:
     OBJ_GROUPS[t] = get_cats_by_type(types=[t])
