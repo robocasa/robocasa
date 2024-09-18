@@ -1,7 +1,7 @@
 import random
 
 from robocasa.environments.kitchen.kitchen import *
-from robocasa.utils.get_all_items_by_type import get_items_by_type
+from robocasa.models.objects.kitchen_objects import get_cats_by_type
 
 
 class AfterwashSorting(Kitchen):
@@ -45,7 +45,7 @@ class AfterwashSorting(Kitchen):
 
     def _get_obj_cfgs(self):
 
-        food_items = get_items_by_type(["vegetable", "fruit"])
+        food_items = get_cats_by_type(["vegetable", "fruit"])
         food1, food2 = self.rng.choice(food_items, size=2, replace=False)
 
         cfgs = []

@@ -24,7 +24,7 @@ import robocasa.utils.object_utils as OU
 import robocasa.models.scenes.scene_registry as SceneRegistry
 from robocasa.models.scenes import KitchenArena
 from robocasa.models.fixtures import *
-from robocasa.models.objects.kitchen_objects import sample_kitchen_object
+from robocasa.models.objects.kitchen_object_utils import sample_kitchen_object
 from robocasa.models.objects.objects import MJCFObject
 from robocasa.utils.placement_samplers import (
     SequentialCompositeSampler,
@@ -429,8 +429,21 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         # helper function for creating objects
         def _create_obj(cfg):
-            obj_groups = cfg.get("obj_groups", "all")
-            exclude_obj_groups = cfg.get("exclude_obj_groups", None)
+            if "info" in cfg:
+                """
+                if cfg has "info" key in it, that means it is storing meta data already
+                that indicates which object we should be using.
+                set the obj_groups to this path to do deterministic playback
+                """
+                mjcf_path = cfg["info"]["mjcf_path"]
+                # replace with correct base path
+                new_base_path = os.path.join(robocasa.models.assets_root, "objects")
+                new_path = os.path.join(new_base_path, mjcf_path.split("/objects/")[-1])
+                obj_groups = new_path
+                exclude_obj_groups = None
+            else:
+                obj_groups = cfg.get("obj_groups", "all")
+                exclude_obj_groups = cfg.get("exclude_obj_groups", None)
             object_kwargs, object_info = self.sample_object(
                 obj_groups,
                 exclude_groups=exclude_obj_groups,

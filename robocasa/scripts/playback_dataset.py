@@ -250,8 +250,6 @@ def reset_to(env, state):
         # hide teleop visualization after restoring from model
         # env.sim.model.site_rgba[env.eef_site_id] = np.array([0., 0., 0., 0.])
         # env.sim.model.site_rgba[env.eef_cylinder_id] = np.array([0., 0., 0., 0.])
-        if hasattr(env, "unset_ep_meta"):  # unset the ep meta after reset complete
-            env.unset_ep_meta()
     if "states" in state:
         env.sim.set_state_from_flattened(state["states"])
         env.sim.forward()
