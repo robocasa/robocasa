@@ -362,7 +362,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             mujoco_objects=list(self.fixtures.values()),
         )
 
-        # if applicable: initialize the fixture locations
+        # setup fixture locations
         fxtr_placement_initializer = self._get_placement_initializer(
             self.fixture_cfgs, z_offset=0.0
         )
@@ -427,48 +427,42 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
 
-        # helper function for creating objects
-        def _create_obj(cfg):
-            if "info" in cfg:
-                """
-                if cfg has "info" key in it, that means it is storing meta data already
-                that indicates which object we should be using.
-                set the obj_groups to this path to do deterministic playback
-                """
-                mjcf_path = cfg["info"]["mjcf_path"]
-                # replace with correct base path
-                new_base_path = os.path.join(robocasa.models.assets_root, "objects")
-                new_path = os.path.join(new_base_path, mjcf_path.split("/objects/")[-1])
-                obj_groups = new_path
-                exclude_obj_groups = None
-            else:
-                obj_groups = cfg.get("obj_groups", "all")
-                exclude_obj_groups = cfg.get("exclude_obj_groups", None)
-            object_kwargs, object_info = self.sample_object(
-                obj_groups,
-                exclude_groups=exclude_obj_groups,
-                graspable=cfg.get("graspable", None),
-                washable=cfg.get("washable", None),
-                microwavable=cfg.get("microwavable", None),
-                cookable=cfg.get("cookable", None),
-                freezable=cfg.get("freezable", None),
-                max_size=cfg.get("max_size", (None, None, None)),
-                object_scale=cfg.get("object_scale", None),
-            )
-            if "name" not in cfg:
-                cfg["name"] = "obj_{}".format(obj_num + 1)
-            info = object_info
+        # create and place objects
+        self._create_objects()
 
-            object = MJCFObject(name=cfg["name"], **object_kwargs)
+        # setup object locations
+        self.placement_initializer = self._get_placement_initializer(self.object_cfgs)
+        object_placements = None
+        for i in range(1):
+            try:
+                object_placements = self.placement_initializer.sample(
+                    placed_objects=self.fxtr_placements
+                )
+            except RandomizationError as e:
+                if macros.VERBOSE:
+                    print("Randomization error in initial placement. Try #{}".format(i))
+                continue
+            break
+        if object_placements is None:
+            if macros.VERBOSE:
+                print("Could not place objects. Trying again with self._load_model()")
+            self._load_model()
+            return
+        self.object_placements = object_placements
 
-            return object, info
-
+    def _create_objects(self):
+        """
+        Creates and places objects in the kitchen environment.
+        Helper function called by _create_objects()
+        """
         # add objects
         self.objects = {}
         if "object_cfgs" in self._ep_meta:
             self.object_cfgs = self._ep_meta["object_cfgs"]
             for obj_num, cfg in enumerate(self.object_cfgs):
-                model, info = _create_obj(cfg)
+                if "name" not in cfg:
+                    cfg["name"] = "obj_{}".format(obj_num + 1)
+                model, info = self._create_obj(cfg)
                 cfg["info"] = info
                 self.objects[model.name] = model
                 self.model.merge_objects([model])
@@ -477,7 +471,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             addl_obj_cfgs = []
             for obj_num, cfg in enumerate(self.object_cfgs):
                 cfg["type"] = "object"
-                model, info = _create_obj(cfg)
+                if "name" not in cfg:
+                    cfg["name"] = "obj_{}".format(obj_num + 1)
+                model, info = self._create_obj(cfg)
                 cfg["info"] = info
                 self.objects[model.name] = model
                 self.model.merge_objects([model])
@@ -488,20 +484,21 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 if try_to_place_in and (
                     "in_container" in cfg["info"]["groups_containing_sampled_obj"]
                 ):
-                    container_cfg = {}
-                    container_cfg["name"] = cfg["name"] + "_container"
-                    container_cfg["obj_groups"] = try_to_place_in
-                    container_cfg["placement"] = deepcopy(cfg["placement"])
-                    container_cfg["type"] = "object"
+                    container_cfg = {
+                        "name": cfg["name"] + "_container",
+                        "obj_groups": cfg["placement"].get("try_to_place_in"),
+                        "placement": deepcopy(cfg["placement"]),
+                        "type": "object",
+                    }
 
                     container_kwargs = cfg["placement"].get("container_kwargs", None)
                     if container_kwargs is not None:
-                        for k, v in container_kwargs.values():
+                        for k, v in container_kwargs.items():
                             container_cfg[k] = v
 
                     # add in the new object to the model
                     addl_obj_cfgs.append(container_cfg)
-                    model, info = _create_obj(container_cfg)
+                    model, info = self._create_obj(container_cfg)
                     container_cfg["info"] = info
                     self.objects[model.name] = model
                     self.model.merge_objects([model])
@@ -520,26 +517,43 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
             # # remove objects that didn't get created
             # self.object_cfgs = [cfg for cfg in self.object_cfgs if "model" in cfg]
-        self.placement_initializer = self._get_placement_initializer(self.object_cfgs)
 
-        object_placements = None
-        for i in range(1):
-            try:
-                object_placements = self.placement_initializer.sample(
-                    placed_objects=self.fxtr_placements
-                )
-            except RandomizationError as e:
-                if macros.VERBOSE:
-                    print("Ranomization error in initial placement. Try #{}".format(i))
-                continue
+    def _create_obj(self, cfg):
+        """
+        Helper function for creating objects.
+        Called by _create_objects()
+        """
+        if "info" in cfg:
+            """
+            if cfg has "info" key in it, that means it is storing meta data already
+            that indicates which object we should be using.
+            set the obj_groups to this path to do deterministic playback
+            """
+            mjcf_path = cfg["info"]["mjcf_path"]
+            # replace with correct base path
+            new_base_path = os.path.join(robocasa.models.assets_root, "objects")
+            new_path = os.path.join(new_base_path, mjcf_path.split("/objects/")[-1])
+            obj_groups = new_path
+            exclude_obj_groups = None
+        else:
+            obj_groups = cfg.get("obj_groups", "all")
+            exclude_obj_groups = cfg.get("exclude_obj_groups", None)
+        object_kwargs, object_info = self.sample_object(
+            obj_groups,
+            exclude_groups=exclude_obj_groups,
+            graspable=cfg.get("graspable", None),
+            washable=cfg.get("washable", None),
+            microwavable=cfg.get("microwavable", None),
+            cookable=cfg.get("cookable", None),
+            freezable=cfg.get("freezable", None),
+            max_size=cfg.get("max_size", (None, None, None)),
+            object_scale=cfg.get("object_scale", None),
+        )
+        info = object_info
 
-            break
-        if object_placements is None:
-            if macros.VERBOSE:
-                print("Could not place objects. Trying again with self._load_model()")
-            self._load_model()
-            return
-        self.object_placements = object_placements
+        object = MJCFObject(name=cfg["name"], **object_kwargs)
+
+        return object, info
 
     def _setup_kitchen_references(self):
         """
