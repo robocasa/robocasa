@@ -11,6 +11,11 @@ import numpy as np
 from termcolor import colored
 from tianshou.env import SubprocVectorEnv
 
+import robosuite as suite
+from robosuite.controllers import load_composite_controller_config
+from robocasa import ALL_KITCHEN_ENVIRONMENTS
+import robocasa
+
 
 def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
     """
@@ -100,26 +105,26 @@ if __name__ == "__main__":
     parser.add_argument(
         "--camera",
         type=str,
-        default="robot0_eye_in_hand",
+        default="robot0_agentview_right",
         help="Which camera to use for collecting demos",
     )
     parser.add_argument(
         "--controller",
         type=str,
-        default="OSC_POSE",
-        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'",
+        default=None,
+        help="Choice of controller. Can be, eg. 'NONE' or 'WHOLE_BODY_IK', etc. Or path to controller json file",
     )
+
     parser.add_argument("--no_render", action="store_true")
     args = parser.parse_args()
 
     def create_env():
-        import robosuite as suite
-        from robosuite import load_controller_config
-        from robocasa import ALL_KITCHEN_ENVIRONMENTS
-        import robocasa
-
         # Get controller config
-        controller_config = load_controller_config(default_controller=args.controller)
+        # controller_config = load_controller_config(default_controller=args.controller)
+        controller_config = load_composite_controller_config(
+            controller=args.controller,
+            robot=args.robots[0],
+        )
 
         # Create argument configuration
         config = dict(
@@ -140,7 +145,7 @@ if __name__ == "__main__":
             config["camera_names"] = [
                 "robot0_agentview_left",
                 "robot0_agentview_right",
-                "robot0_eye_in_hand",
+                # "robot0_eye_in_hand",
             ]
             config["layout_ids"] = 0
             config["style_ids"] = 0

@@ -18,7 +18,9 @@ import imageio
 import mujoco
 import numpy as np
 import robosuite as suite
-from robosuite import load_controller_config
+
+# from robosuite import load_controller_config
+from robosuite.controllers import load_composite_controller_config
 from robosuite.utils.input_utils import input2action
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
 from termcolor import colored
@@ -330,7 +332,7 @@ if __name__ == "__main__":
         "--robots",
         nargs="+",
         type=str,
-        default="PandaMobile",
+        default="PandaOmron",
         help="Which robot(s) to use in the env",
     )
     parser.add_argument(
@@ -362,8 +364,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--controller",
         type=str,
-        default="OSC_POSE",
-        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'",
+        default=None,
+        help="Choice of controller. Can be, eg. 'NONE' or 'WHOLE_BODY_IK', etc. Or path to controller json file",
     )
     parser.add_argument(
         "--device",
@@ -400,8 +402,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Get controller config
-    controller_config = load_controller_config(default_controller=args.controller)
-
+    # controller_config = load_controller_config(default_controller=args.controller)
+    controller_config = load_composite_controller_config(
+        controller=args.controller,
+        robot=args.robots[0],
+    )
     env_name = args.environment
 
     # Create argument configuration

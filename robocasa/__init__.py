@@ -296,7 +296,8 @@ except ImportError:
 
 from robocasa.environments import ALL_KITCHEN_ENVIRONMENTS
 
-from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
+# from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
+from robosuite.controllers import ALL_PART_CONTROLLERS, load_composite_controller_config
 from robosuite.environments import ALL_ENVIRONMENTS
 from robosuite.models.grippers import ALL_GRIPPERS
 from robosuite.robots import ALL_ROBOTS
