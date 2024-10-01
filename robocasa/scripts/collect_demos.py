@@ -433,8 +433,10 @@ if __name__ == "__main__":
             args.camera = None
     else:
         mirror_actions = True
-        config["layout_ids"] = args.layout
-        config["style_ids"] = args.style
+        if args.layout is not None:
+            config["layout_ids"] = args.layout
+        if args.style is not None:
+            config["style_ids"] = args.style
         ### update config for kitchen envs ###
         if args.obj_groups is not None:
             config.update({"obj_groups": args.obj_groups})
