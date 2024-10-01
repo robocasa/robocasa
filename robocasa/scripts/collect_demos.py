@@ -428,7 +428,7 @@ if __name__ == "__main__":
     # controller_config = load_controller_config(default_controller=args.controller)
     controller_config = load_composite_controller_config(
         controller=args.controller,
-        robot=args.robots[0],
+        robot=args.robots if isinstance(args.robots, str) else args.robots[0],
     )
     env_name = args.environment
 
