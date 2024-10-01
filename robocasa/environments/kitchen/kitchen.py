@@ -273,10 +273,17 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # intialize cameras
         self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
 
-        initial_qpos = None
         if isinstance(robots, str):
             robots = [robots]
-        if robots[0] == "PandaMobile":
+
+        # backward compatibility: rename all robots that were previously called PandaMobile -> PandaOmron
+        for i in range(len(robots)):
+            if robots[i] == "PandaMobile":
+                robots[i] = "PandaOmron"
+        assert len(robots) == 1
+
+        initial_qpos = None
+        if robots[0] == "PandaOmron":
             initial_qpos = (
                 (
                     -0.01612974,

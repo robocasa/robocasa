@@ -66,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("--task", type=str, default="PnPCounterToCab", help="task")
     parser.add_argument("--layout", type=int, help="kitchen layout (choose number 0-9)")
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
-    parser.add_argument("--robot", type=str, help="robot", default="PandaMobile")
+    parser.add_argument("--robot", type=str, help="robot", default="PandaOmron")
     args = parser.parse_args()
 
     raw_layouts = dict(

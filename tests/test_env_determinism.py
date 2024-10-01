@@ -98,7 +98,7 @@ class TestEnvDeterminism(unittest.TestCase):
 
             config = {
                 "env_name": env,
-                "robots": "PandaMobile",
+                "robots": "PandaOmron",
                 "controller_configs": load_controller_config(
                     default_controller="OSC_POSE"
                 ),
@@ -132,7 +132,7 @@ class TestEnvDeterminism(unittest.TestCase):
 
         config = {
             "env_name": "PnPCounterToCab",
-            "robots": "PandaMobile",
+            "robots": "PandaOmron",
             "controller_configs": load_controller_config(default_controller="OSC_POSE"),
             "has_renderer": False,
             "has_offscreen_renderer": False,
@@ -163,7 +163,7 @@ class TestEnvDeterminism(unittest.TestCase):
 
         config = {
             "env_name": "PnPCounterToCab",
-            "robots": "PandaMobile",
+            "robots": "PandaOmron",
             "controller_configs": load_controller_config(default_controller="OSC_POSE"),
             "has_renderer": False,
             "has_offscreen_renderer": False,

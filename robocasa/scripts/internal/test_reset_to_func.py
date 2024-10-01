@@ -8,7 +8,7 @@ env_meta = {
     "env_version": "1.4.1",
     "type": 1,
     "env_kwargs": {
-        "robots": "PandaMobile",
+        "robots": "PandaOmron",
         "controller_configs": {
             "type": "OSC_POSE",
             "input_max": 1,

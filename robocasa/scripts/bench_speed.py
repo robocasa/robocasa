@@ -153,7 +153,7 @@ if __name__ == "__main__":
             if args.env == "KitchenDemo" and args.n_objs is not None:
                 config["num_objs"] = args.n_objs
 
-            config["robots"] = args.robots or "PandaMobile"
+            config["robots"] = args.robots or "PandaOmron"
         else:
             config["robots"] = args.robots or "Panda"
 
