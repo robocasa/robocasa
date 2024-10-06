@@ -164,6 +164,9 @@ def download_and_extract_zip(
             )
             download_success = True
             break
+        except KeyboardInterrupt:
+            abort()
+            return
         except:
             print("Error downloading after try #{}".format(i + 1))
 
