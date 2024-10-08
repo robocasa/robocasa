@@ -2,23 +2,38 @@ from robocasa.environments.kitchen.kitchen import *
 
 
 class CleanMicrowave(Kitchen):
+    """
+    Clean Microwave: composite task for Sanitize Surface activity.
+
+    Simulates the preparation for cleaning the microwave.
+
+    Steps:
+        Open the microwave, pick the sponge from the counter and place it in the
+        microwave.
+    """
+
+    # Exclude layout 8 because the microwave is far from counters
     EXCLUDE_LAYOUTS = [8]
+
     def __init__(self, *args, **kwargs):
-        super().__init__( *args, **kwargs)
-    
+        super().__init__(*args, **kwargs)
+
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.microwave = self.register_fixture_ref(
-            "microwave", dict(id=FixtureType.MICROWAVE),
+            "microwave",
+            dict(id=FixtureType.MICROWAVE),
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.microwave),
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.distr_counter = self.register_fixture_ref(
-            "distr_counter", dict(id=FixtureType.COUNTER, ref=self.microwave),
+            "distr_counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.init_robot_base_pos = self.microwave
-    
+
     def _reset_internal(self):
         """
         Resets simulation internal configurations.
@@ -28,38 +43,44 @@ class CleanMicrowave(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"open the microwave. Then, pick the sponge from the counter and place it in the microwave"
+        ep_meta[
+            "lang"
+        ] = f"open the microwave. Then, pick the sponge from the counter and place it in the microwave"
         return ep_meta
-    
+
     def _get_obj_cfgs(self):
         cfgs = []
 
-        cfgs.append(dict(
-            name="obj",
-            obj_groups="sponge",
-            placement=dict(
-                fixture=self.counter,
-                sample_region_kwargs=dict(
-                    ref=self.microwave,
+        cfgs.append(
+            dict(
+                name="obj",
+                obj_groups="sponge",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", -1.0),
-            ),
-        ))
+            )
+        )
 
         # distractors
-        cfgs.append(dict(
-            name="distr_counter",
-            obj_groups="all",
-            placement=dict(
-                fixture=self.distr_counter,
-                sample_region_kwargs=dict(
-                    ref=self.microwave,
+        cfgs.append(
+            dict(
+                name="distr_counter",
+                obj_groups="all",
+                placement=dict(
+                    fixture=self.distr_counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
+                    size=(0.30, 0.30),
+                    pos=("ref", 1.0),
                 ),
-                size=(0.30, 0.30),
-                pos=("ref", 1.0),
-            ),
-        ))
+            )
+        )
 
         return cfgs
 
@@ -67,4 +88,4 @@ class CleanMicrowave(Kitchen):
 
         obj_micro_contact = OU.obj_inside_of(self, "obj", self.microwave)
         gripper_obj_far = OU.gripper_obj_far(self)
-        return  obj_micro_contact and gripper_obj_far
+        return obj_micro_contact and gripper_obj_far

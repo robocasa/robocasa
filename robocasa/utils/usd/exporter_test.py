@@ -18,7 +18,6 @@ import logging
 import os
 
 import mujoco
-
 from absl.testing import absltest
 from etils import epath
 
@@ -26,21 +25,22 @@ from etils import epath
 # pylint: disable=python.style(g-import-not-at-top)
 execute_test = True
 try:
-  from robocasa.utils.usd import exporter as exporter_module
-  from pxr import Usd
+    from pxr import Usd
+
+    from robocasa.utils.usd import exporter as exporter_module
 except ImportError:
-  logging.warning('Skipping test due to missing import')
-  execute_test = False
+    logging.warning("Skipping test due to missing import")
+    execute_test = False
 # pylint: enable=python.style(g-import-not-at-top)
 
+
 class ExporterTest(absltest.TestCase):
+    def test_usd_export(self):
+        if not execute_test:
+            return
 
-  def test_usd_export(self):
-    if not execute_test:
-      return
-
-    output_dir = os.getenv('TEST_UNDECLARED_OUTPUTS_DIR')
-    xml = """
+        output_dir = os.getenv("TEST_UNDECLARED_OUTPUTS_DIR")
+        xml = """
 <mujoco>
   <worldbody>
     <camera name="closeup" pos="0 -6 0" xyaxes="1 0 0 0 1 100"/>
@@ -48,23 +48,26 @@ class ExporterTest(absltest.TestCase):
   </worldbody>
 </mujoco>
 """
-    model = mujoco.MjModel.from_xml_string(xml)
-    data = mujoco.MjData(model)
-    exporter = exporter_module.USDExporter(
-        model,
-        output_directory_name="mujoco_usdpkg",
-        output_directory_root=output_dir,
-    )
-    exporter.update_scene(data)
-    exporter.save_scene("export.usda")
+        model = mujoco.MjModel.from_xml_string(xml)
+        data = mujoco.MjData(model)
+        exporter = exporter_module.USDExporter(
+            model,
+            output_directory_name="mujoco_usdpkg",
+            output_directory_root=output_dir,
+        )
+        exporter.update_scene(data)
+        exporter.save_scene("export.usda")
 
-    with open(os.path.join(
-        output_dir, "mujoco_usdpkg/frames", "frame_1_.export.usda"), "r") as f:
-      golden_path = os.path.join(
-          epath.resource_path("mujoco"), "testdata", "usd_golden.usda")
-      with open(golden_path, "r") as golden_file:
-        self.assertEqual(f.read(), golden_file.read())
+        with open(
+            os.path.join(output_dir, "mujoco_usdpkg/frames", "frame_1_.export.usda"),
+            "r",
+        ) as f:
+            golden_path = os.path.join(
+                epath.resource_path("mujoco"), "testdata", "usd_golden.usda"
+            )
+            with open(golden_path, "r") as golden_file:
+                self.assertEqual(f.read(), golden_file.read())
 
 
 if __name__ == "__main__":
-  absltest.main()
+    absltest.main()
