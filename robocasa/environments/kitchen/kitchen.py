@@ -800,8 +800,8 @@ class Kitchen(ManipulationEnv):
             new_xml_str = (le.tostring(doc)).decode('utf-8')
             f.write(new_xml_str)
 
-            convert_geoms_to_obj(xml_filename)
-            execute(xml_filename)
+            # convert_geoms_to_obj(xml_filename)
+            # execute(xml_filename)
             # f.write(result)
 
         return result
