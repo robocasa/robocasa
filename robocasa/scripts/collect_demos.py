@@ -7,6 +7,7 @@ script.
 """
 
 import argparse
+from copy import deepcopy
 import datetime
 import json
 import os
@@ -21,7 +22,6 @@ import robosuite as suite
 
 # from robosuite import load_controller_config
 from robosuite.controllers import load_composite_controller_config
-from robosuite.utils.input_utils import input2action
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
 from termcolor import colored
 
@@ -34,8 +34,12 @@ assert (
 ), "MuJoCo version must be 3.1.1. Please run pip install mujoco==3.1.1"
 
 
-def is_empty_input_spacemouse(action):
-    if np.all(action[:6] == 0) and action[6] == -1 and np.all(action[7:11] == 0):
+def is_empty_input_spacemouse(action_dict):
+    if (
+        np.all(action_dict["right_delta"] == 0)
+        and action_dict["base_mode"] == -1
+        and np.all(action_dict["base"] == 0)
+    ):
         return True
     return False
 
@@ -111,61 +115,35 @@ def collect_human_trajectory(
 
         # Set active robot
         active_robot = env.robots[device.active_robot]
-        prev_gripper_actions = all_prev_gripper_actions[device.active_robot]
-
-        arm = device.active_arm
-        # Check if we have gripper actions for the active arm
-        arm_using_gripper = (
-            f"{arm}_gripper" in all_prev_gripper_actions[device.active_robot]
-        )
+        active_arm = device.active_arm
 
         # Get the newest action
-        input_action, _ = input2action(
-            device=device,
-            robot=active_robot,
-            active_arm=arm,
-            env_configuration=env_configuration,
-            mirror_actions=mirror_actions,
-        )
+        input_ac_dict = device.input2action()
 
         # If action is none, then this a reset so we should break
-        if input_action is None:
+        if input_ac_dict is None:
             discard_traj = True
             break
 
-        if is_empty_input_spacemouse(input_action):
+        action_dict = deepcopy(input_ac_dict)
+
+        # set arm actions
+        for arm in active_robot.arms:
+            controller_input_type = active_robot.part_controllers[arm].input_type
+            if controller_input_type == "delta":
+                action_dict[arm] = input_ac_dict[f"{arm}_delta"]
+            elif controller_input_type == "absolute":
+                action_dict[arm] = input_ac_dict[f"{arm}_abs"]
+            else:
+                raise ValueError
+
+        if is_empty_input_spacemouse(action_dict):
             if not nonzero_ac_seen:
                 if render:
                     env.render()
                 continue
         else:
             nonzero_ac_seen = True
-
-        action_dict = {}
-        arm_actions = input_action[:6].copy()
-        # flip some actions
-        arm_actions[0], arm_actions[1] = arm_actions[1], -arm_actions[0]
-        arm_actions[3], arm_actions[4] = arm_actions[4], -arm_actions[3]
-
-        action_dict[arm] = arm_actions
-        if hasattr(active_robot, "base"):
-            base_action = input_action[-5:-2].copy()
-            # flip some actions
-            base_action[0], base_action[1] = base_action[1], -base_action[0]
-            action_dict[active_robot.base] = base_action
-            action_dict["base_mode"] = input_action[-1]
-        if hasattr(active_robot, "torso"):
-            torso_action = input_action[-2:-1].copy()
-            if np.abs(torso_action[0]) < 0.50:
-                torso_action[:] = 0.0
-            action_dict[active_robot.torso] = torso_action
-        if arm_using_gripper:
-            action_dict[f"{arm}_gripper"] = np.repeat(
-                input_action[6:7], active_robot.gripper[arm].dof
-            )
-            prev_gripper_actions[f"{arm}_gripper"] = np.repeat(
-                input_action[6:7], active_robot.gripper[arm].dof
-            )
 
         # Maintain gripper state for each robot but only update the active robot with action
         env_action = [
@@ -174,20 +152,6 @@ def collect_human_trajectory(
         ]
         env_action[device.active_robot] = active_robot.create_action_vector(action_dict)
         env_action = np.concatenate(env_action)
-
-        # mode_action = input_action[-1]
-
-        # if mode_action > 0:
-        #     env.robots[0].enable_parts(base=True, right=True, left=True, torso=True)
-        # else:
-        #     env.robots[0].enable_parts(
-        #         base=False, right=True, left=True, torso=False
-        #     )
-        # else:
-        #     arm_actions = input_action
-        #     action = env.robots[0].create_action_vector(
-        #         {arm: arm_actions[:-1], f"{arm}_gripper": arm_actions[-1:]}
-        #     )
 
         # Run environment step
         obs, _, _, _ = env.step(env_action)
@@ -430,6 +394,13 @@ if __name__ == "__main__":
         controller=args.controller,
         robot=args.robots if isinstance(args.robots, str) else args.robots[0],
     )
+
+    if controller_config["type"] == "WHOLE_BODY_MINK_IK":
+        # mink-speicific import. requires installing mink
+        from robosuite.examples.third_party_controller.mink_controller import (
+            WholeBodyMinkIK,
+        )
+
     env_name = args.environment
 
     # Create argument configuration
