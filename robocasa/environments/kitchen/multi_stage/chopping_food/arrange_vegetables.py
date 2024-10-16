@@ -120,7 +120,8 @@ class ArrangeVegetablesSimple(Kitchen):
     """
 
     def __init__(self, layout_ids=0, style_ids=1, *args, **kwargs):
-        super().__init__(layout_ids=layout_ids, style_ids=style_ids, *args, **kwargs)
+        ### ignore the layout_ids and style_ids provided in the constructor and hardcode them
+        super().__init__(layout_ids=0, style_ids=1, *args, **kwargs)
 
         assert self.layout_and_style_ids == [(0, 1)]
 
