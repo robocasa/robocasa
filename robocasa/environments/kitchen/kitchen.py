@@ -17,6 +17,8 @@ from robosuite.utils.observables import Observable, sensor
 from robosuite.environments.base import EnvMeta
 from scipy.spatial.transform import Rotation
 
+from robosuite.models.robots import PandaOmron
+
 import robocasa
 import robocasa.macros as macros
 import robocasa.utils.camera_utils as CamUtils
@@ -282,20 +284,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 robots[i] = "PandaOmron"
         assert len(robots) == 1
 
-        initial_qpos = None
-        if robots[0] == "PandaOmron":
-            initial_qpos = (
-                (
-                    -0.01612974,
-                    -1.03446714,
-                    -0.02397936,
-                    -2.27550888,
-                    0.03932365,
-                    1.51639493,
-                    0.69615947,
-                ),
-            )
-
         # set up currently unused variables (used in robosuite)
         self.use_object_obs = use_object_obs
         self.reward_scale = reward_scale
@@ -308,7 +296,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             # composite_controller_configs={"type": "HYBRID_MOBILE_BASE"},
             base_types=base_types,
             gripper_types=gripper_types,
-            initial_qpos=initial_qpos,
             initialization_noise=initialization_noise,
             use_camera_obs=use_camera_obs,
             has_renderer=has_renderer,
@@ -336,6 +323,18 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         Loads an xml model, puts it in self.model
         """
         super()._load_model()
+
+        for robot in self.robots:
+            if isinstance(robot.robot_model, PandaOmron):
+                robot.init_qpos = (
+                    -0.01612974,
+                    -1.03446714,
+                    -0.02397936,
+                    -2.27550888,
+                    0.03932365,
+                    1.51639493,
+                    0.69615947,
+                )
 
         # determine sample layout and style
         if "layout_id" in self._ep_meta and "style_id" in self._ep_meta:
@@ -1321,7 +1320,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         for name in visual_geom_names:
             rgba = self.sim.model.geom_rgba[self.sim.model.geom_name2id(name)]
             if self.translucent_robot:
-                rgba[-1] = 0.05
+                rgba[-1] = 0.10
             else:
                 rgba[-1] = 1.0
 
