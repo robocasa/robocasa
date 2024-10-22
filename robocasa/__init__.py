@@ -302,7 +302,7 @@ from robosuite.environments import ALL_ENVIRONMENTS
 from robosuite.models.grippers import ALL_GRIPPERS
 from robosuite.robots import ALL_ROBOTS
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __logo__ = """
       ;     /        ,--.
      ["]   ["]  ,<  |__**|
