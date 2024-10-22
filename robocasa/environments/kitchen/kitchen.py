@@ -1321,7 +1321,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         for name in visual_geom_names:
             rgba = self.sim.model.geom_rgba[self.sim.model.geom_name2id(name)]
             if self.translucent_robot:
-                rgba[-1] = 0.20
+                rgba[-1] = 0.05
             else:
                 rgba[-1] = 1.0
 

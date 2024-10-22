@@ -29,10 +29,6 @@ import robocasa
 import robocasa.macros as macros
 from robocasa.models.fixtures import FixtureType
 
-assert (
-    mujoco.__version__ == "3.1.1"
-), "MuJoCo version must be 3.1.1. Please run pip install mujoco==3.1.1"
-
 
 def is_empty_input_spacemouse(action_dict):
     if (
@@ -118,7 +114,7 @@ def collect_human_trajectory(
         active_arm = device.active_arm
 
         # Get the newest action
-        input_ac_dict = device.input2action()
+        input_ac_dict = device.input2action(mirror_actions=mirror_actions)
 
         # If action is none, then this a reset so we should break
         if input_ac_dict is None:
