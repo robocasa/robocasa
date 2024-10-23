@@ -13,6 +13,7 @@ from robosuite.utils.mjcf_utils import (
     find_elements,
     xml_path_completion,
 )
+from robosuite.models.robots.robot_model import REGISTERED_ROBOTS
 from robosuite.utils.observables import Observable, sensor
 from robosuite.environments.base import EnvMeta
 from scipy.spatial.transform import Rotation
@@ -39,6 +40,7 @@ from robocasa.utils.texture_swap import (
     replace_floor_texture,
     replace_wall_texture,
 )
+from robocasa.utils.config_utils import refactor_composite_controller_config
 
 
 REGISTERED_KITCHEN_ENVS = {}
@@ -289,11 +291,17 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         self.reward_scale = reward_scale
         self.reward_shaping = reward_shaping
 
+        if controller_configs is not None:
+            # detect if using stale controller configs (before robosuite v1.5.1) and update to new convention
+            arms = REGISTERED_ROBOTS[robots[0]].arms
+            controller_configs = refactor_composite_controller_config(
+                controller_configs, robots[0], arms
+            )
+
         super().__init__(
             robots=robots,
             env_configuration=env_configuration,
             controller_configs=controller_configs,
-            # composite_controller_configs={"type": "HYBRID_MOBILE_BASE"},
             base_types=base_types,
             gripper_types=gripper_types,
             initialization_noise=initialization_noise,
