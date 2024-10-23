@@ -343,6 +343,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     1.51639493,
                     0.69615947,
                 )
+                robot.init_torso_qpos = np.array([0.0])
 
         # determine sample layout and style
         if "layout_id" in self._ep_meta and "style_id" in self._ep_meta:
