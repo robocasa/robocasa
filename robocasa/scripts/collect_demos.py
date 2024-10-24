@@ -18,7 +18,7 @@ import h5py
 import imageio
 import mujoco
 import numpy as np
-import robosuite as suite
+import robosuite
 
 # from robosuite import load_controller_config
 from robosuite.controllers import load_composite_controller_config
@@ -295,7 +295,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
     now = datetime.datetime.now()
     grp.attrs["date"] = "{}-{}-{}".format(now.month, now.day, now.year)
     grp.attrs["time"] = "{}:{}:{}".format(now.hour, now.minute, now.second)
-    grp.attrs["repository_version"] = suite.__version__
+    grp.attrs["robocasa_version"] = robocasa.__version__
+    grp.attrs["robosuite_version"] = robosuite.__version__
+    grp.attrs["mujoco_version"] = mujoco.__version__
     grp.attrs["env"] = env_name
     grp.attrs["env_info"] = env_info
 
@@ -446,7 +448,7 @@ if __name__ == "__main__":
         # config["obj_registries"] = ("aigen",)
 
     # Create environment
-    env = suite.make(
+    env = robosuite.make(
         **config,
         has_renderer=True,
         has_offscreen_renderer=False,

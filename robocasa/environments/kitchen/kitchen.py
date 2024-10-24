@@ -297,6 +297,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             controller_configs = refactor_composite_controller_config(
                 controller_configs, robots[0], arms
             )
+            if robots[0] == "PandaOmron":
+                if "composite_controller_specific_configs" not in controller_configs:
+                    controller_configs["composite_controller_specific_configs"] = {}
+                controller_configs["composite_controller_specific_configs"][
+                    "body_part_ordering"
+                ] = ["right", "right_gripper", "base", "torso"]
 
         super().__init__(
             robots=robots,
