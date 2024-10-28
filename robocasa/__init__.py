@@ -302,6 +302,25 @@ from robosuite.environments import ALL_ENVIRONMENTS
 from robosuite.models.grippers import ALL_GRIPPERS
 from robosuite.robots import ALL_ROBOTS
 
+import mujoco
+
+assert (
+    mujoco.__version__ == "3.1.1"
+), "MuJoCo version must be 3.1.1. Please run pip install mujoco==3.1.1"
+
+import numpy
+
+assert numpy.__version__ in [
+    "1.23.2",
+    "1.23.3",
+], "numpy version must be either 1.23.2 or 1.23.3. Please install one of these versions."
+
+import robosuite
+
+assert robosuite.__version__ in [
+    "1.5.0"
+], "robosuite version must be 1.5.0. Please install the correct version"
+
 __version__ = "0.2.0"
 __logo__ = """
       ;     /        ,--.

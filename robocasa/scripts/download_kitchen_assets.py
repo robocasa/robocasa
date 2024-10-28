@@ -18,7 +18,7 @@ DOWNLOAD_ASSET_REGISTRY = dict(
     ),
     fixtures=dict(
         message="Downloading fixtures",
-        url="https://utexas.box.com/shared/static/956d0w2ucqs7d3eors1idsohgum57nli.zip",
+        url="https://utexas.box.com/shared/static/pobhbsjyacahg2mx8x4rm5fkz3wlmyzp.zip",
         folder=os.path.join(robocasa.__path__[0], "models/assets/fixtures"),
         check_folder_exists=False,
     ),
