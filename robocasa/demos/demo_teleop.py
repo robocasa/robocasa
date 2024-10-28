@@ -4,7 +4,7 @@ import time
 from collections import OrderedDict
 
 import robosuite
-from robosuite import load_controller_config
+from robosuite.controllers import load_composite_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     config = {
         "env_name": args.task,
         "robots": args.robot,
-        "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+        "controller_configs": load_composite_controller_config(robot=args.robot),
         "layout_ids": args.layout,
         "style_ids": args.style,
         "translucent_robot": True,

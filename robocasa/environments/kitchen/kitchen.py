@@ -1107,6 +1107,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         for elem in find_elements(
             root=worldbody, tags=["geom", "site", "body", "joint"], return_first=False
         ):
+            if elem.get("name") is None:
+                continue
             if elem.get("name").startswith("base0_"):
                 old_name = elem.get("name")
                 new_name = "mobilebase0_" + old_name[6:]
@@ -1116,6 +1118,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             tags=["velocity", "position", "motor", "general"],
             return_first=False,
         ):
+            if elem.get("name") is None:
+                continue
             if elem.get("name").startswith("base0_"):
                 old_name = elem.get("name")
                 new_name = "mobilebase0_" + old_name[6:]
@@ -1125,6 +1129,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             tags=["velocity", "position", "motor", "general"],
             return_first=False,
         ):
+            if elem.get("joint") is None:
+                continue
             if elem.get("joint").startswith("base0_"):
                 old_joint = elem.get("joint")
                 new_joint = "mobilebase0_" + old_joint[6:]
