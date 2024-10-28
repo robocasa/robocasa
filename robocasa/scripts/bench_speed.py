@@ -87,7 +87,7 @@ if __name__ == "__main__":
         "--robots",
         nargs="+",
         type=str,
-        default=None,
+        default="PandaOmron",
         help="Which robot(s) to use in the env",
     )
     parser.add_argument(
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         # controller_config = load_controller_config(default_controller=args.controller)
         controller_config = load_composite_controller_config(
             controller=args.controller,
-            robot=args.robots[0],
+            robot=args.robots,
         )
 
         # Create argument configuration
