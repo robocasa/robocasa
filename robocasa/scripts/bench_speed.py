@@ -105,7 +105,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--camera",
         type=str,
-        default="robot0_agentview_right",
+        default=None,
         help="Which camera to use for collecting demos",
     )
     parser.add_argument(
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         config = dict(
             controller_configs=controller_config,
             env_name=args.env,
-            has_renderer=(not args.no_render),
+            has_renderer=False,
             has_offscreen_renderer=(not args.no_render),
             use_camera_obs=(not args.no_render),
             render_camera=args.camera,
@@ -149,6 +149,7 @@ if __name__ == "__main__":
             ]
             config["layout_ids"] = 0
             config["style_ids"] = 0
+            config["camera"] = "robot0_agentview_right"
 
             if args.env == "KitchenDemo" and args.n_objs is not None:
                 config["num_objs"] = args.n_objs
