@@ -4,7 +4,7 @@ import time
 from collections import OrderedDict
 
 import robosuite
-from robosuite import load_controller_config
+from robosuite.controllers import load_composite_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
@@ -67,6 +67,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device", type=str, default="keyboard", choices=["keyboard", "spacemouse"]
     )
+    parser.add_argument("--robot", type=str, help="robot")
     args = parser.parse_args()
 
     tasks = OrderedDict(
@@ -92,12 +93,19 @@ if __name__ == "__main__":
         args.task = choose_option(
             tasks, "task", default="PnPCounterToCab", show_keys=True
         )
+    robots = OrderedDict([(0, "PandaOmron"), (1, "GR1FloatingBody")])
+
+    if args.robot is None:
+        robot_choice = choose_option(
+            robots, "robot", default=0, default_message="PandaOmron"
+        )
+        args.robot = robots[robot_choice]
 
     # Create argument configuration
     config = {
         "env_name": args.task,
-        "robots": "PandaMobile",
-        "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+        "robots": args.robot,
+        "controller_configs": load_composite_controller_config(robot=args.robot),
         "layout_ids": args.layout,
         "style_ids": args.style,
         "translucent_robot": True,

@@ -13,9 +13,12 @@ from robosuite.utils.mjcf_utils import (
     find_elements,
     xml_path_completion,
 )
+from robosuite.models.robots.robot_model import REGISTERED_ROBOTS
 from robosuite.utils.observables import Observable, sensor
 from robosuite.environments.base import EnvMeta
 from scipy.spatial.transform import Rotation
+
+from robosuite.models.robots import PandaOmron
 
 import robocasa
 import robocasa.macros as macros
@@ -37,6 +40,7 @@ from robocasa.utils.texture_swap import (
     replace_floor_texture,
     replace_wall_texture,
 )
+from robocasa.utils.config_utils import refactor_composite_controller_config
 
 
 REGISTERED_KITCHEN_ENVS = {}
@@ -53,6 +57,17 @@ class KitchenEnvMeta(EnvMeta):
         cls = super().__new__(meta, name, bases, class_dict)
         register_kitchen_env(cls)
         return cls
+
+
+_ROBOT_POS_OFFSETS: dict[str, list[float]] = {
+    "GR1FloatingBody": [0, 0, 0.97],
+    "GR1": [0, 0, 0.97],
+    "GR1FixedLowerBody": [0, 0, 0.97],
+    "G1FloatingBody": [0, -0.33, 0],
+    "G1": [0, -0.33, 0],
+    "G1FixedLowerBody": [0, -0.33, 0],
+    "GoogleRobot": [0, 0, 0],
+}
 
 
 class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
@@ -207,7 +222,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         render_gpu_device_id=-1,
         control_freq=20,
         horizon=1000,
-        ignore_done=False,
+        ignore_done=True,
         hard_reset=True,
         camera_names="agentview",
         camera_heights=256,
@@ -262,35 +277,39 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # intialize cameras
         self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
 
-        initial_qpos = None
         if isinstance(robots, str):
             robots = [robots]
-        if robots[0] == "PandaMobile":
-            initial_qpos = (
-                (
-                    -0.01612974,
-                    -1.03446714,
-                    -0.02397936,
-                    -2.27550888,
-                    0.03932365,
-                    1.51639493,
-                    0.69615947,
-                ),
-            )
+
+        # backward compatibility: rename all robots that were previously called PandaMobile -> PandaOmron
+        for i in range(len(robots)):
+            if robots[i] == "PandaMobile":
+                robots[i] = "PandaOmron"
+        assert len(robots) == 1
 
         # set up currently unused variables (used in robosuite)
         self.use_object_obs = use_object_obs
         self.reward_scale = reward_scale
         self.reward_shaping = reward_shaping
 
+        if controller_configs is not None:
+            # detect if using stale controller configs (before robosuite v1.5.1) and update to new convention
+            arms = REGISTERED_ROBOTS[robots[0]].arms
+            controller_configs = refactor_composite_controller_config(
+                controller_configs, robots[0], arms
+            )
+            if robots[0] == "PandaOmron":
+                if "composite_controller_specific_configs" not in controller_configs:
+                    controller_configs["composite_controller_specific_configs"] = {}
+                controller_configs["composite_controller_specific_configs"][
+                    "body_part_ordering"
+                ] = ["right", "right_gripper", "base", "torso"]
+
         super().__init__(
             robots=robots,
             env_configuration=env_configuration,
             controller_configs=controller_configs,
-            composite_controller_configs={"type": "HYBRID_MOBILE_BASE"},
             base_types=base_types,
             gripper_types=gripper_types,
-            initial_qpos=initial_qpos,
             initialization_noise=initialization_noise,
             use_camera_obs=use_camera_obs,
             has_renderer=has_renderer,
@@ -318,6 +337,19 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         Loads an xml model, puts it in self.model
         """
         super()._load_model()
+
+        for robot in self.robots:
+            if isinstance(robot.robot_model, PandaOmron):
+                robot.init_qpos = (
+                    -0.01612974,
+                    -1.03446714,
+                    -0.02397936,
+                    -2.27550888,
+                    0.03932365,
+                    1.51639493,
+                    0.69615947,
+                )
+                robot.init_torso_qpos = np.array([0.0])
 
         # determine sample layout and style
         if "layout_id" in self._ep_meta and "style_id" in self._ep_meta:
@@ -628,11 +660,23 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         ):
             base_to_edge[1] -= 0.10
 
+        # apply robot-specific offset relative to the base fixture for x,y dims
+        robot_model = self.robots[0].robot_model
+        robot_class_name = robot_model.__class__.__name__
+        if robot_class_name in _ROBOT_POS_OFFSETS:
+            for dimension in range(0, 2):
+                base_to_edge[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][
+                    dimension
+                ]
+
         # step 3: transform offset to global coordinates
         robot_base_pos = np.zeros(3)
         robot_base_pos[0:2] = OU.get_pos_after_rel_offset(base_fixture, base_to_edge)[
             0:2
         ]
+        # apply robot-specific absolutely for z dim
+        if robot_class_name in _ROBOT_POS_OFFSETS:
+            robot_base_pos[2] = _ROBOT_POS_OFFSETS[robot_class_name][2]
         robot_base_ori = np.array([0, 0, base_fixture.rot + np.pi / 2])
 
         return robot_base_pos, robot_base_ori
@@ -989,6 +1033,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         tree = ET.fromstring(xml_str)
         root = tree
         worldbody = root.find("worldbody")
+        actuator = root.find("actuator")
         asset = root.find("asset")
         meshes = asset.findall("mesh")
         textures = asset.findall("texture")
@@ -1039,6 +1084,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 cam_root = find_elements(
                     root=worldbody, tags="body", attribs={"name": parent_body}
                 )
+                if cam_root is None:
+                    # camera config refers to body that doesnt exist on the robot
+                    continue
 
             cam = find_elements(
                 root=cam_root, tags="camera", attribs={"name": cam_name}
@@ -1054,6 +1102,39 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             cam.set("quat", array_to_string(cam_config["quat"]))
             for (k, v) in cam_config.get("camera_attribs", {}).items():
                 cam.set(k, v)
+
+        # replace base -> mobilebase (this is needed for old PandaOmron demos)
+        for elem in find_elements(
+            root=worldbody, tags=["geom", "site", "body", "joint"], return_first=False
+        ):
+            if elem.get("name") is None:
+                continue
+            if elem.get("name").startswith("base0_"):
+                old_name = elem.get("name")
+                new_name = "mobilebase0_" + old_name[6:]
+                elem.set("name", new_name)
+        for elem in find_elements(
+            root=actuator,
+            tags=["velocity", "position", "motor", "general"],
+            return_first=False,
+        ):
+            if elem.get("name") is None:
+                continue
+            if elem.get("name").startswith("base0_"):
+                old_name = elem.get("name")
+                new_name = "mobilebase0_" + old_name[6:]
+                elem.set("name", new_name)
+        for elem in find_elements(
+            root=actuator,
+            tags=["velocity", "position", "motor", "general"],
+            return_first=False,
+        ):
+            if elem.get("joint") is None:
+                continue
+            if elem.get("joint").startswith("base0_"):
+                old_joint = elem.get("joint")
+                new_joint = "mobilebase0_" + old_joint[6:]
+                elem.set("joint", new_joint)
 
         # result = ET.tostring(root, encoding="utf8").decode("utf8")
         result = ET.tostring(root).decode("utf8")
@@ -1288,7 +1369,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         for name in visual_geom_names:
             rgba = self.sim.model.geom_rgba[self.sim.model.geom_name2id(name)]
             if self.translucent_robot:
-                rgba[-1] = 0.20
+                rgba[-1] = 0.10
             else:
                 rgba[-1] = 1.0
 

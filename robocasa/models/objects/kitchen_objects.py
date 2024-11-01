@@ -3,6 +3,7 @@ import robocasa
 
 BASE_ASSET_ZOO_PATH = os.path.join(robocasa.models.assets_root, "objects")
 
+
 # Constant that contains information about each object category. These will be used to generate the ObjCat classes for each category
 OBJ_CATEGORIES = dict(
     liquor=dict(
@@ -2053,7 +2054,6 @@ for (cat, cat_meta_dict) in OBJ_CATEGORIES.items():
         cat_types = [cat_types]
     all_types = all_types.union(cat_types)
 
-# populate OBJ_GROUPS which maps types to categories associated with the type
 for t in all_types:
     OBJ_GROUPS[t] = get_cats_by_type(types=[t])
 

@@ -7,6 +7,7 @@ script.
 """
 
 import argparse
+from copy import deepcopy
 import datetime
 import json
 import os
@@ -17,9 +18,10 @@ import h5py
 import imageio
 import mujoco
 import numpy as np
-import robosuite as suite
-from robosuite import load_controller_config
-from robosuite.utils.input_utils import input2action
+import robosuite
+
+# from robosuite import load_controller_config
+from robosuite.controllers import load_composite_controller_config
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
 from termcolor import colored
 
@@ -28,8 +30,12 @@ import robocasa.macros as macros
 from robocasa.models.fixtures import FixtureType
 
 
-def is_empty_input_spacemouse(action):
-    if np.all(action[:6] == 0) and action[6] == -1 and np.all(action[7:11] == 0):
+def is_empty_input_spacemouse(action_dict):
+    if (
+        np.all(action_dict["right_delta"] == 0)
+        and action_dict["base_mode"] == -1
+        and np.all(action_dict["base"] == 0)
+    ):
         return True
     return False
 
@@ -79,15 +85,17 @@ def collect_human_trajectory(
 
     nonzero_ac_seen = False
 
-    # Set active robot
-    active_robot = (
-        env.robots[0] if env_configuration == "bimanual" else env.robots[arm == "left"]
-    )
+    # Keep track of prev gripper actions when using since they are position-based and must be maintained when arms switched
+    all_prev_gripper_actions = [
+        {
+            f"{robot_arm}_gripper": np.repeat([0], robot.gripper[robot_arm].dof)
+            for robot_arm in robot.arms
+            if robot.gripper[robot_arm].dof > 0
+        }
+        for robot in env.robots
+    ]
 
-    if active_robot.is_mobile:
-        zero_action = np.array([0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1])
-    else:
-        zero_action = np.array([0, 0, 0, 0, 0, 0, -1])
+    zero_action = np.zeros(env.action_dim)
     for _ in range(1):
         # do a dummy step thru base env to initalize things, but don't record the step
         if isinstance(env, DataCollectionWrapper):
@@ -101,21 +109,31 @@ def collect_human_trajectory(
     while True:
         start = time.time()
 
+        # Set active robot
+        active_robot = env.robots[device.active_robot]
+        active_arm = device.active_arm
+
         # Get the newest action
-        input_action, _ = input2action(
-            device=device,
-            robot=active_robot,
-            active_arm=arm,
-            env_configuration=env_configuration,
-            mirror_actions=mirror_actions,
-        )
+        input_ac_dict = device.input2action(mirror_actions=mirror_actions)
 
         # If action is none, then this a reset so we should break
-        if input_action is None:
+        if input_ac_dict is None:
             discard_traj = True
             break
 
-        if is_empty_input_spacemouse(input_action):
+        action_dict = deepcopy(input_ac_dict)
+
+        # set arm actions
+        for arm in active_robot.arms:
+            controller_input_type = active_robot.part_controllers[arm].input_type
+            if controller_input_type == "delta":
+                action_dict[arm] = input_ac_dict[f"{arm}_delta"]
+            elif controller_input_type == "absolute":
+                action_dict[arm] = input_ac_dict[f"{arm}_abs"]
+            else:
+                raise ValueError
+
+        if is_empty_input_spacemouse(action_dict):
             if not nonzero_ac_seen:
                 if render:
                     env.render()
@@ -123,46 +141,16 @@ def collect_human_trajectory(
         else:
             nonzero_ac_seen = True
 
-        if env.robots[0].is_mobile:
-            arm_actions = input_action[:6]
-            # arm_actions = np.concatenate([arm_actions, ])
-
-            # flip some actions
-            arm_actions[0], arm_actions[1] = arm_actions[1], -arm_actions[0]
-            arm_actions[3], arm_actions[4] = arm_actions[4], -arm_actions[3]
-
-            base_action = input_action[7:10]
-            torso_action = input_action[10:11]
-
-            if np.abs(torso_action[0]) < 0.50:
-                torso_action[:] = 0.0
-
-            # flip some actions
-            base_action[0], base_action[1] = base_action[1], -base_action[0]
-
-            action = np.concatenate(
-                (
-                    arm_actions,
-                    np.repeat(input_action[6:7], env.robots[0].gripper[arm].dof),
-                    base_action,
-                    torso_action,
-                )
-            )
-            mode_action = input_action[-1]
-
-            env.robots[0].enable_parts(base=True, right=True, left=True, torso=True)
-            if mode_action > 0:
-                action = np.concatenate((action, [1]))
-            else:
-                action = np.concatenate((action, [-1]))
-        else:
-            arm_actions = input_action
-            action = env.robots[0].create_action_vector(
-                {arm: arm_actions[:-1], f"{arm}_gripper": arm_actions[-1:]}
-            )
+        # Maintain gripper state for each robot but only update the active robot with action
+        env_action = [
+            robot.create_action_vector(all_prev_gripper_actions[i])
+            for i, robot in enumerate(env.robots)
+        ]
+        env_action[device.active_robot] = active_robot.create_action_vector(action_dict)
+        env_action = np.concatenate(env_action)
 
         # Run environment step
-        obs, _, _, _ = env.step(action)
+        obs, _, _, _ = env.step(env_action)
         if render:
             env.render()
 
@@ -307,7 +295,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
     now = datetime.datetime.now()
     grp.attrs["date"] = "{}-{}-{}".format(now.month, now.day, now.year)
     grp.attrs["time"] = "{}:{}:{}".format(now.hour, now.minute, now.second)
-    grp.attrs["repository_version"] = suite.__version__
+    grp.attrs["robocasa_version"] = robocasa.__version__
+    grp.attrs["robosuite_version"] = robosuite.__version__
+    grp.attrs["mujoco_version"] = mujoco.__version__
     grp.attrs["env"] = env_name
     grp.attrs["env_info"] = env_info
 
@@ -327,7 +317,7 @@ if __name__ == "__main__":
         "--robots",
         nargs="+",
         type=str,
-        default="PandaMobile",
+        default="PandaOmron",
         help="Which robot(s) to use in the env",
     )
     parser.add_argument(
@@ -359,8 +349,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--controller",
         type=str,
-        default="OSC_POSE",
-        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'",
+        default=None,
+        help="Choice of controller. Can be, eg. 'NONE' or 'WHOLE_BODY_IK', etc. Or path to controller json file",
     )
     parser.add_argument(
         "--device",
@@ -397,7 +387,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Get controller config
-    controller_config = load_controller_config(default_controller=args.controller)
+    # controller_config = load_controller_config(default_controller=args.controller)
+    controller_config = load_composite_controller_config(
+        controller=args.controller,
+        robot=args.robots if isinstance(args.robots, str) else args.robots[0],
+    )
+
+    if controller_config["type"] == "WHOLE_BODY_MINK_IK":
+        # mink-speicific import. requires installing mink
+        from robosuite.examples.third_party_controller.mink_controller import (
+            WholeBodyMinkIK,
+        )
 
     env_name = args.environment
 
@@ -448,7 +448,7 @@ if __name__ == "__main__":
         # config["obj_registries"] = ("aigen",)
 
     # Create environment
-    env = suite.make(
+    env = robosuite.make(
         **config,
         has_renderer=True,
         has_offscreen_renderer=False,

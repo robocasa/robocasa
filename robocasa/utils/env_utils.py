@@ -16,7 +16,7 @@ from termcolor import colored
 def create_env(
     env_name,
     # robosuite-related configs
-    robots="PandaMobile",
+    robots="PandaOmron",
     controllers="OSC_POSE",
     camera_names=[
         "robot0_agentview_left",
