@@ -15,11 +15,11 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 
    <div class="admonition warning">
    <p class="admonition-title">Important!</p>
-   Use the robocasa_v0.1 branch of robosuite!
+   The latest version of RoboCasa uses the master branch of robosuite. If you wish to use the previous version of RoboCasa (v0.1), please use the robocasa_v0.1 branch on robosuite. 
    </div>
    
    ```sh
-   git clone https://github.com/ARISE-Initiative/robosuite -b robocasa_v0.1
+   git clone https://github.com/ARISE-Initiative/robosuite
    cd robosuite
    pip install -e .
    ```
@@ -31,9 +31,15 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
    cd robocasa
    pip install -e .
    ```
+   <div class="admonition note">
+   <p class="admonition-title">Installation troubleshooting</p>
+
+   If you encounter issues with installing the numpy or numba dependencies, please try installing through conda instead: `conda install -c numba numba=0.56.4 -y`
+
+   </div>
+
 5. Install the package and download assets:
    ```sh
-   conda install -c numba numba -y
    python robocasa/scripts/download_kitchen_assets.py   # Caution: Assets to be downloaded are around 5GB.
    python robocasa/scripts/setup_macros.py              # Set up system variables.
    ```
