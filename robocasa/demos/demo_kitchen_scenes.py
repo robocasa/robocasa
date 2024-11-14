@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import numpy as np
 import robosuite
-from robosuite import load_controller_config
+from robosuite.controllers import load_composite_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
@@ -66,6 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("--task", type=str, default="PnPCounterToCab", help="task")
     parser.add_argument("--layout", type=int, help="kitchen layout (choose number 0-9)")
     parser.add_argument("--style", type=int, help="kitchen style (choose number 0-11)")
+    parser.add_argument("--robot", type=str, help="robot", default="PandaOmron")
     args = parser.parse_args()
 
     raw_layouts = dict(
@@ -89,8 +90,8 @@ if __name__ == "__main__":
     # Create argument configuration
     config = {
         "env_name": args.task,
-        "robots": "PandaMobile",
-        "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+        "robots": args.robot,
+        "controller_configs": load_composite_controller_config(robot=args.robot),
         "translucent_robot": False,
     }
 

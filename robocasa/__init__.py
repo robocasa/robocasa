@@ -297,7 +297,8 @@ except ImportError:
 
 from robocasa.environments import ALL_KITCHEN_ENVIRONMENTS
 
-from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
+# from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
+from robosuite.controllers import ALL_PART_CONTROLLERS, load_composite_controller_config
 from robosuite.environments import ALL_ENVIRONMENTS
 from robosuite.models.grippers import ALL_GRIPPERS
 from robosuite.robots import ALL_ROBOTS
@@ -313,9 +314,16 @@ import numpy
 assert numpy.__version__ in [
     "1.23.2",
     "1.23.3",
-], "numpy version must be either 1.23.2 or 1.23.3. Please install one of these versions."
+    "1.23.5",
+], "numpy version must be either 1.23.{2,3,5}. Please install one of these versions."
 
-__version__ = "0.1.0"
+import robosuite
+
+assert robosuite.__version__ in [
+    "1.5.0"
+], "robosuite version must be 1.5.0. Please install the correct version"
+
+__version__ = "0.2.0"
 __logo__ = """
       ;     /        ,--.
      ["]   ["]  ,<  |__**|

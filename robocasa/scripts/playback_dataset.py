@@ -78,14 +78,15 @@ def playback_trajectory_with_env(
                 state_playback = np.array(env.sim.get_state().flatten())
                 if not np.all(np.equal(states[i + 1], state_playback)):
                     err = np.linalg.norm(states[i + 1] - state_playback)
-                    print(
-                        colored(
-                            "warning: playback diverged by {} at step {}".format(
-                                err, i
-                            ),
-                            "yellow",
+                    if verbose or i == traj_len - 2:
+                        print(
+                            colored(
+                                "warning: playback diverged by {} at step {}".format(
+                                    err, i
+                                ),
+                                "yellow",
+                            )
                         )
-                    )
         else:
             reset_to(env, {"states": states[i]})
 

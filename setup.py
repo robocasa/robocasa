@@ -39,7 +39,7 @@ setup(
     author="Soroush Nasiriany, Abhiram Maddukuri, Lance Zhang, Adeet Parikh, Aaron Lo, Abhishek Joshi, Ajay Mandlekar, Yuke Zhu",
     url="https://github.com/robocasa/robocasa",
     author_email="soroush@cs.utexas.edu",
-    version="0.1.0",
+    version="0.2.0",
     long_description=long_description,
     long_description_content_type="text/markdown",
 )

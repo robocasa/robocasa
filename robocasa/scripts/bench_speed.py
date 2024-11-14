@@ -11,6 +11,11 @@ import numpy as np
 from termcolor import colored
 from tianshou.env import SubprocVectorEnv
 
+import robosuite as suite
+from robosuite.controllers import load_composite_controller_config
+from robocasa import ALL_KITCHEN_ENVIRONMENTS
+import robocasa
+
 
 def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
     """
@@ -82,7 +87,7 @@ if __name__ == "__main__":
         "--robots",
         nargs="+",
         type=str,
-        default=None,
+        default="PandaOmron",
         help="Which robot(s) to use in the env",
     )
     parser.add_argument(
@@ -100,32 +105,38 @@ if __name__ == "__main__":
     parser.add_argument(
         "--camera",
         type=str,
-        default="robot0_eye_in_hand",
+        default=None,
         help="Which camera to use for collecting demos",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Environment seed",
     )
     parser.add_argument(
         "--controller",
         type=str,
-        default="OSC_POSE",
-        help="Choice of controller. Can be 'IK_POSE' or 'OSC_POSE'",
+        default=None,
+        help="Choice of controller. Can be, eg. 'NONE' or 'WHOLE_BODY_IK', etc. Or path to controller json file",
     )
+
     parser.add_argument("--no_render", action="store_true")
     args = parser.parse_args()
 
     def create_env():
-        import robosuite as suite
-        from robosuite import load_controller_config
-        from robocasa import ALL_KITCHEN_ENVIRONMENTS
-        import robocasa
-
         # Get controller config
-        controller_config = load_controller_config(default_controller=args.controller)
+        # controller_config = load_controller_config(default_controller=args.controller)
+        controller_config = load_composite_controller_config(
+            controller=args.controller,
+            robot=args.robots,
+        )
 
         # Create argument configuration
         config = dict(
             controller_configs=controller_config,
             env_name=args.env,
-            has_renderer=(not args.no_render),
+            has_renderer=False,
             has_offscreen_renderer=(not args.no_render),
             use_camera_obs=(not args.no_render),
             render_camera=args.camera,
@@ -144,11 +155,12 @@ if __name__ == "__main__":
             ]
             config["layout_ids"] = 0
             config["style_ids"] = 0
+            config["seed"] = args.seed
 
             if args.env == "KitchenDemo" and args.n_objs is not None:
                 config["num_objs"] = args.n_objs
 
-            config["robots"] = args.robots or "PandaMobile"
+            config["robots"] = args.robots or "PandaOmron"
         else:
             config["robots"] = args.robots or "Panda"
 

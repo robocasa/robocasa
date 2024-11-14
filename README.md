@@ -7,6 +7,10 @@ This is the official codebase of RoboCasa, a large-scale simulation framework fo
 [**[Home page]**](https://robocasa.ai) &ensp; [**[Documentation]**](https://robocasa.ai/docs/introduction/overview.html) &ensp; [**[Paper]**](https://robocasa.ai/assets/robocasa_rss24.pdf)
 
 -------
+## Latest updates
+* [10/31/2024] **v0.2**: using RoboSuite `v1.5` as the backend, with improved support for custom robot composition, composite controllers, more teleoperation devices, photo-realistic rendering.
+
+-------
 ## Installation
 RoboCasa works across all major computing platforms. The easiest way to set up is through the [Anaconda](https://www.anaconda.com/) package management system. Follow the instructions below to install:
 1. Set up conda environment:
@@ -18,10 +22,10 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
    ```sh
    conda activate robocasa
    ```
-3. Clone and setup robosuite dependency (**important: use the robocasa_v0.1 branch!**):
+3. Clone and setup robosuite dependency (**important: use the master branch!**):
 
    ```sh
-   git clone https://github.com/ARISE-Initiative/robosuite -b robocasa_v0.1
+   git clone https://github.com/ARISE-Initiative/robosuite
    cd robosuite
    pip install -e .
    ```
@@ -33,10 +37,11 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
    cd robocasa
    pip install -e .
    pip install pre-commit; pre-commit install           # Optional: set up code formatter.
+
+   (optional: if running into issues with numba/numpy, run: conda install -c numba numba=0.56.4 -y)
    ```
 5. Install the package and download assets:
    ```sh
-   conda install -c numba numba -y
    python robocasa/scripts/download_kitchen_assets.py   # Caution: Assets to be downloaded are around 5GB.
    python robocasa/scripts/setup_macros.py              # Set up system variables.
    ```
