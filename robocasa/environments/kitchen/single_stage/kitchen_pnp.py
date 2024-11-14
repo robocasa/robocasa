@@ -361,7 +361,7 @@ class PnPCounterToSink(PnP):
         Returns:
             bool: True if the task is successful, False otherwise
         """
-        obj_in_sink = OU.obj_inside_of(self, "obj", self.sink)
+        obj_in_sink = OU.obj_inside_of(self, "obj", self.sink, partial_check=True)
         gripper_obj_far = OU.gripper_obj_far(self)
         return obj_in_sink and gripper_obj_far
 

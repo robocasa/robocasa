@@ -109,6 +109,12 @@ if __name__ == "__main__":
         help="Which camera to use for collecting demos",
     )
     parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Environment seed",
+    )
+    parser.add_argument(
         "--controller",
         type=str,
         default=None,
@@ -145,11 +151,11 @@ if __name__ == "__main__":
             config["camera_names"] = [
                 "robot0_agentview_left",
                 "robot0_agentview_right",
-                # "robot0_eye_in_hand",
+                "robot0_eye_in_hand",
             ]
             config["layout_ids"] = 0
             config["style_ids"] = 0
-            config["camera"] = "robot0_agentview_right"
+            config["seed"] = args.seed
 
             if args.env == "KitchenDemo" and args.n_objs is not None:
                 config["num_objs"] = args.n_objs
