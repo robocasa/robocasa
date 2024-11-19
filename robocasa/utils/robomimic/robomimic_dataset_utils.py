@@ -167,9 +167,6 @@ def filter_dataset_size(
         hdf5_path=hdf5_path, demo_keys=subset_keys, key_name=name
     )
 
-    print("Total number of subset samples: {}".format(np.sum(subset_lengths)))
-    print("Average number of subset samples {}".format(np.mean(subset_lengths)))
-
 
 def move_demo_to_new_key(f, old_demo_key, new_demo_key, delete_old_demo=True):
     print(f"Moving {old_demo_key} -> {new_demo_key}")
@@ -232,3 +229,112 @@ def make_demo_ids_contiguous(dataset):
         num_demos_changed += 1
 
     f.close()
+
+
+def convert_to_robomimic_format(
+    dataset,
+    filter_num_demos=(
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        75,
+        80,
+        90,
+        100,
+        125,
+        150,
+        200,
+        250,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1500,
+        2000,
+        2500,
+        3000,
+        4000,
+        5000,
+        10000,
+    ),
+    verbose=False,
+):
+    f = h5py.File(dataset, "a")  # edit mode
+
+    # store env meta
+    env_name = f["data"].attrs.get("env", None)
+    if "env_info" in f["data"].attrs:
+        env_info = json.loads(f["data"].attrs["env_info"])
+
+    # switch to using solid robot
+    env_info["translucent_robot"] = False
+
+    if env_name is not None and env_info is not None:
+        env_meta = dict(
+            type=1,  # hardcode as robosuite dataset type
+            env_name=env_name,
+            env_version=f["data"].attrs["robocasa_version"],
+            robosuite_version=f["data"].attrs["robosuite_version"],
+            mujoco_version=f["data"].attrs["mujoco_version"],
+            env_kwargs=env_info,
+        )
+        if "env_args" in f["data"].attrs:
+            del f["data"].attrs["env_args"]
+        f["data"].attrs["env_args"] = json.dumps(env_meta, indent=4)
+    else:
+        # assume env_args already present
+        assert "env_args" in f["data"].attrs
+
+    if verbose:
+        print("====== Stored env meta ======")
+        print(f["data"].attrs["env_args"])
+
+    # store metadata about number of samples
+    total_samples = 0
+    for ep in f["data"]:
+        # ensure model-xml is in per-episode metadata
+        assert "model_file" in f["data/{}".format(ep)].attrs
+
+        # add "num_samples" into per-episode metadata
+        if "num_samples" in f["data/{}".format(ep)].attrs:
+            del f["data/{}".format(ep)].attrs["num_samples"]
+        n_sample = f["data/{}/actions".format(ep)].shape[0]
+        f["data/{}".format(ep)].attrs["num_samples"] = n_sample
+        total_samples += n_sample
+
+    # add total samples to global metadata
+    if "total" in f["data"].attrs:
+        del f["data"].attrs["total"]
+    f["data"].attrs["total"] = total_samples
+
+    f.close()
+
+    # # create 90-10 train-validation split in the dataset
+    # split_train_val_from_hdf5(hdf5_path=dataset, val_ratio=0.1)
+
+    ### note: don't need this anymore! absolute actions are already extracted ###
+    # # add absolute actions to dataset
+    # add_absolute_actions_to_dataset(
+    #     dataset=args.dataset,
+    #     eval_dir=None,
+    #     num_workers=1,
+    # )
+
+    # extract corresponding action keys into action_dict
+    extract_action_dict(dataset=dataset)
+
+    # create filter keys according to number of demos
+    if filter_num_demos is not None:
+        for n in filter_num_demos:
+            filter_dataset_size(
+                dataset,
+                num_demos=n,
+            )
