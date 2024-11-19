@@ -23,7 +23,9 @@ def is_stale_controller_config(config: dict):
         "OSC_POSE",
         "IK_POSE",
     ]
-    if "body_parts_controller_configs" not in config and "type" in config:
+    if (
+        "body_parts" not in config or "body_parts_controller_configs" not in config
+    ) and "type" in config:
         return config["type"] in OLD_CONTROLLER_TYPES
     return False
 

@@ -1326,8 +1326,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # if moving arm, get the absolute action
         robot = self.robots[0]
         robot.control(rel_action, policy_step=True)
-        ac_pos = robot.composite_controller.controllers["right"].goal_origin_to_eef_pos
-        ac_ori = robot.composite_controller.controllers["right"].goal_origin_to_eef_ori
+        rel_pose = robot.composite_controller.part_controllers[
+            "right"
+        ].goal_origin_to_eef_pose()
+        ac_pos, ac_ori = rel_pose[:3, 3], rel_pose[:3, :3]
         ac_ori = Rotation.from_matrix(ac_ori).as_rotvec()
         action_abs = np.hstack(
             [
