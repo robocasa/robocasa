@@ -92,6 +92,16 @@ class ArrangeVegetables(Kitchen):
         )
 
         return cfgs
+    
+    def _check_success_veg1(self):
+        return OU.check_obj_in_receptacle(
+            self, "vegetable1", "cutting_board"
+        )
+        
+    def _check_success_veg2(self):
+        return OU.check_obj_in_receptacle(
+            self, "vegetable2", "cutting_board"
+        )
 
     def _check_success(self):
         vegetable1_cutting_board_contact = OU.check_obj_in_receptacle(
