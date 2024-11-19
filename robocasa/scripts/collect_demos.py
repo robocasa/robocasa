@@ -28,6 +28,7 @@ from termcolor import colored
 import robocasa
 import robocasa.macros as macros
 from robocasa.models.fixtures import FixtureType
+from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimic_format
 
 
 def is_empty_input_spacemouse(action_dict):
@@ -303,6 +304,8 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
 
     f.close()
 
+    return hdf5_path
+
 
 if __name__ == "__main__":
     # Arguments
@@ -521,6 +524,7 @@ if __name__ == "__main__":
         if not args.debug:
             if discard_traj and ep_directory is not None:
                 excluded_eps.append(ep_directory.split("/")[-1])
-            gather_demonstrations_as_hdf5(
+            hdf5_path = gather_demonstrations_as_hdf5(
                 tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
             )
+            convert_to_robomimic_format(hdf5_path)
