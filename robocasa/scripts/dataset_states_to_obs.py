@@ -59,7 +59,7 @@ def extract_trajectory(
         rewards=[],
         dones=[],
         actions=np.array(actions),
-        actions_abs=[],
+        # actions_abs=[],
         states=np.array(states),
         initial_state_dict=initial_state,
         datagen_info=[],
@@ -91,14 +91,14 @@ def extract_trajectory(
         done = int(done)
 
         # get the absolute action
-        action_abs = env.base_env.convert_rel_to_abs_action(actions[t])
+        # action_abs = env.base_env.convert_rel_to_abs_action(actions[t])
 
         # collect transition
         traj["obs"].append(obs)
         traj["rewards"].append(r)
         traj["dones"].append(done)
         traj["datagen_info"].append(datagen_info)
-        traj["actions_abs"].append(action_abs)
+        # traj["actions_abs"].append(action_abs)
 
     # convert list of dict to dict of list for obs dictionaries (for convenient writes to hdf5 dataset)
     traj["obs"] = TensorUtils.list_of_flat_dict_to_dict_of_list(traj["obs"])
@@ -149,9 +149,9 @@ def write_traj_to_file(
                         "rewards", data=np.array(traj["rewards"])
                     )
                     ep_data_grp.create_dataset("dones", data=np.array(traj["dones"]))
-                    ep_data_grp.create_dataset(
-                        "actions_abs", data=np.array(traj["actions_abs"])
-                    )
+                    # ep_data_grp.create_dataset(
+                    #     "actions_abs", data=np.array(traj["actions_abs"])
+                    # )
                     for k in traj["obs"]:
                         if args.no_compress:
                             ep_data_grp.create_dataset(
