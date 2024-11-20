@@ -11,7 +11,7 @@ Here is an outline of prominent components of the codebase:
   - `download_datasets.py`: downloads datasets (see datasets section for details)
   - `collect_demos.py`: collect demonstration trajectories for any task and environment
 - `robocasa/utils/`: utilities
-  - `dataset_registry.py`: registry of all datasets (see [using datasets](../datasets/using_datasets.html) for more details)
+  - `dataset_registry.py`: registry of all datasets (see [using datasets](../use_cases/using_datasets.html) for more details)
 - `robocasa/models/`: assets and implementations for objects, fixtures, and scenes
   - `objects/kitchen_objects.py`: registry for all object categories and groups
   - `assets/objects/`: raw assets for all objects
