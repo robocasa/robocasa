@@ -44,7 +44,9 @@ python -m robocasa.demos.demo_teleop
 Note: If using spacemouse: you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`.
 
 ## Other useful sections
- - [Overview of Datasets](../use_cases/datasets.html)
+ - [Basic Usage](../use_cases/basic_usage.html)
+ - [Downloading Datasets](../use_cases/downloading_datasets.html)
+ - [Using Datasets](../use_cases/using_datasets.html)
  - [Overview of Atomic Tasks](../tasks_scenes_assets/atomic_tasks.html)
  - [Overview of Composite Tasks](../tasks_scenes_assets/composite_tasks.html)
  - [Training Policies on Datasets](../use_cases/policy_learning.html)
