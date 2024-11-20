@@ -23,6 +23,6 @@ Layouts are configured by setting the arrangment of fixtures (cabinets, microwav
 
 ## Styles
 
-Styles are configured by setting relevant textures and fixture attributes (cabinet handle types, door types, coffee machine types, etc) in a yaml file [**[Source]**](https://github.com/robocasa/robocasa/models/assets/scenes/kitchen_styles).
+Styles are configured by setting relevant textures and fixture attributes (cabinet handle types, door types, coffee machine types, etc) in a yaml file [**[Source]**](https://github.com/robocasa/robocasa/tree/main/robocasa/models/assets/scenes/kitchen_styles).
 
 ![Kitchen Styles](../images/styles.png)

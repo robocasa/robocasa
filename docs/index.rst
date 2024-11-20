@@ -17,17 +17,12 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Datasets
-
-   datasets/downloading_datasets
-   datasets/using_datasets
-   datasets/creating_datasets
-
-.. toctree::
-   :maxdepth: 1
    :caption: Use Cases
 
    use_cases/basic_usage
+   use_cases/downloading_datasets
+   use_cases/using_datasets
+   use_cases/creating_datasets
    use_cases/policy_learning
 
 .. toctree::
