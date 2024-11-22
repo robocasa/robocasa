@@ -11,8 +11,8 @@ from pathlib import Path
 
 # import robosuite_model_zoo
 from robosuite.utils.transform_utils import mat2quat
-import robocasa.utils.model_zoo.utils.log_utils as LogUtils
-import robocasa.utils.model_zoo.utils.mtl_utils as MtlUtils
+import robocasa.utils.model_zoo.log_utils as LogUtils
+import robocasa.utils.model_zoo.mtl_utils as MtlUtils
 
 from robosuite.utils.mjcf_utils import array_to_string, string_to_array
 
@@ -580,9 +580,7 @@ def generate_mjcf(
 
     # load template xml
     tree = ET.parse(
-        os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "../utils/object_template.xml"
-        )
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), "object_template.xml")
     )
     root = tree.getroot()
 

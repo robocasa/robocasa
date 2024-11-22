@@ -5,7 +5,7 @@ import numpy as np
 import glob
 from tqdm import tqdm
 
-from robocasa.utils.model_zoo.utils.mjcf_gen_utils import get_bb_info
+from robocasa.utils.model_zoo.mjcf_gen_utils import get_bb_info
 from lxml import etree
 import xml.etree.ElementTree as ET
 from robosuite.utils.mjcf_utils import find_elements, array_to_string, string_to_array

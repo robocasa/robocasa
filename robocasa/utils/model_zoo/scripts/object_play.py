@@ -24,7 +24,7 @@ from robosuite import load_controller_config
 from robosuite.utils.input_utils import input2action
 from robosuite.wrappers import DataCollectionWrapper, VisualizationWrapper
 
-from robocasa.utils.model_zoo.utils.object_play_env import ObjectPlayEnv
+from robocasa.utils.model_zoo.object_play_env import ObjectPlayEnv
 
 
 def collect_human_trajectory(env, device, arm, env_configuration, video_path=None):

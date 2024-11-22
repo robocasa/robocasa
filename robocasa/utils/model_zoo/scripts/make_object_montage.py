@@ -7,10 +7,10 @@ import numpy as np
 from tqdm import tqdm
 from PIL import Image, ImageFont, ImageDraw
 
-import robocasa.utils.model_zoo.utils.file_utils as FileUtils
+import robocasa.utils.model_zoo.file_utils as FileUtils
 
 from robosuite import load_controller_config
-from robocasa.utils.model_zoo.utils.object_play_env import ObjectPlayEnv
+from robocasa.utils.model_zoo.object_play_env import ObjectPlayEnv
 
 # from robomimic.envs.env_robosuite import EnvRobosuite
 

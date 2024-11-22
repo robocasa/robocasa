@@ -11,7 +11,7 @@ import lxml.etree as ET
 
 from PIL import Image
 
-from robocasa.utils.model_zoo.utils.mjcf_gen_utils import (
+from robocasa.utils.model_zoo.mjcf_gen_utils import (
     parse_model_info,
     decompose_convex,
     generate_mjcf,

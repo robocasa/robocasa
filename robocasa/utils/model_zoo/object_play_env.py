@@ -5,7 +5,7 @@ from robosuite.models.arenas import TableArena
 from robosuite.models.tasks import ManipulationTask
 from robosuite.utils.placement_samplers import UniformRandomSampler
 
-from robocasa.utils.model_zoo.utils.mjcf_obj import MJCFObject
+from robocasa.utils.model_zoo.mjcf_obj import MJCFObject
 from robosuite.models.objects import BoxObject
 
 import robosuite.utils.transform_utils as T

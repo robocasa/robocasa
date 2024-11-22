@@ -2,10 +2,10 @@ import numpy as np
 import os
 import xml.etree.ElementTree as ET
 
-import robocasa.utils.model_zoo.utils.mjcf_gen_utils as MJCFGenUtils
-import robocasa.utils.model_zoo.utils.file_utils as FileUtils
-import robocasa.utils.model_zoo.utils.parser_utils as ParserUtils
-import robocasa.utils.model_zoo.utils.log_utils as LogUtils
+import robocasa.utils.model_zoo.mjcf_gen_utils as MJCFGenUtils
+import robocasa.utils.model_zoo.file_utils as FileUtils
+import robocasa.utils.model_zoo.parser_utils as ParserUtils
+import robocasa.utils.model_zoo.log_utils as LogUtils
 
 
 if __name__ == "__main__":
