@@ -2,6 +2,18 @@
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/robocasa-banner.jpg" width="100%" />
 
+This is a fork of RoboCasa that allows environments to be rendered in Drake.
+
+To run:
+
+```
+python -m robocasa.demos.demo_kitchen_scenes
+# edit teleop_spot.py to have the most recent xml file generated
+python3 teleop_spot.py
+```
+
+# Robocasa Installation
+
 This is the official codebase of RoboCasa, a large-scale simulation framework for training generally capable robots to perform everyday tasks. This guide contains information about installation and setup. Please refer to the following resources for additional information:
 
 [**[Home page]**](https://robocasa.ai) &ensp; [**[Documentation]**](https://robocasa.ai/docs/introduction/overview.html) &ensp; [**[Paper]**](https://robocasa.ai/assets/robocasa_rss24.pdf)
