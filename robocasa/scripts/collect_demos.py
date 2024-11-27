@@ -82,7 +82,7 @@ def collect_human_trajectory(
     task_completion_hold_count = (
         -1
     )  # counter to collect 10 timesteps after reaching goal
-    device.start_control()
+    # device.start_control()
 
     nonzero_ac_seen = False
 
@@ -111,11 +111,11 @@ def collect_human_trajectory(
         start = time.time()
 
         # Set active robot
-        active_robot = env.robots[device.active_robot]
-        active_arm = device.active_arm
+        # active_robot = env.robots[device.active_robot]
+        # active_arm = device.active_arm
 
         # Get the newest action
-        input_ac_dict = device.input2action(mirror_actions=mirror_actions)
+        # input_ac_dict = device.input2action(mirror_actions=mirror_actions)
 
         # If action is none, then this a reset so we should break
         if input_ac_dict is None:
@@ -147,7 +147,7 @@ def collect_human_trajectory(
             robot.create_action_vector(all_prev_gripper_actions[i])
             for i, robot in enumerate(env.robots)
         ]
-        env_action[device.active_robot] = active_robot.create_action_vector(action_dict)
+        # env_action[device.active_robot] = active_robot.create_action_vector(action_dict)
         env_action = np.concatenate(env_action)
 
         # Run environment step

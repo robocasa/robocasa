@@ -43,6 +43,17 @@ from robocasa.utils.texture_swap import (
 from robocasa.utils.config_utils import refactor_composite_controller_config
 
 
+#### EXTRA IMPORTS
+import lxml.etree as le
+import trimesh
+from robocasa.drake_conversion.just_geom_conversion import convert_geoms_to_obj
+
+# from robocasa.drake_conversion.auto_texture import execute
+from robocasa.drake_conversion.add_color import execute
+from robocasa.drake_conversion.remove_cab_doors import rm_cab_doors
+from robocasa.drake_conversion.remove_collision import rm_collision
+
+
 REGISTERED_KITCHEN_ENVS = {}
 
 
@@ -1164,6 +1175,55 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             result = replace_floor_texture(
                 self.rng, result, new_floor_texture_file=floor_tex
             )
+
+        """
+        ADDED: PYDRAKE CONVERSION!!
+        """
+        from datetime import datetime
+
+        xml_filename = f"model_{datetime.now()}.xml"
+        with open(xml_filename, "w") as f:
+            doc = le.fromstring(result)
+            for elem in doc.xpath("//*[attribute::name]"):
+                if (
+                    # rm robot
+                    "robot0" in elem.attrib["name"]
+                    or "base0" in elem.attrib["name"]
+                    or "gripper0" in elem.attrib["name"]
+                    or "omniron" in elem.attrib["name"]
+                ):
+                    parent = elem.getparent()
+                    parent.remove(elem)
+
+            new_foldername = os.path.abspath(f"objs")
+            if not os.path.exists(new_foldername):
+                os.makedirs(new_foldername)
+
+            # Recreate the scales
+            for elem in doc.xpath("//*[attribute::scale]"):
+                # parse out the scale
+                scal = elem.attrib["scale"].split()
+                scal = [float(s) for s in scal]
+                # multiscale but not uniform
+                if len(scal) == 3 and not (scal[0] == scal[1] and scal[1] == scal[2]):
+                    # recreate the object with the new scaled object
+                    file_name = elem.attrib["file"]
+                    mesh = trimesh.load_mesh(file_name)
+                    mesh.apply_scale(scal)
+                    new_filename = os.path.abspath(f"objs/{file_name.split('/')[-1]}")
+                    print(file_name.split("/")[-1])
+                    print(new_filename)
+                    mesh.export(new_filename)
+                    elem.attrib["file"] = new_filename
+                    del elem.attrib["scale"]
+
+            new_xml_str = (le.tostring(doc)).decode("utf-8")
+            f.write(new_xml_str)
+
+            # convert_geoms_to_obj(xml_filename)
+            execute(xml_filename)
+            rm_cab_doors(xml_filename)
+            rm_collision(xml_filename)
 
         return result
 

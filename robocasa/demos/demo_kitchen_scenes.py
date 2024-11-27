@@ -113,10 +113,10 @@ if __name__ == "__main__":
     # Grab reference to controller config and convert it to json-encoded string
     env_info = json.dumps(config)
 
-    # initialize device
-    from robosuite.devices import Keyboard
-
-    device = Keyboard(env=env, pos_sensitivity=4.0, rot_sensitivity=4.0)
+    # # initialize device
+    # from robosuite.devices import Keyboard
+    #
+    # device = Keyboard(env=env, pos_sensitivity=4.0, rot_sensitivity=4.0)
 
     # collect demonstrations
     while True:
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
         ep_directory, discard_traj = collect_human_trajectory(
             env,
-            device,
+            None,  # device,
             "right",
             "single-arm-opposed",
             mirror_actions=True,
