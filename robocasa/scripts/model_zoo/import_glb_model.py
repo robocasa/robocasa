@@ -1,17 +1,16 @@
 import os
 import shutil
 from distutils.dir_util import copy_tree
-import tempfile
+import trimesh
+import robocasa
+from termcolor import colored
 
 from pathlib import Path
 
-# import robosuite_model_zoo
 import robocasa.utils.model_zoo.mjcf_gen_utils as MJCFGenUtils
 import robocasa.utils.model_zoo.file_utils as FileUtils
 import robocasa.utils.model_zoo.parser_utils as ParserUtils
 import robocasa.utils.model_zoo.log_utils as LogUtils
-
-# import robosuite_model_zoo.macros as macros
 
 if __name__ == "__main__":
     parser = ParserUtils.get_base_parser()
@@ -19,7 +18,12 @@ if __name__ == "__main__":
         "--path",
         type=str,
         required=True,
-        help="path to existing (converted) objaverse model folder",
+        help="path to existing .glb model",
+    )
+    parser.add_argument(
+        "--output_path",
+        type=str,
+        help="path to store converted model",
     )
     parser.add_argument(
         "--rot",
@@ -70,64 +74,26 @@ if __name__ == "__main__":
     verbose = args.verbose
 
     # get model name and asset path
-    model_name = args.model_name or FileUtils.get_stem(args.path)[:8]
-    # base_asset_path = args.base_asset_path or os.path.join(
-    #     os.path.dirname(robosuite_model_zoo.__file__),
-    #     "assets_private/objaverse",
-    # )
-    # asset_path = FileUtils.make_asset_path(
-    #     base_asset_path,
-
-    #     args.model_folder,
-    #     model_name
-    # )
-    # asset_path = args.path
+    model_name = args.model_name or FileUtils.get_stem(args.path)
+    output_path = args.output_path or os.path.join(
+        os.path.dirname(robocasa.__file__), "models/assets/model_zoo_assets", model_name
+    )
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
+    os.makedirs(output_path)
 
     # # save metadata
     # LogUtils.save_meta(args, asset_path)
 
-    # # copy files to seprate temporary directories for collision / visual
-    # tmp_model_path = tempfile.TemporaryDirectory()
-    # tmp_coll_model_path = tempfile.TemporaryDirectory()
+    glb_mesh = trimesh.load(args.path)
+    if not os.path.exists(os.path.join(output_path, "raw")):
+        os.makedirs(os.path.join(output_path, "raw"))
+    glb_mesh.export(os.path.join(output_path, "raw", "model_normalized.obj"))
 
-    # model_path = os.path.join(tmp_model_path.name, "models")
-    # image_path = os.path.join(tmp_model_path.name, "images")
-    # coll_model_path = tmp_coll_model_path.name
-
-    # copy_tree(os.path.join(args.path, "models"), model_path)
-
-    # if os.path.exists(os.path.join(args.path, "images")):
-    #     copy_tree(os.path.join(args.path, "images"), image_path)
-
-    # coll_objaverse_path = os.path.join(args.path, "collision")
-
-    # if not Path(coll_objaverse_path).exists() or args.no_cached_coll:
-    #     if os.path.exists(coll_objaverse_path):
-    #         shutil.rmtree(coll_objaverse_path)
-
-    #     MJCFGenUtils.decompose_convex(
-    #         Path(os.path.join(args.path, "models/model_normalized.obj")),
-    #         Path(coll_objaverse_path),
-
-    #         max_output_convex_hulls=args.vhacd_max_output_convex_hulls,
-    #         voxel_resolution=args.vhacd_voxel_resolution,
-    #         volume_error_percent=args.vhacd_volume_error_percent,
-    #         max_hull_vert_count=args.vhacd_max_hull_vert_count,
-    #     )
-
-    # copy_tree(coll_objaverse_path, coll_model_path)
-
-    import trimesh
-
-    glb_mesh = trimesh.load(os.path.join(args.path, "model.glb"))
-    if not os.path.exists(os.path.join(args.path, "raw")):
-        os.makedirs(os.path.join(args.path, "raw"))
-    glb_mesh.export(os.path.join(args.path, "raw", "model_normalized.obj"))
-
-    coll_path = os.path.join(args.path, "collision")
+    coll_path = os.path.join(output_path, "collision")
     if not Path(coll_path).exists() or args.no_cached_coll:
         MJCFGenUtils.decompose_convex(
-            Path(os.path.join(args.path, "raw/model_normalized.obj")),
+            Path(os.path.join(output_path, "raw/model_normalized.obj")),
             Path(coll_path),
             max_output_convex_hulls=args.vhacd_max_output_convex_hulls,
             voxel_resolution=args.vhacd_voxel_resolution,
@@ -137,10 +103,10 @@ if __name__ == "__main__":
 
     # get geom meta data
     model_info = MJCFGenUtils.parse_model_info(
-        model_path=os.path.join(args.path, "raw"),
+        model_path=os.path.join(output_path, "raw"),
         model_name=model_name,
-        coll_model_path=os.path.join(args.path, "collision"),
-        asset_path=os.path.join(args.path),
+        coll_model_path=os.path.join(output_path, "collision"),
+        asset_path=os.path.join(output_path),
         rot=args.rot,
         verbose=verbose,
         prescale=args.prescale,
@@ -149,7 +115,7 @@ if __name__ == "__main__":
 
     # generate mjcf file
     mjcf_path = MJCFGenUtils.generate_mjcf(
-        asset_path=os.path.join(args.path),
+        asset_path=os.path.join(output_path),
         model_name=model_name,
         model_info=model_info,
         sc=args.scale,
@@ -159,14 +125,4 @@ if __name__ == "__main__":
         verbose=verbose,
     )
 
-    # # copy over raw data
-    # raw_folder = os.path.join(asset_path, "raw")
-    # os.makedirs(raw_folder)
-    # copy_tree(
-    #     os.path.join(args.path, "models"),
-    #     raw_folder
-    # )
-
-    # # delete temp directories
-    # tmp_model_path.cleanup()
-    # tmp_coll_model_path.cleanup()
+    print(colored(f"Model output to: {output_path}/model.xml", color="green"))

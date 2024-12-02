@@ -12,7 +12,7 @@ The structure of generated assets is as follows:
 #### `import_glb_model.py`
 Import a `.glb` model:
 ```
-python robocasa/scripts/model_zoo/import_glb_model.py --prescale --center --no_cached_coll --path /Users/soroushnasiriany/tmp/model_zoo_test/model1
+python robocasa/scripts/model_zoo/import_glb_model.py --prescale --center --no_cached_coll --path <path-to-glb-model>
 ```
 
 ## Inspecting objects
