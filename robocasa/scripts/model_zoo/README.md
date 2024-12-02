@@ -25,12 +25,12 @@ Arguments:
 - `show_bbox`: visualize the bounding box
 - `show_coll_geoms`: show collision geoms
 
-#### `object_play.py`
+<!-- #### `object_play.py`
 Play around with generated object model interactively with the robot arm.
 
 Arguments:
 - `mjcf_path`: name of the mjcf model
-- (all other arguements from [collect_human_demonstrations.py](https://github.com/ARISE-Initiative/robosuite/blob/master/robosuite/scripts/collect_human_demonstrations.py))
+- (all other arguements from [collect_human_demonstrations.py](https://github.com/ARISE-Initiative/robosuite/blob/master/robosuite/scripts/collect_human_demonstrations.py)) -->
 
 ## Importing fixtures
 1. Bring object into Blender
