@@ -14,7 +14,7 @@ from robosuite.devices import SpaceMouse
 from update_bb_sites import update_bb_sites
 
 
-with open("assets/default_object_scales.json", "r") as f:
+with open("default_object_scales.json", "r") as f:
     DEFAULT_OBJ_SCALES = json.load(f)
 
 # global variable to indicate if program is running

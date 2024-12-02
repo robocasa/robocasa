@@ -42,7 +42,7 @@ def add_text(img, obj_meta):
         + obj_meta["save_path"]
     )
 
-    font = ImageFont.truetype("assets/JetBrainsMono-Medium.ttf", 15)
+    font = ImageFont.truetype("JetBrainsMono-Medium.ttf", 15)
     draw = ImageDraw.Draw(img)
     draw.text((20, 20), text, (0, 0, 0), font=font)
 

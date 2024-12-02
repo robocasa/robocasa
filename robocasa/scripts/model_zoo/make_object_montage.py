@@ -103,7 +103,7 @@ def write_text_on_image(image_arr, text):
     image_edit = ImageDraw.Draw(img)
     imsize = image_arr.shape[0]
     font = ImageFont.truetype(
-        "objaverse/assets/JetBrainsMono-Medium.ttf", int(30 * imsize / 512)
+        "objaverse/JetBrainsMono-Medium.ttf", int(30 * imsize / 512)
     )
     image_edit.text((15, 15), text, (0, 0, 0), font=font, stroke_width=1)
     return np.array(img)

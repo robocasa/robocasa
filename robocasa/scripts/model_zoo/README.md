@@ -1,17 +1,32 @@
-# RoboSuite Model Zoo Guide
-Modeling assets in robosuite
+# RoboCasa Model Zoo Guide
+This guide explains how to import and visualize assets in RoboCasa.
 
-## Assets
-- Located in the `robosuite_model_zoo/assets` folder. Structure is as follows:
+## Overview
+The structure of generated assets is as follows:
+- `model.xml`: mjcf file containing visual geoms, collision geoms, joints, and sites
 - `raw`: the original, unmodified model files (includes .glb file, .obj/.mtl files, image texture files)
 - `visual`: the processed visual data (.obj files, image texture files)
 - `collision`: the collision meshes .obj files (if applicable)
 
-## Scripts
+## Importing objects
+#### `import_glb_model.py`
+Import a `.glb` model:
+```
+python robocasa/scripts/model_zoo/import_glb_model.py --prescale --center --no_cached_coll --path /Users/soroushnasiriany/tmp/model_zoo_test/model1
+```
+
+## Inspecting objects
+#### `browse_mjcf_model.py`
+Visualize the assets interactively:
+```
+python robocasa/scripts/browse_mjcf_model.py --show_bbox --show_coll_geoms --mjcf <path-to-model.xml>
+```
+Arguments:
+- `show_bbox`: visualize the bounding box
+- `show_coll_geoms`: show collision geoms
 
 #### `object_play.py`
-- Play around with generated object model in robosuite
-- Very similar to [collect_human_demonstrations.py](https://github.com/ARISE-Initiative/robosuite/blob/master/robosuite/scripts/collect_human_demonstrations.py) from robosuite
+Play around with generated object model interactively with the robot arm.
 
 Arguments:
 - `mjcf_path`: name of the mjcf model
