@@ -18,7 +18,7 @@ setup(
         "numpy==1.23.3",
         "numba==0.56.4",
         "scipy>=1.2.3",
-        "mujoco==3.1.1",
+        "mujoco==3.2.6",
         "pygame",
         "Pillow",
         "opencv-python",
