@@ -8,6 +8,7 @@ from robosuite.controllers import load_composite_controller_config
 from robosuite.wrappers import VisualizationWrapper
 from termcolor import colored
 
+import robocasa.macros as macros
 from robocasa.scripts.collect_demos import collect_human_trajectory
 
 
@@ -143,6 +144,8 @@ if __name__ == "__main__":
             env=env,
             pos_sensitivity=4.0,
             rot_sensitivity=4.0,
+            vendor_id=macros.SPACEMOUSE_VENDOR_ID,
+            product_id=macros.SPACEMOUSE_PRODUCT_ID,
         )
     else:
         raise ValueError
