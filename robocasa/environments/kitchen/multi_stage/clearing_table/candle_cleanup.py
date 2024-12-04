@@ -38,7 +38,7 @@ class CandleCleanup(Kitchen):
         obj_name_2 = self.get_obj_lang("obj2")
         ep_meta[
             "lang"
-        ] = f"pick the {obj_name_1} and {obj_name_2} from the dining table and place it in the open cabinet"
+        ] = f"Pick the {obj_name_1} and {obj_name_2} from the dining table and place them in the open cabinet."
         return ep_meta
 
     def _reset_internal(self):

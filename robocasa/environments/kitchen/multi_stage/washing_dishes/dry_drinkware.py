@@ -33,8 +33,8 @@ class DryDrinkware(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            "A wet mug is on the counter and need to "
-            "be dried. Pick it up and place it upside down in the open cabinet."
+            "A wet mug is on the counter and need to be dried. "
+            "Pick it up and place it upside down in the open cabinet."
         )
         return ep_meta
 

@@ -31,7 +31,7 @@ class OrganizeVegetables(Kitchen):
 
         ep_meta[
             "lang"
-        ] = f"Place the {obj_name_1} and the {obj_name_2} on separate cutting boards"
+        ] = f"Place the {obj_name_1} and the {obj_name_2} on separate cutting boards."
 
         return ep_meta
 

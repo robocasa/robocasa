@@ -24,9 +24,9 @@ class ShakerShuffle(ManipulateDrawer):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = "Pick place the shaker into the drawer. Then, Close the cabinet."
+        ep_meta["lang"] = (
+            "Pick and place the shaker into the drawer. " "Then close the cabinet."
+        )
         return ep_meta
 
     def _reset_internal(self):

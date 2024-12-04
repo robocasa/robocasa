@@ -72,11 +72,11 @@ class HeatMultipleWater(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = """Pick the kettle from the cab and place it on a stove burner. 
-        Then, pick the pot from the counter and place on another stove burner. 
-        Finally, turn both burners on"""
+        ep_meta["lang"] = (
+            "Pick the kettle from the cab and place it on a stove burner. "
+            "Then pick the pot from the counter and place it on another stove burner. "
+            "Finally, turn both burners on."
+        )
         return ep_meta
 
     def _reset_internal(self):

@@ -45,9 +45,10 @@ class MicrowaveThawing(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_name = self.get_obj_lang()
-        ep_meta[
-            "lang"
-        ] = f"Pick the {obj_name} from the counter and place it in the microwave. Then turn on the microwave."
+        ep_meta["lang"] = (
+            f"Pick the {obj_name} from the counter and place it in the microwave. "
+            "Then turn on the microwave."
+        )
         return ep_meta
 
     def _get_obj_cfgs(self):

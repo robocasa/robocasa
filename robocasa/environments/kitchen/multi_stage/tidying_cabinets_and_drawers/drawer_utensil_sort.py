@@ -28,7 +28,7 @@ class DrawerUtensilSort(ManipulateDrawer):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] += " and push the utensils inside it"
+        ep_meta["lang"] += " and push the utensils inside it."
         return ep_meta
 
     def _reset_internal(self):

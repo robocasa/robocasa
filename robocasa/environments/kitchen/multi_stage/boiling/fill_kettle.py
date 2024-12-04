@@ -26,7 +26,7 @@ class FillKettle(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"open the cabinet, pick the kettle from the cabinet, and place it in the sink"
+        ] = f"Open the cabinet, pick the kettle from the cabinet, and place it in the sink."
         return ep_meta
 
     def _reset_internal(self):

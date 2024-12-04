@@ -23,9 +23,7 @@ class BreadAndCheese(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = """pick the bread and cheese, place them on the cutting board,"""
+        ep_meta["lang"] = "Place the bread and cheese on the cutting board."
         return ep_meta
 
     def _get_obj_cfgs(self):

@@ -28,7 +28,7 @@ class BowlAndCup(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"place the cup inside the bowl on the island and move it to any counter"
+        ] = f"Place the cup inside the bowl on the island and move it to any counter."
         return ep_meta
 
     def _get_obj_cfgs(self):

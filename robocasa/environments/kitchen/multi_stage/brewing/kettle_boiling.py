@@ -62,7 +62,7 @@ class KettleBoiling(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"Pick the kettle from the counter and place it on a stove burner. Then, turn the burner on"
+        ] = "Pick the kettle from the counter and place it on a stove burner. Then turn the burner on."
         return ep_meta
 
     def _reset_internal(self):

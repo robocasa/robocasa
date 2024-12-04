@@ -35,9 +35,11 @@ class RestockBowls(Kitchen):
         obj_name_1 = self.get_obj_lang("obj1")
         obj_name_2 = self.get_obj_lang("obj2")
 
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet. Pick the {obj_name_1} and the {obj_name_2} from the counter and place it in the cabinet directly in front. Then close the cabinet."
+        ep_meta["lang"] = (
+            "Open the cabinet. "
+            f"Pick the {obj_name_1} and the {obj_name_2} from the counter and place it in the cabinet directly in front. "
+            "Then close the cabinet."
+        )
 
         return ep_meta
 

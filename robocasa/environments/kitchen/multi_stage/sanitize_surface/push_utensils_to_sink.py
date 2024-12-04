@@ -29,7 +29,7 @@ class PushUtensilsToSink(Kitchen):
         obj1_name = self.get_obj_lang("utensil1")
         obj2_name = self.get_obj_lang("utensil2")
 
-        ep_meta["lang"] = f"Push the {obj1_name} and {obj2_name} into the sink"
+        ep_meta["lang"] = f"Push the {obj1_name} and {obj2_name} into the sink."
 
         return ep_meta
 

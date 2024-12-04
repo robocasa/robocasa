@@ -35,9 +35,10 @@ class PlaceFoodInBowls(Kitchen):
         ep_meta = super().get_ep_meta()
         food1 = self.get_obj_lang("food1")
         food2 = self.get_obj_lang("food2")
-        ep_meta[
-            "lang"
-        ] = f"Pick both bowls and place them on the counter. Then pick the {food1} and place it in one bowl and pick the {food2} and place it in the other bowl."
+        ep_meta["lang"] = (
+            "Pick both bowls and place them on the counter. "
+            f"Then pick the {food1} and place it in one bowl and pick the {food2} and place it in the other bowl."
+        )
         return ep_meta
 
     def _reset_internal(self):

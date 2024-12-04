@@ -42,9 +42,9 @@ class SteamVegetables(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            "Place vegetables into the pot based on the amount of time "
-            "it would take to steam each. e.g. potatoes and carrots would take the longest. "
-            "Then, turn off the burner beneath the pot."
+            "Place vegetables into the pot based on the amount of time it would take to steam each, "
+            "e.g. potatoes and carrots would take the longest. "
+            "Then turn off the burner beneath the pot."
         )
         ep_meta["knob"] = self.knob
         return ep_meta

@@ -40,9 +40,10 @@ class WineServingPrep(Kitchen):
         alcohol_name = self.get_obj_lang("alcohol")
         cup_name = self.get_obj_lang("cup")
         decoration_name = self.get_obj_lang("decoration")
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet directly in front. Then, move the {alcohol_name} and the {cup_name} to the counter with the {decoration_name} on it."
+        ep_meta["lang"] = (
+            "Open the cabinet directly in front. "
+            f"Then move the {alcohol_name} and the {cup_name} to the counter with the {decoration_name} on it."
+        )
         return ep_meta
 
     def _reset_internal(self):

@@ -31,9 +31,10 @@ class CerealAndBowl(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = f"open the cabinet, pick the cereal and bowl from the cabinet and place it on the counter. Then close the cabinet"
+        ep_meta["lang"] = (
+            "Open the cabinet. Pick the cereal and bowl from the cabinet and place them on the counter. "
+            "Then close the cabinet."
+        )
         return ep_meta
 
     def _reset_internal(self):

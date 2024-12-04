@@ -31,9 +31,10 @@ class ServeSteak(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = f"Pick up the pan with the steak in it and place it on the dining table. Then, place the steak on the plate"
+        ep_meta["lang"] = (
+            "Pick up the pan with the steak in it and place it on the dining table. "
+            "Then, place the steak on the plate."
+        )
         return ep_meta
 
     def _reset_internal(self):

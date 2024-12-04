@@ -38,7 +38,7 @@ class SetBowlsForSoup(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"Move the bowls from the cabinet to the plates on the dining table"
+        ] = "Move the bowls from the cabinet to the plates on the dining table."
         return ep_meta
 
     def _reset_internal(self):

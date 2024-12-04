@@ -24,7 +24,7 @@ class StackBowlsInSink(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"stack the bowls in the sink"
+        ep_meta["lang"] = f"Stack the bowls in the sink."
         return ep_meta
 
     def _reset_internal(self):

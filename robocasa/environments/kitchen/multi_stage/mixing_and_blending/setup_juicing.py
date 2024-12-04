@@ -32,7 +32,7 @@ class SetupJuicing(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"open the cabinet, pick all {self.num_fruits} fruits from the cabinet and place them on the counter"
+        ] = f"Open the cabinet, pick all {self.num_fruits} fruits from the cabinet and place them on the counter."
         return ep_meta
 
     def _reset_internal(self):

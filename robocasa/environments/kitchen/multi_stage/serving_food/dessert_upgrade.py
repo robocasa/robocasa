@@ -24,7 +24,7 @@ class DessertUpgrade(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
 
-        ep_meta["lang"] = f"Move the dessert items from the plate to the tray"
+        ep_meta["lang"] = f"Move the dessert items from the plate to the tray."
 
         return ep_meta
 

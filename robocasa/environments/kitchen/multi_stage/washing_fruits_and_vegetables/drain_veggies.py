@@ -31,10 +31,10 @@ class DrainVeggies(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         food_name = self.get_obj_lang("obj")
-        ep_meta[
-            "lang"
-        ] = f"""Dump the {food_name} from the pot into the sink. Then turn on the sink and wash the {food_name}.
-        Then turn off the sink and put the {food_name} back in the pot"""
+        ep_meta["lang"] = (
+            f"Dump the {food_name} from the pot into the sink. Then turn on the sink and wash the {food_name}. "
+            f"Then turn off the sink and put the {food_name} back in the pot."
+        )
         return ep_meta
 
     def _reset_internal(self):
