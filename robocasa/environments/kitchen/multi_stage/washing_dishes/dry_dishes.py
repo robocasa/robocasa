@@ -31,7 +31,7 @@ class DryDishes(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"pick the cup and bowl from the sink and place them on the counter for drying"
+        ] = "Pick the cup and bowl from the sink and place them on the counter for drying."
         return ep_meta
 
     def _get_obj_cfgs(self):

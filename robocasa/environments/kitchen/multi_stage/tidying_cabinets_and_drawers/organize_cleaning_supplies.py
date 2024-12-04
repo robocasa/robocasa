@@ -35,9 +35,11 @@ class OrganizeCleaningSupplies(Kitchen):
 
         cleaner_name = self.get_obj_lang("cleaner")
 
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet. Pick the {cleaner_name} and place it next to the sink. Then close the cabinet."
+        ep_meta["lang"] = (
+            "Open the cabinet. "
+            f"Pick the {cleaner_name} and place it next to the sink. "
+            "Then close the cabinet."
+        )
         return ep_meta
 
     def _reset_internal(self):

@@ -27,9 +27,8 @@ class CheesyBread(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            "Start with a slice of bread already on a plate and "
-            "a wedge of cheese on the counter. Pick up the wedge of cheese and "
-            "place it on the slice of bread to prepare a simple cheese on bread dish."
+            "Start with a slice of bread already on a plate and a wedge of cheese on the counter. "
+            "Pick up the wedge of cheese and place it on the slice of bread to prepare a simple cheese on bread dish."
         )
 
         return ep_meta

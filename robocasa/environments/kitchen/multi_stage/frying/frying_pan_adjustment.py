@@ -60,7 +60,7 @@ class FryingPanAdjustment(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"Pick and place the pan from the current burner to another burner and turn the burner on"
+        ] = f"Pick and place the pan from the current burner to another burner and turn the burner on."
         return ep_meta
 
     # TODO Move this function to OU

@@ -23,7 +23,7 @@ class SnackSorting(ManipulateDrawer):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"Place the bar in the bowl and close the drawer"
+        ep_meta["lang"] = f"Place the bar in the bowl and close the drawer."
         return ep_meta
 
     def _get_obj_cfgs(self):

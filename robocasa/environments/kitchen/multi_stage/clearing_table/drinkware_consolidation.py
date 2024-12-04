@@ -32,7 +32,7 @@ class DrinkwareConsolidation(Kitchen):
             objs_lang += f", {self.get_obj_lang(f'obj_{i}')}"
         ep_meta[
             "lang"
-        ] = f"pick the {objs_lang} from the island and place it in the open cabinet"
+        ] = f"Pick the {objs_lang} from the island and place it in the open cabinet."
         return ep_meta
 
     def reset(self):

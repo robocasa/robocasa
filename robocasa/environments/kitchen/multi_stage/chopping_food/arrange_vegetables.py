@@ -27,7 +27,7 @@ class ArrangeVegetables(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"pick the vegetables from the sink and place them on the cutting board"
+        ] = "Pick the vegetables from the sink and place them on the cutting board."
         return ep_meta
 
     def _get_obj_cfgs(self):

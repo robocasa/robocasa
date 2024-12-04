@@ -28,8 +28,8 @@ class PanTransfer(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            f"Pick up the pan and dump the vegetables in it onto the plate. Then, "
-            "return the pan to the stove."
+            "Pick up the pan and dump the vegetables in it onto the plate. "
+            "Then return the pan to the stove."
         )
         return ep_meta
 

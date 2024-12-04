@@ -42,9 +42,10 @@ class ArrangeBreadBasket(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         bread_name = self.get_obj_lang("bread")
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet, pick up the {bread_name} from the cabinet and place in the bowl. Then move the bowl to the dining counter."
+        ep_meta["lang"] = (
+            f"Open the cabinet, pick up the {bread_name} from the cabinet and place it in the bowl. "
+            "Then move the bowl to the dining counter."
+        )
         return ep_meta
 
     def _reset_internal(self):

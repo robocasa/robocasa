@@ -25,10 +25,9 @@ class ClearingTheCuttingBoard(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = (
-            "Clear the non-vegetable object off the cutting board and place the "
-            "vegetables onto it."
-        )
+        ep_meta[
+            "lang"
+        ] = "Clear the non-vegetable object off the cutting board and place the vegetables onto it."
         return ep_meta
 
     def _get_obj_cfgs(self):

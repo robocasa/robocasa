@@ -25,10 +25,9 @@ class VeggieDipPrep(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = (
-            f"Place the two vegetables and a bowl onto the tray for setting up "
-            "a vegetable dip station."
-        )
+        ep_meta[
+            "lang"
+        ] = "Place the two vegetables and a bowl onto the tray for setting up a vegetable dip station."
         return ep_meta
 
     def _reset_internal(self):

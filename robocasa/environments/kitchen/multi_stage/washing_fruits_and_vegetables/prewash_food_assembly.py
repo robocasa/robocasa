@@ -37,9 +37,10 @@ class PrewashFoodAssembly(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         food_name = self.get_obj_lang("food")
-        ep_meta[
-            "lang"
-        ] = f"Pick the {food_name} from the cabinet and place it in the bowl. Then pick the bowl and place it in the sink. Then turn on the sink facuet."
+        ep_meta["lang"] = (
+            f"Pick the {food_name} from the cabinet and place it in the bowl. "
+            "Then pick the bowl and place it in the sink. Then turn on the sink facuet."
+        )
 
         return ep_meta
 

@@ -42,9 +42,10 @@ class SimmeringSauce(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = f"Place the pan on the {self.knob.replace('_', ' ')} burner on the stove. Then place the tomato and the onion in the pan and turn on the {self.knob.replace('_', ' ')} burner."
+        ep_meta["lang"] = (
+            f"Place the pan on the {self.knob.replace('_', ' ')} burner on the stove. "
+            f"Then place the tomato and the onion in the pan and turn on the {self.knob.replace('_', ' ')} burner."
+        )
         return ep_meta
 
     def _reset_internal(self):

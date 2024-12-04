@@ -37,9 +37,10 @@ class ThawInSink(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         obj_name = self.get_obj_lang()
-        ep_meta[
-            "lang"
-        ] = f"Pick the {obj_name} from the counter and place it in the sink. Then turn on the sink faucet."
+        ep_meta["lang"] = (
+            f"Pick the {obj_name} from the counter and place it in the sink. "
+            "Then turn on the sink faucet."
+        )
         return ep_meta
 
     def _get_obj_cfgs(self):

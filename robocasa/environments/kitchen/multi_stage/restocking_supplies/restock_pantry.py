@@ -29,7 +29,7 @@ class RestockPantry(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = "pick the cans from the counter and place them in their designated side in the cabinet"
+        ] = "Pick the cans from the counter and place them in their designated side in the cabinet."
         return ep_meta
 
     def _reset_internal(self):

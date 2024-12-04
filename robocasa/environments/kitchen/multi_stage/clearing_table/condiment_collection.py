@@ -37,7 +37,7 @@ class CondimentCollection(Kitchen):
 
         ep_meta[
             "lang"
-        ] = f"pick the {obj_name_1} and {obj_name_2} from the counter and place it in the cabinet"
+        ] = f"Pick the {obj_name_1} and {obj_name_2} from the counter and place them in the cabinet."
         return ep_meta
 
     def _reset_internal(self):
