@@ -36,7 +36,7 @@ class YogurtDelightPrep(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"Place the yogurt and fruit onto the counter."
+        ep_meta["lang"] = "Place the yogurt and fruit onto the counter."
         return ep_meta
 
     def _get_obj_cfgs(self):

@@ -41,7 +41,7 @@ class DateNight(Kitchen):
         alcohol_name = self.get_obj_lang("alcohol")
         ep_meta[
             "lang"
-        ] = f"Pick up the {decoration_name} and the {alcohol_name} in the cabinet and move them to the dining counter."
+        ] = f"Pick up the {decoration_name} and the {alcohol_name} from the cabinet and move them to the dining counter."
         return ep_meta
 
     def _reset_internal(self):

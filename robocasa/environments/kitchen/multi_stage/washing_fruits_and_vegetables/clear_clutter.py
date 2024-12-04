@@ -30,10 +30,10 @@ class ClearClutter(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = f"Pick up the fruits and vegetables and place them in the sink\
-         turn on the sink to wash them. Then, turn the sink off, put them in the tray."
+        ep_meta["lang"] = (
+            "Pick up the fruits and vegetables and place them in the sink. "
+            "Turn on the sink to wash them. Then turn the sink off and put them in the tray."
+        )
         return ep_meta
 
     def _reset_internal(self):

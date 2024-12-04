@@ -25,7 +25,7 @@ class OrganizeBakingIngredients(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"pick place the eggs and milk to near the bowl"
+        ep_meta["lang"] = f"Place the eggs and milk near the bowl."
         return ep_meta
 
     def _reset_internal(self):

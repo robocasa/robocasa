@@ -45,7 +45,7 @@ class CleanMicrowave(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"open the microwave. Then, pick the sponge from the counter and place it in the microwave"
+        ] = "Open the microwave. Then pick the sponge from the counter and place it in the microwave."
         return ep_meta
 
     def _get_obj_cfgs(self):

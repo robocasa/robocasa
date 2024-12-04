@@ -27,7 +27,7 @@ class SizeSorting(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         stackable_cat = self.get_obj_lang("obj_0")
-        ep_meta["lang"] = f"Stack the {stackable_cat}s from largest to smallest"
+        ep_meta["lang"] = f"Stack the {stackable_cat}s from largest to smallest."
         return ep_meta
 
     def _reset_internal(self):

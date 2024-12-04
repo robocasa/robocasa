@@ -31,9 +31,10 @@ class AssembleCookingArray(Kitchen):
         meat_name = self.get_obj_lang("meat")
         condiment_name = self.get_obj_lang("condiment")
         vegetable_name = self.get_obj_lang("vegetable")
-        ep_meta[
-            "lang"
-        ] = f"Move the {meat_name} onto the pan on the stove. Then, move the {condiment_name} and {vegetable_name} from the cabinet to the counter where the plate is."
+        ep_meta["lang"] = (
+            f"Move the {meat_name} onto the pan on the stove. "
+            f"Then move the {condiment_name} and {vegetable_name} from the cabinet to the counter where the plate is."
+        )
         return ep_meta
 
     def _reset_internal(self):

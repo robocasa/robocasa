@@ -34,7 +34,7 @@ class PrepForSanitizing(Kitchen):
         obj2_name = self.get_obj_lang("obj2")
         ep_meta[
             "lang"
-        ] = f"pick the {obj1_name} and {obj2_name} from the cabinet and place it on the counter"
+        ] = f"Pick the {obj1_name} and {obj2_name} from the cabinet and place it on the counter."
         return ep_meta
 
     def _reset_internal(self):

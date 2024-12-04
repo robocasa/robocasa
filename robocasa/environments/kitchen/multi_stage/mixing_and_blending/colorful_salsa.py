@@ -23,11 +23,9 @@ class ColorfulSalsa(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-
         ep_meta[
             "lang"
-        ] = f"Place the avocado, onion, tomato and bell pepper on the cutting board"
-
+        ] = "Place the avocado, onion, tomato and bell pepper on the cutting board."
         return ep_meta
 
     def _reset_internal(self):

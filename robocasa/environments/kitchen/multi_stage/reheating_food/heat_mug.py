@@ -29,7 +29,7 @@ class HeatMug(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"pick the mug from the cabinet and place it inside the microwave. Then close the microwave"
+        ] = "Pick the mug from the cabinet and place it inside the microwave. Then close the microwave."
         return ep_meta
 
     def _reset_internal(self):

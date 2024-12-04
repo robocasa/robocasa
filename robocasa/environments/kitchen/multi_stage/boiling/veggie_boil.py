@@ -36,10 +36,12 @@ class VeggieBoil(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         food_name = self.get_obj_lang("food")
-        ep_meta[
-            "lang"
-        ] = f"""Pick up the pot and place it in the sink. Then turn on the sink and let the pot fill up with water. Then turn the sink off and move the pot to the stove.
-        Lastly, turn on the stove and place the {food_name} in the pot for boiling."""
+        ep_meta["lang"] = (
+            "Pick up the pot and place it in the sink. "
+            "Then turn on the sink and let the pot fill up with water. "
+            "Then turn the sink off and move the pot to the stove. "
+            f"Lastly, turn on the stove and place the {food_name} in the pot for boiling."
+        )
         return ep_meta
 
     def _reset_internal(self):

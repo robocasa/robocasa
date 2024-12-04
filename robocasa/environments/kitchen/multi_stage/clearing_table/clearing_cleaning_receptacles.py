@@ -34,7 +34,7 @@ class ClearingCleaningReceptacles(Kitchen):
         obj_name_2 = self.get_obj_lang("receptacle2")
         ep_meta[
             "lang"
-        ] = f"pick the {obj_name_1} and {obj_name_2} and place them in the sink. Then, turn on the water "
+        ] = f"Pick the {obj_name_1} and {obj_name_2} and place them in the sink. Then turn on the water."
         return ep_meta
 
     def _reset_internal(self):

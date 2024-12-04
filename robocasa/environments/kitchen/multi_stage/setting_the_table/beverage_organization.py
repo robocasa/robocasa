@@ -41,7 +41,7 @@ class BeverageOrganization(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta["lang"] = f"Move the drinks to the dining counter"
+        ep_meta["lang"] = f"Move the drinks to the dining counter."
         return ep_meta
 
     def _reset_internal(self):

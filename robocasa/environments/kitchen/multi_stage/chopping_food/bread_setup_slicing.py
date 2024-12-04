@@ -24,7 +24,7 @@ class BreadSetupSlicing(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
 
-        ep_meta["lang"] = f"Place all breads on the cutting board"
+        ep_meta["lang"] = f"Place all breads on the cutting board."
 
         return ep_meta
 
