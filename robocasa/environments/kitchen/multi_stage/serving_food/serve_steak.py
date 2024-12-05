@@ -50,8 +50,7 @@ class ServeSteak(Kitchen):
                     fixture=self.stove,
                     size=(0.05, 0.05),
                     ensure_object_boundary_in_range=False,
-                    try_to_place_in="container",
-                    container_group="pan",
+                    try_to_place_in="pan",
                 ),
             )
         )
