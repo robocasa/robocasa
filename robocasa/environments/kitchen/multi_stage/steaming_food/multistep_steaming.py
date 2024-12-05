@@ -41,7 +41,7 @@ class MultistepSteaming(Kitchen):
         ep_meta["lang"] = (
             "Turn on the sink. "
             f"Then move the {vegetable_name} from the counter to the sink. "
-            "Turn of the sink. Move the vegetable from the sink to the pot next to the stove. "
+            "Turn off the sink. Move the vegetable from the sink to the pot next to the stove. "
             f"Finally, move the pot to the {self.knob.replace('_', ' ')} burner."
         )
         return ep_meta

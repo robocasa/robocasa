@@ -46,7 +46,9 @@ class AfterwashSorting(Kitchen):
 
     def _get_obj_cfgs(self):
 
-        food_items = get_cats_by_type(["vegetable", "fruit"])
+        food_items = get_cats_by_type(
+            types=["vegetable", "fruit"], obj_registries=self.obj_registries
+        )
         food1, food2 = self.rng.choice(food_items, size=2, replace=False)
 
         cfgs = []
