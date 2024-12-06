@@ -40,7 +40,7 @@ class QuickThaw(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
             "Frozen meat rests on a plate on the counter. "
-            "Retrieve the meat and place it in a pot on a burner. Then, turn the burner on."
+            "Retrieve the meat and place it in a pot on a burner. Then turn the burner on."
         )
         ep_meta["knob"] = self.knob
         return ep_meta
