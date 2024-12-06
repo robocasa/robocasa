@@ -33,7 +33,7 @@ class AfterwashSorting(Kitchen):
         food3_name = self.get_obj_lang("food3")
         ep_meta["lang"] = (
             f"Pick the {food12_name}s from the sink and place them in one bowl. "
-            f"Place the {food3_name} in the other bowl. Then turn off the sink."
+            f"Place the {food3_name} in the other bowl. Then turn off the sink faucet."
         )
         return ep_meta
 

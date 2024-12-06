@@ -33,9 +33,10 @@ class MeatTransfer(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
+        cont_name = self.get_obj_lang("container")
         ep_meta["lang"] = (
-            "Retrieve a container (either a pan or a bowl) from the cabinet, "
-            "then place the raw meat into the container to avoid contamination."
+            f"Retrieve the {cont_name} from the cabinet, "
+            f"then place the raw meat into the {cont_name} to avoid contamination."
         )
         return ep_meta
 
