@@ -118,8 +118,8 @@ def run_bench(args):
                 "robot0_agentview_right",
                 "robot0_eye_in_hand",
             ]
-            config["layout_ids"] = 0
-            config["style_ids"] = 0
+            config["layout_ids"] = args.layout
+            config["style_ids"] = args.style
             config["seed"] = args.seed
 
             if args.env == "KitchenDemo" and args.n_objs is not None:
@@ -132,39 +132,53 @@ def run_bench(args):
         env = suite.make(**config)
         return env
 
-    if args.num_envs > 1:
-        env_fns = [lambda env_i=i: create_env() for i in range(args.num_envs)]
+    if args.n_envs > 1:
+        env_fns = [lambda env_i=i: create_env() for i in range(args.n_envs)]
         env = SubprocVectorEnv(env_fns)
     else:
         env = create_env()
 
+    print(f"Task: {args.env}")
+
     # collect demonstrations
     steps_per_sec_list = []
     reset_time_list = []
-    for ep in range(10):
-        reset_time, steps_per_sec = run_rollout(
-            env, args.arm, args.config, render=False, num_steps=100
-        )
-        print("ep #{}".format(ep + 1))
-        print("   {:.2f}s reset time".format(reset_time))
-        print("   {:.2f} fps".format(steps_per_sec))
-        print()
-        reset_time_list.append(reset_time)
-        steps_per_sec_list.append(steps_per_sec)
+    for ep in range(args.n_trials):
+        try:
+            reset_time, steps_per_sec = run_rollout(
+                env, args.arm, args.config, render=False, num_steps=100
+            )
+            print("ep #{}".format(ep + 1))
+            print("   {:.2f}s reset time".format(reset_time))
+            print("   {:.2f} fps".format(steps_per_sec))
+            print()
+            reset_time_list.append(reset_time)
+            steps_per_sec_list.append(steps_per_sec)
+        except Exception as e:
+            print("EXCEPTION!")
+            print(e)
 
     print("reset time: {:.2f}s".format(np.mean(reset_time_list)))
     print("fps: {:.2f}".format(np.mean(steps_per_sec_list)))
 
     env.close()
 
+    info = dict(
+        reset_time_list=reset_time_list,
+        steps_per_sec_list=steps_per_sec_list,
+    )
+    return info
 
-if __name__ == "__main__":
-    # Arguments
+
+def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mjcf_path", type=str, help="path to object MJCF")
     parser.add_argument("--env", type=str, default="Lift")
-    parser.add_argument("--num_envs", type=int, default=1)
+    parser.add_argument("--n_envs", type=int, default=1)
+    parser.add_argument("--n_trials", type=int, default=10)
     parser.add_argument("--n_objs", type=int, default=None)
+    parser.add_argument("--layout", type=int, nargs="+", default=-1)
+    parser.add_argument("--style", type=int, nargs="+", default=-1)
     parser.add_argument(
         "--robots",
         nargs="+",
@@ -205,5 +219,10 @@ if __name__ == "__main__":
     parser.add_argument("--onscreen", action="store_true")
     parser.add_argument("--no_render", action="store_true")
     args = parser.parse_args()
+    return args
 
+
+if __name__ == "__main__":
+    # Arguments
+    args = get_args()
     run_bench(args)
