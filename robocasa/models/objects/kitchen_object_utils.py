@@ -10,6 +10,7 @@ import robocasa
 from robocasa.models.objects.kitchen_objects import OBJ_CATEGORIES, OBJ_GROUPS
 
 BASE_ASSET_ZOO_PATH = os.path.join(robocasa.models.assets_root, "objects")
+OBJ_REGISTRIES = ["objaverse", "aigen"]
 
 
 class ObjCat:
@@ -47,7 +48,9 @@ class ObjCat:
 
         priority: priority of the object
 
-        aigen_cat (bool): True if the object is an AI-generated object otherwise its an objaverse object
+        aigen_cat (bool): True if the object is an AI-generated object otherwise use obj_registry. Kept for backwards compatibility
+
+        obj_registry (str): the object registry the category belongs to, one of ["objaverse", "aigen"]
     """
 
     def __init__(
@@ -68,14 +71,14 @@ class ObjCat:
         friction=(0.95, 0.3, 0.1),
         priority=None,
         aigen_cat=False,
+        obj_registry="objaverse",
     ):
         self.name = name
         if not isinstance(types, tuple):
             types = (types,)
         self.types = types
 
-        self.aigen_cat = aigen_cat
-
+        self.obj_registry = "aigen" if aigen_cat else obj_registry
         self.graspable = graspable
         self.washable = washable
         self.microwavable = microwavable
@@ -91,7 +94,10 @@ class ObjCat:
         self.exclude = exclude or []
 
         if model_folders is None:
-            subf = "aigen_objs" if self.aigen_cat else "objaverse"
+            if self.obj_registry == "aigen":
+                subf = "aigen_objs"
+            else:
+                subf = self.obj_registry
             model_folders = ["{}/{}".format(subf, name)]
         cat_mjcf_paths = []
         for folder in model_folders:
@@ -124,33 +130,35 @@ class ObjCat:
 # and then maps the registry to the ObjCat instance
 for (name, kwargs) in OBJ_CATEGORIES.items():
 
-    # get the properties that are common to both registries
+    # get the properties that are common across registries
     common_properties = deepcopy(kwargs)
+    valid_properties = [
+        "graspable",
+        "washable",
+        "microwavable",
+        "cookable",
+        "freezable",
+        "types",
+    ] + list(OBJ_REGISTRIES)
+
     for k in common_properties.keys():
-        assert k in [
-            "graspable",
-            "washable",
-            "microwavable",
-            "cookable",
-            "freezable",
-            "types",
-            "aigen",
-            "objaverse",
-        ]
-    objaverse_kwargs = common_properties.pop("objaverse", None)
-    aigen_kwargs = common_properties.pop("aigen", None)
+        assert k in valid_properties
+
+    # extract registry-specific kwargs
+    registry_kwargs = {}
+    for registry in OBJ_REGISTRIES:
+        registry_kwargs[registry] = common_properties.pop(registry, None)
+
     assert "scale" not in kwargs
     OBJ_CATEGORIES[name] = {}
 
-    # create instances
-    if objaverse_kwargs is not None:
-        objaverse_kwargs.update(common_properties)
-        OBJ_CATEGORIES[name]["objaverse"] = ObjCat(name=name, **objaverse_kwargs)
-    if aigen_kwargs is not None:
-        aigen_kwargs.update(common_properties)
-        OBJ_CATEGORIES[name]["aigen"] = ObjCat(
-            name=name, aigen_cat=True, **aigen_kwargs
-        )
+    # create instances for each registry
+    for registry in OBJ_REGISTRIES:
+        if registry_kwargs[registry] is not None:
+            registry_kwargs[registry].update(common_properties)
+            OBJ_CATEGORIES[name][registry] = ObjCat(
+                name=name, obj_registry=registry, **registry_kwargs[registry]
+            )
 
 
 def sample_kitchen_object(
