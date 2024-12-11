@@ -189,9 +189,9 @@ def sample_kitchen_object(
 
         microwavable (bool): whether the sampled object must be microwavable
 
-        cookable (bool): whether whether the sampled object must be cookable
+        cookable (bool): whether the sampled object must be cookable
 
-        freezable (bool): whether whether the sampled object must be freezable
+        freezable (bool): whether the sampled object must be freezable
 
         rng (np.random.Generator): random number object
 
