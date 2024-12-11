@@ -171,6 +171,9 @@ def sample_kitchen_object(
     freezable=None,
     rng=None,
     obj_registries=("objaverse",),
+    prefer_leading_registry=False,
+    prefer_leading_category=False,
+    prefer_leading_object=False,
     split=None,
     max_size=(None, None, None),
     object_scale=None,
@@ -196,6 +199,12 @@ def sample_kitchen_object(
         rng (np.random.Generator): random number object
 
         obj_registries (tuple): registries to sample from
+
+        prefer_leading_registry (bool): sample obj_registries in order instead of random
+
+        prefer_leading_category (bool): sample categories in order instead of random
+
+        prefer_leading_object (bool): sample objects in order instead of random
 
         split (str): split to sample from. Split "A" specifies all but the last 3 object instances
                     (or the first half - whichever is larger), "B" specifies the  rest, and None specifies all.
@@ -223,6 +232,9 @@ def sample_kitchen_object(
             freezable=freezable,
             rng=rng,
             obj_registries=obj_registries,
+            prefer_leading_registry=prefer_leading_registry,
+            prefer_leading_category=prefer_leading_category,
+            prefer_leading_object=prefer_leading_object,
             split=split,
             object_scale=object_scale,
         )
@@ -271,6 +283,9 @@ def sample_kitchen_object_helper(
     freezable=None,
     rng=None,
     obj_registries=("objaverse",),
+    prefer_leading_registry=False,
+    prefer_leading_category=False,
+    prefer_leading_object=False,
     split=None,
     object_scale=None,
 ):
@@ -295,6 +310,12 @@ def sample_kitchen_object_helper(
         rng (np.random.Generator): random number object
 
         obj_registries (tuple): registries to sample from
+
+        prefer_leading_registry (bool): sample obj_registries in order instead of random
+
+        prefer_leading_category (bool): sample categories in order instead of random
+
+        prefer_leading_object (bool): sample objects in order instead of random
 
         split (str): split to sample from. Split "A" specifies all but the last 3 object instances
                     (or the first half - whichever is larger), "B" specifies the  rest, and None specifies all.
@@ -386,7 +407,15 @@ def sample_kitchen_object_helper(
 
                 valid_categories.append(cat)
 
-        cat = rng.choice(valid_categories)
+        if len(valid_categories) == 0:
+            raise ValueError(
+                f"No valid categories found for sampling from groups: {groups}"
+            )
+
+        if prefer_leading_category:
+            cat = valid_categories[0]
+        else:
+            cat = rng.choice(valid_categories)
 
         choices = {reg: [] for reg in obj_registries}
 
@@ -407,13 +436,21 @@ def sample_kitchen_object_helper(
                     raise ValueError
             choices[reg] = reg_choices
 
-        chosen_reg = rng.choice(
-            obj_registries,
-            p=np.array([len(choices[reg]) for reg in obj_registries])
-            / sum(len(choices[reg]) for reg in obj_registries),
-        )
+        if sum(len(choices[reg]) for reg in obj_registries) == 0:
+            raise ValueError
 
-        mjcf_path = rng.choice(choices[chosen_reg])
+        if prefer_leading_registry:
+            chosen_reg = next(reg for reg in obj_registries if len(choices[reg]) > 0)
+        else:
+            chosen_reg = rng.choice(
+                obj_registries,
+                p=np.array([len(choices[reg]) for reg in obj_registries])
+                / sum(len(choices[reg]) for reg in obj_registries),
+            )
+        if prefer_leading_object:
+            mjcf_path = choices[chosen_reg][0]
+        else:
+            mjcf_path = rng.choice(choices[chosen_reg])
         mjcf_kwargs = OBJ_CATEGORIES[cat][chosen_reg].get_mjcf_kwargs()
         mjcf_kwargs["mjcf_path"] = mjcf_path
 
