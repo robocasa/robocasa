@@ -111,7 +111,7 @@ class NavigateKitchen(Kitchen):
         Returns:
             bool: True if the task is successful, False otherwise.
         """
-        robot_id = self.sim.model.body_name2id("base0_base")
+        robot_id = self.sim.model.body_name2id("mobilebase0_base")
         base_pos = np.array(self.sim.data.body_xpos[robot_id])
         pos_check = np.linalg.norm(self.target_pos[:2] - base_pos[:2]) <= 0.20
         base_ori = T.mat2euler(
