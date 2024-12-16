@@ -145,15 +145,17 @@ def read_model(
             )
             worldbody.append(ext_bbox_site)
 
-    if hide_sites:
-        # hide all sites
-        for site in find_elements(root, tags="site", return_first=False):
-            site.set("rgba", "0 0 0 0")
-    else:
-        for site in find_elements(root, tags="site", return_first=False):
-            rgba = s2a(site.get("rgba"))
-            # rgba[-1] = 1.0
-            site.set("rgba", a2s(rgba))
+    sites = find_elements(root, tags="site", return_first=False)
+    if sites is not None:
+        if hide_sites:
+            # hide all sites
+            for site in sites:
+                site.set("rgba", "0 0 0 0")
+        else:
+            for site in sites:
+                rgba = s2a(site.get("rgba"))
+                # rgba[-1] = 1.0
+                site.set("rgba", a2s(rgba))
 
     info = {}
 
