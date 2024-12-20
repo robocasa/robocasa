@@ -22,7 +22,9 @@ Welcome to RoboCasa's documentation!
    use_cases/basic_usage
    use_cases/downloading_datasets
    use_cases/using_datasets
+   use_cases/collecting_human_demos
    use_cases/creating_datasets
+   use_cases/mimicgen
    use_cases/policy_learning
 
 .. toctree::
