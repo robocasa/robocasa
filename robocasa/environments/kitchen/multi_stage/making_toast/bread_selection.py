@@ -32,10 +32,8 @@ class BreadSelection(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            " Prepare to make a delicious snack by gathering the "
-            "right type of bread. From the different types of pastries on the counter, select a croissant "
-            "and place it on the cutting board. Additionally, retrieve a jar of jam from the cabinet and "
-            "place it alongside the croissant on the cutting board to complete the setup."
+            "From the different types of pastries on the counter, select a croissant and place it on the cutting board. "
+            "Then retrieve a jar of jam from the cabinet and place it alongside the croissant on the cutting board."
         )
 
         return ep_meta

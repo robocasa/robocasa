@@ -27,10 +27,10 @@ class PrepareToast(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = """open the cabinet, pick the bread, place it on the cutting board, 
-        pick the jam, place it on the counter, and close the cabinet."""
+        ep_meta["lang"] = (
+            "Pick the bread, place it on the cutting board, "
+            "pick the jam, place it on the counter, and close the cabinet."
+        )
         return ep_meta
 
     def _reset_internal(self):

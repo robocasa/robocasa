@@ -33,9 +33,10 @@ class SetupFrying(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = f"Pick the pan from the cabinet and place it on the stove. Then turn on the stove burner for the pan."
+        ep_meta["lang"] = (
+            f"Pick the pan from the cabinet and place it on the stove. "
+            "Then turn on the stove burner for the pan."
+        )
         return ep_meta
 
     def _reset_internal(self):

@@ -35,7 +35,7 @@ class PrepareSoupServing(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"Open the cabinet and move the ladle to the pot. Then close the cabinet."
+        ] = "Open the cabinet and move the ladle to the pot. Then close the cabinet."
         return ep_meta
 
     def _reset_internal(self):

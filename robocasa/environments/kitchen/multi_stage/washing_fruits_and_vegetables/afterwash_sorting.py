@@ -31,9 +31,10 @@ class AfterwashSorting(Kitchen):
         ep_meta = super().get_ep_meta()
         food12_name = self.get_obj_lang("food1")
         food3_name = self.get_obj_lang("food3")
-        ep_meta[
-            "lang"
-        ] = f"pick the {food12_name}s from the sink and place them in one bowl. Place the {food3_name} in the other bowl. The, turn off the sink"
+        ep_meta["lang"] = (
+            f"Pick the {food12_name}s from the sink and place them in one bowl. "
+            f"Place the {food3_name} in the other bowl. Then turn off the sink faucet."
+        )
         return ep_meta
 
     def _reset_internal(self):
@@ -45,7 +46,9 @@ class AfterwashSorting(Kitchen):
 
     def _get_obj_cfgs(self):
 
-        food_items = get_cats_by_type(["vegetable", "fruit"])
+        food_items = get_cats_by_type(
+            types=["vegetable", "fruit"], obj_registries=self.obj_registries
+        )
         food1, food2 = self.rng.choice(food_items, size=2, replace=False)
 
         cfgs = []

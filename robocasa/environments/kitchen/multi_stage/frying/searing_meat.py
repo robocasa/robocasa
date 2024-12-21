@@ -35,9 +35,10 @@ class SearingMeat(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         meat_name = self.get_obj_lang("meat")
-        ep_meta[
-            "lang"
-        ] = f"Grab the pan from the cabinet and place on the {self.knob.replace('_', ' ')} burner on the stove. Then place the {meat_name} on the stove and turn the burner on."
+        ep_meta["lang"] = (
+            f"Grab the pan from the cabinet and place it on the {self.knob.replace('_', ' ')} burner on the stove. "
+            f"Then place the {meat_name} on the stove and turn the burner on."
+        )
         return ep_meta
 
     def _reset_internal(self):

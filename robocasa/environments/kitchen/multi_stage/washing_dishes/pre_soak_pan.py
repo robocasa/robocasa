@@ -26,7 +26,7 @@ class PreSoakPan(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = "Pick the pan and sponge and place them into the sink. Then turn on the sink."
+        ] = "Pick the pan and sponge and place them into the sink. Then turn on the water."
         return ep_meta
 
     def _reset_internal(self):

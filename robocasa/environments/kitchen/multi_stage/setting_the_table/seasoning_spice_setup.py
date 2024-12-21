@@ -43,7 +43,7 @@ class SeasoningSpiceSetup(Kitchen):
         condiment2_name = self.get_obj_lang("condiment2")
         ep_meta[
             "lang"
-        ] = f"Move the {condiment1_name} and {condiment2_name} from the cabinet directly in front to the dining counter"
+        ] = f"Move the {condiment1_name} and {condiment2_name} from the cabinet to the dining counter."
         return ep_meta
 
     def _reset_internal(self):

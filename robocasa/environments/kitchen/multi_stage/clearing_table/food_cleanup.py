@@ -36,7 +36,7 @@ class FoodCleanup(Kitchen):
             items += f", {self.get_obj_lang(f'food{i}')}"
         ep_meta[
             "lang"
-        ] = f"Pick the {items} from the counter and place it in the cabinet. Then close the cabinet"
+        ] = f"Pick the {items} from the counter and place {'them' if self.num_food > 1 else 'it'} in the cabinet. Then close the cabinet."
         return ep_meta
 
     def _reset_internal(self):

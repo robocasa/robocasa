@@ -27,9 +27,10 @@ class MealPrepStaging(Kitchen):
         ep_meta = super().get_ep_meta()
         obj_name_1 = self.get_obj_lang("vegetable")
         obj_name_2 = self.get_obj_lang("meat")
-        ep_meta[
-            "lang"
-        ] = f"pick place both pans onto different burners. Then, place the {obj_name_1} and the {obj_name_2} on different pans"
+        ep_meta["lang"] = (
+            "Place both pans onto different burners. "
+            f"Then place the {obj_name_1} and the {obj_name_2} on different pans."
+        )
         return ep_meta
 
     def _reset_internal(self):

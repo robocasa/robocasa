@@ -28,10 +28,9 @@ class DefrostByCategory(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            "There is a mixed pile of frozen fruits and "
-            "vegetables on the counter. Locate all the frozen vegetables and "
-            "place the items in a bowl on the counter. Take all the frozen "
-            "fruits and defrost them in a running sink."
+            "There is a mixed pile of frozen fruits and vegetables on the counter. "
+            "Locate all the frozen vegetables and place the items in a bowl on the counter. "
+            "Take all the frozen fruits and defrost them in a running sink."
         )
         return ep_meta
 

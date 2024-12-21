@@ -30,9 +30,10 @@ class PantryMishap(ManipulateDrawer):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         vegetable = self.get_obj_lang("vegetable")
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet. Pick place the {vegetable} on the counter and the canned food in the drawer. Close the cabinet."
+        ep_meta["lang"] = (
+            f"Place the {vegetable} on the counter and the canned food in the drawer. "
+            "Close the cabinet."
+        )
         return ep_meta
 
     def _reset_internal(self):

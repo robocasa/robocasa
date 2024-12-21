@@ -30,9 +30,10 @@ class SortingCleanup(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = "Pick the mug and place it in the sink. Pick the bowl and place it in the cabinet and then close the cabinet"
+        ep_meta["lang"] = (
+            "Pick the mug and place it in the sink. "
+            "Pick the bowl and place it in the cabinet and then close the cabinet."
+        )
         return ep_meta
 
     def _reset_internal(self):

@@ -48,9 +48,8 @@ def extract_trajectory(
     env.reset()
     obs = env.reset_to(initial_state)
 
-    ep_meta = json.loads(initial_state["ep_meta"])
-    # hack: add the cam configs in, since it's been modified
-    ep_meta["cam_configs"] = deepcopy(env.env._cam_configs)
+    # get updated ep meta in case it's been modified
+    ep_meta = env.env.get_ep_meta()
     initial_state["ep_meta"] = json.dumps(ep_meta, indent=4)
 
     traj = dict(

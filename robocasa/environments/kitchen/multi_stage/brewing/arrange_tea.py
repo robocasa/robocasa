@@ -31,9 +31,11 @@ class ArrangeTea(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = "Pick the kettle from the counter and place it on the tray. Then pick the mug from the cabinet and place it on the tray. Then close the cabinet doors."
+        ep_meta["lang"] = (
+            "Pick the kettle from the counter and place it on the tray. "
+            "Then pick the mug from the cabinet and place it on the tray. "
+            "Then close the cabinet doors."
+        )
         return ep_meta
 
     def _get_obj_cfgs(self):

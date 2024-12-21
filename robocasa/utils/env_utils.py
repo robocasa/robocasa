@@ -25,6 +25,7 @@ def create_env(
     camera_widths=128,
     camera_heights=128,
     seed=None,
+    render_onscreen=False,
     # robocasa-related configs
     obj_instance_split=None,
     generative_textures=None,
@@ -45,11 +46,11 @@ def create_env(
         camera_names=camera_names,
         camera_widths=camera_widths,
         camera_heights=camera_heights,
-        has_renderer=False,
-        has_offscreen_renderer=True,
+        has_renderer=render_onscreen,
+        has_offscreen_renderer=(not render_onscreen),
         ignore_done=True,
         use_object_obs=True,
-        use_camera_obs=True,
+        use_camera_obs=(not render_onscreen),
         camera_depths=False,
         seed=seed,
         obj_instance_split=obj_instance_split,
@@ -81,7 +82,7 @@ def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
 
             if video_writer is not None:
                 video_img = env.sim.render(
-                    height=512, width=512, camera_name="robot0_agentview_center"
+                    height=512, width=768, camera_name="robot0_agentview_center"
                 )[::-1]
                 video_writer.append_data(video_img)
 

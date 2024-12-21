@@ -28,11 +28,10 @@ class SpicyMarinade(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet. Place the bowl and condiment on the counter. Then place the lime and garlic on the cutting board."
-
+        ep_meta["lang"] = (
+            "Open the cabinet. Place the bowl and condiment on the counter. "
+            "Then place the lime and garlic on the cutting board."
+        )
         return ep_meta
 
     def _reset_internal(self):

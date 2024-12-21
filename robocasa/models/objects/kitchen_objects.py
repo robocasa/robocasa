@@ -2012,12 +2012,13 @@ OBJ_CATEGORIES = dict(
 )
 
 
-def get_cats_by_type(types):
+def get_cats_by_type(types, obj_registries=None):
     """
     Retrieves a list of item keys from the global `OBJ_CATEGORIES` dictionary based on the specified types.
 
     Args:
         types (list): A list of valid types to filter items by. Only items with a matching type will be included.
+        obj_registries (list): only consider categories belonging to these object registries
 
     Returns:
         list: A list of keys from `OBJ_CATEGORIES` where the item's types intersect with the provided `types`.
@@ -2026,7 +2027,17 @@ def get_cats_by_type(types):
 
     res = []
     for key, val in OBJ_CATEGORIES.items():
-        cat_types = val["types"]
+        # check if category is in one of valid object registries
+        if obj_registries is not None:
+            if isinstance(obj_registries, str):
+                obj_registries = [obj_registries]
+            if any([reg in val for reg in obj_registries]) is False:
+                continue
+
+        if "types" in val:
+            cat_types = val["types"]
+        else:
+            cat_types = list(val.values())[0].types
         if isinstance(cat_types, str):
             cat_types = [cat_types]
         cat_types = set(cat_types)

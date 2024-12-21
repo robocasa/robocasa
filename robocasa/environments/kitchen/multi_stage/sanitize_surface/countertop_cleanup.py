@@ -31,9 +31,10 @@ class CountertopCleanup(Kitchen):
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
-        ep_meta[
-            "lang"
-        ] = f"Pick  the fruit and vegetable from the counter and place it in the cabinet. Then, open the drawer and pick the cleaner and sponge from the drawer and place it on the counter."
+        ep_meta["lang"] = (
+            "Pick the fruit and vegetable from the counter and place them in the cabinet. "
+            "Then open the drawer and pick the cleaner and sponge from the drawer and place them on the counter."
+        )
         return ep_meta
 
     def _reset_internal(self):

@@ -33,9 +33,11 @@ class MakeFruitBowl(Kitchen):
         ep_meta = super().get_ep_meta()
         fruit1_name = self.get_obj_lang("fruit1")
         fruit2_name = self.get_obj_lang("fruit2")
-        ep_meta[
-            "lang"
-        ] = f"Open the cabinet. Pick the {fruit1_name} and {fruit2_name} from the cabinet and place them into the bowl. Then close the cabinet."
+        ep_meta["lang"] = (
+            "Open the cabinet. "
+            f"Pick the {fruit1_name} and {fruit2_name} from the cabinet and place them into the bowl. "
+            "Then close the cabinet."
+        )
 
         return ep_meta
 

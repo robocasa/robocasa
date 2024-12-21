@@ -228,7 +228,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         camera_heights=256,
         camera_widths=256,
         camera_depths=False,
-        renderer="mujoco",
+        renderer="mjviewer",
         renderer_config=None,
         init_robot_base_pos=None,
         seed=None,
@@ -364,7 +364,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             print("layout: {}, style: {}".format(self.layout_id, self.style_id))
 
         # to be set later inside edit_model_xml function
-        self._curr_gen_fixtures = None
+        self._curr_gen_fixtures = self._ep_meta.get("gen_textures")
 
         # setup scene
         self.mujoco_arena = KitchenArena(
@@ -1145,7 +1145,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         ):
             # sample textures
             assert self.generative_textures == "100p"
-            self._curr_gen_fixtures = get_random_textures(self.rng)
+            if self._curr_gen_fixtures is None or self._curr_gen_fixtures == {}:
+                self._curr_gen_fixtures = get_random_textures(self.rng)
 
             cab_tex = self._curr_gen_fixtures["cab_tex"]
             counter_tex = self._curr_gen_fixtures["counter_tex"]

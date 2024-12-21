@@ -31,9 +31,11 @@ class SteamInMicrowave(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         vegetable_name = self.get_obj_lang("vegetable")
-        ep_meta[
-            "lang"
-        ] = f"Pick the {vegetable_name} from the sink and place it in the bowl. Then pick the bowl and place it in the microwave. Then close the microwave door and press the start button."
+        ep_meta["lang"] = (
+            f"Pick the {vegetable_name} from the sink and place it in the bowl. "
+            "Then pick the bowl and place it in the microwave. "
+            "Then close the microwave door and press the start button."
+        )
 
         return ep_meta
 

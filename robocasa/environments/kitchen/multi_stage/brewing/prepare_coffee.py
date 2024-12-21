@@ -37,7 +37,7 @@ class PrepareCoffee(Kitchen):
         obj_name = self.get_obj_lang()
         ep_meta[
             "lang"
-        ] = f"pick the {obj_name} from the cabinet, place it under the coffee machine dispenser, and press the start button"
+        ] = f"Pick the {obj_name} from the cabinet, place it under the coffee machine dispenser, and press the start button."
         return ep_meta
 
     def _get_obj_cfgs(self):

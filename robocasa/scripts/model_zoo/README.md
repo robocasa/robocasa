@@ -1,6 +1,10 @@
 # RoboCasa Model Zoo Guide
 This guide explains how to import and visualize assets in RoboCasa.
 
+## Installation
+1. setup v-hacd: `scripts/model_zoo; bash install_vhacd.sh`
+2. install additional dependencies: `pip install trimesh`
+
 ## Overview
 The structure of generated assets is as follows:
 - `model.xml`: mjcf file containing visual geoms, collision geoms, joints, and sites

@@ -35,9 +35,10 @@ class PrepMarinatingMeat(Kitchen):
         cond_name = self.get_obj_lang("condiment")
         meat_name = self.get_obj_lang("meat")
         cont_name = self.get_obj_lang("meat_container")
-        ep_meta[
-            "lang"
-        ] = f"Pick the {meat_name} from the {cont_name} and place it on the cutting board. Then pick the {cond_name} from the cabinet and place it next to the cutting board"
+        ep_meta["lang"] = (
+            f"Pick the {meat_name} from the {cont_name} and place it on the cutting board. "
+            f"Then pick the {cond_name} from the cabinet and place it next to the cutting board."
+        )
 
         return ep_meta
 
