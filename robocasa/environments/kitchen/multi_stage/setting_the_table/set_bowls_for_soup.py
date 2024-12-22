@@ -123,7 +123,7 @@ class SetBowlsForSoup(Kitchen):
         bowl2_on_plate2 = OU.check_obj_in_receptacle(self, "bowl2", "plate2")
 
         bowls_set = (bowl1_on_plate1 and bowl2_on_plate2) or (
-            bowl1_on_plate2 or bowl2_on_plate1
+            bowl1_on_plate2 and bowl2_on_plate1
         )
 
         return gripper_bowl1_far and gripper_bowl2_far and bowls_set

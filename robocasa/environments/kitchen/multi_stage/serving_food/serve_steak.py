@@ -64,7 +64,7 @@ class ServeSteak(Kitchen):
                     sample_region_kwargs=dict(
                         ref=FixtureType.STOOL,
                     ),
-                    size=(0.50, 0.50),
+                    size=(0.50, 0.35),
                     pos=("ref", 1.0),
                 ),
             )

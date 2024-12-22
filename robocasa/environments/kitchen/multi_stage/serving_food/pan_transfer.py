@@ -12,8 +12,6 @@ class PanTransfer(Kitchen):
         Then, return the pan to the stove.
     """
 
-    EXCLUDE_LAYOUTS = [0, 2, 4, 5]
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -21,8 +19,8 @@ class PanTransfer(Kitchen):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
         self.init_robot_base_pos = self.stove
-        self.dining_table = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=(0.5, 0.5))
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
 
     def get_ep_meta(self):
@@ -74,12 +72,12 @@ class PanTransfer(Kitchen):
                 obj_groups="plate",
                 graspable=False,
                 placement=dict(
-                    fixture=self.dining_table,
+                    fixture=self.counter,
                     sample_region_kwargs=dict(
-                        ref=FixtureType.STOOL,
+                        ref=self.stove,
                     ),
-                    size=(0.50, 0.50),
-                    pos=("ref", 1.0),
+                    size=(0.30, 0.30),
+                    pos=("ref", -1.0),
                 ),
             )
         )
@@ -89,7 +87,7 @@ class PanTransfer(Kitchen):
                 obj_groups="all",
                 exclude_obj_groups=["plate", "pan", "vegetable"],
                 placement=dict(
-                    fixture=self.dining_table,
+                    fixture=self.counter,
                     size=(0.30, 0.20),
                     pos=(0.5, 0.5),
                 ),
