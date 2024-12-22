@@ -121,14 +121,7 @@ class SteamInMicrowave(Kitchen):
                 break
 
         button_pressed = self.microwave.get_state()["turned_on"]
-        gripper_button_far = self.microwave.gripper_button_far(
-            self, button="start_button"
-        )
 
         return (
-            vegetable_in_bowl
-            and bowl_in_microwave
-            and door_closed
-            and button_pressed
-            and gripper_button_far
+            vegetable_in_bowl and bowl_in_microwave and door_closed and button_pressed
         )

@@ -12,6 +12,9 @@ class WaffleReheat(Kitchen):
         close the microwave door and turn it on.
     """
 
+    # exclude layout 8 because the microwave is far from counters
+    EXCLUDE_LAYOUTS = [8]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -22,7 +25,8 @@ class WaffleReheat(Kitchen):
             "microwave", dict(id=FixtureType.MICROWAVE)
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, size=(0.6, 0.6), ref=self.microwave)
+            "counter",
+            dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
         self.init_robot_base_pos = self.microwave
 
@@ -48,8 +52,11 @@ class WaffleReheat(Kitchen):
                 obj_groups="waffle",
                 placement=dict(
                     fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.microwave,
+                    ),
                     size=(0.3, 0.3),
-                    pos=(-1.0, -1.0),
+                    pos=("ref", -1.0),
                     try_to_place_in="bowl",
                 ),
             )
@@ -57,8 +64,7 @@ class WaffleReheat(Kitchen):
         return cfgs
 
     def _check_success(self):
-        gripper_far = OU.gripper_obj_far(self, "waffle")
         waffle_in_bowl = OU.check_obj_in_receptacle(self, "waffle", "waffle_container")
         bowl_in_microwave = OU.obj_inside_of(self, "waffle_container", self.microwave)
         microwave_on = self.microwave.get_state()["turned_on"]
-        return waffle_in_bowl and bowl_in_microwave and microwave_on and gripper_far
+        return waffle_in_bowl and bowl_in_microwave and microwave_on

@@ -159,12 +159,12 @@ def collect_human_trajectory(
         if task_completion_hold_count == 0:
             break
 
-        # state machine to check for having a success for 10 consecutive timesteps
+        # state machine to check for having a success for 15 consecutive timesteps
         if env._check_success():
             if task_completion_hold_count > 0:
                 task_completion_hold_count -= 1  # latched state, decrement count
             else:
-                task_completion_hold_count = 10  # reset count on first success timestep
+                task_completion_hold_count = 15  # reset count on first success timestep
         else:
             task_completion_hold_count = -1  # null the counter if there's no success
 
