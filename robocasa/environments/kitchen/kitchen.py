@@ -614,7 +614,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             offset (list): offset to add to the base position
 
         """
-        # step 1: find vase fixture closest to robot
+        # step 1: find base fixture closest to robot
         base_fixture = None
 
         # get all base fixtures in the environment
