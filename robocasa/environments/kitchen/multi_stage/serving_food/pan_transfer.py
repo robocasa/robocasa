@@ -33,6 +33,7 @@ class PanTransfer(Kitchen):
 
     def _reset_internal(self):
         super()._reset_internal()
+        self._robot_touched_food = False
 
     def _get_obj_cfgs(self):
         cfgs = []
@@ -95,13 +96,48 @@ class PanTransfer(Kitchen):
         )
         return cfgs
 
+    def _check_obj_location_on_stove(self, obj_name, threshold=0.08):
+        """
+        Check if the object is on the stove and close to a burner
+        Returns the location of the burner if the object is on the stove, and close to a burner.
+        None otherwise.
+        """
+
+        obj = self.objects[obj_name]
+        obj_pos = np.array(self.sim.data.body_xpos[self.obj_body_id[obj.name]])[0:2]
+        obj_on_stove = OU.check_obj_fixture_contact(self, obj_name, self.stove)
+        if obj_on_stove:
+            for location, site in self.stove.burner_sites.items():
+                if site is not None:
+                    burner_pos = np.array(
+                        self.sim.data.get_site_xpos(site.get("name"))
+                    )[0:2]
+                    dist = np.linalg.norm(burner_pos - obj_pos)
+
+                    obj_on_site = dist < threshold
+
+                    if obj_on_site:
+                        return location
+
+        return None
+
+    def _post_action(self, action):
+        ret = super()._post_action(action)
+        contact = self.check_contact(
+            self.robots[0].gripper["right"], self.objects["vegetable"]
+        )
+        self._robot_touched_food = self._robot_touched_food or contact
+        return ret
+
     def _check_success(self):
         vegetable_on_plate = OU.check_obj_in_receptacle(self, "vegetable", "plate")
-        pan_on_stove = OU.check_obj_fixture_contact(
-            self, "vegetable_container", self.stove
+        pan_on_stove = (
+            self._check_obj_location_on_stove("vegetable_container") is not None
         )
-        gripper_obj_far = OU.gripper_obj_far(
-            self, "vegetable_container"
-        ) and OU.gripper_obj_far(self, "vegetable")
-
-        return vegetable_on_plate and pan_on_stove and gripper_obj_far
+        gripper_obj_far = OU.gripper_obj_far(self, "vegetable_container")
+        return (
+            vegetable_on_plate
+            and pan_on_stove
+            and gripper_obj_far
+            and (not self._robot_touched_food)
+        )
