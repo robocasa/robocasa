@@ -39,14 +39,23 @@ class StockingBreakfastFoods(Kitchen):
             self.counter = self.fixture_refs["counter"]
             self.counter2 = self.fixture_refs["counter2"]
         else:
-            self.cab1 = self.register_fixture_ref("cab1", dict(id=self.cab_id1))
-
             while True:
-                # sample until 2 different cabinets are selected
-                self.cab2 = self.get_fixture(self.cab_id2)
-                if self.cab2 != self.cab1:
+                self.cab1 = self.get_fixture(self.cab_id1)
+
+                valid_cab_config_found = False
+                for _ in range(20):  # 20 attempts
+                    # sample until 2 different cabinets are selected
+                    self.cab2 = self.get_fixture(self.cab_id2)
+                    cab1_rot = self.cab1.rot % (2 * np.pi)
+                    cab2_rot = self.cab2.rot % (2 * np.pi)
+                    if self.cab2 != self.cab1 and np.abs(cab1_rot - cab2_rot) < 0.05:
+                        valid_cab_config_found = True
+                        break
+
+                if valid_cab_config_found:
                     break
 
+            self.fixture_refs["cab1"] = self.cab1
             self.fixture_refs["cab2"] = self.cab2
             self.counter = self.register_fixture_ref(
                 "counter", dict(id=FixtureType.COUNTER, ref=self.cab1)
