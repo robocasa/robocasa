@@ -68,8 +68,8 @@ class SnackSorting(ManipulateDrawer):
                 placement=dict(
                     fixture=self.counter,
                     sample_region_kwargs=dict(ref=self.drawer),
-                    size=(0.30, 0.10),
-                    offset=(0.0, 0.05),
+                    size=(0.15, 0.10),
+                    offset=(0.0, 0.075),
                     pos=("ref", -1.0),
                     ensure_object_boundary_in_range=False,
                 ),
