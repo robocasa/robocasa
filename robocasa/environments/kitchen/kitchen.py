@@ -424,6 +424,35 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # setup internal references related to fixtures
         self._setup_kitchen_references()
 
+        # create and place objects
+        self._create_objects()
+
+        # setup object locations
+        self.placement_initializer = self._get_placement_initializer(self.object_cfgs)
+        object_placements = None
+        for i in range(1):
+            try:
+                object_placements = self.placement_initializer.sample(
+                    placed_objects=self.fxtr_placements
+                )
+            except RandomizationError as e:
+                if macros.VERBOSE:
+                    print("Randomization error in initial placement. Try #{}".format(i))
+                continue
+            break
+        if object_placements is None:
+            if macros.VERBOSE:
+                print("Could not place objects. Trying again with self._load_model()")
+            self._load_model()
+            return
+        self.object_placements = object_placements
+
+        self._init_robot_base_pose()
+
+    def _init_robot_base_pose(self):
+        """
+        helper function to initialize robot base pose
+        """
         # set robot position
         if self.init_robot_base_pos is not None:
             ref_fixture = self.get_fixture(self.init_robot_base_pos)
@@ -452,35 +481,19 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     continue
                 break
 
+        ref_object = None
+        for cfg in self.object_cfgs:
+            if cfg.get("init_robot_here", None) is True:
+                ref_object = cfg.get("name")
+                break
+
         robot_base_pos, robot_base_ori = self.compute_robot_base_placement_pose(
-            ref_fixture=ref_fixture
+            ref_fixture=ref_fixture,
+            ref_object=ref_object,
         )
         robot_model = self.robots[0].robot_model
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
-
-        # create and place objects
-        self._create_objects()
-
-        # setup object locations
-        self.placement_initializer = self._get_placement_initializer(self.object_cfgs)
-        object_placements = None
-        for i in range(1):
-            try:
-                object_placements = self.placement_initializer.sample(
-                    placed_objects=self.fxtr_placements
-                )
-            except RandomizationError as e:
-                if macros.VERBOSE:
-                    print("Randomization error in initial placement. Try #{}".format(i))
-                continue
-            break
-        if object_placements is None:
-            if macros.VERBOSE:
-                print("Could not place objects. Trying again with self._load_model()")
-            self._load_model()
-            return
-        self.object_placements = object_placements
 
     def _create_objects(self):
         """
@@ -601,7 +614,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         if self.hard_reset:
             self._observables = self._setup_observables()
 
-    def compute_robot_base_placement_pose(self, ref_fixture, offset=None):
+    def compute_robot_base_placement_pose(
+        self, ref_fixture, ref_object=None, offset=None
+    ):
         """
         steps:
         1. find the nearest counter to this fixture
@@ -652,6 +667,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         if offset is not None:
             base_to_edge[0] += offset[0]
             base_to_edge[1] += offset[1]
+        elif ref_object is not None:
+            sampler = self.placement_initializer.samplers[f"{ref_object}_Sampler"]
+            base_to_edge[0] += np.mean(sampler.x_range)
 
         if (
             isinstance(base_fixture, HousingCabinet)
@@ -722,9 +740,17 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
                 # calculate the total available space where object could be placed
                 sample_region_kwargs = placement.get("sample_region_kwargs", {})
-                reset_region = fixture.sample_reset_region(
-                    env=self, **sample_region_kwargs
-                )
+                ref_obj_name = placement.get("ref_obj", None)
+                if ref_obj_name is not None and cfg["name"] != ref_obj_name:
+                    for cfg2 in cfg_list:
+                        if cfg2.get("name", None) == ref_obj_name:
+                            reset_region = cfg2["reset_region"]
+                            break
+                else:
+                    reset_region = fixture.sample_reset_region(
+                        env=self, **sample_region_kwargs
+                    )
+                cfg["reset_region"] = reset_region
                 outer_size = reset_region["size"]
                 margin = placement.get("margin", 0.04)
                 outer_size = (outer_size[0] - margin, outer_size[1] - margin)
