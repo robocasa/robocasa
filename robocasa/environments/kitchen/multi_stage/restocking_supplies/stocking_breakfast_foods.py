@@ -33,7 +33,7 @@ class StockingBreakfastFoods(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
 
-        if "cab2" in self.fixture_refs:
+        if "cab1" in self.fixture_refs:
             self.cab1 = self.fixture_refs["cab1"]
             self.cab2 = self.fixture_refs["cab2"]
             self.counter = self.fixture_refs["counter"]
