@@ -98,4 +98,4 @@ class FryingPanAdjustment(Kitchen):
             knob_on_loc = 0.35 <= np.abs(knobs_state[curr_loc]) <= 2 * np.pi - 0.35
 
         # return success if the pan is on a burner, the burner is on, and the burner is not the same as the start location
-        return OU.gripper_obj_far(self) and knob_on_loc and curr_loc != self.start_loc
+        return knob_on_loc and curr_loc != self.start_loc
