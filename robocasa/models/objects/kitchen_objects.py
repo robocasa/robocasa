@@ -267,7 +267,27 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=[0.80, 0.80, 1.0],
         ),
-        objaverse=dict(scale=[0.70, 0.70, 1.0], exclude=["bread_22"]),  # hole on bottom
+        objaverse=dict(
+            scale=[0.70, 0.70, 1.0],
+            exclude=["bread_22"] + [f"bread_{i}" for i in [3, 9, 13, 18]],
+        ),  # hole on bottom
+    ),
+    bread_flat=dict(
+        types=("bread_food"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        freezable=True,
+        aigen=dict(
+            scale=[0.80, 0.80, 1.0],
+            model_folders=["aigen_objs/bread"],
+        ),
+        objaverse=dict(
+            scale=[0.70, 0.70, 1.0],
+            model_folders=["objaverse/bread"],
+            exclude=[f"bread_{i}" for i in range(23) if i not in [3, 9, 13, 18]],
+        ),
     ),
     broccoli=dict(
         types=("vegetable"),

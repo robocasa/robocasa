@@ -1666,6 +1666,14 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 break
         lang = obj_cfg["info"]["cat"].replace("_", " ")
 
+        # replace some phrases
+        if lang == "kettle electric":
+            lang = "electric kettle"
+        elif lang == "kettle non electric":
+            lang = "kettle"
+        elif lang == "bread_flat":
+            lang = "bread"
+
         if not get_preposition:
             return lang
 
