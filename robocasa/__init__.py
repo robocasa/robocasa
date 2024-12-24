@@ -1,7 +1,7 @@
 from robosuite.environments.base import make
 
 # Manipulation environments
-from robocasa.environments.kitchen.kitchen import Kitchen, KitchenDemo
+from robocasa.environments.kitchen.kitchen import Kitchen
 from robocasa.environments.kitchen.multi_stage.baking.cupcake_cleanup import (
     CupcakeCleanup,
 )
@@ -25,6 +25,7 @@ from robocasa.environments.kitchen.multi_stage.brewing.prepare_coffee import (
 )
 from robocasa.environments.kitchen.multi_stage.chopping_food.arrange_vegetables import (
     ArrangeVegetables,
+    ArrangeVegetablesSimple,
 )
 from robocasa.environments.kitchen.multi_stage.chopping_food.bread_setup_slicing import (
     BreadSetupSlicing,

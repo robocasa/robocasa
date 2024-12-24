@@ -37,7 +37,7 @@ class SnackSorting(ManipulateDrawer):
                 max_size=(None, None, 0.10),
                 placement=dict(
                     fixture=self.drawer,
-                    size=(0.30, 0.30),
+                    size=(0.20, 0.25),
                     # put object towards the front of the drawer
                     pos=(None, -0.75),
                     # offset to make sure the object is correctly placed since the drawer will be open to start
@@ -68,8 +68,10 @@ class SnackSorting(ManipulateDrawer):
                 placement=dict(
                     fixture=self.counter,
                     sample_region_kwargs=dict(ref=self.drawer),
-                    size=(0.60, 0.40),
+                    size=(0.15, 0.10),
+                    offset=(0.0, 0.075),
                     pos=("ref", -1.0),
+                    ensure_object_boundary_in_range=False,
                 ),
             )
         )
