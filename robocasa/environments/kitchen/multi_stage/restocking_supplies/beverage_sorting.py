@@ -69,8 +69,10 @@ class BeverageSorting(Kitchen):
                 name="alcohol1",
                 obj_groups="alcohol",
                 graspable=True,
+                init_robot_here=True,
                 placement=dict(
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.5, 0.40),
                     pos=(0, -1.0),
                 ),
@@ -82,7 +84,9 @@ class BeverageSorting(Kitchen):
                 obj_groups="alcohol",
                 graspable=True,
                 placement=dict(
+                    ref_obj="alcohol1",
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.50, 0.40),
                     pos=(0, -1.0),
                 ),
@@ -96,7 +100,9 @@ class BeverageSorting(Kitchen):
                 exclude_obj_groups="alcohol",
                 graspable=True,
                 placement=dict(
+                    ref_obj="alcohol1",
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.5, 0.40),
                     pos=(0, -1.0),
                 ),
@@ -109,7 +115,9 @@ class BeverageSorting(Kitchen):
                 exclude_obj_groups="alcohol",
                 graspable=True,
                 placement=dict(
+                    ref_obj="alcohol1",
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.50, 0.40),
                     pos=(0, -1.0),
                 ),
