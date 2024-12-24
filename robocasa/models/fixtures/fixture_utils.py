@@ -16,7 +16,9 @@ def fixture_is_type(fixture, fixture_type):
         cls_check = any([isinstance(fixture, cls) for cls in [Counter]])
         if not cls_check:
             return False
-        return fixture.width >= 2 or fixture.depth >= 2
+        # a hack to identify counters that start with name island
+        starts_with_island = fixture.name.startswith("island")
+        return starts_with_island or sum(fixture.base_opening) > 0
     elif fixture_type == FixtureType.CABINET:
         return isinstance(fixture, Cabinet)
     elif fixture_type == FixtureType.DRAWER:

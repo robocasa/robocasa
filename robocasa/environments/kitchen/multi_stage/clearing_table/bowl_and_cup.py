@@ -8,27 +8,31 @@ class BowlAndCup(Kitchen):
     Simulates the process of efficiently clearing the table.
 
     Steps:
-        Place the cup inside the bowl on the island and move it to any counter.
+        Place the cup inside the bowl on the dining table and move it to any counter.
 
-    Restricted to layouts with an island.
+    Restricted to layouts with a dining table.
     """
 
-    EXCLUDE_LAYOUTS = [0, 2, 4, 5, 7, 8, 9]
+    EXCLUDE_LAYOUTS = [0, 2, 4, 5]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
-        self.island = self.register_fixture_ref("island", dict(id=FixtureType.ISLAND))
+        self.stool = self.register_fixture_ref("stool", dict(id=FixtureType.STOOL))
+        self.dining_table = self.register_fixture_ref(
+            "dining_table",
+            dict(id=FixtureType.DINING_COUNTER, ref=self.stool, size=(0.50, 0.35)),
+        )
 
-        self.init_robot_base_pos = self.island
+        self.init_robot_base_pos = self.dining_table
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"Place the cup inside the bowl on the island and move the bowl to any counter."
+        ] = f"Place the cup inside the bowl on the dining table and move the bowl to any counter."
         return ep_meta
 
     def _get_obj_cfgs(self):
@@ -40,10 +44,14 @@ class BowlAndCup(Kitchen):
                 obj_groups=["cup"],
                 graspable=True,
                 washable=True,
+                init_robot_here=True,
                 placement=dict(
-                    fixture=self.island,
-                    size=(0.30, 0.40),
-                    pos=(0, -1.0),
+                    fixture=self.dining_table,
+                    sample_region_kwargs=dict(
+                        ref=self.stool,
+                    ),
+                    size=(0.50, 0.35),
+                    pos=("ref", "ref"),
                 ),
             )
         )
@@ -55,9 +63,13 @@ class BowlAndCup(Kitchen):
                 graspable=True,
                 washable=True,
                 placement=dict(
-                    fixture=self.island,
-                    size=(0.30, 0.40),
-                    pos=(0, -1.0),
+                    fixture=self.dining_table,
+                    sample_region_kwargs=dict(
+                        ref=self.stool,
+                    ),
+                    ref_obj="cup",
+                    size=(0.50, 0.35),
+                    pos=("ref", "ref"),
                 ),
             )
         )
@@ -70,7 +82,7 @@ class BowlAndCup(Kitchen):
             [
                 OU.check_obj_fixture_contact(self, "bowl", fxtr)
                 for (_, fxtr) in self.fixtures.items()
-                if isinstance(fxtr, Counter) and fxtr != self.island
+                if isinstance(fxtr, Counter) and fxtr != self.dining_table
             ]
         )
         return cup_in_bowl and bowl_on_counter and OU.gripper_obj_far(self, "bowl")

@@ -629,11 +629,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             offset (list): offset to add to the base position
 
         """
-        # step 1: find base fixture closest to robot
-        base_fixture = None
+        # step 1: find ground fixture closest to robot
+        ground_fixture = None
 
         # get all base fixtures in the environment
-        base_fixtures = [
+        ground_fixtures = [
             fxtr
             for fxtr in self.fixtures.values()
             if isinstance(fxtr, Counter)
@@ -643,59 +643,100 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             or isinstance(fxtr, Fridge)
         ]
 
-        for fxtr in base_fixtures:
+        for fxtr in ground_fixtures:
             # get bounds of fixture
             point = ref_fixture.pos
             if not OU.point_in_fixture(point=point, fixture=fxtr, only_2d=True):
                 continue
-            base_fixture = fxtr
+            ground_fixture = fxtr
             break
 
         # set the base fixture as the ref fixture itself if cannot find fixture containing ref
-        if base_fixture is None:
-            base_fixture = ref_fixture
+        if ground_fixture is None:
+            ground_fixture = ref_fixture
         # assert base_fixture is not None
 
         # step 2: compute offset relative to this counter
-        base_to_ref, _ = OU.get_rel_transform(base_fixture, ref_fixture)
-        cntr_y = base_fixture.get_ext_sites(relative=True)[0][1]
-        base_to_edge = [
-            base_to_ref[0],
-            cntr_y - 0.20,
-            0,
-        ]
+        ground_to_ref, _ = OU.get_rel_transform(ground_fixture, ref_fixture)
+
+        face_dir = 1  # 1 is facing front of fixture, -1 is facing south end of fixture
+        if fixture_is_type(ground_fixture, FixtureType.DINING_COUNTER):
+            # for dining counters, can face either north of south end of fixture
+            if ref_object is not None:
+                # choose the end that is closest to the ref object
+                obj_pos = self.object_placements[ref_object][0]
+                abs_sites = ground_fixture.get_ext_sites(relative=False)
+                dist1 = np.linalg.norm(obj_pos - abs_sites[0])
+                dist2 = np.linalg.norm(obj_pos - abs_sites[2])
+                if dist1 < dist2:
+                    face_dir = 1
+                else:
+                    face_dir = -1
+            else:
+                face_dir = self.rng.choice([-1, 1])
+
+        fixture_ext_sites = ground_fixture.get_ext_sites(relative=True)
+        fixture_to_robot_offset = np.zeros(3)
+
+        # set x offset
+        fixture_to_robot_offset[0] = ground_to_ref[0]
+
+        # set y offset
+        if face_dir == 1:
+            fixture_p0 = fixture_ext_sites[0]
+            fixture_to_robot_offset[1] = fixture_p0[1] - 0.20
+        elif face_dir == -1:
+            fixture_py = fixture_ext_sites[2]
+            fixture_to_robot_offset[1] = fixture_py[1] + 0.20
+
         if offset is not None:
-            base_to_edge[0] += offset[0]
-            base_to_edge[1] += offset[1]
+            fixture_to_robot_offset[0] += offset[0]
+            fixture_to_robot_offset[1] += offset[1]
         elif ref_object is not None:
             sampler = self.placement_initializer.samplers[f"{ref_object}_Sampler"]
-            base_to_edge[0] += np.mean(sampler.x_range)
+            fixture_to_robot_offset[0] += np.mean(sampler.x_range)
 
         if (
-            isinstance(base_fixture, HousingCabinet)
-            or isinstance(base_fixture, Fridge)
-            or "stack" in base_fixture.name
+            isinstance(ground_fixture, HousingCabinet)
+            or isinstance(ground_fixture, Fridge)
+            or "stack" in ground_fixture.name
         ):
-            base_to_edge[1] -= 0.10
+            fixture_to_robot_offset[1] += face_dir * -0.10
+
+        # move back a bit for the stools
+        if fixture_is_type(ground_fixture, FixtureType.DINING_COUNTER):
+            abs_sites = ground_fixture.get_ext_sites(relative=False)
+            stool = self.get_fixture(FixtureType.STOOL)
+            dist1 = np.linalg.norm(stool.pos - abs_sites[0])
+            dist2 = np.linalg.norm(stool.pos - abs_sites[2])
+            if (dist1 < dist2 and face_dir == 1) or (dist1 > dist2 and face_dir == -1):
+                fixture_to_robot_offset[1] += -0.15 * face_dir
 
         # apply robot-specific offset relative to the base fixture for x,y dims
         robot_model = self.robots[0].robot_model
         robot_class_name = robot_model.__class__.__name__
         if robot_class_name in _ROBOT_POS_OFFSETS:
             for dimension in range(0, 2):
-                base_to_edge[dimension] += _ROBOT_POS_OFFSETS[robot_class_name][
-                    dimension
-                ]
+                if dimension == 1:
+                    fixture_to_robot_offset[dimension] += (
+                        _ROBOT_POS_OFFSETS[robot_class_name][dimension] * face_dir
+                    )
+                else:
+                    fixture_to_robot_offset[dimension] += _ROBOT_POS_OFFSETS[
+                        robot_class_name
+                    ][dimension]
 
         # step 3: transform offset to global coordinates
         robot_base_pos = np.zeros(3)
-        robot_base_pos[0:2] = OU.get_pos_after_rel_offset(base_fixture, base_to_edge)[
-            0:2
-        ]
+        robot_base_pos[0:2] = OU.get_pos_after_rel_offset(
+            ground_fixture, fixture_to_robot_offset
+        )[0:2]
         # apply robot-specific absolutely for z dim
         if robot_class_name in _ROBOT_POS_OFFSETS:
             robot_base_pos[2] = _ROBOT_POS_OFFSETS[robot_class_name][2]
-        robot_base_ori = np.array([0, 0, base_fixture.rot + np.pi / 2])
+        robot_base_ori = np.array([0, 0, ground_fixture.rot + np.pi / 2])
+        if face_dir == -1:
+            robot_base_ori[2] += np.pi
 
         return robot_base_pos, robot_base_ori
 
@@ -791,8 +832,23 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 elif inner_xpos is None:
                     inner_xpos = 0.0
 
-                if inner_ypos is None:
+                if inner_ypos == "ref":
+                    # compute optimal placement of inner region to match up with the reference fixture
+                    y_halfsize = outer_size[1] / 2 - inner_size[1] / 2
+                    if y_halfsize == 0.0:
+                        inner_ypos = 0.0
+                    else:
+                        ref_fixture = self.get_fixture(
+                            placement["sample_region_kwargs"]["ref"]
+                        )
+                        ref_pos = ref_fixture.pos
+                        fixture_to_ref = OU.get_rel_transform(fixture, ref_fixture)[0]
+                        outer_to_ref = fixture_to_ref - reset_region["offset"]
+                        inner_ypos = outer_to_ref[1] / y_halfsize
+                        inner_ypos = np.clip(inner_ypos, a_min=-1.0, a_max=1.0)
+                elif inner_ypos is None:
                     inner_ypos = 0.0
+
                 # offset for inner region
                 intra_offset = (
                     (outer_size[0] / 2 - inner_size[0] / 2) * inner_xpos + offset[0],
@@ -1622,39 +1678,3 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             raise ValueError
 
         return lang, preposition
-
-
-class KitchenDemo(Kitchen):
-    def __init__(
-        self,
-        init_robot_base_pos="cab_main_main_group",
-        obj_groups="all",
-        num_objs=1,
-        *args,
-        **kwargs,
-    ):
-        self.obj_groups = obj_groups
-        self.num_objs = num_objs
-
-        super().__init__(init_robot_base_pos=init_robot_base_pos, *args, **kwargs)
-
-    def _get_obj_cfgs(self):
-        cfgs = []
-
-        for i in range(self.num_objs):
-            cfgs.append(
-                dict(
-                    name="obj_{}".format(i),
-                    obj_groups=self.obj_groups,
-                    placement=dict(
-                        fixture="counter_main_main_group",
-                        sample_region_kwargs=dict(
-                            ref="cab_main_main_group",
-                        ),
-                        size=(1.0, 1.0),
-                        pos=(0.0, -1.0),
-                    ),
-                )
-            )
-
-        return cfgs
