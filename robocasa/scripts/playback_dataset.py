@@ -24,6 +24,8 @@ def playback_trajectory_with_env(
     camera_names=None,
     first=False,
     verbose=False,
+    camera_height=512,
+    camera_width=512,
 ):
     """
     Helper function to playback a single trajectory using the simulator environment.
@@ -109,9 +111,9 @@ def playback_trajectory_with_env(
             if video_count % video_skip == 0:
                 video_img = []
                 for cam_name in camera_names:
-                    im = env.sim.render(height=512, width=512, camera_name=cam_name)[
-                        ::-1
-                    ]
+                    im = env.sim.render(
+                        height=camera_height, width=camera_width, camera_name=cam_name
+                    )[::-1]
                     video_img.append(im)
                 video_img = np.concatenate(
                     video_img, axis=1
@@ -403,6 +405,8 @@ def playback_dataset(args):
             camera_names=args.render_image_names,
             first=args.first,
             verbose=args.verbose,
+            camera_height=args.camera_height,
+            camera_width=args.camera_width,
         )
 
     f.close()
@@ -414,7 +418,7 @@ def playback_dataset(args):
         env.close()
 
 
-if __name__ == "__main__":
+def get_playback_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--dataset",
@@ -513,5 +517,24 @@ if __name__ == "__main__":
         help="log additional information",
     )
 
+    parser.add_argument(
+        "--camera_height",
+        type=int,
+        default=512,
+        help="(optional, for offscreen rendering) height of image observations",
+    )
+
+    parser.add_argument(
+        "--camera_width",
+        type=int,
+        default=512,
+        help="(optional, for offscreen rendering) width of image observations",
+    )
+
     args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    args = get_playback_args()
     playback_dataset(args)
