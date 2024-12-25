@@ -39,16 +39,18 @@ if __name__ == "__main__":
 
     if args.directory is not None:
         # search for paths
-        ds_paths = [
-            "/Users/soroushnasiriany/Downloads/composite_task_sample_demos/2024-12-24-18-20-34_StackBowlsInSink/demo.hdf5",
-            "/Users/soroushnasiriany/Downloads/composite_task_sample_demos/2024-12-24-18-16-29_PrewashFoodAssembly/demo.hdf5",
-        ]
+        ds_paths = []
+        for root, dir, files in os.walk(args.directory):
+            for filename in files:
+                if filename.endswith(".hdf5"):
+                    ds_paths.append(os.path.join(root, filename))
     else:
         ds_paths = [
             get_ds_path(task, ds_type="human_raw")
             for task in list(SINGLE_STAGE_TASK_DATASETS)
             + list(MULTI_STAGE_TASK_DATASETS)
         ]
+    print(ds_paths)
 
     for ds_i, ds_path in enumerate(ds_paths):
         # infer task name
