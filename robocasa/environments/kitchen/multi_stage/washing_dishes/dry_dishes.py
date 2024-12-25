@@ -50,7 +50,7 @@ class DryDishes(Kitchen):
                     # hard code the cup to be in corners so that the cup and bowl fit in the sink
                     size=(0.1, 0.1),
                     # offset=(0.25, 0.25)
-                    pos=cup_pos,
+                    pos=list(cup_pos),  # turn into list to allow saving
                 ),
             )
         )
