@@ -274,9 +274,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         self.translucent_robot = translucent_robot
         self.randomize_cameras = randomize_cameras
 
-        # intialize cameras
-        self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
-
         if isinstance(robots, str):
             robots = [robots]
 
@@ -285,6 +282,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             if robots[i] == "PandaMobile":
                 robots[i] = "PandaOmron"
         assert len(robots) == 1
+
+        # intialize cameras
+        self._cam_configs = CamUtils.get_robot_cam_configs(robots[0])
 
         # set up currently unused variables (used in robosuite)
         self.use_object_obs = use_object_obs
@@ -1056,8 +1056,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         Adds new kitchen-relevant cameras to the environment. Will randomize cameras if specified.
         """
-
-        self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
+        self._cam_configs = CamUtils.get_robot_cam_configs(self.robots[0].name)
         if self.randomize_cameras:
             self._randomize_cameras()
 
@@ -1666,6 +1665,14 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 obj_cfg = cfg
                 break
         lang = obj_cfg["info"]["cat"].replace("_", " ")
+
+        # replace some phrases
+        if lang == "kettle electric":
+            lang = "electric kettle"
+        elif lang == "kettle non electric":
+            lang = "kettle"
+        elif lang == "bread_flat":
+            lang = "bread"
 
         if not get_preposition:
             return lang

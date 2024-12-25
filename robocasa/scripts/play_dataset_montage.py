@@ -7,10 +7,17 @@ from robocasa.scripts.playback_dataset import playback_dataset
 
 import os
 import argparse
+import h5py
+import json
 from termcolor import colored
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--directory",
+        type=str,
+        help="(optional) directory of datasets to play back. defaults to registered human datasets",
+    )
     parser.add_argument(
         "--output",
         type=str,
@@ -30,10 +37,26 @@ if __name__ == "__main__":
     if os.path.exists(output_dir) is False:
         os.mkdir(output_dir)
 
-    tasks = list(SINGLE_STAGE_TASK_DATASETS) + list(MULTI_STAGE_TASK_DATASETS)
+    if args.directory is not None:
+        # search for paths
+        ds_paths = []
+        for root, dir, files in os.walk(args.directory):
+            for filename in files:
+                if filename.endswith(".hdf5"):
+                    ds_paths.append(os.path.join(root, filename))
+    else:
+        ds_paths = [
+            get_ds_path(task, ds_type="human_raw")
+            for task in list(SINGLE_STAGE_TASK_DATASETS)
+            + list(MULTI_STAGE_TASK_DATASETS)
+        ]
+    print(ds_paths)
 
-    for task_i, task in enumerate(tasks):
-        ds_path = get_ds_path(task, ds_type="human_raw")
+    for ds_i, ds_path in enumerate(ds_paths):
+        # infer task name
+        f = h5py.File(ds_path)
+        task = json.loads(f["data"].attrs["env_args"])["env_name"]
+        f.close()
 
         parser = argparse.Namespace()
         parser.dataset = ds_path
@@ -55,7 +78,8 @@ if __name__ == "__main__":
 
         print(
             colored(
-                f"[{task_i+1} / {len(tasks)}] Playing sample demos for {task}", "yellow"
+                f"[{ds_i+1} / {len(ds_paths)}] Playing sample demos for {task}",
+                "yellow",
             )
         )
         playback_dataset(parser)
