@@ -3,6 +3,11 @@ Collection of constants for cameras / robots / etc
 in kitchen environments
 """
 
+from scipy.spatial.transform import Rotation
+import numpy as np
+from copy import deepcopy
+import collections
+
 # default free cameras for different kitchen layouts
 LAYOUT_CAMS = {
     0: dict(
@@ -100,7 +105,6 @@ def deep_update(d, u):
     """
     Copied from https://stackoverflow.com/a/3233356
     """
-    import collections
 
     for k, v in u.items():
         if isinstance(v, collections.abc.Mapping):
@@ -111,8 +115,54 @@ def deep_update(d, u):
 
 
 def get_robot_cam_configs(robot):
-    from copy import deepcopy
-
     default_configs = deepcopy(CAM_CONFIGS["DEFAULT"])
     robot_specific_configs = deepcopy(CAM_CONFIGS.get(robot, {}))
     return deep_update(default_configs, robot_specific_configs)
+
+
+def set_cameras(env):
+    """
+    Adds new kitchen-relevant cameras to the environment. Will randomize cameras if specified.
+    """
+    env._cam_configs = get_robot_cam_configs(env.robots[0].name)
+    if env.randomize_cameras:
+        randomize_cameras(env)
+
+    for (cam_name, cam_cfg) in env._cam_configs.items():
+        if cam_cfg.get("parent_body", None) is not None:
+            continue
+
+        env.mujoco_arena.set_camera(
+            camera_name=cam_name,
+            pos=cam_cfg["pos"],
+            quat=cam_cfg["quat"],
+            camera_attribs=cam_cfg.get("camera_attribs", None),
+        )
+
+
+def randomize_cameras(env):
+    """
+    Randomizes the position and rotation of the wrist and agentview cameras.
+    Note: This function is called only if randomize_cameras is set to True.
+    """
+    for camera in env._cam_configs:
+        if "agentview" in camera:
+            pos_noise = env.rng.normal(loc=0, scale=0.05, size=(1, 3))[0]
+            euler_noise = env.rng.normal(loc=0, scale=3, size=(1, 3))[0]
+        elif "eye_in_hand" in camera:
+            pos_noise = np.zeros_like(pos_noise)
+            euler_noise = np.zeros_like(euler_noise)
+        else:
+            # skip randomization for cameras not implemented
+            continue
+
+        old_pos = env._cam_configs[camera]["pos"]
+        new_pos = [pos + n for pos, n in zip(old_pos, pos_noise)]
+        env._cam_configs[camera]["pos"] = list(new_pos)
+
+        old_euler = Rotation.from_quat(env._cam_configs[camera]["quat"]).as_euler(
+            "xyz", degrees=True
+        )
+        new_euler = [eul + n for eul, n in zip(old_euler, euler_noise)]
+        new_quat = Rotation.from_euler("xyz", new_euler, degrees=True).as_quat()
+        env._cam_configs[camera]["quat"] = list(new_quat)

@@ -34,12 +34,12 @@ class ManipulateDrawer(Kitchen):
         (
             robot_base_pos_left,
             robot_base_ori_left,
-        ) = self.compute_robot_base_placement_pose(
-            ref_fixture=self.drawer, offset=(-x_ofs, -0.23)
+        ) = EnvUtils.compute_robot_base_placement_pose(
+            self, ref_fixture=self.drawer, offset=(-x_ofs, -0.23)
         )
         # get a test point to check if the robot is in contact with any fixture.
-        test_pos_left, _ = self.compute_robot_base_placement_pose(
-            ref_fixture=self.drawer, offset=(-x_ofs - 0.3, -0.23)
+        test_pos_left, _ = EnvUtils.compute_robot_base_placement_pose(
+            self, ref_fixture=self.drawer, offset=(-x_ofs - 0.3, -0.23)
         )
 
         # check if the robot will be in contact with any fixture or wall during initialization
@@ -53,12 +53,12 @@ class ManipulateDrawer(Kitchen):
         (
             robot_base_pos_right,
             robot_base_ori_right,
-        ) = self.compute_robot_base_placement_pose(
-            ref_fixture=self.drawer, offset=(x_ofs, -0.23)
+        ) = EnvUtils.compute_robot_base_placement_pose(
+            self, ref_fixture=self.drawer, offset=(x_ofs, -0.23)
         )
         # get a test point to check if the robot is in contact with any fixture if initialized to the right of the drawer
-        test_pos_right, _ = self.compute_robot_base_placement_pose(
-            ref_fixture=self.drawer, offset=(x_ofs + 0.3, -0.23)
+        test_pos_right, _ = EnvUtils.compute_robot_base_placement_pose(
+            self, ref_fixture=self.drawer, offset=(x_ofs + 0.3, -0.23)
         )
 
         if not self.check_fxtr_contact(

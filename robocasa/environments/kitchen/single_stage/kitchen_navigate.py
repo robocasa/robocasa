@@ -88,8 +88,8 @@ class NavigateKitchen(Kitchen):
             self.fixture_refs["src_fixture"] = self.src_fixture
             self.fixture_refs["target_fixture"] = self.target_fixture
 
-        self.target_pos, self.target_ori = self.compute_robot_base_placement_pose(
-            self.target_fixture
+        self.target_pos, self.target_ori = EnvUtils.compute_robot_base_placement_pose(
+            self, self.target_fixture
         )
 
         self.init_robot_base_pos = self.src_fixture
