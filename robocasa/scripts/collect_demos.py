@@ -13,6 +13,7 @@ import json
 import os
 import time
 from glob import glob
+import sys
 
 import h5py
 import imageio
@@ -508,20 +509,32 @@ if __name__ == "__main__":
     excluded_eps = []
 
     # collect demonstrations
-    while True:
-        print()
-        ep_directory, discard_traj = collect_human_trajectory(
-            env,
-            device,
-            args.arm,
-            args.config,
-            mirror_actions,
-            render=(args.renderer != "mjviewer"),
-            max_fr=args.max_fr,
-        )
+    try:
+        while True:
+            print()
+            discard_traj = False
+            ep_directory, discard_traj = collect_human_trajectory(
+                env,
+                device,
+                args.arm,
+                args.config,
+                mirror_actions,
+                render=(args.renderer != "mjviewer"),
+                max_fr=args.max_fr,
+            )
 
-        print("Keep traj?", not discard_traj)
+            print("Keep traj?", not discard_traj)
 
+            if not args.debug:
+                if discard_traj and ep_directory is not None:
+                    excluded_eps.append(ep_directory.split("/")[-1])
+                hdf5_path = gather_demonstrations_as_hdf5(
+                    tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
+                )
+                if hdf5_path is not None:
+                    convert_to_robomimic_format(hdf5_path)
+    except KeyboardInterrupt:
+        print("\nKeyboard interrupt detected. Performing cleanup...")
         if not args.debug:
             if discard_traj and ep_directory is not None:
                 excluded_eps.append(ep_directory.split("/")[-1])
@@ -530,3 +543,4 @@ if __name__ == "__main__":
             )
             if hdf5_path is not None:
                 convert_to_robomimic_format(hdf5_path)
+        sys.exit(0)
