@@ -159,11 +159,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         layout_and_style_ids (list of list of int): list of layout and style ids to use for the kitchen.
 
-        layout_ids ((list of) LayoutType or int):  layout id(s) to use for the kitchen. -1 and None specify all layouts
+        layout_ids ((list of) LayoutType or int or dict):  layout id(s) to use for the kitchen. -1 and None specify all layouts
             -2 specifies layouts not involving islands/wall stacks, -3 specifies layouts involving islands/wall stacks,
             -4 specifies layouts with dining areas.
 
-        style_ids ((list of) StyleType or int): style id(s) to use for the kitchen. -1 and None specify all styles.
+        style_ids ((list of) StyleType or int or dict): style id(s) to use for the kitchen. -1 and None specify all styles.
 
         generative_textures (str): if set to "100p", will use AI generated textures
 
@@ -245,7 +245,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         # remove excluded layouts
         self.layout_and_style_ids = [
-            (int(l), int(s))
+            (l, s)
             for (l, s) in self.layout_and_style_ids
             if l not in self.EXCLUDE_LAYOUTS
         ]
@@ -340,8 +340,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.style_id = self._ep_meta["style_id"]
         else:
             layout_id, style_id = self.rng.choice(self.layout_and_style_ids)
-            self.layout_id = int(layout_id)
-            self.style_id = int(style_id)
+            self.layout_id = layout_id
+            self.style_id = style_id
 
         if macros.VERBOSE:
             print("layout: {}, style: {}".format(self.layout_id, self.style_id))
@@ -580,8 +580,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             return new_dict
 
         ep_meta = super().get_ep_meta()
-        ep_meta["layout_id"] = self.layout_id
-        ep_meta["style_id"] = self.style_id
+        ep_meta["layout_id"] = (
+            self.layout_id if isinstance(self.layout_id, dict) else int(self.layout_id)
+        )
+        ep_meta["style_id"] = (
+            self.style_id if isinstance(self.style_id, dict) else int(self.style_id)
+        )
         ep_meta["object_cfgs"] = [copy_dict_for_json(cfg) for cfg in self.object_cfgs]
         ep_meta["fixtures"] = {
             k: {"cls": v.__class__.__name__} for (k, v) in self.fixtures.items()
