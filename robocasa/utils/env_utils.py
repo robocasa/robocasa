@@ -89,6 +89,7 @@ def create_env(
 def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
     video_writer = None
     if video_path is not None:
+        os.makedirs(os.path.dirname(video_path), exist_ok=True)
         video_writer = imageio.get_writer(video_path, fps=20)
 
     info = {}
