@@ -13,6 +13,7 @@ import json
 import os
 import time
 from glob import glob
+import sys
 
 import h5py
 import imageio
@@ -159,12 +160,12 @@ def collect_human_trajectory(
         if task_completion_hold_count == 0:
             break
 
-        # state machine to check for having a success for 10 consecutive timesteps
+        # state machine to check for having a success for 15 consecutive timesteps
         if env._check_success():
             if task_completion_hold_count > 0:
                 task_completion_hold_count -= 1  # latched state, decrement count
             else:
-                task_completion_hold_count = 10  # reset count on first success timestep
+                task_completion_hold_count = 15  # reset count on first success timestep
         else:
             task_completion_hold_count = -1  # null the counter if there's no success
 
@@ -359,7 +360,7 @@ if __name__ == "__main__":
         "--device",
         type=str,
         default="spacemouse",
-        choices=["keyboard", "keyboardmobile", "spacemouse", "dummy"],
+        choices=["keyboard", "spacemouse"],
     )
     parser.add_argument(
         "--pos-sensitivity",
@@ -432,8 +433,10 @@ if __name__ == "__main__":
             args.camera = None
     else:
         mirror_actions = True
-        config["layout_ids"] = args.layout
-        config["style_ids"] = args.style
+        if args.layout is not None:
+            config["layout_ids"] = args.layout
+        if args.style is not None:
+            config["style_ids"] = args.style
         ### update config for kitchen envs ###
         if args.obj_groups is not None:
             config.update({"obj_groups": args.obj_groups})
@@ -470,6 +473,7 @@ if __name__ == "__main__":
 
     t_now = time.time()
     time_str = datetime.datetime.fromtimestamp(t_now).strftime("%Y-%m-%d-%H-%M-%S")
+    time_str = f"{time_str}_{env_name}"
 
     if not args.debug:
         # wrap the environment with data collection wrapper
@@ -505,24 +509,38 @@ if __name__ == "__main__":
     excluded_eps = []
 
     # collect demonstrations
-    while True:
-        print()
-        ep_directory, discard_traj = collect_human_trajectory(
-            env,
-            device,
-            args.arm,
-            args.config,
-            mirror_actions,
-            render=(args.renderer != "mjviewer"),
-            max_fr=args.max_fr,
-        )
+    try:
+        while True:
+            print()
+            discard_traj = False
+            ep_directory, discard_traj = collect_human_trajectory(
+                env,
+                device,
+                args.arm,
+                args.config,
+                mirror_actions,
+                render=(args.renderer != "mjviewer"),
+                max_fr=args.max_fr,
+            )
 
-        print("Keep traj?", not discard_traj)
+            print("Keep traj?", not discard_traj)
 
+            if not args.debug:
+                if discard_traj and ep_directory is not None:
+                    excluded_eps.append(ep_directory.split("/")[-1])
+                hdf5_path = gather_demonstrations_as_hdf5(
+                    tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
+                )
+                if hdf5_path is not None:
+                    convert_to_robomimic_format(hdf5_path)
+    except KeyboardInterrupt:
+        print("\nKeyboard interrupt detected. Performing cleanup...")
         if not args.debug:
             if discard_traj and ep_directory is not None:
                 excluded_eps.append(ep_directory.split("/")[-1])
             hdf5_path = gather_demonstrations_as_hdf5(
                 tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
             )
-            convert_to_robomimic_format(hdf5_path)
+            if hdf5_path is not None:
+                convert_to_robomimic_format(hdf5_path)
+        sys.exit(0)

@@ -18,15 +18,33 @@ class BeverageSorting(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
 
-        self.cab1 = self.register_fixture_ref(
-            "cabinet1", dict(id=FixtureType.CABINET_TOP)
-        )
-        self.cab2 = self.register_fixture_ref(
-            "cabinet2", dict(id=FixtureType.CABINET_TOP, ref=self.cab1)
-        )
-        self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, size=(0.5, 0.5), ref=self.cab1)
-        )
+        if "cabinet1" in self.fixture_refs:
+            self.cab1 = self.fixture_refs["cabinet1"]
+            self.cab2 = self.fixture_refs["cabinet2"]
+            self.counter = self.fixture_refs["counter"]
+        else:
+            while True:
+                self.cab1 = self.get_fixture(FixtureType.CABINET_TOP)
+
+                valid_cab_config_found = False
+                for _ in range(20):  # 20 attempts
+                    # sample until 2 different cabinets are selected
+                    self.cab2 = self.get_fixture(FixtureType.CABINET_TOP)
+                    cab1_rot = self.cab1.rot % (2 * np.pi)
+                    cab2_rot = self.cab2.rot % (2 * np.pi)
+                    if self.cab2 != self.cab1 and np.abs(cab1_rot - cab2_rot) < 0.05:
+                        valid_cab_config_found = True
+                        break
+
+                if valid_cab_config_found:
+                    break
+
+            self.fixture_refs["cabinet1"] = self.cab1
+            self.fixture_refs["cabinet2"] = self.cab2
+            self.counter = self.register_fixture_ref(
+                "counter", dict(id=FixtureType.COUNTER, size=(0.5, 0.5), ref=self.cab1)
+            )
+
         self.init_robot_base_pos = self.counter
 
     def get_ep_meta(self):
@@ -51,8 +69,10 @@ class BeverageSorting(Kitchen):
                 name="alcohol1",
                 obj_groups="alcohol",
                 graspable=True,
+                init_robot_here=True,
                 placement=dict(
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.5, 0.40),
                     pos=(0, -1.0),
                 ),
@@ -64,7 +84,9 @@ class BeverageSorting(Kitchen):
                 obj_groups="alcohol",
                 graspable=True,
                 placement=dict(
+                    ref_obj="alcohol1",
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.50, 0.40),
                     pos=(0, -1.0),
                 ),
@@ -78,7 +100,9 @@ class BeverageSorting(Kitchen):
                 exclude_obj_groups="alcohol",
                 graspable=True,
                 placement=dict(
+                    ref_obj="alcohol1",
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.5, 0.40),
                     pos=(0, -1.0),
                 ),
@@ -91,7 +115,9 @@ class BeverageSorting(Kitchen):
                 exclude_obj_groups="alcohol",
                 graspable=True,
                 placement=dict(
+                    ref_obj="alcohol1",
                     fixture=self.counter,
+                    sample_region_kwargs=dict(ref=self.cab1),
                     size=(0.50, 0.40),
                     pos=(0, -1.0),
                 ),

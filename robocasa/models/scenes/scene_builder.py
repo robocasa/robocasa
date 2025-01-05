@@ -93,39 +93,24 @@ def check_syntax(fixture):
             )
 
 
-def create_fixtures(layout_id, style_id, rng=None):
+def create_fixtures(layout_config, style_config, rng=None):
     """
     Initializes fixtures based on the given layout yaml file and style type
 
     Args:
-        layout_id (int or LayoutType): layout of the kitchen to load
+        layout_config (dict): layout of the kitchen to load
 
-        style_id (int or StyleType): style of the kitchen to load
+        style_config (dict): style of the kitchen to load
 
         rng (np.random.Generator): random number generator used for initializing fixture state
     """
-    try:
-        style = int(style)
-    except:
-        pass
-
-    layout_path = get_layout_path(layout_id=layout_id)
-    style_path = get_style_path(style_id=style_id)
-
-    # load style
-    with open(style_path, "r") as f:
-        style = yaml.safe_load(f)
-
-    # load arena
-    with open(layout_path, "r") as f:
-        arena_config = yaml.safe_load(f)
 
     # contains all fixtures with updated configs
     arena = list()
 
     # Update each fixture config. First iterate through groups: subparts of the arena that can be
     # rotated and displaced together. example: island group, right group, room group, etc
-    for group_name, group_config in arena_config.items():
+    for group_name, group_config in layout_config.items():
         group_fixtures = list()
         # each group is further divded into similar subcollections of fixtures
         # ex: main group counter accessories, main group top cabinets, etc
@@ -183,7 +168,7 @@ def create_fixtures(layout_id, style_id, rng=None):
                 fixture_config,
                 fixtures,
                 configs,
-                style,
+                style_config,
                 default_texture=None,
                 rng=rng,
             )
@@ -193,7 +178,7 @@ def create_fixtures(layout_id, style_id, rng=None):
             continue
 
         # load style information and update config to include it
-        default_config = load_style_config(style, fixture_config)
+        default_config = load_style_config(style_config, fixture_config)
         if default_config is not None:
             for k, v in fixture_config.items():
                 default_config[k] = v

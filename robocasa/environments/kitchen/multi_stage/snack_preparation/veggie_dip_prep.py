@@ -27,7 +27,7 @@ class VeggieDipPrep(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = "Place the two vegetables and a bowl onto the tray for setting up a vegetable dip station."
+        ] = "Place the two vegetables and bowl onto the tray for setting up a vegetable dip station."
         return ep_meta
 
     def _reset_internal(self):
@@ -45,7 +45,7 @@ class VeggieDipPrep(Kitchen):
                 obj_groups="tray",
                 placement=dict(
                     fixture=self.counter,
-                    size=(0.3, 0.6),
+                    size=(0.3, 0.5),
                     pos=(0, -1),
                 ),
             )
@@ -58,7 +58,7 @@ class VeggieDipPrep(Kitchen):
                 obj_groups="cucumber",
                 placement=dict(
                     fixture=self.counter,
-                    size=(0.8, 0.6),
+                    size=(0.8, 0.5),
                     pos=(0, -1.0),
                 ),
             )
@@ -69,7 +69,7 @@ class VeggieDipPrep(Kitchen):
                 obj_groups="carrot",
                 placement=dict(
                     fixture=self.counter,
-                    size=(0.8, 0.6),
+                    size=(0.8, 0.5),
                     pos=(0, -1.0),
                 ),
             )

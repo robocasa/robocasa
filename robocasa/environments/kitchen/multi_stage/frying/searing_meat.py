@@ -28,7 +28,7 @@ class SearingMeat(Kitchen):
         )
 
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.stove)
+            "cab", dict(id=FixtureType.DOOR_TOP_HINGE_DOUBLE, ref=self.stove)
         )
         self.init_robot_base_pos = self.cab
 
@@ -63,10 +63,9 @@ class SearingMeat(Kitchen):
                 obj_groups=("pan"),
                 placement=dict(
                     fixture=self.cab,
-                    ensure_object_boundary_in_range=False,
-                    pos=(0.0, -0.3),
-                    size=(0.4, 0.02),
-                    rotation=np.pi / 2,
+                    pos=(0.0, -1.0),
+                    size=(0.8, 0.5),
+                    rotation=(np.pi / 2 - np.pi / 16, np.pi / 2),
                 ),
             )
         )

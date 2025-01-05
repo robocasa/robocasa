@@ -12,6 +12,9 @@ class SizeSorting(Kitchen):
         Stack the objects from largest to smallest.
     """
 
+    # exclude layout 9 because objects sometime initilize in corner area which is unreachable
+    EXCLUDE_LAYOUTS = [9]
+
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -39,25 +42,33 @@ class SizeSorting(Kitchen):
     def _get_obj_cfgs(self):
         cfgs = []
 
-        self.objs = self.rng.choice([2, 3, 4])
+        self.num_objs = self.rng.choice([2, 3])
         stack_cat = self.rng.choice(["cup", "bowl"])
-        scale = 0.8
+        scale = 0.80
         # pass in object scale to the config to make the objects smaller and thus stackable
-        for i in range(self.objs):
-            cfgs.append(
-                dict(
-                    name=f"obj_{i}",
-                    obj_groups=stack_cat,
-                    object_scale=scale**i,
-                    placement=dict(
-                        fixture=self.counter,
-                        sample_region_kwargs=dict(top_size=(0.6, 0.4)),
-                        size=(0.6, 0.4),
-                        pos=(0, -1.0),
-                        offset=(i * 0.1, 0),
-                    ),
-                )
+        if stack_cat == "cup":
+            top_size = (0.6, 0.2)
+        elif stack_cat == "bowl":
+            top_size = (0.6, 0.4)
+        else:
+            raise ValueError
+        for i in range(self.num_objs):
+            obj_cfg = dict(
+                name=f"obj_{i}",
+                obj_groups=stack_cat,
+                object_scale=scale**i,
+                placement=dict(
+                    fixture=self.counter,
+                    ref_obj="obj_0",
+                    sample_region_kwargs=dict(top_size=top_size),
+                    size=top_size,
+                    pos=(None, -1.0),
+                    offset=(0.0, 0.0),
+                ),
             )
+            if i == 0:
+                obj_cfg["init_robot_here"] = True
+            cfgs.append(obj_cfg)
 
         return cfgs
 
@@ -66,7 +77,7 @@ class SizeSorting(Kitchen):
         objs_stacked_inorder = all(
             [
                 OU.check_obj_in_receptacle(self, f"obj_{i}", f"obj_{i-1}")
-                for i in range(1, self.objs)
+                for i in range(1, self.num_objs)
             ]
         )
         return objs_stacked_inorder and OU.gripper_obj_far(self, "obj_0")
