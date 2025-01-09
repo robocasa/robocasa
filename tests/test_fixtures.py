@@ -5,8 +5,8 @@ import traceback
 import argparse
 
 from robocasa.scripts.browse_mjcf_model import read_model
-import robocasa
 import robocasa.macros as macros
+from robocasa.models.fixtures.fixture import FixtureType
 
 from robocasa.utils.env_utils import create_env, run_random_rollouts
 from robocasa.scripts.collect_demos import collect_human_trajectory
@@ -26,29 +26,48 @@ def get_all_style_configs():
 
 FIXTURE_TO_TEST_ENVS = dict(
     microwave=[
-        "PnPCounterToMicrowave",
-        "PnPMicrowaveToCounter",
-        "TurnOnMicrowave",
-        "TurnOffMicrowave",
+        dict(env_name="PnPCounterToMicrowave"),
+        dict(env_name="PnPMicrowaveToCounter"),
+        dict(env_name="OpenSingleDoor", door_id=FixtureType.MICROWAVE),
+        dict(env_name="CloseSingleDoor", door_id=FixtureType.MICROWAVE),
+        dict(env_name="TurnOnMicrowave"),
+        dict(env_name="TurnOffMicrowave"),
     ],
-    stove=["PnPCounterToStove", "PnPStoveToCounter", "TurnOnStove", "TurnOffStove"],
+    stove=[
+        dict(env_name="PnPCounterToStove"),
+        dict(env_name="PnPStoveToCounter"),
+        dict(env_name="TurnOnStove"),
+        dict(env_name="TurnOffStove"),
+    ],
     sink=[
-        "PnPCounterToSink",
-        "PnPSinkToCounter",
-        "TurnOnSinkFaucet",
-        "TurnOffSinkFaucet",
-        "TurnSinkSpout",
+        dict(env_name="PnPCounterToSink"),
+        dict(env_name="PnPSinkToCounter"),
+        dict(env_name="TurnOnSinkFaucet"),
+        dict(env_name="TurnOffSinkFaucet"),
+        dict(env_name="TurnSinkSpout"),
     ],
-    coffee_machine=["CoffeeSetupMug", "CoffeeServeMug", "CoffeePressButton"],
+    coffee_machine=[
+        dict(env_name="CoffeeSetupMug"),
+        dict(env_name="CoffeeServeMug"),
+        dict(env_name="CoffeePressButton"),
+    ],
+    dishwasher=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.DISHWASHER),
+    ],
+    oven=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.OVEN),
+    ],
+    fridge=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+    ],
 )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--microwave", type=str, nargs="+")
-    parser.add_argument("--stove", type=str, nargs="+")
-    parser.add_argument("--sink", type=str, nargs="+")
-    parser.add_argument("--coffee_machine", type=str, nargs="+")
+    fixture_type_list = list(FIXTURE_TO_TEST_ENVS.keys())
+    for fixture_type in fixture_type_list:
+        parser.add_argument(f"--{fixture_type}", type=str, nargs="+")
 
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument(
@@ -72,20 +91,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    for fixture_type in ["microwave", "stove", "sink", "coffee_machine"]:
-        if fixture_type == "microwave":
-            fixture_list = args.microwave
-        elif fixture_type == "stove":
-            fixture_list = args.stove
-        elif fixture_type == "sink":
-            fixture_list = args.sink
-        elif fixture_type == "coffee_machine":
-            fixture_list = args.coffee_machine
+    for fixture_type in fixture_type_list:
+        fixture_list = eval(f"args.{fixture_type}")
 
         if fixture_list is None:
             continue
 
-        all_test_envs = FIXTURE_TO_TEST_ENVS[fixture_type]
+        env_kwargs_list = FIXTURE_TO_TEST_ENVS[fixture_type]
 
         device = None
 
@@ -94,12 +106,13 @@ if __name__ == "__main__":
             for cfg in style_configs:
                 cfg[fixture_type] = fixture_name
 
-            for test_env in all_test_envs:
+            for env_kwargs in env_kwargs_list:
                 env = create_env(
-                    env_name=test_env,
                     render_onscreen=args.interactive,
                     seed=0,  # set seed=None to run unseeded
                     style_ids=style_configs,
+                    translucent_robot=True,
+                    **env_kwargs,
                 )
 
                 if args.interactive is False:

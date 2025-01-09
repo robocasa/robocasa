@@ -62,6 +62,9 @@ class FixtureType(IntEnum):
     STOOL = 20
     ISLAND = 21
     COUNTER_NON_CORNER = 22
+    FRIDGE = 23
+    DISHWASHER = 24
+    OVEN = 25
 
 
 class Fixture(MujocoXMLObject):
