@@ -1,0 +1,446 @@
+PROMPT: 
+
+Your goal is to come up with 50 unique tasks that all fall under the activity of washing dishes.
+The tasks you come up with do not have to do the entire activity. They can instead prep for the activity or do something for when the activity is completed.
+Your tasks MUST adhere to the constraints listed below.
+
+Here's some information about the kitchen.
+
+In the kitchen, you have vegetables, fruits, bread, packaged food, cleaner, drinks, receptacles, utensils, sweets, decorations, dairy, condiments, pastries, cooked food, meat, and tools.
+
+You can interact with objects in the kitchen using the following skills:
+- pick and place. eg: pick a vegetable from the cabinet and place it into the bowl
+- opening / closing doors. eg. open the cabinet door
+- opening / closing drawers. eg. open the drawer right below the counter
+- navigation. eg. navigating throughout the kitchen
+- pressing buttons. eg. press the button on the coffee machine
+- turning levers. eg: turning a sink faucet
+- twisting knobs. eg: twist the stove knob to turn it on
+- pushing / sweeping objects. eg. push objects across the countertop
+
+Finally, the kitchen has the following fixtures: counters, cabinets, drawers, stove, microwave, sink, coffee machine, blender, refrigerator, dishwasher
+
+Your tasks should reflect common everyday human behaviors in kitchen environments, such as arranging objects by type, preparing something, shifting objects around, etc.
+The tasks must only use the objects, skills, and fixtures listed above.
+The tasks should be unique, relevant, and make logical sense.
+Be creative with the tasks and make sure they are all diverse and doing different things.
+Try to have tasks involve more than just picking and placing a specificed set of objects, and instead involve tasks that require semantic reasoning.
+
+For each task, follow the following format:
+Task: short descriptive title for task
+Goal: short description of task goals
+Description: a full detailed description of the task, including what objects and fixtures are invovled and how they are initialized in the environment. Then provide a description of what is required to solve the task. You are encouraged to use multiple sentences and be as detailed as possible.
+Objects: list of objects involved in the task
+Fixtures: list of fixtures involved in the task
+Skills: a clearly defined sequence of skills needed to solve the task. for each skill reference the objects, fixtures, and environment states invovled.
+Reasoning: why this is an interesting and representative task for washing dishes
+
+Write 50 tasks that require 3-10 skills that feature washing dishes.
+You should have twenty tasks that require 3-4 skills, twenty tasks that require 5-7 skills, and ten tasks that require 8-10 skills.
+Give me all tasks at once, don't prompt me in the middle asking for more tasks.
+
+MODEL: Gemini-genai.GenerativeModel(
+    model_name='models/gemini-1.5-pro',
+    generation_config={},
+    safety_settings={},
+    tools=None,
+    system_instruction=None,
+    cached_content=None
+)
+
+RESPONSE: 
+
+## 50 Dishwashing Tasks
+
+**3-4 Skill Tasks (20)**
+
+1. **Task:** Clear Counter Space
+   **Goal:** Move all fruits to the refrigerator.
+   **Description:** Fruits are scattered on the counter.  The goal is to clear counter space by placing all fruits into the refrigerator.
+   **Objects:** Fruits
+   **Fixtures:** Refrigerator, Counter
+   **Skills:** 1. Open refrigerator door. 2. Pick and place fruits from the counter into the refrigerator. 3. Close refrigerator door.
+   **Reasoning:** Clearing counters is a common pre-dishwashing task.
+
+2. **Task:** Rinse Plates
+   **Goal:** Rinse all plates before placing them in the dishwasher.
+   **Description:** Dirty plates are on the counter next to the sink. Rinse them under the faucet before placing them in the dishwasher.
+   **Objects:** Plates, cooked food
+   **Fixtures:** Sink, Counter, Dishwasher
+   **Skills:** 1. Turn on sink faucet. 2. Pick and place plates under running water. 3. Turn off sink faucet. 4. Pick and place plates into the dishwasher.
+   **Reasoning:** Rinsing dishes is a standard part of dishwashing.
+
+3. **Task:** Fill Dishwasher Soap
+   **Goal:** Refill the dishwasher detergent dispenser.
+   **Description:** The dishwasher detergent dispenser is empty.  A bottle of dishwasher detergent is under the sink. Refill the dispenser.
+   **Objects:** Cleaner
+   **Fixtures:** Dishwasher, Cabinet (under sink)
+   **Skills:** 1. Open cabinet under the sink. 2. Pick and place detergent from cabinet. 3. Open dishwasher detergent dispenser. 4. Pick and place (pour) detergent into dispenser.
+   **Reasoning:**  Maintaining dishwasher supplies is essential for dishwashing.
+
+4. **Task:** Gather Silverware
+   **Goal:** Collect all silverware from the counter and place it in the sink.
+   **Description:** Silverware is scattered on the counter. Collect it and put it in the sink to prepare for washing.
+   **Objects:** Utensils
+   **Fixtures:** Counter, Sink
+   **Skills:** 1. Pick and place utensils from the counter into the sink.
+   **Reasoning:**  A common first step in dishwashing.
+
+
+5. **Task:**  Move Cups to Sink
+   **Goal:** Transfer all cups from the counter to the sink.
+   **Description:** Several used cups are on the counter. Move them to the sink for washing.
+   **Objects:** Drinks (residue in cups) , Receptacles (cups)
+   **Fixtures:** Counter, Sink
+   **Skills:** 1. Pick and place cups from counter to sink.
+   **Reasoning:**  Gathering dishes is part of the dishwashing process.
+
+6. **Task:** Clear Sink
+   **Goal:** Remove all clean, dry dishes from the sink and place them in the cabinet.
+   **Description:** Clean, dry dishes are in the sink. They need to be put away.
+   **Objects:** Utensils, Receptacles
+   **Fixtures:** Sink, Cabinet
+   **Skills:** 1. Open cabinet door. 2. Pick and place dishes from sink to cabinet. 3. Close cabinet door.
+   **Reasoning:** Putting away dishes is the final stage of the dishwashing process.
+
+7. **Task:**  Prepare Wash Basin
+   **Goal:** Fill the sink with hot soapy water.
+   **Objects:** Cleaner
+   **Fixtures:** Sink
+   **Skills:** 1. Turn on hot water faucet. 2. Add soap to sink. 3. Turn off water faucet when appropriately filled.
+   **Reasoning:** Necessary for handwashing dishes.
+
+8. **Task:** Soak Pots
+   **Goal:** Place dirty pots and pans in the sink filled with soapy water.
+   **Objects:** Cooked food (residue), tools (pots and pans)
+   **Fixtures:** Sink
+   **Skills:** 1. Pick and place pots and pans into the sink.
+   **Reasoning:**  Soaking helps loosen stuck-on food.
+
+9. **Task:** Wipe Down Counter
+   **Goal:** Wipe down the kitchen counter after washing dishes.
+   **Objects:** Cleaner, Tools (cloth/sponge)
+   **Fixtures:** Counter
+   **Skills:** 1. Pick up cleaning cloth/sponge. 2. Apply cleaner. 3. Push/sweep cloth across counter.
+   **Reasoning:** Maintaining cleanliness after dishwashing.
+
+
+10. **Task:** Put Away Detergent
+   **Goal:** Place the dish soap back under the sink after use.
+   **Objects:** Cleaner
+   **Fixtures:** Cabinet (under sink)
+   **Skills:** 1. Open cabinet door. 2. Pick and place detergent into cabinet. 3. Close cabinet door.
+   **Reasoning:**  Keeping the kitchen organized.
+
+11. **Task:** Gather Dirty Glasses
+    **Goal:** Collect all used glasses from the counter and place them in the sink.
+    **Objects:** Receptacles (glasses), Drinks (residue)
+    **Fixtures:** Counter, Sink
+    **Skills:** 1. Pick and place glasses from counter into sink.
+    **Reasoning:**  Preparing for dishwashing.
+
+12. **Task:** Empty Dishwasher
+    **Goal:** Remove all clean dishes from the dishwasher and place them in the cabinet.
+    **Objects:** Utensils, Receptacles
+    **Fixtures:** Dishwasher, Cabinet
+    **Skills:** 1. Open dishwasher. 2. Pick and place dishes from dishwasher into cabinet. 3. Close cabinet and dishwasher doors.
+    **Reasoning:** Final step after a dishwashing cycle.
+
+13. **Task:** Pre-Rinse Silverware
+    **Goal:** Rinse silverware in the sink before putting it in the dishwasher.
+    **Objects:** Utensils, cooked food (residue)
+    **Fixtures:** Sink, Dishwasher
+    **Skills:** 1. Turn on sink faucet. 2. Pick and place silverware under running water. 3. Turn off faucet.  4. Pick and place silverware in dishwasher.
+    **Reasoning:** Improves dishwasher effectiveness.
+
+
+14. **Task:** Stack Plates
+    **Goal:** Stack dirty plates neatly on the counter next to the sink.
+    **Objects:** Plates, cooked food (residue)
+    **Fixtures:** Counter, Sink
+    **Skills:** 1. Pick and place plates from table to counter, stacking them neatly.
+    **Reasoning:** Organizing dishes before washing.
+
+15. **Task:** Fill Sink with Soapy Water
+    **Goal:** Fill the sink with warm, soapy water for washing dishes.
+    **Objects:** Cleaner
+    **Fixtures:** Sink
+    **Skills:** 1. Turn on warm water faucet. 2. Add soap to sink. 3. Turn off faucet when full.
+    **Reasoning:** Preparing for hand washing dishes.
+
+
+16. **Task:** Place Bowls in Sink
+    **Goal:** Place all dirty bowls from the counter into the sink.
+    **Objects:** Receptacles (bowls), cooked food (residue)
+    **Fixtures:** Counter, Sink
+    **Skills:** 1. Pick and place bowls from counter into sink.
+    **Reasoning:** Gathering dishes for washing.
+
+
+17. **Task:**  Put Away Clean Silverware
+    **Goal:** Place clean, dry silverware from the drying rack into the drawer.
+    **Objects:** Utensils
+    **Fixtures:** Drawer, Counter (drying rack)
+    **Skills:** 1. Open drawer. 2. Pick and place silverware from drying rack into drawer. 3. Close drawer.
+    **Reasoning:** Final step after dishwashing.
+
+18. **Task:** Wipe Down Stovetop
+    **Goal:** Clean the stovetop after cooking.
+    **Objects:** Cleaner, tools (sponge/cloth), cooked food (residue)
+    **Fixtures:** Stove
+    **Skills:** 1. Pick up cleaning cloth. 2. Apply cleaner. 3. Push/Sweep cloth across stovetop.
+    **Reasoning:** Cleaning related to cooking often precedes dishwashing.
+
+19. **Task:** Move Bread to Counter
+    **Goal:** Move the bread from the cabinet to the counter for use.
+    **Objects:** Bread
+    **Fixtures:** Cabinet, Counter
+    **Skills:** 1. Open cabinet. 2. Pick and place bread from cabinet to counter. 3. Close cabinet.
+    **Reasoning:** Clearing the counter for dishes might involve moving other items.
+
+20. **Task:** Put Away Condiments
+    **Goal:** Place condiments back in the refrigerator after use.
+    **Objects:** Condiments
+    **Fixtures:** Refrigerator, Counter
+    **Skills:** 1. Open refrigerator. 2. Pick and place condiments from counter into refrigerator. 3. Close refrigerator.
+    **Reasoning:** Clearing the counter often accompanies dishwashing.
+
+
+**5-7 Skill Tasks (20)**
+
+21. **Task:** Wash and Dry Utensils
+    **Goal:** Wash and dry all utensils, then place them in the drawer.
+    **Objects:** Utensils, cleaner, tools (sponge/cloth)
+    **Fixtures:** Sink, Drawer, Counter (drying rack)
+    **Skills:** 1. Turn on sink faucet. 2. Apply soap to sponge. 3. Wash utensils. 4. Turn off faucet. 5. Place utensils on drying rack. 6. Pick and place dry utensils in drawer. 7. Close drawer.
+    **Reasoning:** Complete dishwashing cycle for a specific item type.
+
+22. **Task:**  Load and Run Dishwasher
+    **Goal:** Load dirty dishes into the dishwasher, add detergent, and start the cycle.
+    **Objects:** Plates, bowls, utensils, cleaner
+    **Fixtures:** Dishwasher, Sink, Counter
+    **Skills:** 1. Pick and place dishes from sink into dishwasher. 2. Open detergent dispenser. 3. Pick and place (pour) detergent into dispenser. 4. Close detergent dispenser. 5. Close dishwasher door. 6. Press dishwasher start button.
+    **Reasoning:**  A common dishwashing routine.
+
+23. **Task:** Wash Dishes and Wipe Counter
+    **Goal:** Wash all dishes in the sink, dry them, and then wipe down the counter.
+    **Objects:** Plates, bowls, utensils, cleaner, tools (sponge/cloth)
+    **Fixtures:** Sink, Counter (drying rack), Counter
+    **Skills:** 1. Wash dishes in sink. 2. Place dishes on drying rack. 3. Pick up cleaning cloth/sponge. 4. Apply cleaner to cloth/sponge. 5. Push/sweep cloth/sponge across counter.
+    **Reasoning:** Combines washing and cleaning the workspace.
+
+
+24. **Task:**  Prepare, Wash, and Store Vegetables
+    **Goal:** Wash vegetables, then store them in the refrigerator.
+    **Objects:** Vegetables
+    **Fixtures:** Sink, Refrigerator, Counter,  Cabinet or Drawer (for storing cutting tools if used)
+    **Skills:** 1.  Pick and place vegetables from counter to sink. 2. Turn on faucet. 3. Rinse vegetables. 4. Turn off faucet. 5. Pick and place vegetables into refrigerator. 6. Close refrigerator door.
+    **Reasoning:**  Washing vegetables may occur before or after dishwashing, utilizing the same sink.
+
+25. **Task:**  Clear Table and Wash Dishes
+    **Goal:** Clear dirty dishes from the table, wash them in the sink, and put them away.
+    **Objects:**  Plates, bowls, utensils, cleaner, tools (sponge/cloth)
+    **Fixtures:** Table, Sink, Counter (drying rack), Cabinet
+    **Skills:** 1. Pick and place dishes from table to sink.  2. Wash dishes in sink. 3. Place dishes on drying rack. 4. Pick and place dry dishes into cabinet. 5. Close cabinet door.
+    **Reasoning:** A complete dishwashing scenario from start to finish.
+
+26. **Task:**  Handwash Delicates and Load Dishwasher
+    **Goal:** Handwash delicate items and load the rest of the dishes into the dishwasher.
+    **Objects:** Plates, glasses, utensils, cleaner, tools (sponge/cloth)
+    **Fixtures:**  Sink, Dishwasher, Counter, Cabinet
+    **Skills:** 1. Handwash delicate items in the sink. 2. Place delicate items on drying rack. 3. Load remaining dishes into the dishwasher. 4. Add detergent to dishwasher. 5. Close dishwasher.
+    **Reasoning:**  Combines different dishwashing methods.
+
+27. **Task:** Clear, Clean, and Sanitize Sink
+    **Goal:** Remove any items from the sink, clean it thoroughly, and then sanitize it.
+    **Objects:**  Cleaner, tools (sponge/cloth)
+    **Fixtures:** Sink
+    **Skills:** 1. Remove any items from the sink. 2. Apply cleaner to sponge. 3. Scrub sink. 4. Rinse sink. 5. Apply sanitizer. 6. Rinse sink.
+    **Reasoning:**  Maintaining sink hygiene is important for dishwashing.
+
+
+28. **Task:**  Prepare Fruit Platter and Clean Up
+    **Goal:** Prepare a fruit platter, then wash and put away the used utensils and cutting board.
+    **Objects:** Fruits, utensils, tools (cutting board), cleaner, tools (sponge/cloth)
+    **Fixtures:** Counter, Sink, Cabinet/Drawer (for utensils)
+    **Skills:** 1. Prepare fruit platter. 2.  Pick and place used utensils and cutting board into sink. 3. Wash utensils and cutting board. 4. Place items on drying rack. 5.  Put away dry utensils and cutting board.
+    **Reasoning:** Dishwashing as part of a larger food preparation task.
+
+
+29. **Task:** Bake Cookies and Wash Baking Dishes
+    **Goal:** Bake cookies and then wash all the used baking dishes.
+    **Objects:**  Pastries (ingredients/cookies), tools (baking sheets, mixing bowls), cleaner, tools (sponge/cloth)
+    **Fixtures:** Oven, Counter, Sink, Cabinet/Drawer
+    **Skills:**  1. Prepare and bake cookies. 2. Pick and place used baking dishes into sink. 3. Wash baking dishes. 4. Place dishes on drying rack. 5. Put away dry baking dishes.
+    **Reasoning:**  Dishwashing follows a specific cooking activity.
+
+30. **Task:** Make Coffee and Clean Coffee Machine
+    **Goal:** Make coffee and clean the coffee machine afterwards.
+    **Objects:** Drinks (coffee grounds, water), cleaner, tools (sponge/cloth)
+    **Fixtures:** Coffee Machine, Sink
+    **Skills:**  1. Make coffee. 2. Rinse coffee pot. 3. Wipe down coffee machine exterior. 4. Empty coffee grounds.
+    **Reasoning:**  Cleaning appliances often occurs alongside dishwashing.
+
+31.  **Task:** Prepare Smoothies and Clean Blender
+    **Goal:** Make smoothies and then clean the blender.
+    **Objects:** Fruits, drinks, cleaner, tools (sponge/cloth)
+    **Fixtures:** Blender, Sink
+    **Skills:** 1.  Make smoothies in blender. 2. Disassemble blender. 3. Rinse blender components in sink. 4. Reassemble blender. 5. Wipe down blender base.
+    **Reasoning:** Cleaning appliances is part of kitchen maintenance that may happen concurrently with dishwashing.
+
+32. **Task:** Unload and Reload Dishwasher
+    **Goal:** Unload clean dishes from the dishwasher and reload it with dirty dishes from the sink.
+    **Objects:** Dishes (various), cleaner
+    **Fixtures:**  Dishwasher, Sink, Cabinet
+    **Skills:** 1. Open dishwasher. 2. Pick and place clean dishes from dishwasher into cabinet. 3. Close cabinet. 4. Pick and place dirty dishes from sink into dishwasher. 5.  Add detergent to dishwasher. 6. Close dishwasher.
+    **Reasoning:** A common dishwashing scenario, especially in larger households.
+
+33.  **Task:** Clean up After Dinner Party
+    **Goal:** Clear the table, wash dishes, and wipe down the table and counters.
+    **Objects:**  Plates, utensils, glasses, cleaner, tools (sponge/cloth), cooked food (residue), drinks (residue)
+    **Fixtures:** Table, Sink, Dishwasher, Counter
+    **Skills:** 1. Clear table. 2. Load dishwasher.  3. Handwash delicate items. 4. Wipe down table. 5. Wipe down counters.
+    **Reasoning:** Realistic after-meal cleanup scenario.
+
+
+34.  **Task:**  Prepare Lunch and Wash Cutting Board
+    **Goal:**  Prepare a sandwich and wash the cutting board and knife afterwards.
+    **Objects:** Bread, meat, vegetables, utensils (knife), cleaner, tools (sponge/cloth)
+    **Fixtures:**  Counter, Sink, Cutting board
+    **Skills:** 1. Prepare sandwich. 2. Pick and place cutting board and knife into sink. 3. Wash cutting board and knife.  4. Place cutting board and knife on drying rack.
+    **Reasoning:**  Washing specific tools used in food preparation.
+
+35.  **Task:**  Microwave Leftovers and Wash Dish
+    **Goal:**  Heat leftovers in the microwave and wash the dish afterwards.
+    **Objects:** Cooked food, receptacles (microwave-safe dish), cleaner, tools (sponge/cloth)
+    **Fixtures:** Microwave, Sink, Counter
+    **Skills:** 1. Heat leftovers in microwave. 2. Pick and place dish from microwave into sink.  3. Wash dish.  4. Place dish on drying rack.
+    **Reasoning:** Dishwashing following a specific cooking method.
+
+
+36. **Task:**  Make Breakfast and Clean Up
+    **Goal:** Make breakfast and wash the used dishes and utensils.
+    **Objects:** Bread, eggs, utensils, plates, cleaner, tools (sponge/cloth)
+    **Fixtures:**  Stove, Counter, Sink
+    **Skills:** 1. Make breakfast. 2. Pick and place used dishes and utensils into sink. 3. Wash dishes and utensils. 4. Place dishes and utensils on drying rack.
+    **Reasoning:** Typical morning kitchen routine.
+
+37. **Task:** Bake a Cake and Clean Mixing Bowls
+    **Goal:** Bake a cake and wash the used mixing bowls and utensils.
+    **Objects:**  Pastries (ingredients), tools (mixing bowls, utensils), cleaner, tools (sponge/cloth)
+    **Fixtures:**  Oven, Counter, Sink
+    **Skills:** 1. Bake a cake. 2. Pick and place mixing bowls and utensils into sink. 3. Wash mixing bowls and utensils. 4. Place bowls and utensils on drying rack.
+    **Reasoning:** Dishwashing following baking.
+
+
+38. **Task:**  Cook Dinner and Clean Pots and Pans
+    **Goal:** Cook dinner and wash the used pots and pans.
+    **Objects:** Meat, vegetables, tools (pots and pans), cleaner, tools (sponge/cloth)
+    **Fixtures:** Stove, Sink, Counter
+    **Skills:** 1. Cook dinner. 2. Pick and place pots and pans into sink. 3. Wash pots and pans. 4. Place pots and pans on drying rack.
+    **Reasoning:** Cleaning up after cooking dinner.
+
+39.  **Task:** Empty and Refill Ice Tray
+   **Goal:** Empty the old ice tray into the sink (if melted) or a pitcher, refill the ice tray, and place it back in the freezer.
+   **Objects:** Drinks (water/ice), tools (ice tray)
+    **Fixtures:** Sink, Refrigerator, Counter
+   **Skills:** 1. Remove ice tray from freezer. 2. Empty ice tray into sink/pitcher. 3. Refill ice tray with water. 4. Place ice tray back into freezer. 5. Close Freezer door.
+
+   **Reasoning:** A common kitchen task related to drinks, can happen near the sink while doing dishes.
+
+
+
+40. **Task:** Sort Recycling and Trash after Meal
+   **Goal:** Sort recyclable items and trash after a meal, including rinsing out recyclable containers.
+   **Objects:** Receptacles (various containers), cooked food (residue in containers), drinks (residue), cleaner
+    **Fixtures:** Sink, Counter, Trash Can, Recycling Bin
+   **Skills:** 1. Pick and place recyclable containers into sink. 2. Turn on faucet. 3. Rinse containers. 4. Turn off faucet. 5. Pick and place recyclable containers into recycling bin. 6. Pick and place trash into trash can.
+
+   **Reasoning:** Often done after a meal alongside dishes, deals with similar waste.
+
+
+
+
+**8-10 Skill Tasks (10)**
+
+41. **Task:** Full Kitchen Cleanup after Dinner
+    **Goal:** Clear the table, wash all dishes, clean the sink, stovetop, and counters.
+    **Objects:** Dishes (various), cleaner, tools (sponge/cloth, dish scrubber), cooked food (residue), drinks (residue)
+    **Fixtures:** Table, Sink, Dishwasher, Stove, Counter
+    **Skills:** 1. Clear table. 2. Rinse dishes and load dishwasher. 3. Handwash pots/pans. 4. Wipe down stovetop. 5. Clean sink. 6. Wipe down counters. 7.  Start dishwasher.
+    **Reasoning:** A comprehensive kitchen cleaning scenario.
+
+42. **Task:**  Prepare and Clean Up after a Baking Project
+    **Goal:** Bake a cake, wash all used dishes, and clean the mixer and counter.
+    **Objects:**  Pastries (ingredients), tools (mixing bowls, utensils, mixer), cleaner, tools (sponge/cloth)
+    **Fixtures:** Oven, Counter, Sink, Mixer
+    **Skills:**  1. Prepare and bake cake. 2. Disassemble and clean the mixer. 3. Rinse dishes. 4. Load dishwasher. 5. Handwash large items. 6. Wipe counters. 7.  Start dishwasher.
+    **Reasoning:** Involves multiple appliances and cleaning steps.
+
+
+43.  **Task:**  Host a Small Dinner Party and Clean Up
+    **Goal:** Prepare and serve dinner for a small group, then clear the table, wash dishes, and clean the kitchen.
+    **Objects:** Food (various), dishes (various), cleaner, tools (sponge/cloth, serving utensils)
+    **Fixtures:** Stove, Oven, Table, Sink, Dishwasher, Counter
+    **Skills:** 1. Prepare dinner.  2. Set table. 3. Serve dinner. 4. Clear table.  5. Load dishwasher. 6. Handwash delicate items. 7. Clean stovetop.  8. Wipe down counters and table.  9. Start dishwasher.
+
+    **Reasoning:**  Combines cooking, serving, and a thorough post-meal cleaning.
+
+
+
+44. **Task:**  Deep Clean the Kitchen after a Party
+    **Goal:** Clean the entire kitchen, including washing all dishes, cleaning appliances, wiping down surfaces, and taking out the trash.
+    **Objects:** Dishes (various), cleaner, tools (sponge/cloth, scrubber, trash bags)
+    **Fixtures:** Sink, Dishwasher, Stove, Microwave, Refrigerator, Counter, Trash can
+    **Skills:** 1.  Clear all surfaces. 2. Load dishwasher. 3. Handwash delicate items. 4. Clean microwave. 5. Clean stovetop and oven. 6. Clean sink. 7. Wipe down refrigerator exterior. 8. Wipe down counters. 9.  Empty trash.  10. Start dishwasher.
+    **Reasoning:**  Thorough kitchen cleaning involving all major fixtures and appliances.
+
+45. **Task:**  Prepare a Multi-Course Meal and Clean Up
+    **Goal:** Prepare a multi-course meal, washing dishes between courses, and then do a final kitchen cleanup.
+    **Objects:** Food (various), dishes (various), utensils, cleaner, tools (sponge/cloth, various cooking tools)
+    **Fixtures:** Stove, Oven, Sink, Dishwasher, Counter, Table
+    **Skills:** 1. Prepare appetizer. 2. Wash appetizer dishes. 3. Prepare main course. 4. Wash main course dishes. 5. Prepare dessert. 6. Wash dessert dishes. 7.  Load dishwasher. 8.  Wipe down counters and table. 9. Start dishwasher.
+    **Reasoning:**  Realistic scenario with ongoing cleaning during meal preparation.
+
+
+46. **Task:** Weekly Kitchen Deep Clean
+    **Goal:** Perform a thorough weekly cleaning of the kitchen, including cleaning out the refrigerator, washing all dishes, cleaning appliances and surfaces, and mopping the floor.
+   **Objects:** Dishes (various), cleaner (various cleaning solutions), tools (sponge, cloth, mop, bucket)
+    **Fixtures:** Sink, Dishwasher, Stove, Microwave, Refrigerator, Counter, Floor
+    **Skills:** 1. Empty refrigerator and discard old food. 2. Wash refrigerator shelves and drawers. 3. Wash all accumulated dishes. 4. Load dishwasher. 5.  Clean microwave inside and out. 6. Clean stovetop and oven. 7. Clean sink. 8. Wipe down counters. 9. Fill bucket with water and cleaner. 10. Mop floor.
+    **Reasoning:** Represents a larger, less frequent cleaning task.
+
+
+47. **Task:**  Prepare for a Holiday Feast and Clean Up
+    **Goal:**  Prepare a large meal for a holiday, washing dishes as you go, and then do a full kitchen cleaning.
+    **Objects:**  Food (various), dishes (various), serving platters, utensils, cleaner, tools (sponge/cloth, various cooking tools)
+    **Fixtures:** Stove, Oven, Sink, Dishwasher, Counter, Table
+    **Skills:** 1. Prepare holiday meal components. 2. Wash dishes as you go. 3. Set the table with serving platters and utensils. 4.  Clear table after meal. 5. Load dishwasher. 6.  Handwash delicate items and serving platters. 7. Clean stovetop and oven.  8. Wipe down counters and table. 9. Start dishwasher.  10. Empty trash.
+
+    **Reasoning:**  Complex scenario with a large amount of cooking and cleaning.
+
+48. **Task:** Organize Pantry and Clean Shelves
+    **Goal:** Organize the pantry, discarding expired food, and clean the pantry shelves.  Wash any dirty dishes found in the pantry.
+    **Objects:** Packaged food, receptacles, cleaner, tools (sponge/cloth)
+    **Fixtures:** Pantry shelves, Sink
+    **Skills:** 1. Remove all items from pantry shelves. 2. Discard expired food. 3.  Wash any dirty dishes. 4.  Wipe down pantry shelves. 5. Organize and restock pantry items.
+
+    **Reasoning:** Relates to overall kitchen cleanliness and can involve unexpected dishwashing.
+
+
+49. **Task:** Cater a Small Party and Clean Up
+    **Goal:** Prepare food for a small party, serve the food, and then clean up the kitchen, including washing all dishes and serving platters.
+    **Objects:**  Food (various), dishes (various), serving platters, utensils, cleaner, tools (sponge/cloth, serving utensils)
+    **Fixtures:**  Stove, Oven, Sink, Dishwasher, Counter, Serving table
+    **Skills:** 1. Prepare food for party.  2. Arrange food on serving platters. 3.  Serve food. 4. Clear serving table. 5.  Wash dishes and serving platters. 6. Load dishwasher. 7. Wipe down counters and serving table. 8.  Start dishwasher. 9. Empty trash.
+    **Reasoning:**  Combines cooking, serving, and a complete kitchen cleanup.
+
+
+
+50. **Task:** Prepare for a Potluck and Clean Up
+    **Goal:** Prepare a dish to bring to a potluck, wash the used dishes, and then clean the kitchen.
+    **Objects:** Food (various), dishes (various), utensils, cleaner, tools (sponge/cloth), receptacles (potluck container)
+    **Fixtures:** Stove, Oven, Sink, Dishwasher, Counter
+    **Skills:** 1. Prepare dish for potluck. 2.  Transfer dish to potluck container. 3. Wash used dishes and utensils. 4.  Load dishwasher.  5.  Wipe down counters and stove. 6.  Start dishwasher.
+
+    **Reasoning:**  A specific cooking and cleaning scenario.

@@ -21,9 +21,9 @@ genai.configure(api_key=GEMINI_KEY)
 
 # Models to use
 models = {
-    "GPT": ["o1-preview"],  # ["o1-mini"],
-    # "Claude": ["claude-3-5-sonnet-20241022"],
-    # "Gemini": ["gemini-1.5-pro"],
+    "Claude": ["claude-3-5-sonnet-20241022"],
+    "GPT": ["o1-preview", "o1-mini"],
+    "Gemini": ["gemini-2.0-flash-exp", "gemini-1.5-pro"],
     # "GPT": ["o1-preview", "gpt-4o"],
     # "Claude": ["claude-3-opus-20240229", "claude-3-5-sonnet-20241022"],
     # "Gemini": ["gemini-1.0-pro", "gemini-1.5-pro"],

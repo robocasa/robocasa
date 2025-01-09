@@ -1,0 +1,470 @@
+PROMPT: 
+
+Your goal is to come up with 40 unique tasks that a robot can complete that all fall under washing dishes. The tasks you come up with do not have to do the entire activity. They can instead prep for the activity or do something for when the activity is completed. Each of the tasks you generate should be something that can be done in the kitchen and uses the skills and objects listed below. Also, your tasks MUST adhere to the constraints listed below.
+
+Here's some information about the kitchen.
+
+In the kitchen, you have the following types of objects:
+- vegetable: avocado, cucumber, tomato, bell pepper, broccoli, carrot, garlic, lemon, lime, mushroom, onion, corn, eggplant, potato, squash, sweet potato
+- fruit: apple, banana, kiwi, mango, orange, peach, pear, tangerine
+- bread: baguette, bagel, bread
+- packaged food: bar, boxed food, canned food, cereal, bagged food, chips, jam
+- cleaner: bar soap, soap dispenser, sponge, spray
+- drink: bottled drink, boxed drink, liquor, beer, can, water bottle, wine, bottled water, coffee cup
+- receptacle: bowl, mug, cutting board, jug, kettle, pan, plate, cup, teapot, tray, pot
+- utensil: fork, knife, ladle, spatula, spoon
+- sweets: cake, chocolate, donut, cupcake, waffle
+- decoration: candle
+- dairy: cheese, egg, milk, yogurt
+- condiment: condiment bottle, ketchup, shaker
+- pastry: croissant
+- cooked food: hot dog
+- meat: fish, steak
+- tool: rolling pin, scissors
+Each object is categorized. In the tasks you create, you should consider a family of objects. In other words, a task should not focus on a specific object like a tomato or knife. Instead, the task should be able to be generalized to a group of objects like vegetable or condiment. The only exception to this is when using receptacles. Also note that you cannot change these objects by cutting them, chopping them, breaking them, burning them, etc. We can ONLY move these objects around by picking, placing, or pushing them.
+
+In addition, the robot only has the following skills:
+- pick and place. eg: pick a vegetable from the cabinet and place it into the bowl
+- opening / closing doors. eg. open the cabinet door
+- opening / closing drawers. eg. open the drawer right below the counter
+- navigation. eg. navigating throughout the kitchen
+- pressing buttons. eg. press the button on the coffee machine
+- turning levers. eg: turning a sink faucet
+- twisting knobs. eg: twist the stove knob to turn it on
+- pushing / sweeping objects. eg. push objects across the countertop
+Make sure to design tasks that can be completed using the skills listed. These are the only skills the robot knows. If the task you come up with requires another skill, it will not be valid. 
+
+Finally, the kitchen has the following fixtures:
+- counters
+- cabinets and drawers: come with doors that can be opened and closed
+- one stove: comes with functional knobs to turn on individual burners
+- one microwave: comes with a door that can be opened and closed
+- one sink: comes with functional faucet lever and spout. can be turned on, with water running out the tap
+- one coffee machine: can be turned on, with coffee dripping out of nozzle
+- one blender: the blender has a button that can be pressed, but we are not able to open or close the lid
+- one refrigerator
+- one dishwasher
+Your kitchen only has these fixtures. If the task you generate uses a fixture not listed above, the task will be considered invalid. Note that the kitchen does not have an oven or grill.
+
+Each task should have a unique goal. Once again, the tasks must only use the objects, skills, and fixtures listed above. These tasks should be simple enough to be done by a robot.
+
+Eventually, I would like to model these tasks in a simulated kitchen environment with a robot attempting to complete the task. The robot is an arm that is mounted on a base and can move around the kitchen and manipulate different items. When suggesting these tasks it's very important to follow these constraints:
+
+1. The simulator does not yet support deformable objects, such as liquids, bags, and towels. As a result, the robot cannot manipulate soft bodies, such as cutting objects, pouring liquids, or folding clothes.
+
+2. Most object categories are graspable, meaning the robot can pick them up. However, the following objects are not graspable: bagel, bagged food, bread, chips, chocolate, cutting board, fork, knife, plate, scissors, spatula, spoon, tray, waffle. The robot should NOT attempt to move these object categories. I would like the robot to only interact with the specified objects and fixtures, and only use the robot skills specified.
+
+Can you suggest some tasks for me that follow the constraints listed above? Tasks should only require 3-10 skills.
+
+Your tasks should reflect common everyday human activities in the kitchen, such as arranging objects by type, preparing something, shifting objects around, etc. Make sure that each of the tasks also makes logical sense.
+
+For each task, follow the following format:
+Task: short descriptive title for task
+Goal: short description of task goals
+Objects: list of objects involved in the task
+Fixtures: list of fixtures involved in the task
+Skills: sequence of skills needed to solve task (This should clearly defined as the sequence of skills we need to compose to solve the task)
+Reasoning: why this is an interesting task that reflects everyday human activities in kitchen environments
+
+Here are some examples of good tasks following this format. These are examples for different activities. Make sure the tasks you generate are for the activity of washing dishes.
+
+Activity: Clearing the table
+Task: Clean up the counter
+Goal: Put the bowl and plate into the cabinets
+Objects: bowl, plate
+Fixtures: counter, cabinet
+Skills (4): Pick_up(plate), Place(cabinet), Pick_up(bowl), Place(cabinet)
+Reasoning: humans have to clean up countertops and put away any receptacles that may be out
+
+Activity: Frying
+Task: Get ready for cooking
+Goal: Place the pan on the stove
+Objects: pan
+Fixtures: cabinet, stove
+Skills (3): Open(cabinet), Pick_up(pan), Place(stove)
+Reasoning: humans use the pan a lot when cooking and most of them, humans store pans in the cabinets
+
+Activity: Chopping vegetables
+Task: Get ready for cooking
+Goal: Gather the vegetables from the counter
+Objects: vegetables, cutting board
+Fixtures: cabinet
+Skills (4): Open(cabinet), Pick_up(vegetable), Place(cutting board), Close(cabinet)
+Reasoning: humans need to gather vegetables for cooking
+
+Activity: Reheating food
+Task: Heat up food
+Goal: Put butter on a plate, and then place the plate in the microwave
+Objects: plate, butter
+Fixtures: microwave
+Skills (5): Pick_up(butter), Place(plate), Pick_up(plate), Place(microwave), Close_door(microwave)
+Reasoning: Heating up butter is a very common activity in baking. 
+
+Activity: Serving food
+Task: Prepare to serve meal
+Goal: Remove plate from the microwave and place on the counter
+Objects: Plate, packaged food
+Fixtures: microwave
+Skills (4): Open_door(microwave), Pick_up(plate), Place(counter), Close_door(microwave)
+Reasoning: Removing food from the microwave is nessecary after heating it up.
+
+Activity: Reheating food
+Task: Heat up food
+Goal: Place packaged food item in microwave
+Objects: packaged food
+Fixtures: microwave
+Skills (3): Pick_up(packaged_food), Place(microwave), Close_door(microwave), Press(microwave)
+Reasoning: Heating packaged food is a very common activity.
+
+Activity: Washing dishes
+Task: Clean the dishes
+Goal: Take the pan from the counter and place in the sink. Then, turn on the sink faucet.
+Objects: pan
+Fixtures: sink
+Skills (3): Pick_up(pan), Place(sink), Turn_lever(sink)
+Reasoning: This task emulates washing the dishes which is a typical human activity.
+
+Activity: Washing fruits and vegetables
+Task: Wash the vegetables
+Goal: Take the vegetables from the cabinet and place them in the sink. 
+Objects: vegetables
+Fixtures: cabinet, sink
+Skills (4): Open_door(cabinet), Pick_up(vegetable), Place(sink)
+Reasoning: Human typically wash vegetables before cooking. This task mimics this action.
+
+Activity: Setting the table
+Task: Clearing the sink
+Goal: Take the plate from the sink and move it to the counter
+Objects: plate
+Fixtures: sink
+Skills (2): Turn_lever(sink), Pick_up(plate), Place(counter)
+Reasoning: Clearing the sink of any dishes is a very common activity.
+
+Activity: Frying
+Task: Cook the food
+Goal: Place the vegetables from the cutting board in the pan and turn on the stove
+Objects: vegetables, pan
+Fixtures: stove
+Skills (5): Pick_up(vegetable1), Place(pan), Pick_up(vegetable2), Place(pan), Twist_knob(stove)
+Reasoning: Heating up vegetables is a very common activity that humans do.
+
+Activity: Serving food
+Task: Prepare a meal
+Goal: Move the vegetable from the pan on the stove to a plate and turn off the stove
+Objects: vegetable, plate, pan
+Fixtures: stove
+Skills (3): Pick_up(vegetable1), Place(plate), Twist_knob(stove)
+Reasoning: When the food has been heated up, we need to take the food off the heat and serve it on a plate.
+
+Activity: Frying
+Task: Prepare for cooking
+Goal: Put the pan on the stove
+Objects: pan
+Fixtures: stove
+Skills (3): Pick_up(pan), Place(stove), Twist_knob(stove)
+Reasoning: Putting a pan on the stove is usually the first step when cooking a dish.
+
+Activity: Setting the table
+Task: Get ready for dinner 
+Goal: Put the plates and cups from the cabinet out on the dining table
+Objects: plates, cups
+Fixtures: counter, cabinet
+Skills (6): Open_door(cabinet), Pick_up(plate), Place(counter), Pick_up(cup), Place(counter), Close_door(cabinet)
+Reasoning: Setting the plates and cups for dinner is an important tasks that humans do. 
+
+The tasks you give need to be tasks that allow the robot to manipulate different objects in its environment. The task should make sense, but make sure to focus more on the manipulation of objects. Also do not repeat any of the good tasks mentioned above. Tasks should be unique. Try to have tasks do more than just picking and placing objects. Be creative with the tasks and make sure they are all diverse and doing different things. Think "what are some of the steps a human might take to do the given activity"?
+
+Write 40 tasks that require 3-10 skills that involve washing dishes. You should have fifteen tasks that require 3-4 skills, fifteen tasks that require 5-7 skills, and ten tasks that require 8-10 skills. Tasks that you create should use the sink, stove, microwave, and cabinet fixtures. You should have at least two tasks for each of the fixtures listed above. Make sure to also use a variety of objects.
+Give me all tasks at once, don't prompt me in the middle asking for more tasks.
+
+MODEL: Claude-claude-3-5-sonnet-20241022
+
+RESPONSE: 
+
+Here are 40 unique tasks related to washing dishes:
+
+Tasks with 3-4 skills:
+
+1. Task: Empty Sink Before Washing
+Goal: Move bowl from sink to counter to prepare for dishwashing
+Objects: bowl
+Fixtures: sink, counter
+Skills (3): Pick_up(bowl), Place(counter), Turn_lever(sink)
+Reasoning: Before washing dishes, we need to clear the sink to have space to work
+
+2. Task: Prepare Cleaning Supplies
+Goal: Get soap dispenser from cabinet and place near sink
+Objects: soap dispenser
+Fixtures: cabinet, sink
+Skills (4): Open_door(cabinet), Pick_up(soap_dispenser), Place(sink), Close_door(cabinet)
+Reasoning: Getting cleaning supplies ready is a necessary first step in dishwashing
+
+3. Task: Clear Dirty Dishes
+Goal: Move pot from stove to sink for washing
+Objects: pot
+Fixtures: stove, sink
+Skills (3): Pick_up(pot), Place(sink), Turn_lever(sink)
+Reasoning: Moving dirty cookware to sink is a common pre-washing task
+
+4. Task: Setup Dish Station
+Goal: Get sponge from cabinet and place by sink
+Objects: sponge
+Fixtures: cabinet, sink
+Skills (4): Open_door(cabinet), Pick_up(sponge), Place(sink), Close_door(cabinet)
+Reasoning: Preparing cleaning tools is essential for dish washing
+
+5. Task: Prepare Used Cookware
+Goal: Move pan from stove to sink after cooking
+Objects: pan
+Fixtures: stove, sink
+Skills (3): Pick_up(pan), Place(sink), Turn_lever(sink)
+Reasoning: Moving used cookware to sink is a regular post-cooking task
+
+6. Task: Clear Counter Space
+Goal: Move dirty mug from counter to sink
+Objects: mug
+Fixtures: counter, sink
+Skills (3): Pick_up(mug), Place(sink), Turn_lever(sink)
+Reasoning: Clearing counters of dirty dishes is a common kitchen task
+
+7. Task: Organize Cleaning Area
+Goal: Move cleaner spray near sink
+Objects: spray
+Fixtures: cabinet, sink
+Skills (4): Open_door(cabinet), Pick_up(spray), Place(sink), Close_door(cabinet)
+Reasoning: Having cleaning supplies ready makes dishwashing more efficient
+
+8. Task: Clear Microwave
+Goal: Move dirty bowl from microwave to sink
+Objects: bowl
+Fixtures: microwave, sink
+Skills (4): Open_door(microwave), Pick_up(bowl), Place(sink), Close_door(microwave)
+Reasoning: Moving dishes from microwave to sink is common after reheating food
+
+9. Task: Prepare Sink Area
+Goal: Move bar soap from cabinet to sink
+Objects: bar soap
+Fixtures: cabinet, sink
+Skills (4): Open_door(cabinet), Pick_up(bar_soap), Place(sink), Close_door(cabinet)
+Reasoning: Setting up cleaning supplies is important for dishwashing
+
+10. Task: Clear Dining Area
+Goal: Move dirty teapot to sink
+Objects: teapot
+Fixtures: counter, sink
+Skills (3): Pick_up(teapot), Place(sink), Turn_lever(sink)
+Reasoning: Moving used dishes to sink is a regular post-meal task
+
+11. Task: Organize Dirty Dishes
+Goal: Move jug from counter to sink
+Objects: jug
+Fixtures: counter, sink
+Skills (3): Pick_up(jug), Place(sink), Turn_lever(sink)
+Reasoning: Consolidating dirty dishes in sink is efficient for washing
+
+12. Task: Clear Cooking Area
+Goal: Move pot from stove to sink
+Objects: pot
+Fixtures: stove, sink
+Skills (3): Pick_up(pot), Place(sink), Turn_lever(sink)
+Reasoning: Moving cooking vessels to sink after use is necessary
+
+13. Task: Prepare Clean Storage
+Goal: Open cabinet for clean dishes
+Objects: none
+Fixtures: cabinet
+Skills (3): Navigate(cabinet), Open_door(cabinet), Close_door(cabinet)
+Reasoning: Preparing storage space for clean dishes is important
+
+14. Task: Clear Breakfast Items
+Goal: Move coffee cup to sink
+Objects: coffee cup
+Fixtures: counter, sink
+Skills (3): Pick_up(coffee_cup), Place(sink), Turn_lever(sink)
+Reasoning: Moving used coffee cups to sink is a daily task
+
+15. Task: Ready Sink Station
+Goal: Move kettle from counter to sink
+Objects: kettle
+Fixtures: counter, sink
+Skills (3): Pick_up(kettle), Place(sink), Turn_lever(sink)
+Reasoning: Consolidating items for washing is efficient
+
+Tasks with 5-7 skills:
+
+16. Task: Begin Dish Cycle
+Goal: Get dirty dishes from counter and organize in sink
+Objects: bowl, mug
+Fixtures: counter, sink
+Skills (5): Pick_up(bowl), Place(sink), Pick_up(mug), Place(sink), Turn_lever(sink)
+Reasoning: Organizing dishes before washing is efficient
+
+17. Task: Prepare Multiple Items
+Goal: Move cooking items from stove to sink
+Objects: pot, pan
+Fixtures: stove, sink
+Skills (5): Pick_up(pot), Place(sink), Pick_up(pan), Place(sink), Turn_lever(sink)
+Reasoning: Moving multiple cooking items to sink is common
+
+18. Task: Setup Cleaning Station
+Goal: Gather cleaning supplies from different locations
+Objects: sponge, spray
+Fixtures: cabinet, sink
+Skills (6): Open_door(cabinet), Pick_up(sponge), Place(sink), Pick_up(spray), Place(sink), Close_door(cabinet)
+Reasoning: Having all cleaning supplies ready is efficient
+
+19. Task: Clear Multiple Areas
+Goal: Move dishes from microwave and counter to sink
+Objects: bowl, mug
+Fixtures: microwave, counter, sink
+Skills (7): Open_door(microwave), Pick_up(bowl), Place(sink), Close_door(microwave), Pick_up(mug), Place(sink), Turn_lever(sink)
+Reasoning: Clearing multiple areas of dirty dishes is common
+
+20. Task: Organize Post-Meal
+Goal: Move various items to sink
+Objects: pot, bowl
+Fixtures: stove, counter, sink
+Skills (5): Pick_up(pot), Place(sink), Pick_up(bowl), Place(sink), Turn_lever(sink)
+Reasoning: Post-meal cleanup involves multiple items
+
+21. Task: Clear Cooking Station
+Goal: Move multiple cooking vessels to sink
+Objects: pan, pot
+Fixtures: stove, sink
+Skills (6): Pick_up(pan), Place(sink), Pick_up(pot), Place(sink), Turn_lever(sink), Turn_lever(sink)
+Reasoning: Moving multiple cooking items is common after cooking
+
+22. Task: Ready Evening Cleanup
+Goal: Move drinks and dishes to sink
+Objects: coffee cup, mug
+Fixtures: counter, sink
+Skills (5): Pick_up(coffee_cup), Place(sink), Pick_up(mug), Place(sink), Turn_lever(sink)
+Reasoning: Evening cleanup often involves multiple drink containers
+
+23. Task: Prepare Multiple Stations
+Goal: Clear counter and stove
+Objects: bowl, pan
+Fixtures: counter, stove, sink
+Skills (5): Pick_up(bowl), Place(sink), Pick_up(pan), Place(sink), Turn_lever(sink)
+Reasoning: Clearing multiple stations is efficient
+
+24. Task: Setup Wash Areas
+Goal: Organize cleaning supplies and sink
+Objects: spray, sponge
+Fixtures: cabinet, sink
+Skills (7): Open_door(cabinet), Pick_up(spray), Place(sink), Pick_up(sponge), Place(sink), Close_door(cabinet), Turn_lever(sink)
+Reasoning: Proper setup makes washing more efficient
+
+25. Task: Clear Breakfast Setup
+Goal: Move breakfast items to sink
+Objects: bowl, mug, coffee cup
+Fixtures: counter, sink
+Skills (7): Pick_up(bowl), Place(sink), Pick_up(mug), Place(sink), Pick_up(coffee_cup), Place(sink), Turn_lever(sink)
+Reasoning: Morning cleanup involves multiple items
+
+26. Task: Organize Kitchen Items
+Goal: Move cooking and serving items to sink
+Objects: pot, bowl
+Fixtures: stove, counter, sink
+Skills (6): Pick_up(pot), Place(sink), Pick_up(bowl), Place(sink), Turn_lever(sink), Turn_lever(sink)
+Reasoning: Organizing different types of items is common
+
+27. Task: Clear Multiple Containers
+Goal: Move various containers to sink
+Objects: jug, kettle
+Fixtures: counter, sink
+Skills (5): Pick_up(jug), Place(sink), Pick_up(kettle), Place(sink), Turn_lever(sink)
+Reasoning: Different containers need different washing approaches
+
+28. Task: Prepare Evening Wash
+Goal: Move dishes from different areas
+Objects: teapot, mug
+Fixtures: counter, sink
+Skills (5): Pick_up(teapot), Place(sink), Pick_up(mug), Place(sink), Turn_lever(sink)
+Reasoning: Evening cleanup often involves various items
+
+29. Task: Ready Morning Clean
+Goal: Move breakfast cookware to sink
+Objects: pan, kettle
+Fixtures: stove, counter, sink
+Skills (6): Pick_up(pan), Place(sink), Pick_up(kettle), Place(sink), Turn_lever(sink), Turn_lever(sink)
+Reasoning: Morning cleanup involves multiple items
+
+30. Task: Setup Multiple Cleaners
+Goal: Organize different cleaning supplies
+Objects: bar soap, spray, sponge
+Fixtures: cabinet, sink
+Skills (7): Open_door(cabinet), Pick_up(bar_soap), Place(sink), Pick_up(spray), Place(sink), Pick_up(sponge), Place(sink)
+Reasoning: Different cleaning supplies serve different purposes
+
+Tasks with 8-10 skills:
+
+31. Task: Complete Kitchen Clear
+Goal: Move items from multiple locations to sink
+Objects: pot, pan, bowl, mug
+Fixtures: stove, counter, sink
+Skills (9): Pick_up(pot), Place(sink), Pick_up(pan), Place(sink), Pick_up(bowl), Place(sink), Pick_up(mug), Place(sink), Turn_lever(sink)
+Reasoning: Full kitchen cleanup involves multiple items
+
+32. Task: Full Counter Organization
+Goal: Move various items from counter to sink
+Objects: bowl, mug, coffee cup, teapot
+Fixtures: counter, sink
+Skills (9): Pick_up(bowl), Place(sink), Pick_up(mug), Place(sink), Pick_up(coffee_cup), Place(sink), Pick_up(teapot), Place(sink), Turn_lever(sink)
+Reasoning: Counter cleanup often involves many items
+
+33. Task: Complete Cooking Clear
+Goal: Move all cooking items to sink
+Objects: pot, pan, kettle
+Fixtures: stove, counter, sink
+Skills (8): Pick_up(pot), Place(sink), Pick_up(pan), Place(sink), Pick_up(kettle), Place(sink), Turn_lever(sink), Turn_lever(sink)
+Reasoning: Post-cooking cleanup involves multiple vessels
+
+34. Task: Full Clean Setup
+Goal: Organize all cleaning supplies
+Objects: bar soap, spray, sponge, soap dispenser
+Fixtures: cabinet, sink
+Skills (9): Open_door(cabinet), Pick_up(bar_soap), Place(sink), Pick_up(spray), Place(sink), Pick_up(sponge), Place(sink), Pick_up(soap_dispenser), Place(sink)
+Reasoning: Complete cleaning setup requires multiple supplies
+
+35. Task: Multi-Station Clear
+Goal: Clear items from microwave, stove, and counter
+Objects: bowl, pot, mug
+Fixtures: microwave, stove, counter, sink
+Skills (10): Open_door(microwave), Pick_up(bowl), Place(sink), Close_door(microwave), Pick_up(pot), Place(sink), Pick_up(mug), Place(sink), Turn_lever(sink), Turn_lever(sink)
+Reasoning: Clearing multiple stations is thorough
+
+36. Task: Complete Drink Container Clear
+Goal: Move all drink containers to sink
+Objects: coffee cup, mug, jug, teapot
+Fixtures: counter, sink
+Skills (9): Pick_up(coffee_cup), Place(sink), Pick_up(mug), Place(sink), Pick_up(jug), Place(sink), Pick_up(teapot), Place(sink), Turn_lever(sink)
+Reasoning: Drink containers often accumulate throughout day
+
+37. Task: Full Kitchen Reset
+Goal: Clear all cooking areas
+Objects: pan, pot, kettle, bowl
+Fixtures: stove, counter, sink
+Skills (9): Pick_up(pan), Place(sink), Pick_up(pot), Place(sink), Pick_up(kettle), Place(sink), Pick_up(bowl), Place(sink), Turn_lever(sink)
+Reasoning: Complete kitchen reset is common after meals
+
+38. Task: Total Counter Clear
+Goal: Move all items from counter to sink
+Objects: bowl, mug, jug, coffee cup
+Fixtures: counter, sink
+Skills (9): Pick_up(bowl), Place(sink), Pick_up(mug), Place(sink), Pick_up(jug), Place(sink), Pick_up(coffee_cup), Place(sink), Turn_lever(sink)
+Reasoning: Complete counter clearing is necessary
+
+39. Task: Full Cooking Vessel Clear
+Goal: Move all cooking items to sink
+Objects: pot, pan, kettle, teapot
+Fixtures: stove, counter, sink
+Skills (9): Pick_up(pot), Place(sink), Pick_up(pan), Place(sink), Pick_up(kettle), Place(sink), Pick_up(teapot), Place(sink), Turn_lever(sink)
+Reasoning: Moving all cooking vessels at once is efficient
+
+40. Task: Complete Dish Organization
+Goal: Move all serving items to sink
+Objects: bowl, mug, coffee cup, teapot
+Fixtures: counter, microwave, sink
+Skills (10): Open_door(microwave), Pick_up(bowl), Place(sink), Close_door(microwave), Pick_up(mug), Place(sink), Pick_up(coffee_cup), Place(sink), Pick_up(teapot), Place(sink), Turn_lever(sink)
+Reasoning: Organizing all serving items at once is thorough

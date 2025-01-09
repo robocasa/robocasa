@@ -1,0 +1,454 @@
+PROMPT: 
+
+Your goal is to come up with 40 unique tasks that a robot can complete that all fall under washing dishes.
+The tasks you come up with do not have to do the entire activity. They can instead prep for the activity or do something for when the activity is completed.
+Each of the tasks you generate should be something that can be done in the kitchen and uses the skills and objects listed below.
+Also, your tasks MUST adhere to the constraints listed below.
+
+Here's some information about the kitchen.
+
+In the kitchen, you have the following types of objects:
+- vegetable: avocado, cucumber, tomato, bell pepper, broccoli, carrot, garlic, lemon, lime, mushroom, onion, corn, eggplant, potato, squash, sweet potato
+- fruit: apple, banana, kiwi, mango, orange, peach, pear, tangerine
+- bread: baguette, bagel, bread
+- packaged food: bar, boxed food, canned food, cereal, bagged food, chips, jam
+- cleaner: bar soap, soap dispenser, sponge, spray
+- drink: bottled drink, boxed drink, liquor, beer, can, water bottle, wine, bottled water, coffee cup
+- receptacle: bowl, mug, cutting board, jug, kettle, pan, plate, cup, teapot, tray, pot
+- utensil: fork, knife, ladle, spatula, spoon
+- sweets: cake, chocolate, donut, cupcake, waffle
+- decoration: candle
+- dairy: cheese, egg, milk, yogurt
+- condiment: condiment bottle, ketchup, shaker
+- pastry: croissant
+- cooked food: hot dog
+- meat: fish, steak
+- tool: rolling pin, scissors
+Each object is categorized. In the tasks you create, you should consider a family of objects. In other words, a task should not focus on a specific object like a tomato or knife. Instead, the task should be able to be generalized to a group of objects like vegetable or condiment. The only exception to this is when using receptacles.
+Also note that you cannot change these objects by cutting them, chopping them, breaking them, burning them, etc.
+
+In addition, the robot only has the following skills:
+- pick and place. eg: pick a vegetable from the cabinet and place it into the bowl
+- opening / closing doors. eg. open the cabinet door
+- opening / closing drawers. eg. open the drawer right below the counter
+- navigation. eg. navigating throughout the kitchen
+- pressing buttons. eg. press the button on the coffee machine
+- turning levers. eg: turning a sink faucet
+- twisting knobs. eg: twist the stove knob to turn it on
+- pushing / sweeping objects. eg. push objects across the countertop
+Make sure to design tasks that can be completed using the skills listed. These are the only skills the robot knows. If the task you come up with requires another skill, it will not be valid. 
+
+Finally, the kitchen has the following fixtures:
+- counters
+- cabinets and drawers: come with doors that can be opened and closed
+- one stove: comes with functional knobs to turn on individual burners
+- one microwave: comes with a door that can be opened and closed
+- one sink: comes with functional faucet lever and spout. can be turned on, with water running out the tap
+- one coffee machine: can be turned on, with coffee dripping out of nozzle
+- one blender: the blender has a button that can be pressed, but we are not able to open or close the lid
+- one refrigerator
+- one dishwasher
+Your kitchen only has these fixtures. If the task you generate uses a fixture not listed above, the task will be considered invalid. Note that the kitchen does not have an oven or grill.
+
+Each task should have a unique goal. Once again, the tasks must only use the objects, skills, and fixtures listed above. These tasks should be simple enough to be done by a robot.
+
+Eventually, I would like to model these tasks in a simulated kitchen environment with a robot attempting to complete the task. The robot is an arm that is mounted on a base and can move around the kitchen and manipulate different items. When suggesting these tasks it's very important to follow these constraints:
+
+1. The simulator does not yet support deformable objects, such as liquids, bags, and towels. As a result, the robot cannot manipulate soft bodies, such as cutting objects, pouring liquids, or folding clothes.
+
+2. Most object categories are graspable, meaning the robot can pick them up. However, the following objects are not graspable: bagel, bagged food, bread, chips, chocolate, cutting board, fork, knife, plate, scissors, spatula, spoon, tray, waffle. The robot should NOT attempt to move these object categories. I would like the robot to only interact with the specified objects and fixtures, and only use the robot skills specified.
+
+Can you suggest some tasks for me that follow the constraints listed above? Tasks should only require 3-10 skills.
+
+Your tasks should reflect common everyday human activities in the kitchen, such as arranging objects by type, preparing something, shifting objects around, etc. Make sure that each of the tasks also makes logical sense.
+
+For each task, follow the following format:
+Task: short descriptive title for task
+Goal: short description of task goals
+Objects: list of objects involved in the task
+Fixtures: list of fixtures involved in the task
+Skills: sequence of skills needed to solve task (This should clearly defined as the sequence of skills we need to compose to solve the task)
+Reasoning: why this is an interesting task that reflects everyday human activities in kitchen environments
+
+The tasks should be unique. Try to have tasks do more than just picking and placing objects. Be creative with the tasks and make sure they are all diverse and doing different things. Think "what are some of the steps a human might take to do the given activity"?
+
+Write 40 tasks that require 3-10 skills that feature washing dishes. You should have fifteen tasks that require 3-4 skills, fifteen tasks that require 5-7 skills, and ten tasks that require 8-10 skills.
+Make sure to also use a variety of objects and suggest highly diverse tasks.
+
+MODEL: GPT-o1-mini
+
+RESPONSE: 
+
+Sure! Below are **40 unique tasks** related to washing dishes that a robot can perform in your specified kitchen environment. Each task adheres to the constraints and utilizes the provided objects, fixtures, and skills.
+
+---
+
+### **Tasks Requiring 3-4 Skills**
+
+---
+
+**Task 1: Open Dishwasher Door**  
+**Goal:** Open the dishwasher door to access its interior for loading or unloading dishes.  
+**Objects:** None  
+**Fixtures:** Dishwasher  
+**Skills:** Open dishwasher door  
+**Reasoning:** Fundamental step in the dishwashing process, essential before loading or unloading.
+
+---
+
+**Task 2: Close Dishwasher Door**  
+**Goal:** Securely close the dishwasher door after loading or unloading dishes.  
+**Objects:** None  
+**Fixtures:** Dishwasher  
+**Skills:** Close dishwasher door  
+**Reasoning:** Necessary to ensure the dishwasher operates correctly during the wash cycle.
+
+---
+
+**Task 3: Load Plates into Dishwasher**  
+**Goal:** Place clean or dirty plates into dishwasher racks.  
+**Objects:** Plate  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door  
+**Reasoning:** Common task during dishwashing to handle plates efficiently.
+
+---
+
+**Task 4: Load Bowls into Dishwasher**  
+**Goal:** Place bowls into dishwasher racks.  
+**Objects:** Bowl  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door  
+**Reasoning:** Essential step to wash bowls in the dishwasher properly.
+
+---
+
+**Task 5: Load Mugs into Dishwasher**  
+**Goal:** Place mugs and cups into dishwasher racks.  
+**Objects:** Mug, Cup  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door  
+**Reasoning:** Ensures mugs are cleaned and stored appropriately.
+
+---
+
+**Task 6: Start Dishwasher Cycle**  
+**Goal:** Initiate the dishwashing cycle.  
+**Objects:** Dishwasher controls  
+**Fixtures:** Dishwasher  
+**Skills:** Press button  
+**Reasoning:** Engaging the dishwasher to begin the cleaning process is crucial.
+
+---
+
+**Task 7: Unload Clean Dishes from Dishwasher**  
+**Goal:** Remove clean dishes from the dishwasher and place them in storage cabinets.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher, Cabinet  
+**Skills:** Pick and place, open dishwasher door, open cabinet door  
+**Reasoning:** Final step in dishwashing to store clean dishes neatly.
+
+---
+
+**Task 8: Turn On Sink Faucet**  
+**Goal:** Activate the kitchen sink faucet for dishwashing.  
+**Objects:** None  
+**Fixtures:** Sink  
+**Skills:** Turn faucet lever  
+**Reasoning:** Providing water flow is necessary for washing dishes.
+
+---
+
+**Task 9: Turn Off Sink Faucet**  
+**Goal:** Deactivate the kitchen sink faucet after washing dishes.  
+**Objects:** None  
+**Fixtures:** Sink  
+**Skills:** Turn faucet lever  
+**Reasoning:** Conserves water and concludes the washing process.
+
+---
+
+**Task 10: Navigate to Dishwasher**  
+**Goal:** Move the robot to the dishwasher position for loading or unloading.  
+**Objects:** None  
+**Fixtures:** Dishwasher  
+**Skills:** Navigation  
+**Reasoning:** Positioning is required before performing dishwashing tasks.
+
+---
+
+**Task 11: Arrange Plates in Dishwasher**  
+**Goal:** Organize plates neatly within dishwasher racks.  
+**Objects:** Plate  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door  
+**Reasoning:** Efficient arrangement improves washing effectiveness.
+
+---
+
+**Task 12: Arrange Bowls in Dishwasher**  
+**Goal:** Organize bowls properly within dishwasher racks.  
+**Objects:** Bowl  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door  
+**Reasoning:** Proper arrangement ensures bowls are cleaned thoroughly.
+
+---
+
+**Task 13: Arrange Mugs in Dishwasher**  
+**Goal:** Organize mugs and cups appropriately within dishwasher racks.  
+**Objects:** Mug, Cup  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door  
+**Reasoning:** Efficient arrangement aids in proper cleaning and storage.
+
+---
+
+**Task 14: Open Sink Cabinet**  
+**Goal:** Access cleaning supplies or dishes stored in the sink cabinet.  
+**Objects:** None  
+**Fixtures:** Cabinets under sink  
+**Skills:** Open cabinet door  
+**Reasoning:** Access needed for cleaning materials or dish storage.
+
+---
+
+**Task 15: Close Sink Cabinet**  
+**Goal:** Securely close the sink cabinet after accessing its contents.  
+**Objects:** None  
+**Fixtures:** Cabinets under sink  
+**Skills:** Close cabinet door  
+**Reasoning:** Maintains an organized kitchen environment post dishwashing.
+
+---
+
+### **Tasks Requiring 5-7 Skills**
+
+---
+
+**Task 16: Wash Vegetables in Sink**  
+**Goal:** Clean vegetables in the sink before storing or cooking.  
+**Objects:** Vegetables  
+**Fixtures:** Sink, Cabinet  
+**Skills:** Open cabinet door, pick and place vegetable, place in sink, turn faucet lever on, turn faucet lever off, pick and place clean vegetables  
+**Reasoning:** Integrates dishwashing steps with vegetable preparation.
+
+---
+
+**Task 17: Load Multiple Dish Types into Dishwasher**  
+**Goal:** Organize and load plates, bowls, and mugs into the dishwasher.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door, navigate between kitchen areas  
+**Reasoning:** Handles diverse dish types efficiently for effective washing.
+
+---
+
+**Task 18: Start Dishwasher After Loading**  
+**Goal:** Load dishes into the dishwasher and start the wash cycle.  
+**Objects:** Plate, Bowl  
+**Fixtures:** Dishwasher  
+**Skills:** Open dishwasher door, pick and place items, close dishwasher door, press start button  
+**Reasoning:** Completes loading and initiation in a single task.
+
+---
+
+**Task 19: Unload Clean Dishes and Store in Cabinet**  
+**Goal:** Remove clean dishes from dishwasher and store them in kitchen cabinets.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher, Cabinet  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door, open cabinet door, pick and place into cabinet, close cabinet door  
+**Reasoning:** Combines unloading with organized storage.
+
+---
+
+**Task 20: Rinse Dishes in Sink Before Loading Dishwasher**  
+**Goal:** Quickly rinse dishes in sink before placing them into the dishwasher.  
+**Objects:** Plate, Bowl  
+**Fixtures:** Sink, Dishwasher  
+**Skills:** Pick and place dishes, open sink faucet, place dishes in sink, turn faucet on, turn faucet off, pick and place dishes into dishwasher  
+**Reasoning:** Preliminary cleaning enhances dishwasher efficiency.
+
+---
+
+**Task 21: Organize Clean Dishes on Counter Before Storing**  
+**Goal:** Arrange clean dishes on the counter before placing them in cabinets.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Counter, Cabinet  
+**Skills:** Pick and place, open dishwasher door, place on counter, navigate to cabinet, open cabinet door, pick and place into cabinet, close cabinet door  
+**Reasoning:** Ensures orderly storage after cleaning.
+
+---
+
+**Task 22: Clean and Dry Dishwasher Racks**  
+**Goal:** Remove dishwasher racks, clean them, and replace them securely.  
+**Objects:** Dishwasher racks  
+**Fixtures:** Dishwasher  
+**Skills:** Open dishwasher door, pick and place racks, navigate to cleaning area, wipe racks, place back, close dishwasher door  
+**Reasoning:** Maintenance task to ensure dishwasher remains clean and functional.
+
+---
+
+**Task 23: Arrange Cups on Dishwasher Racks**  
+**Goal:** Place cups and mugs correctly in dishwasher racks for optimal cleaning.  
+**Objects:** Mug, Cup  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door, navigate rack layout  
+**Reasoning:** Ensures cups are cleaned without damage and space is utilized efficiently.
+
+---
+
+**Task 24: Navigate to Sink to Handle Additional Items**  
+**Goal:** Move to sink to handle items that require hand washing before dishwashing.  
+**Objects:** Vegetables  
+**Fixtures:** Sink  
+**Skills:** Pick and place, navigate, open sink faucet, turn faucet lever on, turn faucet lever off, place items in sink  
+**Reasoning:** Extends dishwashing tasks to include pre-cleaning certain items.
+
+---
+
+**Task 25: Sort Dishes Before Loading Dishwasher**  
+**Goal:** Categorize dishes into types before placing them into the dishwasher.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Counter  
+**Skills:** Pick and place, open cabinet door, arrange categories  
+**Reasoning:** Streamlines dishwashing by sorting dishes for organized loading.
+
+---
+
+**Task 26: Store Clean Dishes After Washing**  
+**Goal:** Place clean dishes from the dishwasher into kitchen cabinets.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher, Cabinet  
+**Skills:** Pick and place, open dishwasher door, close dishwasher door, open cabinet door, pick and place into cabinet, close cabinet door  
+**Reasoning:** Completes the storage process after dishwashing.
+
+---
+
+**Task 27: Clean Sponge After Use**  
+**Goal:** Rinse and place the sponge back in its holder after washing dishes.  
+**Objects:** Sponge  
+**Fixtures:** Sink  
+**Skills:** Pick and place sponge, open cabinet door, place sponge back  
+**Reasoning:** Maintains hygiene and cleanliness of dishwashing tools.
+
+---
+
+**Task 28: Position Dishes for Optimal Washing**  
+**Goal:** Arrange dishes in the dishwasher to ensure the best cleaning results.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, navigate inside dishwasher, arrange dishes  
+**Reasoning:** Enhances the efficiency and effectiveness of the dishwashing process.
+
+---
+
+**Task 29: Retrieve Clean Dishware from Cabinet**  
+**Goal:** Get clean dishes from storage cabinets for use.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Cabinet  
+**Skills:** Open cabinet door, pick and place items, close cabinet door  
+**Reasoning:** Prepares clean dishes for immediate use after washing.
+
+---
+
+**Task 30: Wipe Down Dishwasher Exterior**  
+**Goal:** Clean the outside surfaces of the dishwasher after use.  
+**Objects:** Spray, Sponge  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place spray/sponge, open dishwasher door if needed, wipe surfaces, close dishwasher door  
+**Reasoning:** Maintains cleanliness and appearance of kitchen appliances post washing.
+
+---
+
+**Task 31: Remove and Clean Dishwasher Filters**  
+**Goal:** Take out dishwasher filters, clean them, and replace them properly.  
+**Objects:** Dishwasher filters  
+**Fixtures:** Dishwasher  
+**Skills:** Open dishwasher door, pick and place filters, navigate to cleaning area, wipe filters, place back, close dishwasher door  
+**Reasoning:** Ensures the dishwasher functions efficiently by maintaining clean filters.
+
+---
+
+**Task 32: Load Sponge and Spray Near Sink**  
+**Goal:** Arrange cleaning tools like the sponge and spray near the sink for easy access.  
+**Objects:** Sponge, Spray  
+**Fixtures:** Sink, Cabinet  
+**Skills:** Pick and place, open cabinet door, navigate to sink, place items, close cabinet door  
+**Reasoning:** Prepares necessary tools for effective dishwashing.
+
+---
+
+**Task 33: Empty Dishwasher Before Loading New Dishes**  
+**Goal:** Remove dishes from a completed dishwasher cycle before loading new ones.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher, Cabinet  
+**Skills:** Pick and place, open dishwasher door, open cabinet door, store dishes, close doors  
+**Reasoning:** Ensures the dishwasher is ready for new dishes and prevents overloading.
+
+---
+
+**Task 34: Secure Dishwasher Door After Loading**  
+**Goal:** Ensure the dishwasher door is properly closed after placing dishes inside.  
+**Objects:** None  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place door handle if needed, close dishwasher door, ensure closed  
+**Reasoning:** Prevents leaks and ensures the dishwasher operates correctly.
+
+---
+
+**Task 35: Move Dishes from Counter to Dishwasher**  
+**Goal:** Transfer dirty dishes from the counter to the dishwasher for washing.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Counter, Dishwasher  
+**Skills:** Pick and place, navigate between counter and dishwasher, open/close dishwasher door  
+**Reasoning:** Consolidates dish transfer efficiently for washing.
+
+---
+
+**Task 36: Verify Dishwasher is Empty Before Loading**  
+**Goal:** Ensure there are no leftover dishes from a previous cycle before loading new ones.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher  
+**Skills:** Open dishwasher door, look inside, pick and place any remaining items, close dishwasher door  
+**Reasoning:** Prevents overloading and ensures readiness for a new washing cycle.
+
+---
+
+**Task 37: Arrange Plates Vertically in Dishwasher Racks**  
+**Goal:** Place plates in a vertical position within dishwasher racks to optimize space and cleaning.  
+**Objects:** Plate  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, navigate rack layout  
+**Reasoning:** Effective space utilization ensures dishes are cleaned thoroughly.
+
+---
+
+**Task 38: Ensure All Dishes are Securely Placed in Dishwasher**  
+**Goal:** Confirm that all loaded dishes are properly positioned to prevent movement during washing.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Dishwasher  
+**Skills:** Pick and place, open dishwasher door, navigate inside dishwasher, rearrange dishes as needed  
+**Reasoning:** Prevents dish movement and potential breakage during the wash cycle.
+
+---
+
+**Task 39: Organize Clean Dishes by Type in Cabinets**  
+**Goal:** Arrange clean dishes in cabinets based on their type for easy access.  
+**Objects:** Plate, Bowl, Mug  
+**Fixtures:** Cabinet  
+**Skills:** Pick and place, open cabinet door, arrange by type, close cabinet door  
+**Reasoning:** Maintains an organized storage system for clean dishes.
+
+---
+
+**Task 40: Clean Sink Area After Dishwashing**  
+**Goal:** Remove any debris or residues from the sink area after washing dishes.  
+**Objects:** Sponge, Spray  
+**Fixtures:** Sink, Cabinet  
+**Skills:** Pick and place cleaning tools, open cabinet door, clean sink area, replace cleaning tools, close cabinet door  
+**Reasoning:** Ensures the sink area remains clean and ready for future use.
+
+---
+
+These tasks cover a wide range of activities related to washing dishes, from preparation and loading to cleaning and storage. Each task is designed to reflect common human activities in the kitchen while adhering to the specified constraints and utilizing the available skills and objects.
