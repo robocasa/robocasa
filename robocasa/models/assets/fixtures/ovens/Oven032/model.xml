@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<mujoco model="model">
+    <compiler angle="radian"/>
+    <asset>
+        <mesh file="visuals/Oven032_Knob2.obj" name="Oven032_Knob2_vis"/>
+        <mesh file="visuals/Oven032_Door.obj" name="Oven032_Door_vis"/>
+        <mesh file="visuals/Oven032_Shelf1.obj" name="Oven032_Shelf1_vis"/>
+        <mesh file="visuals/Oven032_Shelf2.obj" name="Oven032_Shelf2_vis"/>
+        <mesh file="visuals/Oven032_Knob3.obj" name="Oven032_Knob3_vis"/>
+        <mesh file="visuals/Oven032_Clear.obj" name="Oven032_Clear_vis"/>
+        <mesh file="visuals/Oven032_Body.obj" name="Oven032_Body_vis"/>
+        <mesh file="visuals/Oven032_Button.obj" name="Oven032_Button_vis"/>
+        <texture file="visuals/Oven032_BaseColor.png" name="Oven032_BaseColor" type="2d"/>
+        <material name="material" rgba="1 1 1 1" texture="Oven032_BaseColor"/>
+        <material name="material_Clear" rgba="1 1 1 0.4" texture="Oven032_BaseColor"/>
+    </asset>
+    <default>
+        <default class="visual">
+            <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+        </default>
+        <default class="collision">
+            <geom group="0" rgba="0.5 0 0 0.5"/>
+        </default>
+    </default>
+    <worldbody>
+        <body>
+            <site rgba="0 0 0 1" size="0.01" pos="-0.2111152559518814 -0.19851200841367245 0" name="ext_p0"/>
+            <site rgba="1 0 0 1" size="0.01" pos="0.2111150473356247 -0.19851200841367245 0" name="ext_px"/>
+            <site rgba="0 1 0 1" size="0.01" pos="-0.2111152559518814 0.1706788633018732 0" name="ext_py"/>
+            <site rgba="0 0 1 1" size="0.01" pos="-0.2111152559518814 -0.19851200841367245 0.3554380238056183" name="ext_pz"/>
+            <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.1773672252893448 -0.15498879551887512 0.03320341929793358" name="int_p0"/>
+            <site rgba="1 1 0 1" size="0.01" pos="0.17664951086044312 -0.15498879551887512 0.033203285187482834" name="int_px"/>
+            <site rgba="0 1 1 1" size="0.01" pos="-0.1773672252893448 0.16769294440746307 0.033203285187482834" name="int_py"/>
+            <site rgba="1 0 1 1" size="0.01" pos="-0.17736752331256866 -0.15498879551887512 0.35127538442611694" name="int_pz"/>
+            <body name="object">
+                <geom mesh="Oven032_Body_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                <geom class="collision" type="box" pos="-4.656612873077393e-10 -0.007083619013428688 0.02367486245930195" size="0.17676913738250732 0.20178836584091187 0.023207034915685654" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                <geom class="collision" type="box" pos="-9.313225746154785e-10 -0.011985178105533123 0.2996065318584442" size="0.18167069554328918 0.20178836584091187 0.05532219260931015" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                <geom class="collision" type="box" pos="-0.19067111611366272 0.0017285794019699097 0.14451223611831665" size="0.16684693098068237 0.12106458842754364 0.012070666067302227" quat="0.49999991059303284 -0.5000000596046448 0.5000000596046448 -0.4999999403953552"/>
+                <geom class="collision" type="box" pos="0.18988105654716492 0.0017285645008087158 0.14451220631599426" size="0.16684693098068237 0.12106458097696304 0.011824028566479683" quat="0.49999991059303284 -0.5000000596046448 0.5000000596046448 -0.4999999403953552"/>
+                <geom class="collision" type="box" pos="0.0 0.14275212585926056 0.17895449697971344" size="0.02681262604892254 0.20178836584091187 0.154585063457489" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                <body name="Oven032_Button">
+                    <joint axis="0 1 0" pos="0.15402361750602722 -0.19640861451625824 0.2916850745677948" limited="true" name="Oven032_Button_joint" range="0.0 0.003" type="slide" damping="2" frictionloss="2" armature=".01"/>
+                    <geom mesh="Oven032_Button_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                    <geom class="collision" type="box" pos="0.15350556373596191 -0.19660933315753937 0.2916543483734131" size="0.002500441623851657 0.008201545104384422 0.005408327095210552" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                </body>
+                <body name="Oven032_Door">
+                    <joint axis="1 0 0" pos="3.098626621067524e-05 -0.18643370270729065 0.045451149344444275" limited="true" name="Oven032_Door_joint" range="0.0 1.5707963267948966" type="hinge" damping="2" frictionloss="2" armature=".01"/>
+                    <geom mesh="Oven032_Door_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                    <geom class="collision" type="box" pos="-0.00048592686653137207 -0.17697156965732574 0.14416439831256866" size="0.006113024428486824 0.20167377591133118 0.09463166445493698" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                    <geom class="collision" type="box" pos="-0.000971868634223938 -0.22126226127147675 0.22367830574512482" size="0.0043570310808718204 0.04817470908164978 0.013734519481658936" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                    <geom class="collision" type="box" pos="0.0755821168422699 -0.22012992203235626 0.2236783355474472" size="0.004357030615210533 0.02829209715127945 0.013734519481658936" quat="0.7243101000785828 -1.5830298849550672e-08 1.506893987368585e-08 -0.68947434425354"/>
+                    <geom class="collision" type="box" pos="0.1292102187871933 -0.21431505680084229 0.2236783355474472" size="0.0043570310808718204 0.028292102739214897 0.013734519481658936" quat="0.7644059658050537 -5.950292703005289e-08 5.4853181552516617e-08 -0.6447352170944214"/>
+                    <geom class="collision" type="box" pos="0.16621820628643036 -0.2037714719772339 0.2236783355474472" size="0.0043570310808718204 0.02829209715127945 0.013734519481658936" quat="0.8653454780578613 -7.049133188274936e-08 4.082594884380342e-08 -0.5011758208274841"/>
+                    <geom class="collision" type="box" pos="-0.09319901466369629 -0.21835070848464966 0.22367830574512482" size="0.004357030149549246 0.04817470163106918 0.013734519481658936" quat="0.6781023144721985 -1.4820398241965904e-08 1.606322541647387e-08 -0.7349674701690674"/>
+                    <geom class="collision" type="box" pos="-0.15052001178264618 -0.21080626547336578 0.22367830574512482" size="0.004357030615210533 0.016903754323720932 0.013734519481658936" quat="0.611532986164093 -1.3365476725368808e-08 1.7292638432309104e-08 -0.7912189364433289"/>
+                    <geom class="collision" type="box" pos="-0.1736801415681839 -0.19906708598136902 0.22367830574512482" size="0.0043570310808718204 0.01690375618636608 0.013734519481658936" quat="0.38891708850860596 -3.168131357256243e-08 7.504718269046862e-08 -0.9212727546691895"/>
+                    <body name="Oven032_Clear">
+                        <geom mesh="Oven032_Clear_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material_Clear"/>
+                    </body>
+                </body>
+                <body name="Oven032_Knob2">
+                    <joint axis="0 1 0" pos="-0.03601401299238205 -0.19983617961406708 0.29175618290901184" limited="true" name="Oven032_Knob2_joint" range="0.0 5.759586531581287" type="hinge" damping="2" frictionloss="2" armature=".01"/>
+                    <geom mesh="Oven032_Knob2_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                    <geom class="collision" type="cylinder" pos="-0.035950228571891785 -0.19897004961967468 0.29096320271492004" size="0.02009446546435356 0.0039360858500003815" quat="0.5 0.5 0.4999999701976776 -0.5"/>
+                    <geom class="collision" type="box" pos="-0.03614245355129242 -0.20499369502067566 0.2915193736553192" size="0.0061492412351071835 0.003521790960803628 0.017818788066506386" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                </body>
+                <body name="Oven032_Knob3">
+                    <joint axis="0 1 0" pos="0.035982392728328705 -0.19983616471290588 0.2917562425136566" limited="true" name="Oven032_Knob3_joint" range="0.0 4.014257279586958" type="hinge" damping="2" frictionloss="2" armature=".01"/>
+                    <geom mesh="Oven032_Knob3_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                    <geom class="collision" type="cylinder" pos="0.03612951934337616 -0.19897004961967468 0.29096320271492004" size="0.02009446546435356 0.0039360858500003815" quat="0.5 0.5 0.4999999701976776 -0.5"/>
+                    <geom class="collision" type="box" pos="0.035937294363975525 -0.20499369502067566 0.2915193736553192" size="0.0061492412351071835 0.003521790960803628 0.017818788066506386" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                </body>
+                <body name="Oven032_Shelf1">
+                    <joint axis="0 -1 0" pos="0.014219401404261589 -0.0023739745374768972 0.14781303703784943" limited="true" name="Oven032_Shelf1_joint" range="0.0 0.25" type="slide" damping="2" frictionloss="2" armature=".01"/>
+                    <geom mesh="Oven032_Shelf1_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                    <geom class="collision" type="box" pos="0.0 0.0 0.15519851446151733" size="0.12313508242368698 0.1729796975851059 0.01417342945933342" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                </body>
+                <body name="Oven032_Shelf2">
+                    <joint axis="0 -1 0" pos="-3.6161307281901145e-09 -0.002829262986779213 0.09107380360364914" limited="true" name="Oven032_Shelf2_joint" range="0.0 0.25" type="slide" damping="2" frictionloss="2" armature=".01"/>
+                    <geom mesh="Oven032_Shelf2_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+                    <geom class="collision" type="box" pos="0.0 0.0 0.0874636322259903" size="0.12313508242368698 0.17298243939876556 0.012174027971923351" quat="0.7071067690849304 -5.76011558450773e-08 5.76011558450773e-08 -0.7071067690849304"/>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+    <actuator>
+        <motor name="Oven032_Button_joint_actuator" joint="Oven032_Button_joint" gear="10"/>
+        <motor name="Oven032_Door_joint_actuator" joint="Oven032_Door_joint" gear="10"/>
+        <motor name="Oven032_Knob2_joint_actuator" joint="Oven032_Knob2_joint" gear="10"/>
+        <motor name="Oven032_Knob3_joint_actuator" joint="Oven032_Knob3_joint" gear="10"/>
+        <motor name="Oven032_Shelf1_joint_actuator" joint="Oven032_Shelf1_joint" gear="10"/>
+        <motor name="Oven032_Shelf2_joint_actuator" joint="Oven032_Shelf2_joint" gear="10"/>
+    </actuator>
+</mujoco>
