@@ -60,6 +60,9 @@ FIXTURE_TO_TEST_ENVS = dict(
     fridge=[
         dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
     ],
+    toaster=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER),
+    ],
 )
 
 if __name__ == "__main__":
