@@ -144,6 +144,8 @@ if __name__ == "__main__":
         parser.first = False
         parser.verbose = True
         parser.extend_states = True
+        parser.camera_height = 512
+        parser.camera_width = 768
 
         playback_dataset(parser)
         if args.task is not None:

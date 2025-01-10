@@ -65,7 +65,7 @@ class StockingBreakfastFoods(Kitchen):
         # TODO: change for task
         ep_meta[
             "lang"
-        ] = f"Pick the {obj_name_1} and {obj_name_2} from the counter and place them in the cabinet closest to them."
+        ] = f"Pick the {obj_name_1} and {obj_name_2} from the counter and place them in the cabinets closest to them."
 
         return ep_meta
 

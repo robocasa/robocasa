@@ -32,7 +32,7 @@ class ClearClutter(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
             "Pick up the fruits and vegetables and place them in the sink. "
-            "Turn on the sink to wash them. Then turn the sink off and put them in the tray."
+            "Turn on the sink faucet to wash them. Then turn the sink off and put them in the tray."
         )
         return ep_meta
 

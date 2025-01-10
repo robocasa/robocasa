@@ -29,7 +29,7 @@ class DessertAssembly(Kitchen):
         container = self.get_obj_lang("dessert1_container")
 
         ep_meta["lang"] = (
-            f"Pick up the {container} with {dessert1} and place them on the tray. "
+            f"Pick up the {container} with {dessert1} and place it on the tray. "
             "Pick up the cupcake and place it on the tray."
         )
 

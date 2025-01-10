@@ -33,7 +33,7 @@ class ServeSteak(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
             "Pick up the pan with the steak in it and place it on the dining table. "
-            "Then, place the steak on the plate."
+            "Then place the steak on the plate."
         )
         return ep_meta
 
@@ -50,8 +50,7 @@ class ServeSteak(Kitchen):
                     fixture=self.stove,
                     size=(0.05, 0.05),
                     ensure_object_boundary_in_range=False,
-                    try_to_place_in="container",
-                    container_group="pan",
+                    try_to_place_in="pan",
                 ),
             )
         )

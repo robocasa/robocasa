@@ -35,7 +35,7 @@ class SweetSavoryToastSetup(Kitchen):
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = (
-            "Pick the avocado and bread from the counter and place it on the plate. "
+            "Pick the avocado and bread from the counter and place them on the plate. "
             "Then pick the jam from the cabinet and place it next to the plate. "
             "Lastly, close the cabinet door."
         )

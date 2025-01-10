@@ -285,9 +285,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         self.translucent_robot = translucent_robot
         self.randomize_cameras = randomize_cameras
 
-        # intialize cameras
-        self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
-
         if isinstance(robots, str):
             robots = [robots]
 
@@ -296,6 +293,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             if robots[i] == "PandaMobile":
                 robots[i] = "PandaOmron"
         assert len(robots) == 1
+
+        # intialize cameras
+        self._cam_configs = CamUtils.get_robot_cam_configs(robots[0])
 
         # set up currently unused variables (used in robosuite)
         self.use_object_obs = use_object_obs
@@ -375,7 +375,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             print("layout: {}, style: {}".format(self.layout_id, self.style_id))
 
         # to be set later inside edit_model_xml function
-        self._curr_gen_fixtures = None
+        self._curr_gen_fixtures = self._ep_meta.get("gen_textures")
 
         # setup scene
         self.mujoco_arena = KitchenArena(
@@ -985,8 +985,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         Adds new kitchen-relevant cameras to the environment. Will randomize cameras if specified.
         """
-
-        self._cam_configs = deepcopy(CamUtils.CAM_CONFIGS)
+        self._cam_configs = CamUtils.get_robot_cam_configs(self.robots[0].name)
         if self.randomize_cameras:
             self._randomize_cameras()
 
@@ -1156,7 +1155,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         ):
             # sample textures
             assert self.generative_textures == "100p"
-            self._curr_gen_fixtures = get_random_textures(self.rng)
+            if self._curr_gen_fixtures is None or self._curr_gen_fixtures == {}:
+                self._curr_gen_fixtures = get_random_textures(self.rng)
 
             cab_tex = self._curr_gen_fixtures["cab_tex"]
             counter_tex = self._curr_gen_fixtures["counter_tex"]

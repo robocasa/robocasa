@@ -318,9 +318,15 @@ assert numpy.__version__ in [
 
 import robosuite
 
-assert robosuite.__version__ in [
-    "1.5.0"
-], "robosuite version must be 1.5.0. Please install the correct version"
+robosuite_version = [int(e) for e in robosuite.__version__.split(".")]
+robosuite_check = True
+if robosuite_version[0] < 1:
+    robosuite_check = False
+if robosuite_version[0] == 1 and robosuite_version[1] < 5:
+    robosuite_check = False
+assert (
+    robosuite_check
+), "robosuite version must be >=1.5.0. Please install the correct version"
 
 __version__ = "0.2.0"
 __logo__ = """
