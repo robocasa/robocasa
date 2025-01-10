@@ -108,7 +108,7 @@ def playback_trajectory_with_env(
 
         # video render
         if write_video:
-            if video_count % video_skip == 0:
+            if video_count % video_skip == 0 or i == traj_len - 1:
                 video_img = []
                 for cam_name in camera_names:
                     im = env.sim.render(
