@@ -132,8 +132,6 @@ async def main():
     base_prompt = load_prompt(prompt_path)
 
     base_prompt = base_prompt.replace("{ACTIVITY}", args.activity)
-    print(base_prompt)
-    exit()
 
     if not base_prompt:
         print("No valid prompt loaded. Exiting.")
