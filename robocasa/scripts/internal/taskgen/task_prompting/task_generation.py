@@ -119,6 +119,7 @@ async def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--prompt_path", type=str)
+    parser.add_argument("--activity", type=str, default="washing dishes")
     parser.add_argument("--output_dir", type=str, required=False, default="outputs")
 
     args = parser.parse_args()
@@ -129,6 +130,10 @@ async def main():
     # Load prompt template
     prompt_path = args.prompt_path
     base_prompt = load_prompt(prompt_path)
+
+    base_prompt = base_prompt.replace("{ACTIVITY}", args.activity)
+    print(base_prompt)
+    exit()
 
     if not base_prompt:
         print("No valid prompt loaded. Exiting.")
