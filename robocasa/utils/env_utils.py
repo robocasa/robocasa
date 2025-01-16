@@ -178,16 +178,18 @@ def compute_robot_base_placement_pose(env, ref_fixture, ref_object=None, offset=
         # for dining counters, can face either north of south end of fixture
         if ref_object is not None:
             # choose the end that is closest to the ref object
-            obj_pos = env.object_placements[ref_object][0]
-            abs_sites = ground_fixture.get_ext_sites(relative=False)
-            dist1 = np.linalg.norm(obj_pos - abs_sites[0])
-            dist2 = np.linalg.norm(obj_pos - abs_sites[2])
-            if dist1 < dist2:
-                face_dir = 1
-            else:
-                face_dir = -1
+            ref_point = env.object_placements[ref_object][0]
         else:
-            face_dir = env.rng.choice([-1, 1])
+            ### find the side closest to the ref fixture ###
+            ref_point = ref_fixture.pos
+
+        abs_sites = ground_fixture.get_ext_sites(relative=False)
+        dist1 = np.linalg.norm(ref_point - abs_sites[0])
+        dist2 = np.linalg.norm(ref_point - abs_sites[2])
+        if dist1 < dist2:
+            face_dir = 1
+        else:
+            face_dir = -1
 
     fixture_ext_sites = ground_fixture.get_ext_sites(relative=True)
     fixture_to_robot_offset = np.zeros(3)
