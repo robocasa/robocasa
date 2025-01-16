@@ -50,7 +50,6 @@ if __name__ == "__main__":
             for task in list(SINGLE_STAGE_TASK_DATASETS)
             + list(MULTI_STAGE_TASK_DATASETS)
         ]
-    print(ds_paths)
 
     for ds_i, ds_path in enumerate(ds_paths):
         # infer task name

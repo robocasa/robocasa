@@ -360,7 +360,7 @@ if __name__ == "__main__":
         "--device",
         type=str,
         default="spacemouse",
-        choices=["keyboard", "keyboardmobile", "spacemouse", "dummy"],
+        choices=["keyboard", "spacemouse"],
     )
     parser.add_argument(
         "--pos-sensitivity",

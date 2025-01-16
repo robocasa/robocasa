@@ -106,3 +106,20 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Counter) and "corner" not in fixture.name
     else:
         raise ValueError
+
+
+def is_fxtr_valid(env, fxtr, size):
+    """
+    checks if counter is valid for object placement by making sure it is large enough
+
+    Args:
+        fxtr (Fixture): fixture to check
+        size (tuple): minimum size (x,y) that the counter region must be to be valid
+
+    Returns:
+        bool: True if fixture is valid, False otherwise
+    """
+    for region in fxtr.get_reset_regions(env).values():
+        if region["size"][0] >= size[0] and region["size"][1] >= size[1]:
+            return True
+    return False
