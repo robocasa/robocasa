@@ -33,13 +33,14 @@ from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimi
 
 
 def is_empty_input_spacemouse(action_dict):
-    if (
-        np.all(action_dict["right_delta"] == 0)
-        and action_dict["base_mode"] == -1
-        and np.all(action_dict["base"] == 0)
-    ):
-        return True
-    return False
+    if not np.all(action_dict["right_delta"] == 0):
+        return False
+    if "base_mode" in action_dict and action_dict["base_mode"] != -1:
+        return False
+    if "base" in action_dict and not np.all(action_dict["base"] == 0):
+        return False
+
+    return True
 
 
 def collect_human_trajectory(
