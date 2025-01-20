@@ -3,6 +3,7 @@ import time
 import urllib.request
 from pathlib import Path
 from zipfile import ZipFile
+from threading import Thread, Event
 
 from termcolor import colored
 from tqdm import tqdm
@@ -163,6 +164,9 @@ def download_and_extract_zip(
             )
             download_success = True
             break
+        except KeyboardInterrupt:
+            abort()
+            return
         except:
             print("Error downloading after try #{}".format(i + 1))
 
@@ -170,16 +174,34 @@ def download_and_extract_zip(
         print("Failed to download. Try again...")
         return
 
-    print(colored("Extracting...", "yellow"))
-    with ZipFile(download_path, "r") as zip_ref:
-        # Extracting all the members of the zip
-        # into a specific location.
-        zip_ref.extractall(path=download_dir)
+    zips.append({"download_path": download_path, "download_dir": download_dir})
 
-    # delete zip file
-    os.remove(download_path)
 
-    print(colored("Done.\n", "yellow"))
+def wait_for_zips(zips):
+    while True:
+        for zipfile in zips:
+            fname = os.path.basename(zipfile["download_path"])
+            print(colored("\rExtracting %s..." % fname, "yellow"))
+            with ZipFile(zipfile["download_path"], "r") as zip_ref:
+                # Extracting all the members of the zip
+                # into a specific location.
+                zip_ref.extractall(path=zipfile["download_dir"])
+
+            # delete zip file
+            os.remove(zipfile["download_path"])
+            print(colored("\rDone extracting %s..." % fname, "yellow"))
+            zips.remove(zipfile)
+
+            if error.is_set():
+                break
+        if error.is_set() or (len(zips) == 0 and done.is_set()):
+            break
+        time.sleep(0.5)
+
+
+def abort():
+    error.set()
+    print("Aborting.")
 
 
 def download_kitchen_assets():
@@ -187,7 +209,7 @@ def download_kitchen_assets():
     if ans == "y":
         print("Proceeding...")
     else:
-        print("Aborting.")
+        abort()
         return
 
     for ds_name, config in DOWNLOAD_ASSET_REGISTRY.items():
@@ -197,4 +219,17 @@ def download_kitchen_assets():
 
 
 if __name__ == "__main__":
-    download_kitchen_assets()
+    # unpack zips in the background to speed up downloads
+    zips = []
+    done = Event()
+    error = Event()
+    t = Thread(target=wait_for_zips, args=(zips,))
+    t.start()
+
+    try:
+        download_kitchen_assets()
+    except KeyboardInterrupt:
+        abort()
+
+    # exit our thread
+    done.set()
