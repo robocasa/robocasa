@@ -192,7 +192,12 @@ def collect_human_trajectory(
 
 
 def gather_demonstrations_as_hdf5(
-    directory, out_dir, env_info, successful_episodes=None, verbose=False
+    directory,
+    out_dir,
+    env_info,
+    successful_episodes=None,
+    verbose=False,
+    out_name="demo.hdf5",
 ):
     """
     Gathers the demonstrations saved in @directory into a
@@ -216,7 +221,7 @@ def gather_demonstrations_as_hdf5(
             including controller and robot info
     """
 
-    hdf5_path = os.path.join(out_dir, "demo.hdf5")
+    hdf5_path = os.path.join(out_dir, out_name)
     print("Saving hdf5 to", hdf5_path)
     f = h5py.File(hdf5_path, "w")
 
@@ -480,9 +485,10 @@ if __name__ == "__main__":
     time_str = datetime.datetime.fromtimestamp(t_now).strftime("%Y-%m-%d-%H-%M-%S")
     time_str = f"{time_str}_{env_name}"
 
-    # make a new timestamped directory
-    demo_dir = os.path.join(args.directory, time_str)
-    os.makedirs(demo_dir)
+    if not args.debug:
+        # make a new timestamped directory
+        demo_dir = os.path.join(args.directory, time_str)
+        os.makedirs(demo_dir)
 
     if not args.debug:
         # wrap the environment with data collection wrapper
@@ -534,7 +540,13 @@ if __name__ == "__main__":
                 if not discard_traj:
                     successful_episodes.append(ep_directory.split("/")[-1])
 
-                gather_demonstrations_as_hdf5(ep_directory, ep_directory, env_info)
+                gather_demonstrations_as_hdf5(
+                    all_eps_directory,
+                    ep_directory,
+                    env_info,
+                    successful_episodes=[ep_directory.split("/")[-1]],
+                    out_name="ep_demo.hdf5",
+                )
 
             print("Episode success:", not discard_traj)
 
@@ -560,4 +572,5 @@ if __name__ == "__main__":
             )
             if hdf5_path is not None:
                 convert_to_robomimic_format(hdf5_path)
+                print(colored(f"\nDataset saved: {hdf5_path}", "green"))
         sys.exit(0)
