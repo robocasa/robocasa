@@ -237,6 +237,9 @@ from robocasa.environments.kitchen.multi_stage.washing_dishes.sorting_cleanup im
 from robocasa.environments.kitchen.multi_stage.washing_dishes.stack_bowls import (
     StackBowlsInSink,
 )
+from robocasa.environments.kitchen.multi_stage.washing_dishes.stack_plates import (
+    RinseAndStackPlates,
+)
 from robocasa.environments.kitchen.multi_stage.washing_fruits_and_vegetables.afterwash_sorting import (
     AfterwashSorting,
 )
