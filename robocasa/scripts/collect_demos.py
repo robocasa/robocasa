@@ -537,6 +537,9 @@ if __name__ == "__main__":
                 with open(os.path.join(ep_directory, "ep_stats.json"), "w") as file:
                     json.dump({"success": not discard_traj}, file)
 
+                with open(os.path.join(ep_directory, "env_info.json"), "w") as file:
+                    json.dump(env_info, file)
+
                 if not discard_traj:
                     successful_episodes.append(ep_directory.split("/")[-1])
 

@@ -10,6 +10,7 @@ import os
 import time
 from glob import glob
 import sys
+import traceback
 
 import h5py
 import imageio
@@ -24,6 +25,83 @@ from termcolor import colored
 import robocasa
 from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimic_format
 from robocasa.scripts.collect_demos import gather_demonstrations_as_hdf5
+from robosuite.controllers import load_composite_controller_config
+
+
+def merge_eps(session_folder):
+    all_eps_directory = os.path.join(session_folder, "episodes")
+
+    successful_episodes = []
+
+    env_info = None
+    for ep_name in os.listdir(all_eps_directory):
+        try:
+            ep_dir = os.path.join(all_eps_directory, ep_name)
+            with open(os.path.join(ep_dir, "ep_stats.json"), "r") as file:
+                ep_stats = json.load(file)
+
+            if ep_stats["success"]:
+                successful_episodes.append(ep_name)
+
+                if env_info is None:
+                    hdf5_matches = [
+                        f for f in os.listdir(ep_dir) if f.endswith(".hdf5")
+                    ]
+                    assert len(hdf5_matches) == 1
+                    ep_hdf5_path = os.path.join(ep_dir, hdf5_matches[0])
+                    f = h5py.File(ep_hdf5_path)
+                    env_info = f["data"].attrs["env_info"]
+        except:
+            continue
+
+    # if env_info is still None, infer it (hacky)
+    if env_info is None:
+        print(
+            colored(
+                f"[WARNING]: could not recover env_info. inferring best guess",
+                "magenta",
+            )
+        )
+        controller_config = load_composite_controller_config(
+            controller=None,
+            robot="PandaOmron",
+        )
+        controller_config["composite_controller_specific_configs"] = {
+            "body_part_ordering": ["right", "right_gripper", "base", "torso"]
+        }
+        env_name = session_folder.split("_")[-1]
+
+        # Create argument configuration
+        config = {
+            "env_name": env_name,
+            "robots": "PandaOmron",
+            "controller_configs": controller_config,
+        }
+
+        config["layout_ids"] = -1
+        config["style_ids"] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 11]
+        config["translucent_robot"] = True
+        config["obj_instance_split"] = "A"
+
+        env_info = json.dumps(config)
+
+    print(
+        colored(
+            f"Number of successful episodes scanned: {len(successful_episodes)}",
+            "yellow",
+        )
+    )
+    hdf5_path = gather_demonstrations_as_hdf5(
+        all_eps_directory,
+        session_folder,
+        env_info,
+        successful_episodes=successful_episodes,
+        verbose=True,
+        out_name="demo_posthoc.hdf5",
+    )
+    if hdf5_path is not None:
+        convert_to_robomimic_format(hdf5_path)
+        print(colored(f"Dataset saved: {hdf5_path}", "green"))
 
 
 if __name__ == "__main__":
@@ -36,36 +114,17 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    all_eps_directory = os.path.join(args.directory, "episodes")
+    all_session_folders = []
 
-    successful_episodes = []
+    for root, dirs, files in os.walk(args.directory):
+        for dir in dirs:
+            if dir == "episodes":
+                all_session_folders.append(root)
 
-    env_info = None
-    for ep_dir in os.listdir(all_eps_directory):
+    for session_folder in all_session_folders:
+        print(colored(f"\nMerging demos for {session_folder}", "yellow"))
         try:
-            with open(
-                os.path.join(all_eps_directory, ep_dir, "ep_stats.json"), "r"
-            ) as file:
-                ep_stats = json.load(file)
-
-            if ep_stats["success"]:
-                successful_episodes.append(ep_dir)
-
-                if env_info is None:
-                    f = h5py.File(
-                        os.path.join(all_eps_directory, ep_dir, "ep_demo.hdf5")
-                    )
-                    env_info = f["data"].attrs["env_info"]
-        except:
-            continue
-
-    hdf5_path = gather_demonstrations_as_hdf5(
-        all_eps_directory,
-        args.directory,
-        env_info,
-        successful_episodes=successful_episodes,
-        verbose=True,
-    )
-    if hdf5_path is not None:
-        convert_to_robomimic_format(hdf5_path)
-        print(colored(f"\nDataset saved: {hdf5_path}", "green"))
+            merge_eps(session_folder)
+        except Exception as e:
+            print("Exception!")
+            print(traceback.format_exc())
