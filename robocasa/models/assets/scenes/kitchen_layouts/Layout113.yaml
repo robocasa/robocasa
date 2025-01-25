@@ -2,15 +2,15 @@ room:
   walls:
     - name: wall_left_1
       type: wall
-      size: [2.518, 1.5, 0.02]
-      pos: [0.0, -2.518, 1.5]
+      size: [2.935, 1.5, 0.02]
+      pos: [0.0, -2.935, 1.5]
       wall_side: left
 
     - name: wall_left_1_backing
       type: wall
       backing: true
-      size: [2.518, 1.5, 0.1]
-      pos: [0.0, -2.518, 1.5]
+      size: [2.935, 1.5, 0.1]
+      pos: [0.0, -2.935, 1.5]
       wall_side: left
 
     - name: wall_main
@@ -27,28 +27,28 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [2.518, 1.5, 0.02]
-      pos: [5.667, -2.518, 1.5]
+      size: [2.935, 1.5, 0.02]
+      pos: [5.667, -2.935, 1.5]
       wall_side: right
 
     - name: wall_right_1_backing
       type: wall
       backing: true
-      size: [2.518, 1.5, 0.1]
-      pos: [5.667, -2.518, 1.5]
+      size: [2.935, 1.5, 0.1]
+      pos: [5.667, -2.935, 1.5]
       wall_side: right
 
   floor:
     - name: floor_1
       type: floor
-      size: [2.833, 2.518, 0.02]
-      pos: [2.833, -2.518, 0.0]
+      size: [2.833, 2.935, 0.02]
+      pos: [2.833, -2.935, 0.0]
 
     - name: floor_1_backing
       type: floor
       backing: true
-      size: [2.833, 2.518, 0.1]
-      pos: [2.833, -2.518, 0.0]
+      size: [2.833, 2.935, 0.1]
+      pos: [2.833, -2.935, 0.0]
 
   wall_accessories:
     - name: wallaccessory.005
@@ -168,13 +168,13 @@ main_group_1:
       percentages: [1]
 
   top_row:
-    - name: panelbox.005_panel_box
-      type: stack
+    - name: microabove_hingecabinet
+      type: hinge_cabinet
       size: [0.769, 0.4, 0.562]
       pos: [0.783, -0.203, 2.018]
-      levels: [panel_cabinet]
-      percentages: [1]
-      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+      # levels: [panel_cabinet]
+      # percentages: [1]
+      # configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: singlecabinet_1.003
       type: single_cabinet
@@ -191,23 +191,21 @@ main_group_1:
       pos: [4.661, -0.203, 1.839]
       size: [1.212, 0.4, 0.92]
 
-    - name: panelbox.004_panel_box
-      type: stack
+    - name: cabinet_corner_box
+      type: box
       size: [0.4, 0.4, 0.92]
       pos: [5.467, -0.203, 1.839]
-      levels: [panel_cabinet]
-      percentages: [1]
-      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: microwave_1
       type: microwave
       size: [0.769, 0.4, 0.358]
-
-    - name: microwave_1_housing
-      type: housing_cabinet
-      interior_obj: microwave_1
-      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
       pos: [0.783, -0.203, 1.558]
+
+    # - name: microwave_1_housing
+    #   type: housing_cabinet
+    #   interior_obj: microwave_1
+    #   padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+    #   pos: [0.783, -0.203, 1.558]
 
 left_group_1:
   group_origin: [0, 0]
@@ -218,18 +216,6 @@ left_group_1:
       type: counter
       pos: [-1.222, -0.45, 0.46]
       size: [1.144, 0.65, 0.92]
-
-    - name: counter_1.002
-      type: counter
-      pos: [-4.183, -0.45, 0.46]
-      size: [1.706, 0.65, 0.92]
-
-    - name: stack_1.007
-      type: stack
-      pos: [-3.618, -0.45, 0.47]
-      size: [0.577, 0.65, 0.84]
-      levels: [drawer, drawer, drawer]
-      percentages: [0.5, 0.25, 0.25]
 
     - name: stack_1.011
       type: stack
@@ -245,17 +231,16 @@ left_group_1:
       levels: [hinge_cabinet]
       percentages: [1]
 
-    - name: stack_1.003
-      type: stack
-      pos: [-4.471, -0.45, 0.47]
-      size: [1.13, 0.65, 0.84]
-      levels: [hinge_cabinet]
-      percentages: [1]
+    - name: framedwindow.001
+      type: framed_window
+      num_windows: 3
+      pos: [-2.362, -5.768, 1.72]
+      size: [1.228, 0.05, 1.017]
 
     - name: stove_1
       type: stove
       # pos: [-2.178, -0.45, 0.46]
-      size: [0.768, 0.65, null]
+      size: [null, 0.65, null]
       align_to: counter_1.001
       side: left
       alignment: top_back
@@ -267,25 +252,57 @@ left_group_1:
       align_to: stove_1
       side: top
 
-    - name: stove_1.001
-      type: stove
-      # pos: [-2.946, -0.45, 0.46]
-      size: [0.768, 0.65, null]
-      align_to: counter_1.002
-      side: right
-      alignment: top_back
+    # - name: stove_1.001
+    #   type: stove
+    #   # pos: [-2.946, -0.45, 0.46]
+    #   size: [null, 0.65, null]
+    #   align_to: stove_1
+    #   side: left
+    #   alignment: bottom_back
 
-    - name: hood_1.001
-      type: hood
-      size: [stove_1.001, 0.65, null]
-      offset: [0, 0, 0.75]
-      align_to: stove_1.001
-      side: top
+    # - name: hood_1.001
+    #   type: hood
+    #   size: [stove_1.001, 0.65, null]
+    #   offset: [0, 0, 0.75]
+    #   align_to: stove_1.001
+    #   side: top
+    
+    - name: counter_1.002
+      type: counter
+      # pos: [-4.183, -0.45, 0.46]
+      align_to: stove_1
+      side: left
+      alignment: top_back
+      offset: [0, 0, 0.02]
+      size: [1.706, 0.65, 0.92]
+    
+    - name: stack_1.007
+      type: stack
+      # pos: [-3.618, -0.45, 0.47]
+      align_to: stove_1
+      side: left
+      alignment: top_back
+      size: [0.577, 0.65, 0.84]
+      levels: [drawer, drawer, drawer]
+      percentages: [0.5, 0.25, 0.25]
+
+    - name: stack_1.003
+      type: stack
+      # pos: [-4.471, -0.45, 0.47]
+      align_to: stack_1.007
+      side: left
+      alignment: top_back
+      size: [1.13, 0.65, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
 
   top_row.001:
     - name: opencabinet_1.002
       type: open_cabinet
-      pos: [-4.324, -0.32, 1.839]
+      # pos: [-4.324, -0.32, 1.839]
+      align_to: counter_1.002
+      side: top
+      offset: [0, 0.2, 0.4519] # 1.839 - 0.92- 0.46
       size: [1.425, 0.4, 0.92]
 
     - name: opencabinet_1.001
@@ -300,7 +317,7 @@ right_group_1:
   bottom_row.002:
     - name: counter_1.006
       type: counter
-      pos: [1.947, -0.332, 0.46]
+      pos: [1.876, -0.332, 0.46]
       size: [2.453, 0.65, 0.92]
 
     - name: stack_1.008
@@ -344,62 +361,62 @@ stool_group_1:
   stool_row:
     - name: stool_1_001
       type: stool
-      pos: [-0.587, 2.309, 0.5]
+      pos: [-0.522, 2.53, 0.5]
 
     - name: stool_1_002
       type: stool
-      pos: [-1.129, 2.309, 0.5]
+      pos: [-1.063, 2.53, 0.5]
 
     - name: stool_1_003
       type: stool
-      pos: [-1.667, 2.309, 0.5]
+      pos: [-1.601, 2.53, 0.5]
 
 island_group:
   group_origin: [0, 0]
-  group_pos: [3.884, -3.784]
+  group_pos: [3.73, -3.969]
   group_z_rot: 3.1415925661670165
   island_bottom_row:
     - name: panelbox_panel_box
       type: stack
-      size: [0.192, 2.039, 0.84]
-      pos: [0.096, -1.02, 0.47]
+      size: [0.174, 2.039, 0.84]
+      pos: [0.087, -1.02, 0.47]
       levels: [panel_cabinet]
       percentages: [1]
       configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: panelbox.001_panel_box
       type: stack
-      size: [0.192, 2.039, 0.84]
-      pos: [1.882, -1.02, 0.47]
+      size: [0.174, 2.039, 0.84]
+      pos: [1.713, -1.02, 0.47]
       levels: [panel_cabinet]
       percentages: [1]
       configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: panelbox.002_panel_box
       type: stack
-      size: [1.977, 0.219, 0.84]
-      pos: [0.989, -1.023, 0.47]
+      size: [1.8, 0.219, 0.84]
+      pos: [0.9, -1.023, 0.47]
       levels: [panel_cabinet]
       percentages: [1]
       configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: stack_1.016
       type: stack
-      pos: [0.638, -1.714, 0.47]
-      size: [0.894, 0.65, 0.84]
+      pos: [0.581, -1.714, 0.47]
+      size: [0.814, 0.65, 0.84]
       levels: [hinge_cabinet]
       percentages: [1]
 
     - name: stack_1.017
       type: stack
-      pos: [1.435, -1.714, 0.47]
-      size: [0.701, 0.65, 0.84]
+      pos: [1.307, -1.714, 0.47]
+      size: [0.638, 0.65, 0.84]
       levels: [hinge_cabinet]
       percentages: [1]
 
     - name: island
       type: counter
       default_config_name: island
-      pos: [0.989, -1.02, 0.46]
-      size: [1.977, 2.039, 0.92]
+      pos: [0.9, -1.02, 0.46]
+      size: [1.8, 2.039, 0.92]
       base_opening: [False, True]

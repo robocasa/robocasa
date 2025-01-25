@@ -92,19 +92,19 @@ room:
       pos: [0.325, -3.272, 1.5]
       wall_side: front
 
-    - name: wall_front_1.002
-      type: wall
-      size: [1.033, 1.5, 0.02]
-      pos: [3.115, -3.272, 1.5]
-      wall_side: front
+    # - name: wall_front_1.002
+    #   type: wall
+    #   size: [1.033, 1.5, 0.02]
+    #   pos: [3.115, -3.272, 1.5]
+    #   wall_side: front
 
-    - name: wall_front_1.002_backing
-      type: wall
-      backing: true
-      backing_extended: [False, True]
-      size: [1.033, 1.5, 0.1]
-      pos: [3.115, -3.272, 1.5]
-      wall_side: front
+    # - name: wall_front_1.002_backing
+    #   type: wall
+    #   backing: true
+    #   backing_extended: [False, True]
+    #   size: [1.033, 1.5, 0.1]
+    #   pos: [3.115, -3.272, 1.5]
+    #   wall_side: front
 
   floor:
     - name: floor_1
@@ -285,13 +285,64 @@ main_group_3:
   group_origin: [0, 0]
   group_pos: [1.542, 0.0]
   group_z_rot: 0.0
+
+  bottom_row_001:
+    - name: counter_corner_1
+      type: counter
+      pos: [2.281, -0.325, 0.46]
+      size: [0.65, 0.65, 0.92]
+      hollow: [False, False]
+
+    - name: stove_1.001
+      type: stove
+      # pos: [1.448, -0.325, 0.46]
+      size: [null, 0.65, null]
+      align_to: counter_corner_1
+      side: left
+      alignment: top_back
+
+  
+  top_row.002:
+    - name: singlecabinet_1.005
+      type: single_cabinet
+      pos: [2.081, -0.2, 1.839]
+      size: [0.25, 0.4, 0.92]
+
+    - name: microwave_1
+      type: microwave
+      size: [stove_1.001, 0.45, null]
+      # pos: [1.448, -0.2, 1.578]
+      align_to: stove_1.001
+      side: top
+      alignment: back
+      offset: [0, 0, 0.45]
+
+    - name: hingecabinet_1.003
+      type: hinge_cabinet
+      # pos: [1.448, -0.2, 2.044]
+      size: [microwave_1, 0.4, null]
+      align_to: microwave_1
+      side: top
+      alignment: back
+      stack_height: 0.932
+      stack_fixtures: [microwave_1]
+
+    - name: cabcorner
+      type: box
+      size: [0.4, 0.4, 0.92]
+      pos: [2.406, -0.2, 1.839]
+
   bottom_row_cabinets.002:
     - name: qianrugui_bottom
       type: stack
       levels: [drawer]
       percentages: [1]
-      pos: [0.554, -0.325, 0.15]
+      # pos: [0.554, -0.325, 0.15]
       size: [0.774, 0.65, 0.3]
+      align_to: stove_1.001
+      alignment: bottom_back
+      side: left
+      offset: [0, 0, -0.03]
 
     - name: qianrugui_oven
       type: oven
@@ -325,49 +376,8 @@ main_group_3:
       align_to: qianrugui_microwave_housing
       alignment: front
       side: top
-      stack_height: 2.298609733581543
+      stack_height: 2.28
       stack_fixtures: [qianrugui_bottom, qianrugui_oven_housing, qianrugui_microwave_housing]
-
-    - name: counter_corner_1
-      type: counter
-      pos: [2.281, -0.325, 0.46]
-      size: [0.65, 0.65, 0.92]
-      hollow: [False, False]
-
-  top_row.002:
-    - name: hingecabinet_1.003
-      type: hinge_cabinet
-      pos: [1.448, -0.2, 2.044]
-      size: [1.016, 0.4, 0.51]
-
-    - name: singlecabinet_1.005
-      type: single_cabinet
-      pos: [2.081, -0.2, 1.839]
-      size: [0.25, 0.4, 0.92]
-
-    - name: microwave_1
-      type: microwave
-      size: [1.016, 0.359, 0.422]
-
-    - name: microwave_1_housing
-      type: housing_cabinet
-      interior_obj: microwave_1
-      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-      pos: [1.448, -0.2, 1.578]
-
-    - name: cabcorner_cab_corner
-      type: box
-      size: [0.4, 0.4, 0.92]
-      pos: [2.406, -0.2, 1.839]
-
-  bottom_row_001:
-    - name: stove_1.001
-      type: stove
-      # pos: [1.448, -0.325, 0.46]
-      size: [1.016, 0.65, null]
-      align_to: counter_corner_1
-      side: left
-      alignment: top_back
 
 island_group_1:
   group_origin: [0, 0]
@@ -378,7 +388,7 @@ island_group_1:
       type: stack
       pos: [0.236, 0.325, 0.47]
       size: [0.472, 0.65, 0.84]
-      levels: [single_cabinet, [drawer, drawer]]
+      levels: [hinge_cabinet, [drawer, drawer]]
       percentages: [0.75, 0.25]
 
     - name: stack_1.006

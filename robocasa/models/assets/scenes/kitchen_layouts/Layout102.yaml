@@ -227,22 +227,6 @@ left_group_1:
   group_pos: [0.0, -6.034]
   group_z_rot: 1.5707962925663537
   bottom_row.001:
-    - name: counter_1.003
-      type: counter
-      pos: [2.669, -0.325, 0.46]
-      size: [0.786, 0.65, 0.92]
-
-    - name: stack_1.006
-      type: stack
-      pos: [2.669, -0.325, 0.47]
-      size: [0.786, 0.65, 0.84]
-      levels: [drawer, drawer, drawer]
-      percentages: [0.34, 0.34, 0.32]
-
-    - name: counter_1.004
-      type: counter
-      pos: [5.11, -0.325, 0.46]
-      size: [0.548, 0.65, 0.92]
 
     - name: stack_1.007
       type: stack
@@ -250,6 +234,48 @@ left_group_1:
       size: [0.548, 0.65, 0.84]
       levels: [single_cabinet]
       percentages: [1]
+
+    - name: counter_1.004
+      type: counter
+      pos: [5.11, -0.325, 0.46]
+      size: [0.548, 0.65, 0.92]
+      # align_to: stove
+      # side: right
+      # alignment: top_back
+      
+
+    - name: stove
+      type: stove
+      # pos: [3.949, -0.325, 0.46]
+      size: [null, 0.65, null]
+      align_to: counter_1.004
+      side: left
+      alignment: top_back
+
+    - name: hood
+      type: hood
+      size: [stove, 0.6, null]
+      offset: [0, 0, 0.75]
+      align_to: stove
+      side: top
+
+    - name: counter_1.003
+      type: counter
+      # pos: [2.669, -0.325, 0.46]
+      size: [0.786, 0.65, 0.92]
+      align_to: stove
+      side: left
+      alignment: top_back
+    
+    - name: stack_1.006
+      type: stack
+      # pos: [2.669, -0.325, 0.47]
+      size: [0.786, 0.65, 0.84]
+      levels: [drawer, drawer, drawer]
+      percentages: [0.34, 0.34, 0.32]
+      align_to: stove
+      side: left
+      alignment: bottom_back
 
     - name: fridge_1
       type: fridge
@@ -259,43 +285,21 @@ left_group_1:
       type: housing_cabinet
       interior_obj: fridge_1
       padding: [[0.35, 0.35], [-0.04, 0.02], [0, 0.15]]
-      pos: [1.27, -0.325, 1.149]
-
-    - name: stove
-      type: stove
-      # pos: [4.393, -0.325, 0.46]
-      size: [0.887, 0.65, null]
-      align_to: counter_1.004
+      # pos: [1.27, -0.325, 1.149]
+      align_to: stack_1.006
       side: left
-      alignment: top_back
-
-    - name: stove_hood
-      type: hood
-      size: [stove, 0.6, null]
-      offset: [0, 0, 0.75]
-      align_to: stove
-      side: top
-
-    - name: stove.001
-      type: stove
-      # pos: [3.506, -0.325, 0.46]
-      size: [0.887, 0.65, null]
-      align_to: stove
-      side: left
-      alignment: top_back
-
-    - name: stove.001_hood
-      type: hood
-      size: [stove.001, 0.6, null]
-      offset: [0, 0, 0.75]
-      align_to: stove.001
-      side: top
+      alignment: bottom_back
+      offset: [0, 0, -0.2]
+      
 
   top_row.001:
     - name: singlecabinet_2.003
       type: single_cabinet
-      pos: [2.669, -0.2, 1.839]
+      # pos: [2.669, -0.2, 1.839]
       size: [0.786, 0.4, 0.92]
+      align_to: fridge_1_housing
+      side: right
+      alignment: top_back
 
     - name: singlecabinet_1.004
       type: single_cabinet
@@ -459,15 +463,21 @@ island_group_1:
       levels: [hinge_cabinet, drawer]
       percentages: [0.75, 0.25]
 
-    - name: box_2
-      type: box
+    - name: panelbox_2
+      type: stack
       size: [0.116, 0.785, 0.84]
-      pos: [-3.664, 0.392, 0.42]
+      pos: [-3.664, 0.392, 0.47]
+      levels: [panel_cabinet]
+      percentages: [1]
+      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
-    - name: box_1
-      type: box
+    - name: panelbox_1
+      type: stack
       size: [0.116, 0.785, 0.84]
-      pos: [-0.674, 0.392, 0.42]
+      pos: [-0.674, 0.392, 0.47]
+      levels: [panel_cabinet]
+      percentages: [1]
+      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: box_3
       type: box
