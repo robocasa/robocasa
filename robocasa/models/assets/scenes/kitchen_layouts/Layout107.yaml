@@ -184,43 +184,63 @@ main_group_1:
   top_row:
     - name: hingecabinet_1.001
       type: hinge_cabinet
-      pos: [0.806, -0.203, 1.839]
+      pos: [0.806, -0.203, 1.89]
       size: [0.812, 0.4, 0.92]
 
     - name: cabcorner.001_cab_corner
       type: box
       size: [0.4, 0.4, 0.92]
-      pos: [0.2, -0.203, 1.839]
+      pos: [0.2, -0.203, 1.89]
 
     - name: hingecabinet_1.006
       type: hinge_cabinet
-      pos: [1.618, -0.203, 1.839]
+      pos: [1.618, -0.203, 1.89]
       size: [0.812, 0.4, 0.92]
 
     - name: singlecabinet_1.007
       type: single_cabinet
-      pos: [2.229, -0.203, 1.839]
+      pos: [2.229, -0.203, 1.89]
       size: [0.41, 0.4, 0.92]
 
     - name: hingecabinet_1.008
       type: hinge_cabinet
-      pos: [3.681, -0.203, 1.839]
+      pos: [3.681, -0.203, 1.89]
       size: [0.753, 0.4, 0.92]
 
     - name: hingecabinet_1.009
       type: hinge_cabinet
-      pos: [4.459, -0.203, 1.839]
+      pos: [4.459, -0.203, 1.89]
       size: [0.802, 0.4, 0.92]
 
     - name: singlecabinet_1.010
       type: single_cabinet
-      pos: [5.071, -0.203, 1.839]
+      pos: [5.071, -0.203, 1.89]
       size: [0.422, 0.4, 0.92]
 
     - name: cabcorner.002_cab_corner
       type: box
       size: [0.395, 0.4, 0.92]
-      pos: [5.479, -0.203, 1.839]
+      pos: [5.479, -0.203, 1.89]
+
+  counter_accessories:
+    - name: coffee_machine
+      type: coffee_machine
+      placement:
+        fixture: counter_1.002
+        size: [1.0, 0.52]
+        pos: [null, 1.0]
+        rotation: [0, 0]
+        margin: 0.0
+
+  counter_accessories:
+    - name: coffee_machine
+      type: coffee_machine
+      placement:
+        fixture: counter_1.002
+        size: [1.0, 0.52]
+        pos: [null, 1.0]
+        rotation: [0, 0]
+        margin: 0.0
 
 left_group_1:
   group_origin: [0, 0]
@@ -239,63 +259,75 @@ left_group_1:
       levels: [drawer, drawer, drawer]
       percentages: [0.34, 0.33, 0.33]
 
+    - name: bottom
+      type: stack
+      levels: [drawer]
+      percentages: [1]
+      pos: [3.378, -0.325, 0.2]
+      size: [0.802, 0.65, 0.3]
+
+    - name: oven
+      type: oven
+      size: [0.702, 0.65, 0.68]
+
+    - name: oven_housing
+      type: housing_cabinet
+      size: [0.802, 0.65, 0.7]
+      padding: [null, [-0.01, null], null]
+      align_to: bottom
+      alignment: front
+      side: top
+      interior_obj: oven
+
+    - name: microwave
+      type: microwave
+      size: [0.702, 0.65, null]
+
+    - name: microwave_housing
+      type: housing_cabinet
+      size: [0.802, 0.65, 0.55]
+      padding: [null, [-0.01, null], null]
+      align_to: oven_housing
+      alignment: front
+      side: top
+      interior_obj: microwave
+
+    - name: top
+      type: hinge_cabinet
+      size: [0.802, 0.65, null]
+      align_to: microwave_housing
+      alignment: front
+      side: top
+      stack_height: 2.3
+      stack_fixtures: [bottom, oven_housing, microwave_housing]
+
     - name: fridge_1
       type: fridge
-      size: [1.301, 0.65, 2.299]
+      size: [1.301, 0.65, 2.28]
 
     - name: fridge_1_housing
       type: housing_cabinet
       interior_obj: fridge_1
       padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-      pos: [2.307, -0.325, 1.149]
-
-    - name: qianrugui.002_bottom
-      type: stack
-      levels: [drawer]
-      percentages: [1]
-      pos: [3.378, -0.325, 0.15]
-      size: [0.802, 0.65, 0.3]
-
-    - name: qianrugui.002_oven
-      type: oven
-      size: [0.702, 0.65, 0.68]
-
-    - name: qianrugui.002_oven_housing
-      type: housing_cabinet
-      size: [0.802, 0.65, 0.7]
-      padding: [null, [-0.01, null], null]
-      align_to: qianrugui.002_bottom
-      alignment: front
-      side: top
-      interior_obj: qianrugui.002_oven
-
-    - name: qianrugui.002_microwave
-      type: microwave
-      size: [0.702, 0.65, null]
-
-    - name: qianrugui.002_microwave_housing
-      type: housing_cabinet
-      size: [0.802, 0.65, 0.55]
-      padding: [null, [-0.01, null], null]
-      align_to: qianrugui.002_oven_housing
-      alignment: front
-      side: top
-      interior_obj: qianrugui.002_microwave
-
-    - name: qianrugui.002_top
-      type: hinge_cabinet
-      size: [0.802, 0.65, null]
-      align_to: qianrugui.002_microwave_housing
-      alignment: front
-      side: top
-      stack_height: 2.298609733581543
-      stack_fixtures: [qianrugui.002_bottom, qianrugui.002_oven_housing, qianrugui.002_microwave_housing]
+      # pos: [2.307, -0.325, 1.149]
+      align_to: bottom
+      side: left
+      alignment: bottom_back
 
   top_row.001:
     - name: hingecabinet_1.005
       type: hinge_cabinet
-      pos: [4.312, -0.2, 1.839]
+      pos: [4.312, -0.2, 1.89]
       size: [1.065, 0.4, 0.92]
+  
+  counter_accessories:
+    - name: toaster
+      type: toaster
+      placement:
+        fixture: counter_1.003
+        size: [1.0, 0.40]
+        pos: [1.0, 0]
+        rotation: [0, 0]
 
 right_group_1:
   group_origin: [0, 0]
@@ -372,13 +404,22 @@ right_group_1:
   top_row.002:
     - name: opencabinet_1.001
       type: open_cabinet
-      pos: [0.771, -0.198, 1.839]
+      pos: [0.771, -0.198, 1.89]
       size: [0.735, 0.395, 0.92]
 
     - name: opencabinet_1.002
       type: open_cabinet
-      pos: [3.574, -0.198, 1.839]
+      pos: [3.574, -0.198, 1.89]
       size: [0.735, 0.395, 0.92]
+
+  counter_accessories:
+    - name: knife_block
+      type: knife_block
+      placement:
+        fixture: counter_1.007
+        size: [1.0, obj]
+        pos: [1.0, 1.0]
+        rotation: [0, 0]
 
 island_group_1:
   group_origin: [0, 0]
@@ -415,6 +456,15 @@ island_group_1:
       size: [0.611, 0.65, 0.84]
       levels: [drawer, drawer]
       percentages: [0.5, 0.5]
+
+  counter_accessories:
+    - name: paper_towel
+      type: paper_towel
+      placement:
+        fixture: counter_1.005
+        size: [1.0, 0.40]
+        pos: [null, 1.0]
+        rotation: [0, 0]
 
 stool_group_1:
   group_origin: [0, 0]
