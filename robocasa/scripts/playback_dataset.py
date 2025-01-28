@@ -3,13 +3,13 @@ import json
 import os
 import random
 import time
-
 import h5py
 import imageio
 import numpy as np
-import robosuite
 from termcolor import colored
+import traceback
 
+import robosuite
 import robocasa
 
 
@@ -552,20 +552,34 @@ def get_playback_args():
 
 if __name__ == "__main__":
     args = get_playback_args()
-    playback_dataset(
-        dataset=args.dataset,
-        use_actions=args.use_actions,
-        use_abs_actions=args.use_abs_actions,
-        use_obs=args.use_obs,
-        filter_key=args.filter_key,
-        n=args.n,
-        render=args.render,
-        render_image_names=args.render_image_names,
-        camera_height=args.camera_height,
-        camera_width=args.camera_width,
-        video_path=args.video_path,
-        video_skip=args.video_skip,
-        extend_states=args.extend_states,
-        first=args.first,
-        verbose=args.verbose,
-    )
+    dataset_list = []
+    if os.path.isdir(args.dataset):
+        for root, dirs, files in os.walk(args.dataset):
+            for file in files:
+                if file == "demo.hdf5":
+                    dataset_list.append(os.path.join(root, file))
+    else:
+        dataset_list = [args.dataset]
+
+    for dataset in dataset_list:
+        try:
+            playback_dataset(
+                dataset=dataset,
+                use_actions=args.use_actions,
+                use_abs_actions=args.use_abs_actions,
+                use_obs=args.use_obs,
+                filter_key=args.filter_key,
+                n=args.n,
+                render=args.render,
+                render_image_names=args.render_image_names,
+                camera_height=args.camera_height,
+                camera_width=args.camera_width,
+                video_path=args.video_path,
+                video_skip=args.video_skip,
+                extend_states=args.extend_states,
+                first=args.first,
+                verbose=args.verbose,
+            )
+        except Exception as e:
+            print("Exception!")
+            print(traceback.format_exc())

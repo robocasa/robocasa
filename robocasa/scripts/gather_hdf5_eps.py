@@ -11,6 +11,7 @@ import time
 from glob import glob
 import sys
 import traceback
+import shutil
 
 import h5py
 import imageio
@@ -91,13 +92,21 @@ def merge_eps(session_folder):
             "yellow",
         )
     )
+
+    # copy demo.hdf5 -> demo_orig.hdf5, if the latter doesn't currently exist
+    if not os.path.exists(os.path.join(session_folder, "demo_orig.hdf5")):
+        shutil.copy(
+            os.path.join(session_folder, "demo.hdf5"),
+            os.path.join(session_folder, "demo_orig.hdf5"),
+        )
+
     hdf5_path = gather_demonstrations_as_hdf5(
         all_eps_directory,
         session_folder,
         env_info,
         successful_episodes=successful_episodes,
         verbose=True,
-        out_name="demo_posthoc.hdf5",
+        out_name="demo.hdf5",
     )
     if hdf5_path is not None:
         convert_to_robomimic_format(hdf5_path)
