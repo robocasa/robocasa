@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="model">
+    <compiler angle="radian" />
+    <asset>
+        <mesh file="visuals/FoodMixer001_Lid001.obj" name="FoodMixer001_Lid_vis" />
+        <mesh file="visuals/FoodMixer001_Knob001.obj" name="FoodMixer001_Knob001_vis" />
+        <mesh file="visuals/FoodMixer001_Container001.obj" name="FoodMixer001_Container_vis" />
+        <mesh file="visuals/FoodMixer001_Rotate001.obj" name="FoodMixer001_Rotate_vis" />
+        <mesh file="visuals/FoodMixer001_Knob002.obj" name="FoodMixer001_Knob002_vis" />
+        <mesh file="visuals/FoodMixer001_Button001.obj" name="FoodMixer001_Button_vis" />
+        <mesh file="visuals/FoodMixer001_Body001.obj" name="FoodMixer001_Body_vis" />
+        <texture file="visuals/T_FoodMixer001_BC001.png" name="T_FoodMixer001_BC" type="2d" />
+        <material name="material" rgba="1 1 1 1" texture="T_FoodMixer001_BC" />
+    </asset>
+    <default>
+        <default class="visual">
+            <geom conaffinity="0" contype="0" group="1" type="mesh" />
+        </default>
+        <default class="collision">
+            <geom group="0" rgba="0.5 0 0 0.5" />
+        </default>
+    </default>
+    <worldbody>
+        <body>
+            <site rgba="0 0 0 1" size="0.01" pos="-0.14379901951178908 -0.27522455900907516 0" name="ext_p0" />
+            <site rgba="1 0 0 1" size="0.01" pos="0.139857339207083 -0.27522455900907516 0" name="ext_px" />
+            <site rgba="0 1 0 1" size="0.01" pos="-0.14379901951178908 0.1963280811905861 0" name="ext_py" />
+            <site rgba="0 0 1 1" size="0.01" pos="-0.14379901951178908 -0.27522455900907516 0.4751782864332199" name="ext_pz" />
+            <body name="object">
+                <geom mesh="FoodMixer001_Body_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                <geom class="collision" type="box" pos="-0.0015425285091623664 0.001505821943283081 0.02924015372991562" size="0.1947782039642334 0.10231997817754745 0.02692364901304245" quat="0.7071067690849304 0.0 -0.0 -0.7071067690849304" />
+                <geom class="collision" type="cylinder" pos="-0.0015425384044647217 -0.13211378455162048 0.02916795015335083" size="0.1292576938867569 0.02709665149450302" quat="0.7071067690849304 0.0 -0.0 -0.7071067690849304" />
+                <geom class="collision" type="box" pos="-0.0015425384044647217 0.09347827732563019 0.15110759437084198" size="0.07416939735412598 0.07416940480470657 0.09849457442760468" quat="0.7071067690849304 0.0 -0.0 -0.7071067690849304" />
+                <body name="FoodMixer001_Button">
+                    <joint axis="-1 0 0" pos="0.07402005046606064 0.11086869984865189 0.22917325794696808" limited="true" name="FoodMixer001_Button_joint" range="0.0 0.002" type="slide" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="FoodMixer001_Button_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <geom class="collision" type="box" pos="0.08268392086029053 0.11086530983448029 0.22953137755393982" size="0.011952424421906471 0.005380550865083933 0.007075777743011713" quat="0.5000000596046448 -0.5 -0.5 -0.4999999701976776" />
+                </body>
+                <body name="FoodMixer001_Container">
+                    <joint axis="0 0 1" pos="-0.001966622890904546 -0.1334008127450943 0.05936579406261444" limited="true" name="FoodMixer001_Container_joint" range="0.0 0.02" type="slide" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="FoodMixer001_Container_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <geom class="collision" type="cylinder" pos="-0.001966625452041626 -0.1334008127450943 0.0681685134768486" size="0.10042183101177216 0.010085941292345524" quat="0.7071067690849304 0.0 -0.0 -0.7071067690849304" />
+                    <geom class="collision" type="cylinder" pos="0.06330908834934235 -0.24866095185279846 0.1696876585483551" size="0.014615054242312908 0.09909340739250183" quat="0.9230777621269226 0.0 -0.0 -0.38461342453956604" />
+                    <geom class="collision" type="cylinder" pos="0.1019730418920517 -0.2155127227306366 0.1696876585483551" size="0.014615053310990334 0.09909340739250183" quat="0.9797985553741455 0.0 -0.0 -0.19998711347579956" />
+                    <geom class="collision" type="cylinder" pos="0.12576672434806824 -0.1684723198413849 0.1696876585483551" size="0.014615049585700035 0.09909340739250183" quat="0.999999463558197 0.0 -0.0 -0.0010215041693300009" />
+                    <geom class="collision" type="cylinder" pos="0.12955842912197113 -0.1176852136850357 0.1696876585483551" size="0.014615051448345184 0.09909340739250183" quat="0.9815438389778137 0.0 0.0 0.19123737514019012" />
+                    <geom class="collision" type="cylinder" pos="0.11336428672075272 -0.06825023144483566 0.1696876585483551" size="0.014615047723054886 0.09909340739250183" quat="0.9248837232589722 0.0 0.0 0.38025006651878357" />
+                    <geom class="collision" type="cylinder" pos="0.08025802671909332 -0.029550328850746155 0.17685510218143463" size="0.014615051448345184 0.09168741106987" quat="0.8345335125923157 0.0 0.0 0.550957202911377" />
+                    <geom class="collision" type="cylinder" pos="0.03404930606484413 -0.013198982924222946 0.20268628001213074" size="0.014569642953574657 0.06479465961456299" quat="0.7104380130767822 0.0 0.0 0.7037597894668579" />
+                    <geom class="collision" type="cylinder" pos="-0.015409907326102257 -0.01053121592849493 0.20322397351264954" size="0.013327748514711857 0.06522424519062042" quat="-0.5618961453437805 -0.0 0.0 -0.8272077441215515" />
+                    <geom class="collision" type="cylinder" pos="-0.066881462931633 -0.017937082797288895 0.19791331887245178" size="0.014615051448345184 0.069928377866745" quat="-0.38605669140815735 -0.0 0.0 -0.9224750399589539" />
+                    <geom class="collision" type="cylinder" pos="-0.10564891993999481 -0.05096421763300896 0.1696876585483551" size="0.014615059830248356 0.09909340739250183" quat="-0.2015194147825241 -0.0 0.0 -0.979484498500824" />
+                    <geom class="collision" type="cylinder" pos="-0.12804153561592102 -0.09276925027370453 0.1696876585483551" size="0.014615055173635483 0.09909340739250183" quat="-0.0229226965457201 -0.0 0.0 -0.9997372627258301" />
+                    <geom class="collision" type="cylinder" pos="-0.13405370712280273 -0.1433415412902832 0.1696876585483551" size="0.014615051448345184 0.09909340739250183" quat="0.16969415545463562 0.0 -0.0 -0.9854967594146729" />
+                    <geom class="collision" type="cylinder" pos="-0.12009742856025696 -0.1933251917362213 0.1696876585483551" size="0.014615051448345184 0.09909340739250183" quat="0.3594557046890259 0.0 -0.0 -0.9331621527671814" />
+                    <geom class="collision" type="cylinder" pos="-0.08875608444213867 -0.23346781730651855 0.1696876585483551" size="0.014615051448345184 0.09909340739250183" quat="0.5321423411369324 0.0 -0.0 -0.8466548919677734" />
+                    <geom class="collision" type="cylinder" pos="-0.04285570979118347 -0.25939249992370605 0.1696876585483551" size="0.014615049585700035 0.09909340739250183" quat="0.6899731755256653 0.0 -0.0 -0.7238349318504333" />
+                    <geom class="collision" type="cylinder" pos="0.007704257965087891 -0.26550793647766113 0.1696876585483551" size="0.014615051448345184 0.09909340739250183" quat="0.8162537813186646 0.0 -0.0 -0.5776934623718262" />
+                </body>
+                <body name="FoodMixer001_Knob001">
+                    <joint axis="-1 0 0" pos="0.07845500856637955 0.0947626605629921 0.1750715970993042" limited="true" name="FoodMixer001_Knob001_joint" range="0.0 3.3161255787892263" type="hinge" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="FoodMixer001_Knob001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <geom class="collision" type="cylinder" pos="0.0876527726650238 0.09467422217130661 0.17427559196949005" size="0.03172425180673599 0.005505914334207773" quat="0.4999999701976776 0.5 -0.5 -0.5" />
+                </body>
+                <body name="FoodMixer001_Knob002">
+                    <joint axis="-1 0 0" pos="0.07434427738189697 0.05688606575131416 0.23159411549568176" limited="true" name="FoodMixer001_Knob002_joint" range="0.0 1.5707963267948966" type="hinge" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="FoodMixer001_Knob002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <geom class="collision" type="box" pos="0.08330634236335754 0.05701729282736778 0.23157043755054474" size="0.017637543380260468 0.006127911154180765 0.008721379563212395" quat="0.6639736890792847 0.0 -0.0 -0.7477559447288513" />
+                </body>
+                <body name="FoodMixer001_Lid">
+                    <joint axis="-1 0 0" pos="8.760163261456455e-09 0.166860893368721 0.25023186206817627" limited="true" name="FoodMixer001_Lid_joint" range="0.0 1.5707963267948966" type="hinge" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="FoodMixer001_Lid_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <geom class="collision" type="cylinder" pos="-0.0015425533056259155 -0.13560819625854492 0.3655071556568146" size="0.06543299555778503 0.07799912989139557" quat="0.5000000596046448 -0.5 -0.5 -0.4999999701976776" />
+                    <geom class="collision" type="cylinder" pos="-0.0015425533056259155 -0.13365599513053894 0.296347051858902" size="0.010491198860108852 0.021897299215197563" quat="0.5000000596046448 -0.5 -0.5 -0.4999999701976776" />
+                    <geom class="collision" type="box" pos="-0.0015425384044647217 0.09347827732563019 0.3105940520763397" size="0.07416939735412598 0.07416940480470657 0.0522402860224247" quat="0.7071067690849304 0.0 -0.0 -0.7071067690849304" />
+                    <geom class="collision" type="cylinder" pos="8.812634677118677e-17 -0.03382750228047371 0.39688578248023987" size="0.07483591139316559 0.21571049094200134" quat="0.7071067690849304 -0.7071067690849304 -1.5700926965105832e-16 -3.431546515433212e-24" />
+                    <body name="FoodMixer001_Rotate">
+                        <joint axis="0 0 1" pos="-0.001972653903067112 -0.1333957314491272 0.2857680916786194" limited="false" name="FoodMixer001_Rotate_joint" range="0 360" type="hinge" damping="2" frictionloss="2" armature=".01" />
+                        <geom mesh="FoodMixer001_Rotate_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                        <geom class="collision" type="cylinder" pos="-0.0015425533056259155 -0.13352078199386597 0.2718105614185333" size="0.01818745955824852 0.011703470721840858" quat="0.5000000596046448 -0.5 -0.5 -0.4999999701976776" />
+                        <geom class="collision" type="cylinder" pos="-0.0015425533056259155 -0.13352075219154358 0.19292248785495758" size="0.05467915162444115 0.06281024217605591" quat="1.0 0.0 0.0 0.0" />
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+    <actuator>
+        <motor name="FoodMixer001_Button_joint_actuator" joint="FoodMixer001_Button_joint" gear="10" />
+        <motor name="FoodMixer001_Container_joint_actuator" joint="FoodMixer001_Container_joint" gear="10" />
+        <motor name="FoodMixer001_Knob001_joint_actuator" joint="FoodMixer001_Knob001_joint" gear="10" />
+        <motor name="FoodMixer001_Knob002_joint_actuator" joint="FoodMixer001_Knob002_joint" gear="10" />
+        <motor name="FoodMixer001_Lid_joint_actuator" joint="FoodMixer001_Lid_joint" gear="10" />
+        <motor name="FoodMixer001_Rotate_joint_actuator" joint="FoodMixer001_Rotate_joint" gear="10" />
+    </actuator>
+</mujoco>

@@ -72,13 +72,12 @@ class PreSoakPan(Kitchen):
         )
 
         return cfgs
-        
+
     def _check_pan_in_sink(self):
         return OU.obj_inside_of(self, "obj1", self.sink)
-    
+
     def _check_sponge_in_sink(self):
         return OU.obj_inside_of(self, "obj2", self.sink)
-
 
     def _check_success(self):
         handle_state = self.sink.get_handle_state(env=self)

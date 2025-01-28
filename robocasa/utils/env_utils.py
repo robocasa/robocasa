@@ -5,6 +5,12 @@ from robocasa.utils.dataset_registry import (
 )
 from robocasa.scripts.playback_dataset import get_env_metadata_from_dataset
 from robosuite.controllers import load_composite_controller_config
+import robosuite.utils.transform_utils as T
+from robosuite.utils.mjcf_utils import (
+    array_to_string,
+    find_elements,
+)
+import xml.etree.ElementTree as ET
 import os
 import robosuite
 import robocasa
@@ -46,6 +52,7 @@ def create_env(
     camera_heights=128,
     seed=None,
     render_onscreen=False,
+    translucent_robot=False,
     # robocasa-related configs
     obj_instance_split=None,
     generative_textures=None,
@@ -53,6 +60,7 @@ def create_env(
     layout_and_style_ids=None,
     layout_ids=None,
     style_ids=None,
+    **kwargs,
 ):
     controller_config = load_composite_controller_config(
         controller=None,
@@ -79,7 +87,8 @@ def create_env(
         layout_and_style_ids=layout_and_style_ids,
         layout_ids=layout_ids,
         style_ids=style_ids,
-        translucent_robot=False,
+        translucent_robot=translucent_robot,
+        **kwargs,  # additional env keyword args
     )
 
     env = robosuite.make(**env_kwargs)

@@ -315,11 +315,22 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             seed=seed,
         )
 
-    def _load_model(self):
+    def _setup_model(self):
         """
-        Loads an xml model, puts it in self.model
+        helper function called by _load_model to setup the mjcf model
         """
-        super()._load_model()
+        for robot in self.robots:
+            if isinstance(robot.robot_model, PandaOmron):
+                robot.init_qpos = (
+                    -0.01612974,
+                    -1.03446714,
+                    -0.02397936,
+                    -2.27550888,
+                    0.03932365,
+                    1.51639493,
+                    0.69615947,
+                )
+                robot.init_torso_qpos = np.array([0.0])
 
         for robot in self.robots:
             if isinstance(robot.robot_model, PandaOmron):
@@ -376,6 +387,21 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             mujoco_robots=[robot.robot_model for robot in self.robots],
             mujoco_objects=list(self.fixtures.values()),
         )
+
+    def _load_model(self):
+        """
+        Loads an xml model, puts it in self.model
+        """
+        super()._load_model()
+
+        self._setup_model()
+
+        if self.init_robot_base_pos is not None:
+            for i in range(50):  # keep searching for valid environment
+                init_fixture = self.get_fixture(self.init_robot_base_pos)
+                if init_fixture is not None:
+                    break
+                self._setup_model()
 
         # setup fixture locations
         fxtr_placement_initializer = EnvUtils._get_placement_initializer(
@@ -1061,7 +1087,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     for name in matches
                     if FixtureUtils.is_fxtr_valid(self, self.fixtures[name], size)
                 ]
-            assert len(matches) > 0
+            if len(matches) == 0:
+                return None
             # sample random key
             key = self.rng.choice(matches)
             return self.fixtures[key]

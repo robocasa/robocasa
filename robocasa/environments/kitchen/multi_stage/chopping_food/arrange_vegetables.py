@@ -92,16 +92,12 @@ class ArrangeVegetables(Kitchen):
         )
 
         return cfgs
-    
+
     def _check_success_veg1(self):
-        return OU.check_obj_in_receptacle(
-            self, "vegetable1", "cutting_board"
-        )
-        
+        return OU.check_obj_in_receptacle(self, "vegetable1", "cutting_board")
+
     def _check_success_veg2(self):
-        return OU.check_obj_in_receptacle(
-            self, "vegetable2", "cutting_board"
-        )
+        return OU.check_obj_in_receptacle(self, "vegetable2", "cutting_board")
 
     def _check_success(self):
         vegetable1_cutting_board_contact = OU.check_obj_in_receptacle(
@@ -148,7 +144,7 @@ class ArrangeVegetablesSimple(Kitchen):
         ep_meta = super().get_ep_meta()
         ep_meta[
             "lang"
-        ] = f"pick the vegetables from the sink and place them on the cutting board"
+        ] = "Pick the vegetables from the sink and place them on the cutting board."
         return ep_meta
 
     def _get_obj_cfgs(self):

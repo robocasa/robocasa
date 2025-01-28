@@ -21,6 +21,27 @@ class LayoutType(IntEnum):
     G_SHAPED_LARGE = 8
     WRAPAROUND = 9
 
+    LAYOUT101 = 101
+    LAYOUT102 = 102
+    LAYOUT103 = 103
+    LAYOUT104 = 104
+    LAYOUT105 = 105
+    LAYOUT106 = 106
+    LAYOUT107 = 107
+    LAYOUT108 = 108
+    LAYOUT109 = 109
+    LAYOUT110 = 110
+    LAYOUT111 = 111
+    LAYOUT112 = 112
+    LAYOUT113 = 113
+    LAYOUT114 = 114
+    LAYOUT115 = 115
+    LAYOUT116 = 116
+    LAYOUT117 = 117
+    LAYOUT118 = 118
+    LAYOUT119 = 119
+    LAYOUT120 = 120
+
     # negative values correspond to groups (see LAYOUT_GROUPS_TO_IDS)
     ALL = -1
     NO_ISLAND = -2

@@ -27,6 +27,12 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Sink)
     elif fixture_type == FixtureType.STOVE:
         return isinstance(fixture, Stove)
+    elif fixture_type == FixtureType.OVEN:
+        return isinstance(fixture, Oven)
+    elif fixture_type == FixtureType.FRIDGE:
+        return isinstance(fixture, Fridge)
+    elif fixture_type == FixtureType.DISHWASHER:
+        return isinstance(fixture, Dishwasher)
     elif fixture_type == FixtureType.CABINET_TOP:
         cls_check = any(
             [
