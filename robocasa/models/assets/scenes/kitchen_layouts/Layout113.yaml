@@ -136,8 +136,8 @@ main_group_1:
     - name: framedwindow
       type: framed_window
       num_windows: 3
-      pos: [2.794, -0.001, 1.626]
-      size: [2.056, 0.05, 1.017]
+      pos: [2.794, -0.001, 1.89]
+      size: [2.056, 0.05, 0.92]
 
     - name: stack_1.004
       type: stack
@@ -168,44 +168,61 @@ main_group_1:
       percentages: [1]
 
   top_row:
-    - name: microabove_hingecabinet
-      type: hinge_cabinet
-      size: [0.769, 0.4, 0.562]
-      pos: [0.783, -0.203, 2.018]
-      # levels: [panel_cabinet]
-      # percentages: [1]
-      # configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
-
     - name: singlecabinet_1.003
       type: single_cabinet
-      pos: [0.2, -0.203, 1.839]
+      pos: [0.2, -0.203, 1.89]
       size: [0.4, 0.4, 0.92]
+
+    - name: microwave
+      type: microwave
+      size: [0.75, 0.45, null]
+      align_to: singlecabinet_1.003
+      side: right
+      alignment: bottom_back
+
+    - name: microwave_above_hingecabinet
+      type: hinge_cabinet
+      size: [microwave, 0.4, null]
+      align_to: microwave
+      side: top
+      alignment: back
+      stack_height: 0.92
+      stack_fixtures: [microwave]
 
     - name: singlecabinet_1.001
       type: single_cabinet
-      pos: [1.379, -0.203, 1.839]
-      size: [0.424, 0.4, 0.92]
-
-    - name: hingecabinet_1.002
-      type: hinge_cabinet
-      pos: [4.661, -0.203, 1.839]
-      size: [1.212, 0.4, 0.92]
+      # pos: [1.379, -0.203, 1.89]
+      size: [0.4, 0.4, 0.92]
+      align_to: microwave
+      side: right
+      alignment: bottom_back
 
     - name: cabinet_corner_box
       type: box
       size: [0.4, 0.4, 0.92]
-      pos: [5.467, -0.203, 1.839]
+      pos: [5.467, -0.203, 1.89]
 
-    - name: microwave_1
-      type: microwave
-      size: [0.769, 0.4, 0.358]
-      pos: [0.783, -0.203, 1.558]
+    - name: singlecabinet_1.002
+      type: single_cabinet
+      pos: [4.661, -0.203, 1.89]
+      size: [1.212, 0.4, 0.92]
 
-    # - name: microwave_1_housing
-    #   type: housing_cabinet
-    #   interior_obj: microwave_1
-    #   padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-    #   pos: [0.783, -0.203, 1.558]
+  counter_accessories:
+    - name: coffee_machine
+      type: coffee_machine
+      placement:
+        fixture: counter_1.003
+        size: [1.0, 0.52]
+        pos: [-1.0, 1.0]
+        rotation: [0, 0]
+    
+    - name: paper_towel
+      type: paper_towel
+      placement:
+        fixture: counter_1.004
+        size: [1.0, 0.40]
+        pos: [null, 1.0]
+        rotation: [0, 0]
 
 left_group_1:
   group_origin: [0, 0]
@@ -234,13 +251,13 @@ left_group_1:
     - name: framedwindow.001
       type: framed_window
       num_windows: 3
-      pos: [-2.362, -5.768, 1.72]
-      size: [1.228, 0.05, 1.017]
+      pos: [-2.362, -5.768, 1.89]
+      size: [1.228, 0.05, 0.92]
 
     - name: stove_1
       type: stove
       # pos: [-2.178, -0.45, 0.46]
-      size: [null, 0.65, null]
+      size: [0.76, 0.66, 0.915]
       align_to: counter_1.001
       side: left
       alignment: top_back
@@ -299,16 +316,27 @@ left_group_1:
   top_row.001:
     - name: opencabinet_1.002
       type: open_cabinet
-      # pos: [-4.324, -0.32, 1.839]
+      # pos: [-4.324, -0.32, 1.89]
       align_to: counter_1.002
       side: top
-      offset: [0, 0.2, 0.4519] # 1.839 - 0.92- 0.46
+      num_shelves: 3
+      offset: [0, 0.2, 0.4519] # 1.89 - 0.92 - 0.46
       size: [1.425, 0.4, 0.92]
 
     - name: opencabinet_1.001
       type: open_cabinet
-      pos: [-1.318, -0.32, 1.839]
+      num_shelves: 3
+      pos: [-1.318, -0.32, 1.89]
       size: [0.836, 0.4, 0.92]
+  
+  counter_accessories:
+    - name: plant
+      type: plant
+      placement:
+        fixture: counter_1.001
+        size: [0.40, 0.40]
+        pos: [1.0, 1.0]
+        rotation: [0, 0]
 
 right_group_1:
   group_origin: [0, 0]
@@ -351,8 +379,25 @@ right_group_1:
   top_row.002:
     - name: hingecabinet_1.005
       type: hinge_cabinet
-      pos: [1.01, -0.2, 1.839]
+      pos: [1.01, -0.2, 1.89]
       size: [1.212, 0.4, 0.92]
+  
+  counter_accessories:
+    - name: toaster
+      type: toaster
+      placement:
+        fixture: counter_1.006
+        size: [1.0, 0.40]
+        pos: [1.0, 1.0]
+        rotation: [0, 0]
+    
+    - name: knife_block
+      type: knife_block
+      placement:
+        fixture: counter_1.006
+        size: [1.0, 0.40]
+        pos: [-1.0, 1.0]
+        rotation: [0, 0]
 
 stool_group_1:
   group_origin: [0, 0]

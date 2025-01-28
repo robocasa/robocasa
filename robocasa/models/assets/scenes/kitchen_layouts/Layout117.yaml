@@ -137,7 +137,7 @@ main_group_1:
 
     - name: framedwindow
       type: framed_window
-      num_windows: 3
+      num_windows: 1
       pos: [0.756, -0.006, 1.803]
       size: [0.448, 0.05, 1.017]
 
@@ -150,7 +150,7 @@ main_group_1:
 
     - name: framedwindow.001
       type: framed_window
-      num_windows: 3
+      num_windows: 1
       pos: [1.427, -0.006, 1.803]
       size: [0.448, 0.05, 1.017]
 
@@ -161,30 +161,89 @@ main_group_1:
       levels: [single_cabinet]
       percentages: [1]
 
-    - name: wall_main_stack_1
+    # - name: wall_main_stack_1
+    #   type: stack
+    #   levels: [drawer, hinge_cabinet, hinge_cabinet]
+    #   percentages: [0.3, 0.5, 0.2]
+    #   pos: [3.603, -0.325, 1.149]
+    #   size: [0.836, 0.65, 2.299]
+
+    - name: bottom
       type: stack
-      levels: [drawer, hinge_cabinet, hinge_cabinet]
-      percentages: [0.3, 0.5, 0.2]
-      pos: [3.603, -0.325, 1.149]
-      size: [0.836, 0.65, 2.299]
+      pos: [3.603, -0.325, 0.25]
+      size: [0.836, 0.65, 0.4]
+      levels: [drawer]
+      percentages: [1]
+
+    - name: oven
+      type: oven
+      size: [0.7, 0.65, 0.68]
+
+    - name: oven_housing
+      type: housing_cabinet
+      size: [0.836, 0.65, 0.7]
+      padding: [null, [-0.01, null], null]
+      align_to: bottom
+      alignment: front
+      side: top
+      interior_obj: oven
+
+    - name: microwave
+      type: microwave
+      size: [0.75, 0.45, null]
+
+    - name: microwave_housing
+      type: housing_cabinet
+      size: [0.836, 0.65, 0.55]
+      padding: [null, [-0.01, null], null]
+      align_to: oven_housing
+      alignment: front
+      side: top
+      interior_obj: microwave
+
+    - name: top
+      type: hinge_cabinet
+      size: [0.836, 0.65, null]
+      align_to: microwave_housing
+      alignment: front
+      side: top
+      stack_height: 2.3
+      stack_fixtures: [bottom, oven_housing, microwave_housing]
 
     - name: wall_main_stack_2
       type: stack
       levels: [single_cabinet, single_cabinet]
       percentages: [0.5, 0.5]
-      pos: [4.257, -0.325, 1.149]
-      size: [0.472, 0.65, 2.299]
+      pos: [4.257, -0.325, 1.2]
+      size: [0.472, 0.65, 2.3]
 
   top_row:
     - name: singlecabinet_1.001
       type: single_cabinet
-      pos: [2.114, -0.203, 1.839]
+      pos: [2.114, -0.203, 1.89]
       size: [0.471, 0.4, 0.92]
 
     - name: hingecabinet_1.003
       type: hinge_cabinet
-      pos: [2.767, -0.203, 1.839]
+      pos: [2.767, -0.203, 1.89]
       size: [0.836, 0.4, 0.92]
+
+  counter_accessories:
+    - name: toaster
+      type: toaster
+      placement:
+        fixture: counter_1.002
+        size: [1.0, 0.40]
+        pos: [1.0, 1.0]
+        rotation: [0, 0]
+    
+    - name: paper_towel
+      type: paper_towel
+      placement:
+        fixture: counter_1.002
+        size: [1.0, 0.40]
+        pos: [-1.0, 1.0]
+        rotation: [0, 0]
 
 left_group_1:
   group_origin: [0, 0]
@@ -219,21 +278,30 @@ left_group_1:
 
     - name: framedwindow.002
       type: framed_window
-      num_windows: 3
+      num_windows: 1
       pos: [1.608, -0.002, 1.803]
       size: [0.448, 0.05, 1.017]
 
     - name: framedwindow.003
       type: framed_window
-      num_windows: 3
+      num_windows: 1
       pos: [0.914, -0.002, 1.803]
       size: [0.448, 0.05, 1.017]
 
   top_row.001:
     - name: hingecabinet_1.006
       type: hinge_cabinet
-      pos: [0.289, -0.196, 1.839]
+      pos: [0.289, -0.196, 1.89]
       size: [0.579, 0.4, 0.92]
+  
+  counter_accessories:
+    - name: coffee_machine
+      type: coffee_machine
+      placement:
+        fixture: counter_1.003
+        size: [1.0, 0.52]
+        pos: [-1.0, 1.0]
+        rotation: [0, 0]
 
 right_group_1:
   group_origin: [0, 0]
@@ -266,7 +334,7 @@ front_group_1:
     - name: stove
       type: stove
       # pos: [-0.792, 0.325, 0.46]
-      size: [null, 0.65, null]
+      size: [0.76, 0.66, 0.915]
       align_to: counter_1.005
       side: right
       alignment: top_back
@@ -317,13 +385,22 @@ front_group_1:
 
     - name: cube.002
       type: box
-      size: [2.351, 0.232, 0.874]
-      pos: [-1.176, 0.886, 0.437]
+      size: [2.351, 0.232, 0.88]
+      pos: [-1.176, 0.886, 0.44]
 
     - name: counter_1.007
       type: counter
-      pos: [-1.176, 1.114, 0.437]
-      size: [2.351, 0.688, 0.874]
+      pos: [-1.176, 1.114, 0.45]
+      size: [2.351, 0.688, 0.9]
+    
+  counter_accessories:
+    - name: plant
+      type: plant
+      placement:
+        fixture: counter_1.007
+        size: [0.40, 0.40]
+        pos: [1.0, 0.5]
+        rotation: [0, 0]
 
 stool_group_1:
   group_origin: [0, 0]
@@ -341,8 +418,3 @@ stool_group_1:
     - name: stool_1.002
       type: stool
       pos: [-1.619, 0.557, 0.5]
-
-main_group_2:
-  group_origin: [0, 0]
-  group_pos: [4.613, -2.197]
-  group_z_rot: 0.0
