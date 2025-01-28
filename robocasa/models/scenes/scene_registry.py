@@ -75,6 +75,8 @@ class StyleType(IntEnum):
     TRANSITIONAL_1 = 10
     TRANSITIONAL_2 = 11
 
+    PLAYGROUND_STYLE = 1001
+
     # negative values correspond to groups
     ALL = -1
 
