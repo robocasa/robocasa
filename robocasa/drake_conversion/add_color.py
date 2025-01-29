@@ -118,17 +118,17 @@ def execute(xml_filename):
                     material = geom.get("material")
                     material_file = material_to_file.get(material, None)
 
-                    # print(material_file)
+                    print("MATERIAL_FILE", material_file)
 
-                    if material_file is not None:
-                        avg_pixel = average_pixel(material_file)
-                        geom.set(
-                            "rgba",
-                            f"{avg_pixel[0] / 255:.3f} {avg_pixel[1] / 255:.3f} {avg_pixel[2] / 255:.3f} {avg_pixel[3] / 255:.3f}",
-                        )
-                        # calculate the average pixel color and set the rgb to be that
-                        # name = geom.get("name")
-                        # obj_to_png[f"obj/{name}.obj"] = {"file": material_file, "name": body_name}
+                    # if material_file is not None:
+                    #     avg_pixel = average_pixel(material_file)
+                    #     geom.set(
+                    #         "rgba",
+                    #         f"{avg_pixel[0] / 255:.3f} {avg_pixel[1] / 255:.3f} {avg_pixel[2] / 255:.3f} {avg_pixel[3] / 255:.3f}",
+                    #     )
+                    #     # calculate the average pixel color and set the rgb to be that
+                    #     # name = geom.get("name")
+                    #     # obj_to_png[f"obj/{name}.obj"] = {"file": material_file, "name": body_name}
 
     # print(obj_to_png)
     # print("objs/wall_room_g0_vis.obj" in obj_to_png)

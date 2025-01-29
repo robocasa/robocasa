@@ -169,6 +169,7 @@ def execute(xml_filename):
             mtl_file_path = os.path.join(destination_folder, f"{png_filename}.mtl")
 
             with open(mtl_file_path, "w") as mtlf:
+                #   TODO: MAKE THIS NOT HARDCODED AND INSTEAD BASED ON TAGS!!
                 mtlf.write(
                     f"""newmtl {png_filename}
     Ns 225.000000
