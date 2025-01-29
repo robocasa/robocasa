@@ -20,6 +20,9 @@ def rm_cab_doors(INPUT_FILE):
             "name" in elem.attrib
             and ("cab" in elem.attrib["name"] or "stack" in elem.attrib["name"])
             and "door" in elem.attrib["name"]
+        ) or (
+            "name" in elem.attrib
+            and ("wall" not in elem.attrib["name"] and "floor" not in elem.attrib["name"])
         ):
             elements_to_remove.append(elem)
 

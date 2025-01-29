@@ -47,9 +47,10 @@ from robocasa.utils.config_utils import refactor_composite_controller_config
 import lxml.etree as le
 import trimesh
 from robocasa.drake_conversion.just_geom_conversion import convert_geoms_to_obj
+# just_geom_conversion.py
 
-# from robocasa.drake_conversion.auto_texture import execute
-from robocasa.drake_conversion.add_color import execute
+from robocasa.drake_conversion.auto_texture import execute
+# from robocasa.drake_conversion.add_color import execute
 from robocasa.drake_conversion.remove_cab_doors import rm_cab_doors
 from robocasa.drake_conversion.remove_collision import rm_collision
 
@@ -1220,7 +1221,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             new_xml_str = (le.tostring(doc)).decode("utf-8")
             f.write(new_xml_str)
 
-            # convert_geoms_to_obj(xml_filename)
+            convert_geoms_to_obj(xml_filename)
             execute(xml_filename)
             rm_cab_doors(xml_filename)
             rm_collision(xml_filename)
