@@ -64,6 +64,41 @@ class ManipulateDoor(Kitchen):
         # set the door state then place the objects otherwise objects initialized in opened drawer will fall down before the drawer is opened
         super()._reset_internal()
 
+    def _setup_references(self):
+        """
+        Sets up references to important components. A reference is typically an
+        index or a list of indices that point to the corresponding elements
+        in a flatten array, which is how MuJoCo stores physical simulation data.
+        """
+        super()._setup_references()
+
+        # Get the address for the door hinge joint
+        self.hinge_qpos_addr = self.sim.model.get_joint_qpos_addr(
+            self.door_fxtr.joints[0]
+        )
+
+    def _setup_observables(self):
+        """
+        Sets up observables to be used for this environment. Add door angle to the observables
+
+        Returns:
+            OrderedDict: Dictionary mapping observable names to its corresponding Observable object
+        """
+        observables = super()._setup_observables()
+
+        @sensor(modality="object")
+        def door_angle(obs_cache):
+            return np.array([self.sim.data.qpos[self.hinge_qpos_addr]])
+
+        observables["door_angle"] = Observable(
+            name="door_angle",
+            sensor=door_angle,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        return observables
+
     def _check_success(self):
         """
         Check if the door manipulation task is successful.

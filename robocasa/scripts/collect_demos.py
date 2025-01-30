@@ -149,6 +149,7 @@ def collect_human_trajectory(
             for i, robot in enumerate(env.robots)
         ]
         env_action[device.active_robot] = active_robot.create_action_vector(action_dict)
+        # print(env_action)
         env_action = np.concatenate(env_action)
 
         # Run environment step
