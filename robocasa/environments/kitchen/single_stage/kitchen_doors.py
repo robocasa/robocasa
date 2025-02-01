@@ -88,7 +88,9 @@ class ManipulateDoor(Kitchen):
 
         @sensor(modality="object")
         def door_angle(obs_cache):
-            return np.array([self.sim.data.qpos[self.hinge_qpos_addr]])
+            # Return normalized door angle instead of raw angle
+            door_state = self.door_fxtr.get_door_state(env=self)
+            return door_state['door']
 
         observables["door_angle"] = Observable(
             name="door_angle",
