@@ -26,6 +26,7 @@ def playback_trajectory_with_env(
     verbose=False,
     camera_height=512,
     camera_width=512,
+    highlight_timesteps=None,
 ):
     """
     Helper function to playback a single trajectory using the simulator environment.
@@ -70,6 +71,9 @@ def playback_trajectory_with_env(
     if render is False:
         print(colored("Running episode...", "yellow"))
 
+    if highlight_timesteps is None:
+        highlight_timesteps = []
+
     for i in range(traj_len):
         start = time.time()
 
@@ -108,7 +112,11 @@ def playback_trajectory_with_env(
 
         # video render
         if write_video:
-            if video_count % video_skip == 0 or i == traj_len - 1:
+            if (
+                video_count % video_skip == 0
+                or i == traj_len - 1
+                or i in highlight_timesteps
+            ):
                 video_img = []
                 for cam_name in camera_names:
                     im = env.sim.render(
@@ -118,6 +126,9 @@ def playback_trajectory_with_env(
                 video_img = np.concatenate(
                     video_img, axis=1
                 )  # concatenate horizontally
+                if i in highlight_timesteps:
+                    video_img = np.copy(video_img)
+                    video_img[:, :, 0] = 200
                 video_writer.append_data(video_img)
 
             video_count += 1
