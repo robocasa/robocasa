@@ -52,6 +52,7 @@ def merge_eps(session_folder):
                     ep_hdf5_path = os.path.join(ep_dir, hdf5_matches[0])
                     f = h5py.File(ep_hdf5_path)
                     env_info = f["data"].attrs["env_info"]
+                    f.close()
         except:
             continue
 
@@ -92,6 +93,18 @@ def merge_eps(session_folder):
             "yellow",
         )
     )
+
+    # re-process individual episodes again
+    for ep_name in successful_episodes:
+        ep_directory = os.path.join(all_eps_directory, ep_name)
+        hdf5_path = gather_demonstrations_as_hdf5(
+            all_eps_directory,
+            ep_directory,
+            env_info,
+            successful_episodes=[ep_name],
+            out_name="ep_demo.hdf5",
+        )
+        convert_to_robomimic_format(hdf5_path)
 
     # copy demo.hdf5 -> demo_orig.hdf5, if the latter doesn't currently exist
     if not os.path.exists(os.path.join(session_folder, "demo_orig.hdf5")):

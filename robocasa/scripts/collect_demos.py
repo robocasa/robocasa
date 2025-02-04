@@ -222,7 +222,8 @@ def gather_demonstrations_as_hdf5(
     """
 
     hdf5_path = os.path.join(out_dir, out_name)
-    print("Saving hdf5 to", hdf5_path)
+    if verbose:
+        print("Saving hdf5 to", hdf5_path)
     f = h5py.File(hdf5_path, "w")
 
     # store some metadata in the attributes of one group

@@ -11,6 +11,7 @@ import traceback
 
 import robosuite
 import robocasa
+from robocasa.utils.vis_utils import apply_filter
 
 
 def playback_trajectory_with_env(
@@ -26,7 +27,7 @@ def playback_trajectory_with_env(
     verbose=False,
     camera_height=512,
     camera_width=512,
-    highlight_timesteps=None,
+    highlight_frames=None,
 ):
     """
     Helper function to playback a single trajectory using the simulator environment.
@@ -71,30 +72,31 @@ def playback_trajectory_with_env(
     if render is False:
         print(colored("Running episode...", "yellow"))
 
-    if highlight_timesteps is None:
-        highlight_timesteps = []
+    if highlight_frames is None:
+        highlight_frames = []
+    highlight_timesteps = [t for (t, c) in highlight_frames]
 
-    for i in range(traj_len):
+    for t in range(traj_len):
         start = time.time()
 
         if action_playback:
-            env.step(actions[i])
-            if i < traj_len - 1:
+            env.step(actions[t])
+            if t < traj_len - 1:
                 # check whether the actions deterministically lead to the same recorded states
                 state_playback = np.array(env.sim.get_state().flatten())
-                if not np.all(np.equal(states[i + 1], state_playback)):
-                    err = np.linalg.norm(states[i + 1] - state_playback)
-                    if verbose or i == traj_len - 2:
+                if not np.all(np.equal(states[t + 1], state_playback)):
+                    err = np.linalg.norm(states[t + 1] - state_playback)
+                    if verbose or t == traj_len - 2:
                         print(
                             colored(
                                 "warning: playback diverged by {} at step {}".format(
-                                    err, i
+                                    err, t
                                 ),
                                 "yellow",
                             )
                         )
         else:
-            reset_to(env, {"states": states[i]})
+            reset_to(env, {"states": states[t]})
 
         # on-screen render
         if render:
@@ -114,8 +116,8 @@ def playback_trajectory_with_env(
         if write_video:
             if (
                 video_count % video_skip == 0
-                or i == traj_len - 1
-                or i in highlight_timesteps
+                or t == traj_len - 1
+                or t in highlight_timesteps
             ):
                 video_img = []
                 for cam_name in camera_names:
@@ -126,9 +128,13 @@ def playback_trajectory_with_env(
                 video_img = np.concatenate(
                     video_img, axis=1
                 )  # concatenate horizontally
-                if i in highlight_timesteps:
+                if t in highlight_timesteps:
                     video_img = np.copy(video_img)
-                    video_img[:, :, 0] = 200
+
+                    # highlight the frame according to specified color
+                    idx = highlight_timesteps.index(t)
+                    color = highlight_frames[idx][1]
+                    video_img = apply_filter(video_img, color=color)
                 video_writer.append_data(video_img)
 
             video_count += 1
