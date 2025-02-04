@@ -20,6 +20,7 @@ import os
 import imageio
 from tqdm import tqdm
 import json
+import traceback
 
 QA_MATRIC_TO_COLOR = dict(
     arm_lock=(255, 0, 0),
@@ -234,8 +235,8 @@ if __name__ == "__main__":
                 if dir == "episodes":
                     ep_dir_list.append(os.path.join(root, dir))
 
-        demo_group = []
         for ep_dir in ep_dir_list:
+            demo_group = []
             for root, dirs, files in os.walk(ep_dir):
                 for file in files:
                     if file == "ep_demo.hdf5":
@@ -269,9 +270,15 @@ if __name__ == "__main__":
         for ds_path in demo_group:
             # scan dataset quality
             print("Scanning path:", ds_path)
-            all_stats = scan_datset_quality(
-                ds_path, env=env, num_demos=args.num_demos_to_scan
-            )
+            try:
+                all_stats = scan_datset_quality(
+                    ds_path, env=env, num_demos=args.num_demos_to_scan
+                )
+            except Exception as e:
+                # skip if there's an issue
+                print("Exception!")
+                print(traceback.print_exc())
+                continue
 
             summary_stats = dict()
             for ep in all_stats:
@@ -331,3 +338,7 @@ if __name__ == "__main__":
                 f.write(json.dumps(qa_stats, indent=4))
 
             print()
+
+        if env is not None:
+            env.close()
+            del env
