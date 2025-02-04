@@ -64,6 +64,9 @@ class FixtureType(IntEnum):
     COUNTER_NON_CORNER = 22
 
 
+BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
+
+
 class Fixture(MujocoXMLObject):
     """
     Base class for fixtures in robosuite kitchen environments.
@@ -108,20 +111,17 @@ class Fixture(MujocoXMLObject):
 
         # set up exterior and interior sites
         self._bounds_sites = dict()
-        for postfix in [
-            "ext_p0",
-            "ext_px",
-            "ext_py",
-            "ext_pz",
-            "int_p0",
-            "int_px",
-            "int_py",
-            "int_pz",
-        ]:
+
+        all_possible_site_names = []
+        for prefix in BBOX_SITE_PREFIXES:
+            for postfix in ["p0", "px", "py", "pz"]:
+                all_possible_site_names.append(f"{prefix}_{postfix}")
+
+        for site_name in all_possible_site_names:
             site = find_elements(
                 self.worldbody,
                 tags="site",
-                attribs={"name": "{}{}".format(self.naming_prefix, postfix)},
+                attribs={"name": "{}{}".format(self.naming_prefix, site_name)},
                 return_first=True,
             )
             if site is None:
@@ -132,7 +132,7 @@ class Fixture(MujocoXMLObject):
             else:
                 rgba[-1] = 0.0
             site.set("rgba", array_to_string(rgba))
-            self._bounds_sites[postfix] = site
+            self._bounds_sites[site_name] = site
 
         # scale based on specified max dimension
         if size is not None:
@@ -211,13 +211,15 @@ class Fixture(MujocoXMLObject):
         """
         returns dictionary of reset regions, each region defined as position, x_bounds, y_bounds
         """
-        p0, px, py, pz = self.get_int_sites()
-        return {
-            "bottom": {
+        reset_regions = {}
+        all_int_sites = self.get_int_sites()
+        for (region_name, sites) in all_int_sites.items():
+            p0, px, py, pz = sites
+            reset_regions[region_name] = {
                 "offset": (np.mean((p0[0], px[0])), np.mean((p0[1], py[1])), p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
             }
-        }
+        return reset_regions
 
     def sample_reset_region(self, *args, **kwargs):
         regions = self.get_reset_regions(*args, **kwargs)
@@ -378,28 +380,41 @@ class Fixture(MujocoXMLObject):
             relative (bool): If True, will return the points relative to the object's position
 
         Returns:
-            list: 4 or 8 points
+            dict: a dictionary of interior areas, each with 4 or 8 points
         """
-        sites = [
-            site_pos(self._bounds_sites["int_p0"]),
-            site_pos(self._bounds_sites["int_px"]),
-            site_pos(self._bounds_sites["int_py"]),
-            site_pos(self._bounds_sites["int_pz"]),
-        ]
+        sites_dict = {}
+        for prefix in BBOX_SITE_PREFIXES:
+            # only consider interior sites
+            if "int" not in prefix:
+                continue
 
-        if all_points:
-            p0, px, py, pz = sites
-            sites += [
-                np.array([p0[0], py[1], pz[2]]),
-                np.array([px[0], py[1], pz[2]]),
-                np.array([px[0], py[1], p0[2]]),
-                np.array([px[0], p0[1], pz[2]]),
+            site_names = [
+                f"{prefix}_p0",
+                f"{prefix}_px",
+                f"{prefix}_py",
+                f"{prefix}_pz",
             ]
+            # only return results if site names exist in model
+            if site_names[0] not in self._bounds_sites:
+                continue
 
-        if relative is False:
-            sites = [get_pos_after_rel_offset(self, offset) for offset in sites]
+            sites = [site_pos(self._bounds_sites[name]) for name in site_names]
 
-        return sites
+            if all_points:
+                p0, px, py, pz = sites
+                sites += [
+                    np.array([p0[0], py[1], pz[2]]),
+                    np.array([px[0], py[1], pz[2]]),
+                    np.array([px[0], py[1], p0[2]]),
+                    np.array([px[0], p0[1], pz[2]]),
+                ]
+
+            if relative is False:
+                sites = [get_pos_after_rel_offset(self, offset) for offset in sites]
+
+            sites_dict[prefix] = sites
+
+        return sites_dict
 
     def get_bbox_points(self, trans=None, rot=None):
         """
