@@ -28,22 +28,27 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [0.825, 1.5, 0.02]
-      pos: [5.222, -0.825, 1.5]
+      # size: [0.825, 1.5, 0.02]
+      size: [2.341, 1.5, 0.02]
+      # pos: [5.222, -0.825, 1.5]
+      pos: [5.222, -2.325, 1.5]
       wall_side: right
 
     - name: wall_right_1_backing
       type: wall
       backing: true
       # backing_extended: [True, True]
-      size: [0.825, 1.5, 0.1]
-      pos: [5.222, -0.825, 1.5]
+      # size: [0.825, 1.5, 0.1]
+      size: [2.341, 1.5, 0.1]
+      # pos: [5.222, -0.825, 1.5]
+      pos: [5.222, -2.325, 1.5]
       wall_side: right
 
     - name: wall_left_2
       type: wall
       size: [1.076, 0.644, 0.02]
-      pos: [0.0, -2.017, 0.644]
+      # pos: [0.0, -2.017, 0.644]
+      pos: [0.0, -2.2, 0.644]
       wall_side: left
 
     - name: wall_left_2_backing
@@ -51,13 +56,15 @@ room:
       backing: true
       # backing_extended: [True, True]
       size: [1.076, 0.644, 0.04]
-      pos: [0.0, -2.017, 0.644]
+      # pos: [0.0, -2.017, 0.644]
+      pos: [0.0, -2.2, 0.644]
       wall_side: left
 
     - name: wall_left_3
       type: wall
       size: [1.113, 0.351, 0.02]
-      pos: [0.0, -2.158, 2.649]
+      # pos: [0.0, -2.158, 2.649]
+      pos: [0.0, -2.24, 2.649]
       wall_side: left
 
     - name: wall_left_3_backing
@@ -65,7 +72,8 @@ room:
       backing: true
       # backing_extended: [True, True]
       size: [1.113, 0.351, 0.04]
-      pos: [0.0, -2.158, 2.649]
+      # pos: [0.0, -2.158, 2.649]
+      pos: [0.0, -2.24, 2.649]
       wall_side: left
 
     - name: cabcorner
@@ -74,6 +82,12 @@ room:
       percentages: [0.35, 0.3, 0.35]
       size: [0.655, 0.647, 1.38]
       pos: [0.323, -0.327, 1.61]
+
+      orientation: left
+      panel_config:
+        handle_vpos: center
+
+
 
   floor:
     - name: floor_1
@@ -89,14 +103,14 @@ room:
 
     - name: floor_2
       type: floor
-      size: [1.274, 1.816, 0.02]
-      pos: [-1.274, -2.862, 0.0]
+      size: [1.274, 2.339, 0.02]
+      pos: [-1.274, -2.339, 0.0]
 
     - name: floor_2_backing
       type: floor
       backing: true
-      size: [1.274, 1.816, 0.1]
-      pos: [-1.274, -2.862, 0.0]
+      size: [1.274, 2.339, 0.1]
+      pos: [-1.274, -2.339, 0.0]
 
   wall_accessories:
     - name: wallaccessory.005
@@ -180,7 +194,6 @@ main_group_1:
       align_to: stove_1
       side: right
 
-
     - name: counter_1.001
       type: counter
       size: [0.682, 0.65, 0.92]
@@ -207,6 +220,12 @@ main_group_1:
       align_to: stack_1.003
       alignment: bottom_back
       side: right
+
+      configs:
+        single_cabinet_2:
+          panel_config:
+            handle_vpos: bottom
+            handle_hpos: left
 
   top_row:
       
@@ -249,6 +268,16 @@ main_group_1:
         size: [1.0, 0.40]
         pos: [1.3, 0.5]
         rotation: [0, 0]
+    
+    - name: toaster
+      type: toaster
+
+      placement:
+        fixture: counter_1.001
+        size: [1.0, 0.40]
+        pos: [1.0, 0]
+        rotation: [0, 0]
+      
 
 
 left_group_1:
@@ -270,8 +299,10 @@ left_group_1:
 
     - name: counter_1.005
       type: counter
-      pos: [0.234, -0.33, 0.46]
-      size: [0.884, 0.65, 0.92]
+      # pos: [0.234, -0.33, 0.46]
+      pos: [0.367, -0.33, 0.46]
+      # size: [0.884, 0.65, 0.92]
+      size: [0.787, 0.65, 0.92]
 
     - name: sink_1
       type: sink
@@ -295,18 +326,22 @@ left_group_1:
 
     - name: dishwasher_1
       type: dishwasher
-      pos: [0.277, -0.33, 0.45]
-      size: [0.797, 0.65, 0.89]
+      # pos: [0.277, -0.33, 0.45]
+      pos: [0.367, -0.33, 0.45]
+      # size: [0.797, 0.65, 0.89]
+      size: [0.6, 0.6, 0.89]
 
     - name: counter
       type: counter
-      pos: [0.867, 0.067, 0.669]
-      size: [2.151, 0.188, 1.309]
+      # pos: [0.867, 0.067, 0.669]
+      pos: [0.791, 0.067, 0.669]
+      size: [2.245, 0.188, 1.309]
 
     - name: panelbox
       type: stack
       size: [0.087, 0.65, 0.84]
-      pos: [-0.165, -0.33, 0.47]
+      # pos: [-0.165, -0.33, 0.47]
+      pos: [0.017, -0.33, 0.47]
       levels: [panel_cabinet]
       percentages: [1]
       configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
@@ -322,14 +357,14 @@ left_group_1:
         rotation: [0, 0]
         margin: 0.0
     
-    - name: toaster
-      type: toaster
+    # - name: toaster
+    #   type: toaster
 
-      placement:
-        fixture: counter_1.003
-        size: [1.0, 0.40]
-        pos: [1.0, 0]
-        rotation: [0, 0]
+    #   placement:
+    #     fixture: counter_1.003
+    #     size: [1.0, 0.40]
+    #     pos: [1.0, 0]
+    #     rotation: [0, 0]
       
 
 right_group_1:
