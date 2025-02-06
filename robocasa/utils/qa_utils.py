@@ -19,19 +19,28 @@ from termcolor import colored
 import os
 import imageio
 from tqdm import tqdm
+import json
+import traceback
+
+QA_MATRIC_TO_COLOR = dict(
+    arm_lock=(255, 0, 0),
+    obj_drop=(255, 255, 0),
+    arm_coll=(0, 0, 255),
+)
 
 
-def scan_datset_quality(ds_path, num_demos=None):
+def scan_datset_quality(ds_path, num_demos=None, env=None):
     """
     scan for bad instances where the robot drops objects,
     collides with the environment,
     or experiences arm lock
     """
-    env_meta = get_env_metadata_from_dataset(dataset_path=ds_path)
-    env = create_env_from_env_meta(env_meta)
+    if env is None:
+        env_meta = get_env_metadata_from_dataset(dataset_path=ds_path)
+        env = create_env_from_env_meta(env_meta)
 
     f = h5py.File(ds_path)
-    bad_qa_stats = []
+    qa_stats = dict()
 
     demo_keys = list(f["data"].keys())
     if num_demos is not None:
@@ -51,14 +60,20 @@ def scan_datset_quality(ds_path, num_demos=None):
         num_arm_lock_steps_15 = 0
         num_arm_lock_steps_5 = 0
 
+        qa_stats[ep] = dict(
+            arm_lock=[],
+            obj_drop=[],
+            arm_coll=[],
+        )
+
         for t in range(traj_len):
             reset_to(env, {"states": states[t]})
 
             if check_obj_drop(env) is False:
-                bad_qa_stats.append((ep, "obj_drop", t))
+                qa_stats[ep]["obj_drop"] += [t]
 
             if check_arm_collision(env) is False:
-                bad_qa_stats.append((ep, "arm_coll", t))
+                qa_stats[ep]["arm_coll"] += [t]
 
             joint_val = read_arm_joint(env)
             if joint_val > -15:
@@ -67,12 +82,12 @@ def scan_datset_quality(ds_path, num_demos=None):
                 num_arm_lock_steps_5 += 1
 
             if num_arm_lock_steps_15 > 20 or num_arm_lock_steps_5 > 5:
-                bad_qa_stats.append((ep, "arm_lock", t))
+                qa_stats[ep]["arm_lock"] += [t]
 
     env.close()
     f.close()
 
-    return bad_qa_stats
+    return qa_stats
 
 
 def scan_arm_lock(ds_path):
@@ -135,7 +150,9 @@ def create_env_from_env_meta(env_meta):
     return env
 
 
-def playback_demos(ds_path, demo_keys, video_path=None):
+def playback_demos(
+    ds_path, demo_keys, highlight_frames_list=None, video_path=None, env=None
+):
     if len(demo_keys) == 0:
         return
 
@@ -143,7 +160,7 @@ def playback_demos(ds_path, demo_keys, video_path=None):
 
     video_writer = imageio.get_writer(video_path, fps=20)
 
-    for ep in demo_keys:
+    for ep_i, ep in enumerate(demo_keys):
         print(colored("\nPlaying back episode: {}".format(ep), "yellow"))
 
         # prepare initial state to reload from
@@ -152,8 +169,13 @@ def playback_demos(ds_path, demo_keys, video_path=None):
         initial_state["model"] = f["data/{}".format(ep)].attrs["model_file"]
         initial_state["ep_meta"] = f["data/{}".format(ep)].attrs.get("ep_meta", None)
 
-        env_meta = get_env_metadata_from_dataset(dataset_path=ds_path)
-        env = create_env_from_env_meta(env_meta)
+        if env is None:
+            env_meta = get_env_metadata_from_dataset(dataset_path=ds_path)
+            env = create_env_from_env_meta(env_meta)
+
+        highlight_frames = None
+        if highlight_frames_list is not None:
+            highlight_frames = highlight_frames_list[ep_i]
 
         playback_trajectory_with_env(
             env=env,
@@ -169,6 +191,7 @@ def playback_demos(ds_path, demo_keys, video_path=None):
                 "robot0_eye_in_hand",
             ],
             first=False,
+            highlight_frames=highlight_frames,
             verbose=False,
         )
 
@@ -186,7 +209,6 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         help="path to hdf5 dataset",
-        nargs="+",
     )
     parser.add_argument(
         "--num_demos_to_scan",
@@ -202,37 +224,121 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    ds_path_list = args.dataset
-    if args.dataset is None:
-        ds_path_list = []
-        for task in list(SINGLE_STAGE_TASK_DATASETS) + list(MULTI_STAGE_TASK_DATASETS):
-            ds_path, ds_meta = get_ds_path(task=task, ds_type="mg_im", return_info=True)
-            if ds_path is not None:
-                ds_path_list.append(ds_path)
+    demo_group_list = []
+    args.dataset = os.path.expanduser(args.dataset)
+    if os.path.isfile(args.dataset):
+        demo_groups = [[args.dataset]]
+    else:
+        ep_dir_list = []
+        for root, dirs, files in os.walk(args.dataset):
+            for dir in dirs:
+                if dir == "episodes":
+                    ep_dir_list.append(os.path.join(root, dir))
 
-    for ds_path in ds_path_list:
-        # scan dataset quality
-        bad_qa_stats = scan_datset_quality(ds_path, num_demos=args.num_demos_to_scan)
+        for ep_dir in ep_dir_list:
+            demo_group = []
+            for root, dirs, files in os.walk(ep_dir):
+                for file in files:
+                    if file == "ep_demo.hdf5":
+                        # make sure we only add successful episodes
+                        try:
+                            with open(
+                                os.path.join(root, "ep_stats.json"), "r"
+                            ) as stats_f:
+                                ep_stats = json.load(stats_f)
 
-        bad_cases = dict()
-        for (ep, reason, t) in bad_qa_stats:
-            if reason not in bad_cases:
-                bad_cases[reason] = []
+                            if not ep_stats["success"]:
+                                continue
 
-            if ep not in bad_cases[reason]:
-                bad_cases[reason].append(ep)
+                            # if the qa stats already exist, skip
+                            if os.path.exists(
+                                os.path.join(root, "qa_stats.json")
+                            ) and os.path.exists(os.path.join(root, "qa.mp4")):
+                                continue
+                        except:
+                            continue
 
-        print("Path:", ds_path)
-        print(
-            "Total number of bad demos:",
-            len(set([ep for (ep, reason, t) in bad_qa_stats])),
-        )
-        for reason in bad_cases:
-            print(f"Num bad demos due to {reason}: {len(bad_cases[reason])}")
+                        demo_group.append(os.path.join(root, file))
 
-        print("\nPlaying back bad demos...")
-        for reason in bad_cases:
-            video_path = ds_path[:-5] + f"_{reason}.mp4"
-            playback_demos(
-                ds_path, bad_cases[reason][: args.num_demos_to_render], video_path
+            if len(demo_group) > 0:
+                demo_group_list.append(demo_group)
+
+    for demo_group in demo_group_list:
+        env_meta = get_env_metadata_from_dataset(dataset_path=demo_group[0])
+        env = create_env_from_env_meta(env_meta)
+
+        for ds_path in demo_group:
+            # scan dataset quality
+            print("Scanning path:", ds_path)
+            try:
+                all_stats = scan_datset_quality(
+                    ds_path, env=env, num_demos=args.num_demos_to_scan
+                )
+            except Exception as e:
+                # skip if there's an issue
+                print("Exception!")
+                print(traceback.print_exc())
+                continue
+
+            summary_stats = dict()
+            for ep in all_stats:
+                for metric in all_stats[ep]:
+                    if metric not in summary_stats:
+                        summary_stats[metric] = []
+
+                    flagged_timesteps = all_stats[ep][metric]
+                    # if at least one timestep is flagged, add this episode to list of flagged episodes for this metric
+                    if len(flagged_timesteps) > 0:
+                        summary_stats[metric].append(ep)
+
+            qa_path = os.path.dirname(ds_path)
+            os.makedirs(qa_path, exist_ok=True)
+
+            all_flagged_eps = set(
+                [ep for ep_list in summary_stats.values() for ep in ep_list]
             )
+
+            print(
+                "Total number of bad demos:",
+                len(all_flagged_eps),
+            )
+            for metric in summary_stats:
+                print(
+                    f"Num flagged demos due to {metric}: {len(summary_stats[metric])}"
+                )
+
+            print("\nPlaying back demos...")
+            video_path = os.path.join(qa_path, f"qa.mp4")
+            demo_keys = summary_stats[metric][: args.num_demos_to_render]
+
+            highlight_frames_list = []
+            demo_keys = list(all_stats.keys())
+            for ep in demo_keys:
+                highlight_frames = []
+                for metric in all_stats[ep]:
+                    timesteps = all_stats[ep][metric]
+                    color = QA_MATRIC_TO_COLOR[metric]
+                    highlight_frames += zip(timesteps, [color] * len(timesteps))
+                highlight_frames_list.append(highlight_frames)
+            playback_demos(
+                ds_path,
+                demo_keys,
+                highlight_frames_list=highlight_frames_list,
+                video_path=video_path,
+                env=env,
+            )
+
+            qa_stats = dict(
+                auto_qa=dict(
+                    summary_stats=summary_stats,
+                    all_stats=all_stats,
+                )
+            )
+            with open(os.path.join(qa_path, "qa_stats.json"), "w") as f:
+                f.write(json.dumps(qa_stats, indent=4))
+
+            print()
+
+        if env is not None:
+            env.close()
+            del env

@@ -3,14 +3,15 @@ import json
 import os
 import random
 import time
-
 import h5py
 import imageio
 import numpy as np
-import robosuite
 from termcolor import colored
+import traceback
 
+import robosuite
 import robocasa
+from robocasa.utils.vis_utils import apply_filter
 
 
 def playback_trajectory_with_env(
@@ -26,6 +27,7 @@ def playback_trajectory_with_env(
     verbose=False,
     camera_height=512,
     camera_width=512,
+    highlight_frames=None,
 ):
     """
     Helper function to playback a single trajectory using the simulator environment.
@@ -70,27 +72,31 @@ def playback_trajectory_with_env(
     if render is False:
         print(colored("Running episode...", "yellow"))
 
-    for i in range(traj_len):
+    if highlight_frames is None:
+        highlight_frames = []
+    highlight_timesteps = [t for (t, c) in highlight_frames]
+
+    for t in range(traj_len):
         start = time.time()
 
         if action_playback:
-            env.step(actions[i])
-            if i < traj_len - 1:
+            env.step(actions[t])
+            if t < traj_len - 1:
                 # check whether the actions deterministically lead to the same recorded states
                 state_playback = np.array(env.sim.get_state().flatten())
-                if not np.all(np.equal(states[i + 1], state_playback)):
-                    err = np.linalg.norm(states[i + 1] - state_playback)
-                    if verbose or i == traj_len - 2:
+                if not np.all(np.equal(states[t + 1], state_playback)):
+                    err = np.linalg.norm(states[t + 1] - state_playback)
+                    if verbose or t == traj_len - 2:
                         print(
                             colored(
                                 "warning: playback diverged by {} at step {}".format(
-                                    err, i
+                                    err, t
                                 ),
                                 "yellow",
                             )
                         )
         else:
-            reset_to(env, {"states": states[i]})
+            reset_to(env, {"states": states[t]})
 
         # on-screen render
         if render:
@@ -108,7 +114,11 @@ def playback_trajectory_with_env(
 
         # video render
         if write_video:
-            if video_count % video_skip == 0 or i == traj_len - 1:
+            if (
+                video_count % video_skip == 0
+                or t == traj_len - 1
+                or t in highlight_timesteps
+            ):
                 video_img = []
                 for cam_name in camera_names:
                     im = env.sim.render(
@@ -118,6 +128,13 @@ def playback_trajectory_with_env(
                 video_img = np.concatenate(
                     video_img, axis=1
                 )  # concatenate horizontally
+                if t in highlight_timesteps:
+                    video_img = np.copy(video_img)
+
+                    # highlight the frame according to specified color
+                    idx = highlight_timesteps.index(t)
+                    color = highlight_frames[idx][1]
+                    video_img = apply_filter(video_img, color=color)
                 video_writer.append_data(video_img)
 
             video_count += 1
@@ -272,37 +289,53 @@ def reset_to(env, state):
     return None
 
 
-def playback_dataset(args):
+def playback_dataset(
+    dataset,
+    use_actions,
+    use_abs_actions,
+    use_obs,
+    filter_key,
+    n,
+    render,
+    render_image_names,
+    camera_height,
+    camera_width,
+    video_path,
+    video_skip,
+    extend_states,
+    first,
+    verbose,
+):
     # some arg checking
-    write_video = args.render is not True
-    if args.video_path is None:
-        args.video_path = args.dataset.split(".hdf5")[0] + ".mp4"
-        if args.use_actions:
-            args.video_path = args.dataset.split(".hdf5")[0] + "_use_actions.mp4"
-        elif args.use_abs_actions:
-            args.video_path = args.dataset.split(".hdf5")[0] + "_use_abs_actions.mp4"
-    assert not (args.render and write_video)  # either on-screen or video but not both
+    write_video = render is not True
+    if video_path is None:
+        video_path = dataset.split(".hdf5")[0] + ".mp4"
+        if use_actions:
+            video_path = dataset.split(".hdf5")[0] + "_use_actions.mp4"
+        elif use_abs_actions:
+            video_path = dataset.split(".hdf5")[0] + "_use_abs_actions.mp4"
+    assert not (render and write_video)  # either on-screen or video but not both
 
     # Auto-fill camera rendering info if not specified
-    if args.render_image_names is None:
+    if render_image_names is None:
         # We fill in the automatic values
-        env_meta = get_env_metadata_from_dataset(dataset_path=args.dataset)
-        args.render_image_names = "robot0_agentview_center"
+        env_meta = get_env_metadata_from_dataset(dataset_path=dataset)
+        render_image_names = "robot0_agentview_center"
 
-    if args.render:
+    if render:
         # on-screen rendering can only support one camera
-        assert len(args.render_image_names) == 1
+        assert len(render_image_names) == 1
 
-    if args.use_obs:
+    if use_obs:
         assert write_video, "playback with observations can only write to video"
         assert (
-            not args.use_actions and not args.use_abs_actions
+            not use_actions and not use_abs_actions
         ), "playback with observations is offline and does not support action playback"
 
     env = None
 
     # create environment only if not playing back with observations
-    if not args.use_obs:
+    if not use_obs:
         # # need to make sure ObsUtils knows which observations are images, but it doesn't matter
         # # for playback since observations are unused. Pass a dummy spec here.
         # dummy_spec = dict(
@@ -313,8 +346,8 @@ def playback_dataset(args):
         # )
         # initialize_obs_utils_with_obs_specs(obs_modality_specs=dummy_spec)
 
-        env_meta = get_env_metadata_from_dataset(dataset_path=args.dataset)
-        if args.use_abs_actions:
+        env_meta = get_env_metadata_from_dataset(dataset_path=dataset)
+        if use_abs_actions:
             env_meta["env_kwargs"]["controller_configs"][
                 "control_delta"
             ] = False  # absolute action space
@@ -326,7 +359,7 @@ def playback_dataset(args):
         env_kwargs["has_offscreen_renderer"] = write_video
         env_kwargs["use_camera_obs"] = False
 
-        if args.verbose:
+        if verbose:
             print(
                 colored(
                     "Initializing environment for {}...".format(env_kwargs["env_name"]),
@@ -336,14 +369,13 @@ def playback_dataset(args):
 
         env = robosuite.make(**env_kwargs)
 
-    f = h5py.File(args.dataset, "r")
+    f = h5py.File(dataset, "r")
 
     # list of all demonstration episodes (sorted in increasing number order)
-    if args.filter_key is not None:
-        print("using filter key: {}".format(args.filter_key))
+    if filter_key is not None:
+        print("using filter key: {}".format(filter_key))
         demos = [
-            elem.decode("utf-8")
-            for elem in np.array(f["mask/{}".format(args.filter_key)])
+            elem.decode("utf-8") for elem in np.array(f["mask/{}".format(filter_key)])
         ]
     elif "data" in f.keys():
         demos = list(f["data"].keys())
@@ -352,26 +384,26 @@ def playback_dataset(args):
     demos = [demos[i] for i in inds]
 
     # maybe reduce the number of demonstrations to playback
-    if args.n is not None:
+    if n is not None:
         random.shuffle(demos)
-        demos = demos[: args.n]
+        demos = demos[:n]
 
     # maybe dump video
     video_writer = None
     if write_video:
-        video_writer = imageio.get_writer(args.video_path, fps=20)
+        video_writer = imageio.get_writer(video_path, fps=20)
 
     for ind in range(len(demos)):
         ep = demos[ind]
         print(colored("\nPlaying back episode: {}".format(ep), "yellow"))
 
-        if args.use_obs:
+        if use_obs:
             playback_trajectory_with_obs(
                 traj_grp=f["data/{}".format(ep)],
                 video_writer=video_writer,
-                video_skip=args.video_skip,
-                image_names=args.render_image_names,
-                first=args.first,
+                video_skip=video_skip,
+                image_names=render_image_names,
+                first=first,
             )
             continue
 
@@ -381,17 +413,17 @@ def playback_dataset(args):
         initial_state["model"] = f["data/{}".format(ep)].attrs["model_file"]
         initial_state["ep_meta"] = f["data/{}".format(ep)].attrs.get("ep_meta", None)
 
-        if args.extend_states:
+        if extend_states:
             states = np.concatenate((states, [states[-1]] * 50))
 
         # supply actions if using open-loop action playback
         actions = None
         assert not (
-            args.use_actions and args.use_abs_actions
+            use_actions and use_abs_actions
         )  # cannot use both relative and absolute actions
-        if args.use_actions:
+        if use_actions:
             actions = f["data/{}/actions".format(ep)][()]
-        elif args.use_abs_actions:
+        elif use_abs_actions:
             actions = f["data/{}/actions_abs".format(ep)][()]  # absolute actions
 
         playback_trajectory_with_env(
@@ -399,19 +431,19 @@ def playback_dataset(args):
             initial_state=initial_state,
             states=states,
             actions=actions,
-            render=args.render,
+            render=render,
             video_writer=video_writer,
-            video_skip=args.video_skip,
-            camera_names=args.render_image_names,
-            first=args.first,
-            verbose=args.verbose,
-            camera_height=args.camera_height,
-            camera_width=args.camera_width,
+            video_skip=video_skip,
+            camera_names=render_image_names,
+            first=first,
+            verbose=verbose,
+            camera_height=camera_height,
+            camera_width=camera_width,
         )
 
     f.close()
     if write_video:
-        print(colored(f"Saved video to {args.video_path}", "green"))
+        print(colored(f"Saved video to {video_path}", "green"))
         video_writer.close()
 
     if env is not None:
@@ -537,4 +569,34 @@ def get_playback_args():
 
 if __name__ == "__main__":
     args = get_playback_args()
-    playback_dataset(args)
+    dataset_list = []
+    if os.path.isdir(args.dataset):
+        for root, dirs, files in os.walk(args.dataset):
+            for file in files:
+                if file == "demo.hdf5":
+                    dataset_list.append(os.path.join(root, file))
+    else:
+        dataset_list = [args.dataset]
+
+    for dataset in dataset_list:
+        try:
+            playback_dataset(
+                dataset=dataset,
+                use_actions=args.use_actions,
+                use_abs_actions=args.use_abs_actions,
+                use_obs=args.use_obs,
+                filter_key=args.filter_key,
+                n=args.n,
+                render=args.render,
+                render_image_names=args.render_image_names,
+                camera_height=args.camera_height,
+                camera_width=args.camera_width,
+                video_path=args.video_path,
+                video_skip=args.video_skip,
+                extend_states=args.extend_states,
+                first=args.first,
+                verbose=args.verbose,
+            )
+        except Exception as e:
+            print("Exception!")
+            print(traceback.format_exc())

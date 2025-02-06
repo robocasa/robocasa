@@ -192,7 +192,14 @@ def collect_human_trajectory(
     return ep_directory, discard_traj
 
 
-def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episodes=None):
+def gather_demonstrations_as_hdf5(
+    directory,
+    out_dir,
+    env_info,
+    successful_episodes=None,
+    verbose=False,
+    out_name="demo.hdf5",
+):
     """
     Gathers the demonstrations saved in @directory into a
     single hdf5 file.
@@ -215,8 +222,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
             including controller and robot info
     """
 
-    hdf5_path = os.path.join(out_dir, "demo.hdf5")
-    print("Saving hdf5 to", hdf5_path)
+    hdf5_path = os.path.join(out_dir, out_name)
+    if verbose:
+        print("Saving hdf5 to", hdf5_path)
     f = h5py.File(hdf5_path, "w")
 
     # store some metadata in the attributes of one group
@@ -227,7 +235,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
 
     for ep_directory in os.listdir(directory):
         # print("Processing {} ...".format(ep_directory))
-        if (excluded_episodes is not None) and (ep_directory in excluded_episodes):
+        if (successful_episodes is not None) and (
+            ep_directory not in successful_episodes
+        ):
             # print("\tExcluding this episode!")
             continue
 
@@ -288,7 +298,8 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
         #     pass
         #     # print("Demonstration is unsuccessful and has NOT been saved")
 
-    print("{} successful demos so far".format(num_eps))
+    if verbose:
+        print("{} successful demos so far".format(num_eps))
 
     if num_eps == 0:
         f.close()
@@ -477,9 +488,14 @@ if __name__ == "__main__":
     time_str = f"{time_str}_{env_name}"
 
     if not args.debug:
+        # make a new timestamped directory
+        demo_dir = os.path.join(args.directory, time_str)
+        os.makedirs(demo_dir)
+
+    if not args.debug:
         # wrap the environment with data collection wrapper
-        tmp_directory = "/tmp/{}".format(time_str)
-        env = DataCollectionWrapper(env, tmp_directory)
+        all_eps_directory = os.path.join(demo_dir, "episodes")
+        env = DataCollectionWrapper(env, all_eps_directory)
 
     # initialize device
     if args.device == "keyboard":
@@ -503,17 +519,12 @@ if __name__ == "__main__":
     else:
         raise ValueError
 
-    # make a new timestamped directory
-    new_dir = os.path.join(args.directory, time_str)
-    os.makedirs(new_dir)
-
-    excluded_eps = []
+    successful_episodes = []
 
     # collect demonstrations
     try:
         while True:
             print()
-            discard_traj = False
             ep_directory, discard_traj = collect_human_trajectory(
                 env,
                 device,
@@ -523,25 +534,48 @@ if __name__ == "__main__":
                 render=(args.renderer != "mjviewer"),
                 max_fr=args.max_fr,
             )
+            if ep_directory is not None:
+                # save whether the episode is successful or not
+                with open(os.path.join(ep_directory, "ep_stats.json"), "w") as file:
+                    json.dump({"success": not discard_traj}, file)
 
-            print("Keep traj?", not discard_traj)
+                with open(os.path.join(ep_directory, "env_info.json"), "w") as file:
+                    json.dump(env_info, file)
+
+                if not discard_traj:
+                    successful_episodes.append(ep_directory.split("/")[-1])
+
+                gather_demonstrations_as_hdf5(
+                    all_eps_directory,
+                    ep_directory,
+                    env_info,
+                    successful_episodes=[ep_directory.split("/")[-1]],
+                    out_name="ep_demo.hdf5",
+                )
+
+            print("Episode success:", not discard_traj)
 
             if not args.debug:
-                if discard_traj and ep_directory is not None:
-                    excluded_eps.append(ep_directory.split("/")[-1])
                 hdf5_path = gather_demonstrations_as_hdf5(
-                    tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
+                    all_eps_directory,
+                    demo_dir,
+                    env_info,
+                    successful_episodes=successful_episodes,
+                    verbose=True,
                 )
                 if hdf5_path is not None:
                     convert_to_robomimic_format(hdf5_path)
     except KeyboardInterrupt:
         print("\nKeyboard interrupt detected. Performing cleanup...")
         if not args.debug:
-            if discard_traj and ep_directory is not None:
-                excluded_eps.append(ep_directory.split("/")[-1])
             hdf5_path = gather_demonstrations_as_hdf5(
-                tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
+                all_eps_directory,
+                demo_dir,
+                env_info,
+                successful_episodes=successful_episodes,
+                verbose=True,
             )
             if hdf5_path is not None:
                 convert_to_robomimic_format(hdf5_path)
+                print(colored(f"\nDataset saved: {hdf5_path}", "green"))
         sys.exit(0)

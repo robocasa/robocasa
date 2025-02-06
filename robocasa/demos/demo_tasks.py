@@ -121,33 +121,48 @@ if __name__ == "__main__":
             )
             download_datasets(tasks=[task], ds_types=["human_raw"])
 
-        parser = argparse.Namespace()
-        parser.dataset = dataset
+        dataset = dataset
 
         if args.render_offscreen:
-            parser.render = True
+            render = True
             if not os.path.exists(args.video_path):
                 os.makedirs(args.video_path)
-            parser.video_path = os.path.join(args.video_path, f"video_{video_num}.mp4")
+            video_path = os.path.join(args.video_path, f"video_{video_num}.mp4")
         else:
-            parser.render = False
-            parser.video_path = False
+            render = False
+            video_path = False
 
-        parser.render = not args.render_offscreen
-        parser.use_actions = False
-        parser.use_abs_actions = False
-        parser.render_image_names = ["robot0_agentview_center"]
-        parser.use_obs = False
-        parser.n = 1 if args.task is None else None
-        parser.filter_key = None
-        parser.video_skip = 5
-        parser.first = False
-        parser.verbose = True
-        parser.extend_states = True
-        parser.camera_height = 512
-        parser.camera_width = 768
+        render = not args.render_offscreen
+        use_actions = False
+        use_abs_actions = False
+        render_image_names = ["robot0_agentview_center"]
+        use_obs = False
+        n = 1 if args.task is None else None
+        filter_key = None
+        video_skip = 5
+        first = False
+        verbose = True
+        extend_states = True
+        camera_height = 512
+        camera_width = 768
 
-        playback_dataset(parser)
+        playback_dataset(
+            dataset=dataset,
+            use_actions=use_actions,
+            use_abs_actions=use_abs_actions,
+            use_obs=use_obs,
+            filter_key=filter_key,
+            n=n,
+            render=render,
+            render_image_names=render_image_names,
+            camera_height=camera_height,
+            camera_width=camera_width,
+            video_path=video_path,
+            video_skip=video_skip,
+            extend_states=extend_states,
+            first=first,
+            verbose=verbose,
+        )
         if args.task is not None:
             break
         print()
