@@ -2,14 +2,14 @@
 <mujoco model="model">
     <compiler angle="radian" />
     <asset>
-        <mesh file="visuals/Dishwasher031_Button002.obj" name="Dishwasher031_Button2_vis" />
-        <mesh file="visuals/Dishwasher031_Shelf002.obj" name="Dishwasher031_Shelf2_vis" />
-        <mesh file="visuals/Dishwasher031.obj" name="Dishwasher031_vis" />
-        <mesh file="visuals/Dishwasher031_Shelf001.obj" name="Dishwasher031_Shelf1_vis" />
-        <mesh file="visuals/Dishwasher031_Door001.obj" name="Dishwasher031_Door_vis" />
-        <mesh file="visuals/Dishwasher031_Button001.obj" name="Dishwasher031_Button1_vis" />
-        <texture file="visuals/T_Dishwasher031_BC001.png" name="T_Dishwasher031_BaseColor" type="2d" />
-        <material name="material" rgba="1 1 1 1" texture="T_Dishwasher031_BaseColor" />
+        <mesh file="visuals/Dishwasher031_Button002.obj" name="Button2_vis" />
+        <mesh file="visuals/Dishwasher031_Shelf002.obj" name="Shelf2_vis" />
+        <mesh file="visuals/Dishwasher031.obj" name="vis" />
+        <mesh file="visuals/Dishwasher031_Shelf001.obj" name="Shelf1_vis" />
+        <mesh file="visuals/Dishwasher031_Door001.obj" name="Door_vis" />
+        <mesh file="visuals/Dishwasher031_Button001.obj" name="Button1_vis" />
+        <texture file="visuals/T_Dishwasher031_BC001.png" name="T_BaseColor" type="2d" />
+        <material name="material" rgba="1 1 1 1" texture="T_BaseColor" />
     </asset>
     <default>
         <default class="visual">
@@ -31,33 +31,33 @@
             <site rgba="0 1 1 1" size="0.01" pos="-0.254878 0.247609 0.0149832" name="int_py" />
             <site rgba="1 0 1 1" size="0.01" pos="-0.254878 -0.237846 0.605866" name="int_pz" />
             <body name="object">
-                <geom mesh="Dishwasher031_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
                 <geom class="collision" type="box" pos="-0.001762941014021635 0.009317591786384583 0.62143874168396" size="0.28411436080932617 0.24760837852954865 0.013534784317016602"/>
                 <geom class="collision" type="box" pos="0.26550745964050293 0.009317576885223389 0.311483234167099" size="0.015477538108825684 0.24760837852954865 0.2962747812271118" />
                 <geom class="collision" type="box" pos="-0.27153146266937256 0.009317606687545776 0.311483234167099" size="0.014239192008972168 0.24760837852954865 0.2962747812271118"/>
                 <geom class="collision" type="box" pos="-0.0018843412399291992 0.25276270508766174 0.3184008002281189" size="0.2829288840293884 0.004856929183006287 0.31630614399909973" />
                 <geom class="collision" type="box" pos="-0.001762941014021635 0.009317591786384583 0.007676112465560436" size="0.28411436080932617 0.24760837852954865 0.00763507978990674"/>
-                <body name="Dishwasher031_Door">
-                    <joint axis="1 0 0" pos="-0.004389717243611813 -0.2653256356716156 0.024129550904035568" limited="true" name="Dishwasher031_Door_joint" range="0.0 0.60" type="hinge" frictionloss="10" damping="2" armature=".01" />
-                    <geom mesh="Dishwasher031_Door_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                <body name="door">
+                    <joint axis="1 0 0" pos="-0.004389717243611813 -0.2653256356716156 0.024129550904035568" limited="true" name="door_joint" range="0.0 0.60" type="hinge" frictionloss="10" damping="2" armature=".01" />
+                    <geom mesh="Door_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
                     <geom class="collision" type="box" pos="-0.00032767653465270996 -0.26074615120887756 0.3216876983642578" size="0.2816140055656433 0.014242023229598999 0.30869004130363464" />
                     <geom class="collision" type="box" pos="0.21484650671482086 -0.29135504364967346 0.5784174203872681" size="0.009659022092819214 0.019381284713745117 0.013520292937755585"/>
                     
                     <geom class="collision" type="cylinder" pos="0.001502305269241333 -0.3116236925125122 0.5798131823539734" size="0.010313987731933594 0.2267586588859558" quat="0.7071068286895752 1.2101618374060763e-08 0.7071067690849304 -1.2101617485882343e-08" />
-                    <body name="Dishwasher031_Button1">
-                        <joint axis="0 0 -1" pos="-0.162874236702919 -0.25478944182395935 0.6414382457733154" limited="true" name="Dishwasher031_Button1_joint" range="0.0 0.003" type="slide" damping="2" frictionloss="2" armature=".01" />
-                        <geom mesh="Dishwasher031_Button1_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <body name="button1">
+                        <joint axis="0 0 -1" pos="-0.162874236702919 -0.25478944182395935 0.6414382457733154" limited="true" name="button1_joint" range="0.0 0.003" type="slide" damping="2" frictionloss="2" armature=".01" />
+                        <geom mesh="Button1_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
                         <geom class="collision" type="cylinder" pos="-0.1629018485546112 -0.2548433840274811 0.6415886878967285" size="0.0076351165771484375 0.0013884007930755615" />
                     </body>
-                    <body name="Dishwasher031_Button2">
-                        <joint axis="0 0 -1" pos="0.15752914547920227 -0.2547895312309265 0.6414381861686707" limited="true" name="Dishwasher031_Button2_joint" range="0.0 0.003" type="slide" damping="2" frictionloss="2" armature=".01" />
-                        <geom mesh="Dishwasher031_Button2_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                    <body name="button2">
+                        <joint axis="0 0 -1" pos="0.15752914547920227 -0.2547895312309265 0.6414381861686707" limited="true" name="button2_joint" range="0.0 0.003" type="slide" damping="2" frictionloss="2" armature=".01" />
+                        <geom mesh="Button2_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
                         <geom class="collision" type="cylinder" pos="0.15752507746219635 -0.25472399592399597 0.6415886878967285" size="0.0076351165771484375 0.0013884007930755615" />
                     </body>
                 </body>
-                <body name="Dishwasher031_Shelf1">
-                    <joint axis="0 -1 0" pos="-0.03222498297691345 0.009835115633904934 0.3909529447555542" limited="true" name="Dishwasher031_Shelf1_joint" range="0.0 0.25" type="slide" damping="2" frictionloss="2" armature=".01" />
-                    <geom mesh="Dishwasher031_Shelf1_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                <body name="rack_top">
+                    <joint axis="0 -1 0" pos="-0.03222498297691345 0.009835115633904934 0.3909529447555542" limited="true" name="rack_top_joint" range="0.0 0.25" type="slide" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="Shelf1_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
                     <geom class="collision" type="box" pos="-0.004036843776702881 0.22345402836799622 0.4028705954551697" size="0.246563121676445 0.00476536899805069 0.06298644840717316" />
                     <geom class="collision" type="box" pos="-0.244482159614563 0.0007859319448471069 0.40287062525749207" size="0.008873035199940205 0.22720077633857727 0.06298644840717316" />
                     <geom class="collision" type="box" pos="0.23784160614013672 0.0007858872413635254 0.40287062525749207" size="0.00959913432598114 0.22720077633857727 0.06298644840717316" />
@@ -66,9 +66,9 @@
                     <geom class="collision" type="box" pos="-0.1223105937242508 0.0006802836433053017 0.39670008420944214" size="0.0035085445269942284 0.22709517180919647 0.02422460913658142" />
                     <geom class="collision" type="box" pos="-0.19985240697860718 0.0006802836433053017 0.39670008420944214" size="0.0035085445269942284 0.22709517180919647 0.02422460913658142"/>
                 </body>
-                <body name="Dishwasher031_Shelf2">
-                    <joint axis="0 -1 0" pos="-0.00739044276997447 0.09472967684268951 0.13259649276733398" limited="true" name="Dishwasher031_Shelf2_joint" range="0.0 0.25" type="slide" damping="2" frictionloss="2" armature=".01" />
-                    <geom mesh="Dishwasher031_Shelf2_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
+                <body name="rack_bottom">
+                    <joint axis="0 -1 0" pos="-0.00739044276997447 0.09472967684268951 0.13259649276733398" limited="true" name="rack_bottom_joint" range="0.0 0.25" type="slide" damping="2" frictionloss="2" armature=".01" />
+                    <geom mesh="Shelf2_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material" />
                     <geom class="collision" type="box" pos="-0.004036843776702881 0.22345399856567383 0.10418463498353958" size="0.246563121676445 0.00476536899805069 0.057737790048122406" />
                     <geom class="collision" type="box" pos="-0.244482159614563 0.0007859319448471069 0.10418466478586197" size="0.006242290139198303 0.22720077633857727 0.057737793773412704" />
                     <geom class="collision" type="box" pos="0.23784160614013672 0.0007859021425247192 0.10418466478586197" size="0.004629574716091156 0.22720077633857727 0.057737793773412704" />
