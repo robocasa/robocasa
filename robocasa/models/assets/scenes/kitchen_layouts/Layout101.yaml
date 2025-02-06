@@ -62,46 +62,19 @@ room:
 
     - name: wall_left_3
       type: wall
-      size: [1.113, 0.351, 0.02]
+      size: [1.114, 0.471, 0.02]
       # pos: [0.0, -2.158, 2.649]
-      pos: [0.0, -2.24, 2.649]
+      pos: [0.0, -2.24, 2.529]
       wall_side: left
 
     - name: wall_left_3_backing
       type: wall
       backing: true
       # backing_extended: [True, True]
-      size: [1.113, 0.351, 0.04]
+      size: [1.114, 0.351, 0.04]
       # pos: [0.0, -2.158, 2.649]
       pos: [0.0, -2.24, 2.649]
       wall_side: left
-
-    - name: cabcorner
-      type: stack
-      levels: [single_cabinet, single_cabinet, hinge_cabinet]
-      percentages: [0.35, 0.3, 0.35]
-      size: [0.655, 0.647, 1.38]
-      pos: [0.323, -0.327, 1.61]
-
-      configs:
-        single_cabinet_1:
-          panel_config:
-            handle_vpos: bottom
-            handle_hpos: right
-          orientation: left
-
-        single_cabinet_2:
-          panel_config:
-            handle_vpos: bottom
-            handle_hpos: right
-          orientation: left
-
-        hinge_cabinet:
-          # open_top: true
-          panel_config:
-            handle_vpos: bottom
-
-
 
   floor:
     - name: floor_1
@@ -266,12 +239,40 @@ main_group_1:
 
     - name: hingecabinet_1.004
       type: hinge_cabinet
-      size: [microwave_1, 0.45, null]
+      size: [microwave_1, 0.4, null]
       align_to: microwave_1
       alignment: back
       side: top
       stack_height: 0.92
       stack_fixtures: ["microwave_1"]
+
+    - name: cabcorner
+      type: stack
+      levels: [single_cabinet, single_cabinet, hinge_cabinet]
+      percentages: [0.35, 0.3, 0.35]
+      size: [0.655, 0.647, 1.33]
+      # pos: [0.323, -0.327, 1.61]
+      align_to: hingecabinet_1.003
+      alignment: top_back
+      side: left
+
+      configs:
+        single_cabinet_1:
+          panel_config:
+            handle_vpos: bottom
+            handle_hpos: right
+          orientation: left
+
+        single_cabinet_2:
+          panel_config:
+            handle_vpos: bottom
+            handle_hpos: right
+          orientation: left
+
+        hinge_cabinet:
+          # open_top: true
+          panel_config:
+            handle_vpos: bottom
 
   counter_accessories:
     - name: paper_towel
@@ -348,8 +349,8 @@ left_group_1:
     - name: counter
       type: counter
       # pos: [0.867, 0.067, 0.669]
-      pos: [0.791, 0.067, 0.66]
-      size: [2.245, 0.188, 1.309]
+      pos: [0.78, 0.067, 0.66]
+      size: [2.234, 0.188, 1.309]
 
     - name: panelbox
       type: stack
