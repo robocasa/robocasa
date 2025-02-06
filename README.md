@@ -33,7 +33,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 
    ```sh
    cd ..
-   git clone https://github.com/robocasa/robocasa
+   git clone https://github.com/robocasa/robocasa # NOT THIS: USE Fork instead
    cd robocasa
    pip install -e .
    pip install pre-commit; pre-commit install           # Optional: set up code formatter.

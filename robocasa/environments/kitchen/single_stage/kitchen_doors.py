@@ -90,8 +90,8 @@ class ManipulateDoor(Kitchen):
         def door_angle(obs_cache):
             # Return normalized door angle instead of raw angle
             door_state = self.door_fxtr.get_door_state(env=self)
-            # Return as numpy array to match sensor interface
-            return np.array([door_state['door']])
+            # Convert dict values to list before creating numpy array
+            return np.array(list(door_state.values()))
 
         observables["door_angle"] = Observable(
             name="door_angle",
