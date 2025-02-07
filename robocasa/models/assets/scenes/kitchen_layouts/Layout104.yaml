@@ -27,43 +27,43 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [0.41, 1.5, 0.02]
-      pos: [4.35, -0.41, 1.5]
+      size: [2.427, 1.5, 0.02]
+      pos: [4.35, -2.394, 1.5]
       wall_side: right
 
     - name: wall_right_1_backing
       type: wall
       backing: true
-      size: [0.41, 1.5, 0.1]
-      pos: [4.35, -0.41, 1.5]
+      size: [2.427, 1.5, 0.1]
+      pos: [4.35, -2.394, 1.5]
       wall_side: right
 
-    - name: wall_right_2
-      type: wall
-      size: [1.078, 0.46, 0.02]
-      # pos: [4.35, -1.898, 0.46]
-      pos: [4.35, -1.978, 0.45]
-      wall_side: right
+    # - name: wall_right_2
+    #   type: wall
+    #   size: [1.078, 0.46, 0.02]
+    #   # pos: [4.35, -1.898, 0.46]
+    #   pos: [4.35, -1.978, 0.45]
+    #   wall_side: right
 
-    - name: wall_right_2_backing
-      type: wall
-      backing: true
-      size: [1.078, 0.46, 0.1]
-      # pos: [4.35, -1.898, 0.46]
-      pos: [4.35, -1.978, 0.45]
-      wall_side: right
+    # - name: wall_right_2_backing
+    #   type: wall
+    #   backing: true
+    #   size: [1.078, 0.46, 0.1]
+    #   # pos: [4.35, -1.898, 0.46]
+    #   pos: [4.35, -1.978, 0.45]
+    #   wall_side: right
 
   floor:
     - name: floor_1
       type: floor
-      size: [2.17, 2.444, 0.02]
-      pos: [2.17, -2.411, 0.0]
+      size: [2.178, 2.417, 0.02]
+      pos: [2.178, -2.417, 0.0]
 
     - name: floor_1_backing
       type: floor
       backing: true
-      size: [2.17, 2.444, 0.1]
-      pos: [2.17, -2.411, 0.0]
+      size: [2.178, 2.417, 0.1]
+      pos: [2.178, -2.417, 0.0]
 
   wall_accessories:
     - name: wallaccessory.005
@@ -122,12 +122,21 @@ main_group_1:
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
 
-    - name: stack_1.001
-      type: stack
+    # - name: stack_1.001
+    #   type: stack
+    #   pos: [0.842, -0.325, 0.47]
+    #   size: [0.385, 0.65, 0.84]
+    #   levels: [single_cabinet]
+    #   percentages: [1]
+    
+    - name: singlecabinet_1.001
+      type: single_cabinet
       pos: [0.842, -0.325, 0.47]
       size: [0.385, 0.65, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
+      orientation: left
+      panel_config:
+        handle_vpos: top
+        handle_hpos: right
 
     - name: framedwindow.001
       type: framed_window
@@ -206,12 +215,17 @@ left_group_1:
       pos: [2.996, -0.33, 0.46]
       size: [2.41, 0.65, 0.92]
 
+    # - name: stack_1.006
+    #   type: stack
+    #   pos: [3.942, -0.33, 0.47]
+    #   size: [0.519, 0.65, 0.84]
+    #   levels: [single_cabinet]
+    #   percentages: [1]
+
     - name: stack_1.006
-      type: stack
-      pos: [3.942, -0.33, 0.47]
+      type: box
       size: [0.519, 0.65, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
+      pos: [3.942, -0.33, 0.47]
 
     - name: stack_1.007
       type: stack
@@ -236,13 +250,14 @@ left_group_1:
 
     - name: fridge
       type: fridge
-      size: [0.96, 0.65, 1.75]
+      # size: [0.96, 0.65, 1.75]
+      size: [0.9, 0.8, 1.75]
 
     - name: fridge_housing
       type: housing_cabinet
       interior_obj: fridge
-      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-      pos: [1.291, -0.33, 0.875]
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0]]
+      pos: [1.321, -0.33, 0.875]
 
   top_row.001:
     - name: singlecabinet_1.003
@@ -260,7 +275,8 @@ left_group_1:
 
     - name: hingecabinet_1.002
       type: hinge_cabinet
-      size: [fridge_housing, 0.65, null]
+      # size: [fridge_housing, 0.65, null]
+      size: [fridge_housing, 0.8, null]
       align_to: fridge_housing
       side: top
       alignment: back
@@ -341,7 +357,8 @@ island_group_1:
     - name: dishwasher_1.001
       type: dishwasher
       # pos: [1.579, -0.325, 0.45]
-      pos: [1.545, -0.325, 0.46]
+      # pos: [1.545, -0.325, 0.46]
+      pos: [1.545, -0.350, 0.46]
       size: [0.586, 0.65, 0.89]
 
     - name: counter_1.001
@@ -390,14 +407,14 @@ stool_group_1:
     - name: stool_1
       type: stool
       # pos: [-0.326, 1.327, 0.5]
-      pos: [-0.326, 1.02, 0.5]
+      pos: [-0.326, 1.08, 0.5]
 
     - name: stool_1.001
       type: stool
       # pos: [-0.92, 1.386, 0.5]
-      pos: [-0.92, 1.02, 0.5]
+      pos: [-0.92, 1.08, 0.5]
 
     - name: stool_1.002
       type: stool
       # pos: [-1.526, 1.309, 0.5]
-      pos: [-1.526, 1.02, 0.5]
+      pos: [-1.526, 1.08, 0.5]
