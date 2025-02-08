@@ -1,3 +1,4 @@
+      
 room:
   walls:
     - name: wall_left_1
@@ -27,21 +28,21 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [1.039, 1.5, 0.02]
-      pos: [4.493, -1.039, 1.5]
+      size: [1.04, 1.5, 0.02]
+      pos: [4.493, -1.08, 1.5]
       wall_side: right
 
     - name: wall_right_1_backing
       type: wall
       backing: true
-      size: [1.039, 1.5, 0.1]
-      pos: [4.493, -1.039, 1.5]
+      size: [1.06, 1.5, 0.1]
+      pos: [4.493, -1.06, 1.5]
       wall_side: right
 
     - name: wall_main_2
       type: wall
-      size: [0.327, 1.5, 0.02]
-      pos: [4.94, -2.197, 1.5]
+      size: [0.368, 1.5, 0.02]
+      pos: [4.9, -2.197, 1.5]
 
     - name: wall_main_2_backing
       type: wall
@@ -49,10 +50,25 @@ room:
       size: [0.327, 1.5, 0.1]
       pos: [4.94, -2.197, 1.5]
 
+    - name: wall_right_2
+      type: wall
+      size: [1.088, 1.5, 0.02]
+      pos: [5.26, -3.312, 1.5]
+      wall_side: right
+
+    - name: wall_right_2_backing
+      type: wall
+      backing: true
+      backing_extended: [True, True]
+      size: [1.0, 1.5, 0.1]
+      pos: [5.262, -3.2, 1.5]
+      wall_side: right
+    
+
   floor:
     - name: floor_1
       type: floor
-      size: [2.246, 1.099, 0.02]
+      size: [2.246, 1.018, 0.02]
       pos: [2.246, -1.099, 0.0]
 
     - name: floor_1_backing
@@ -175,18 +191,27 @@ main_group_1:
       levels: [drawer]
       percentages: [1]
 
-    - name: oven
-      type: oven
-      size: [0.7, 0.65, 0.68]
+    # - name: oven
+    #   type: oven
+    #   size: [0.7, 0.65, 0.68]
 
-    - name: oven_housing
-      type: housing_cabinet
+    # - name: oven_housing
+    #   type: housing_cabinet
+    #   size: [0.836, 0.65, 0.7]
+    #   padding: [null, [-0.01, null], null]
+    #   align_to: bottom
+    #   alignment: front
+    #   side: top
+    #   interior_obj: oven
+
+    - name: hingecabinet_1.001
+      type: hinge_cabinet
       size: [0.836, 0.65, 0.7]
-      padding: [null, [-0.01, null], null]
       align_to: bottom
       alignment: front
       side: top
-      interior_obj: oven
+      panel_config:
+        handle_vpos: top
 
     - name: microwave
       type: microwave
@@ -196,7 +221,7 @@ main_group_1:
       type: housing_cabinet
       size: [0.836, 0.65, 0.55]
       padding: [null, [-0.01, null], null]
-      align_to: oven_housing
+      align_to: hingecabinet_1.001
       alignment: front
       side: top
       interior_obj: microwave
@@ -208,7 +233,7 @@ main_group_1:
       alignment: front
       side: top
       stack_height: 2.3
-      stack_fixtures: [bottom, oven_housing, microwave_housing]
+      stack_fixtures: [bottom, hingecabinet_1.001, microwave_housing]
 
     - name: wall_main_stack_2
       type: stack
@@ -216,12 +241,19 @@ main_group_1:
       percentages: [0.5, 0.5]
       pos: [4.257, -0.325, 1.2]
       size: [0.472, 0.65, 2.3]
+      configs:
+        single_cabinet:
+          panel_config:
+            handle_vpos: center
 
   top_row:
     - name: singlecabinet_1.001
       type: single_cabinet
       pos: [2.114, -0.203, 1.89]
       size: [0.471, 0.4, 0.92]
+      orientation: left
+      panel_config:
+        handle_hpos: right
 
     - name: hingecabinet_1.003
       type: hinge_cabinet
@@ -255,12 +287,17 @@ left_group_1:
       pos: [0.874, -0.325, 0.46]
       size: [1.748, 0.65, 0.92]
 
-    - name: stack_1.001
-      type: stack
+    # - name: stack_1.001
+    #   type: stack
+    #   pos: [1.457, -0.325, 0.47]
+    #   size: [0.583, 0.65, 0.84]
+    #   levels: [single_cabinet, drawer]
+    #   percentages: [0.7, 0.3]
+
+    - name: dishwasher
+      type: dishwasher
       pos: [1.457, -0.325, 0.47]
-      size: [0.583, 0.65, 0.84]
-      levels: [single_cabinet, drawer]
-      percentages: [0.7, 0.3]
+      size: [0.6, 0.6, 0.89]
 
     - name: stack_1.005
       type: stack
@@ -330,6 +367,10 @@ front_group_1:
       size: [0.647, 0.65, 0.84]
       levels: [hinge_cabinet, drawer]
       percentages: [0.7, 0.3]
+      configs:
+        hinge_cabinet:
+          panel_config:
+            handle_hpos: right
 
     - name: stove
       type: stove
@@ -375,12 +416,12 @@ front_group_1:
 
     - name: counter_1.004
       type: counter
-      pos: [-2.291, 0.325, 0.57]
+      pos: [-2.291, 0.325, 0.6]
       size: [0.12, 0.65, 1.14]
 
     - name: counter_1.006
       type: counter
-      pos: [-1.176, 0.726, 0.57]
+      pos: [-1.176, 0.726, 0.6]
       size: [2.351, 0.153, 1.14]
 
     - name: cube.002
@@ -390,7 +431,7 @@ front_group_1:
 
     - name: counter_1.007
       type: counter
-      pos: [-1.176, 1.114, 0.45]
+      pos: [-1.176, 1.114, 0.46]
       size: [2.351, 0.688, 0.9]
     
   counter_accessories:
@@ -409,12 +450,14 @@ stool_group_1:
   stool_row:
     - name: stool_1
       type: stool
-      pos: [-0.25, 0.557, 0.5]
+      pos: [-0.25, 0.2, 0.5]
 
     - name: stool_1.001
       type: stool
-      pos: [-0.932, 0.557, 0.5]
+      pos: [-0.932, 0.2, 0.5]
 
     - name: stool_1.002
       type: stool
-      pos: [-1.619, 0.557, 0.5]
+      pos: [-1.619, 0.2, 0.5]
+
+    
