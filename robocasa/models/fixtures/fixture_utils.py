@@ -16,7 +16,9 @@ def fixture_is_type(fixture, fixture_type):
         cls_check = any([isinstance(fixture, cls) for cls in [Counter]])
         if not cls_check:
             return False
-        return fixture.width >= 2 or fixture.depth >= 2
+        # a hack to identify counters that start with name island
+        starts_with_island = fixture.name.startswith("island")
+        return starts_with_island or sum(fixture.base_opening) > 0
     elif fixture_type == FixtureType.CABINET:
         return isinstance(fixture, Cabinet)
     elif fixture_type == FixtureType.DRAWER:
@@ -25,6 +27,12 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Sink)
     elif fixture_type == FixtureType.STOVE:
         return isinstance(fixture, Stove)
+    elif fixture_type == FixtureType.OVEN:
+        return isinstance(fixture, Oven)
+    elif fixture_type == FixtureType.FRIDGE:
+        return isinstance(fixture, Fridge)
+    elif fixture_type == FixtureType.DISHWASHER:
+        return isinstance(fixture, Dishwasher)
     elif fixture_type == FixtureType.CABINET_TOP:
         cls_check = any(
             [
@@ -104,3 +112,20 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Counter) and "corner" not in fixture.name
     else:
         raise ValueError
+
+
+def is_fxtr_valid(env, fxtr, size):
+    """
+    checks if counter is valid for object placement by making sure it is large enough
+
+    Args:
+        fxtr (Fixture): fixture to check
+        size (tuple): minimum size (x,y) that the counter region must be to be valid
+
+    Returns:
+        bool: True if fixture is valid, False otherwise
+    """
+    for region in fxtr.get_reset_regions(env).values():
+        if region["size"][0] >= size[0] and region["size"][1] >= size[1]:
+            return True
+    return False

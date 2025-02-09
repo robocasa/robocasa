@@ -148,6 +148,11 @@ class RestockPantry(Kitchen):
 
         return can_dist * ratio < other_dist
 
+    def _check_obj_in_cab(self, obj_name):
+        return OU.obj_inside_of(self, obj_name, self.cab) and self._close_to_cab_cans(
+            obj_name
+        )
+
     def _check_success(self):
         obj1_inside_cab = OU.obj_inside_of(self, "obj1", self.cab)
         obj2_inside_cab = OU.obj_inside_of(self, "obj2", self.cab)

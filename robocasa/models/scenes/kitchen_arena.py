@@ -2,7 +2,12 @@ from robosuite.models.arenas import Arena
 from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
-from robocasa.models.scenes.scene_builder import create_fixtures
+import yaml
+from robocasa.models.scenes.scene_builder import (
+    create_fixtures,
+    get_layout_path,
+    get_style_path,
+)
 
 
 # base class for kitchens
@@ -25,9 +30,26 @@ class KitchenArena(Arena):
                 "arenas/empty_kitchen_arena.xml", root=robocasa.models.assets_root
             )
         )
+
+        # load layout config
+        if isinstance(layout_id, dict):
+            layout_config = layout_id
+        else:
+            layout_path = get_layout_path(layout_id=layout_id)
+            with open(layout_path, "r") as f:
+                layout_config = yaml.safe_load(f)
+
+        # load style config
+        if isinstance(style_id, dict):
+            style_config = style_id
+        else:
+            style_path = get_style_path(style_id=style_id)
+            with open(style_path, "r") as f:
+                style_config = yaml.safe_load(f)
+
         self.fixtures = create_fixtures(
-            layout_id=layout_id,
-            style_id=style_id,
+            layout_config=layout_config,
+            style_config=style_config,
             rng=rng,
         )
 

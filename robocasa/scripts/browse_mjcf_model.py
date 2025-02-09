@@ -227,17 +227,29 @@ if __name__ == "__main__":
     #     "distance": 0.3,
     #     "elevation": -30,
     # }
-    while True:
-        cam_settings = None
+    cam_settings = None
 
+    if os.path.isdir(args.mjcf):
+        mjcf_path_list = []
+        for root, dirs, files in os.walk(args.mjcf):
+            for file in files:
+                if file.endswith(".xml"):
+                    mjcf_path_list.append(os.path.join(root, file))
+    else:
+        mjcf_path_list = [args.mjcf]
+
+    load_time_list = []
+    for mjcf_path in mjcf_path_list:
         sim, info = read_model(
             xml=None,
-            filepath=args.mjcf,
+            filepath=mjcf_path,
             hide_sites=False,
             show_bbox=args.show_bbox,
             show_coll_geoms=args.show_coll_geoms,
         )
-        print("sim load time:", info["sim_load_time"])
+        load_time = info["sim_load_time"]
+        print("sim load time:", load_time)
+        load_time_list.append(load_time)
 
         if args.screenshot:
             image = get_model_screenshot(
@@ -252,5 +264,9 @@ if __name__ == "__main__":
                 cam_settings=cam_settings,
             )
 
-    # cv2.imshow('image', image[:,:,::-1])
-    # cv2.waitKey(0)
+    if len(mjcf_path_list) > 1:
+        mean = np.mean(load_time_list)
+        median = np.median(load_time_list)
+        print()
+        print("Mean loading time: {:.4f} s".format(mean))
+        print("Median loading time: {:.4f} s".format(median))

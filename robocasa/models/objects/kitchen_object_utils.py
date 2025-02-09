@@ -410,7 +410,10 @@ def sample_kitchen_object_helper(
         mjcf_kwargs["mjcf_path"] = mjcf_path
 
     if object_scale is not None:
-        mjcf_kwargs["scale"] *= object_scale
+        if isinstance(mjcf_kwargs["scale"], float):
+            mjcf_kwargs["scale"] *= object_scale
+        else:
+            mjcf_kwargs["scale"] = [e * object_scale for e in mjcf_kwargs["scale"]]
 
     groups_containing_sampled_obj = []
     for group, group_cats in OBJ_GROUPS.items():

@@ -2,6 +2,7 @@ from collections import OrderedDict
 from enum import IntEnum
 from robosuite.utils.mjcf_utils import xml_path_completion
 import robocasa
+import numpy as np
 
 
 class LayoutType(IntEnum):
@@ -19,6 +20,27 @@ class LayoutType(IntEnum):
     G_SHAPED_SMALL = 7
     G_SHAPED_LARGE = 8
     WRAPAROUND = 9
+
+    LAYOUT101 = 101
+    LAYOUT102 = 102
+    LAYOUT103 = 103
+    LAYOUT104 = 104
+    LAYOUT105 = 105
+    LAYOUT106 = 106
+    LAYOUT107 = 107
+    LAYOUT108 = 108
+    LAYOUT109 = 109
+    LAYOUT110 = 110
+    LAYOUT111 = 111
+    LAYOUT112 = 112
+    LAYOUT113 = 113
+    LAYOUT114 = 114
+    LAYOUT115 = 115
+    LAYOUT116 = 116
+    LAYOUT117 = 117
+    LAYOUT118 = 118
+    LAYOUT119 = 119
+    LAYOUT120 = 120
 
     # negative values correspond to groups (see LAYOUT_GROUPS_TO_IDS)
     ALL = -1
@@ -53,6 +75,8 @@ class StyleType(IntEnum):
     TRANSITIONAL_1 = 10
     TRANSITIONAL_2 = 11
 
+    PLAYGROUND_STYLE = 1001
+
     # negative values correspond to groups
     ALL = -1
 
@@ -72,7 +96,7 @@ def get_layout_path(layout_id):
     Return:
         str: yaml path for specified layout
     """
-    if isinstance(layout_id, int):
+    if isinstance(layout_id, int) or isinstance(layout_id, np.int64):
         layout_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), LayoutType)
         )
@@ -102,7 +126,7 @@ def get_style_path(style_id):
     Return:
         str: yaml path for specified style
     """
-    if isinstance(style_id, int):
+    if isinstance(style_id, int) or isinstance(style_id, np.int64):
         style_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), StyleType)
         )
@@ -133,7 +157,7 @@ def unpack_layout_ids(layout_ids):
             all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
         else:
             all_layout_ids.append(id)
-    return list(OrderedDict.fromkeys(all_layout_ids))
+    return all_layout_ids
 
 
 def unpack_style_ids(style_ids):
@@ -143,12 +167,14 @@ def unpack_style_ids(style_ids):
     if not isinstance(style_ids, list):
         style_ids = [style_ids]
 
-    style_ids = [int(id) for id in style_ids]
-
     all_style_ids = []
     for id in style_ids:
-        if id < 0:
-            all_style_ids += STYLE_GROUPS_TO_IDS[id]
-        else:
+        if isinstance(id, dict):
             all_style_ids.append(id)
-    return list(OrderedDict.fromkeys(all_style_ids))
+        else:
+            id = int(id)
+            if id < 0:
+                all_style_ids += STYLE_GROUPS_TO_IDS[id]
+            else:
+                all_style_ids.append(id)
+    return all_style_ids

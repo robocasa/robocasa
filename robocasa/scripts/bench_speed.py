@@ -122,9 +122,6 @@ def run_bench(args):
             config["style_ids"] = args.style
             config["seed"] = args.seed
 
-            if args.env == "KitchenDemo" and args.n_objs is not None:
-                config["num_objs"] = args.n_objs
-
             config["robots"] = args.robots or "PandaOmron"
         else:
             config["robots"] = args.robots or "Panda"

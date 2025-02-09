@@ -135,13 +135,15 @@ class Cabinet(ProcGenFixture):
         Get the reset regions for the cabinet. This is used to reset the object to a specific location.
         Reset region is defined as the bottom of the cabinet
         """
-        p0, px, py, pz = self.get_int_sites()
-        return {
-            "bottom": {
+        reset_regions = {}
+        all_int_sites = self.get_int_sites()
+        for (region_name, sites) in all_int_sites.items():
+            p0, px, py, pz = sites
+            reset_regions[region_name] = {
                 "offset": (0, 0, p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
             }
-        }
+        return reset_regions
 
     def _create_cab(self):
         raise NotImplementedError()

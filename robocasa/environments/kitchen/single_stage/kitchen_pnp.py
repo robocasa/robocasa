@@ -479,14 +479,15 @@ class PnPSinkToCounter(PnP):
 
 
 class PnPCounterToMicrowave(PnP):
-    # exclude layout 8 because the microwave is far from counters
-    EXCLUDE_LAYOUTS = [8]
     """
     Class encapsulating the atomic counter to microwave pick and place task
 
     Args:
         obj_groups (str): Object groups to sample the target object from.
     """
+
+    # exclude layout 8 because the microwave is far from counters
+    EXCLUDE_LAYOUTS = [8]
 
     def __init__(self, obj_groups="food", *args, **kwargs):
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
@@ -604,8 +605,6 @@ class PnPCounterToMicrowave(PnP):
 
 
 class PnPMicrowaveToCounter(PnP):
-    # exclude layout 8 because the microwave is far from counters
-    EXCLUDE_LAYOUTS = [8]
     """
     Class encapsulating the atomic microwave to counter pick and place task
 
@@ -613,8 +612,10 @@ class PnPMicrowaveToCounter(PnP):
         obj_groups (str): Object groups to sample the target object from.
     """
 
-    def __init__(self, obj_groups="food", *args, **kwargs):
+    # exclude layout 8 because the microwave is far from counters
+    EXCLUDE_LAYOUTS = [8]
 
+    def __init__(self, obj_groups="food", *args, **kwargs):
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
 
     def _setup_kitchen_references(self):

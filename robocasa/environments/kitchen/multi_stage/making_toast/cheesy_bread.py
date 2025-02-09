@@ -43,7 +43,8 @@ class CheesyBread(Kitchen):
         cfgs.append(
             dict(
                 name="bread",
-                obj_groups="bread",
+                obj_groups="bread_flat",
+                object_scale=1.5,
                 placement=dict(
                     fixture=self.counter,
                     size=(0.5, 0.7),
@@ -56,7 +57,13 @@ class CheesyBread(Kitchen):
             dict(
                 name="cheese",
                 obj_groups="cheese",
-                placement=dict(fixture=self.counter, size=(1.0, 0.3), pos=(0, -1.0)),
+                init_robot_here=True,
+                placement=dict(
+                    ref_obj="bread_container",
+                    fixture=self.counter,
+                    size=(1.0, 0.3),
+                    pos=(0, -1.0),
+                ),
             )
         )
 

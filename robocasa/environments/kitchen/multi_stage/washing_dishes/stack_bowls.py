@@ -49,7 +49,7 @@ class StackBowlsInSink(Kitchen):
                         ref=self.sink,
                         loc="left_right",
                     ),
-                    size=(0.50, 0.65),
+                    size=(0.40, 0.65),
                     pos=("ref", -1.0),
                 ),
             )
@@ -67,7 +67,7 @@ class StackBowlsInSink(Kitchen):
                         ref=self.sink,
                         loc="left_right",
                     ),
-                    size=(0.50, 0.65),
+                    size=(0.40, 0.65),
                     pos=("ref", -1.0),
                 ),
             )

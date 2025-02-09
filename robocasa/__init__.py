@@ -1,7 +1,7 @@
 from robosuite.environments.base import make
 
 # Manipulation environments
-from robocasa.environments.kitchen.kitchen import Kitchen, KitchenDemo
+from robocasa.environments.kitchen.kitchen import Kitchen
 from robocasa.environments.kitchen.multi_stage.baking.cupcake_cleanup import (
     CupcakeCleanup,
 )
@@ -25,6 +25,7 @@ from robocasa.environments.kitchen.multi_stage.brewing.prepare_coffee import (
 )
 from robocasa.environments.kitchen.multi_stage.chopping_food.arrange_vegetables import (
     ArrangeVegetables,
+    ArrangeVegetablesSimple,
 )
 from robocasa.environments.kitchen.multi_stage.chopping_food.bread_setup_slicing import (
     BreadSetupSlicing,
@@ -318,11 +319,17 @@ assert numpy.__version__ in [
 
 import robosuite
 
-assert robosuite.__version__ in [
-    "1.5.0"
-], "robosuite version must be 1.5.0. Please install the correct version"
+robosuite_version = [int(e) for e in robosuite.__version__.split(".")]
+robosuite_check = True
+if robosuite_version[0] < 1:
+    robosuite_check = False
+if robosuite_version[0] == 1 and robosuite_version[1] < 5:
+    robosuite_check = False
+assert (
+    robosuite_check
+), "robosuite version must be >=1.5.0. Please install the correct version"
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __logo__ = """
       ;     /        ,--.
      ["]   ["]  ,<  |__**|
