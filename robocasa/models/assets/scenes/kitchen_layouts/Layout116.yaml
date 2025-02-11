@@ -1,3 +1,5 @@
+      
+      
 room:
   walls:
     - name: wall_left_1
@@ -15,7 +17,7 @@ room:
 
     - name: wall_main
       type: wall
-      size: [2.583, 1.5, 0.02]
+      size: [2.544, 1.5, 0.02]
       pos: [2.583, 0.0, 1.5]
 
     - name: wall_main_backing
@@ -53,29 +55,31 @@ room:
 
     - name: wall_right_2
       type: wall
-      size: [0.997, 0.459, 0.02]
+      size: [0.918, 0.459, 0.02]
       pos: [5.166, -1.647, 2.541]
       wall_side: right
 
     - name: wall_right_2_backing
       type: wall
       backing: true
-      size: [0.997, 0.459, 0.1]
-      pos: [5.166, -1.647, 2.541]
+      # size: [0.997, 0.459, 0.1]
+      size: [0.997, 0.339, 0.1]
+      pos: [5.166, -1.647, 2.661]
       wall_side: right
 
     - name: wall_front_1
       type: wall
-      size: [1.504, 1.5, 0.02]
-      pos: [3.662, -5.133, 1.5]
+      size: [2.563, 1.5, 0.02]
+      pos: [2.563, -5.133, 1.5]
       wall_side: front
+      
 
     - name: wall_front_1_backing
       type: wall
       backing: true
       backing_extended: [False, True]
-      size: [1.504, 1.5, 0.1]
-      pos: [3.662, -5.133, 1.5]
+      size: [2.583, 1.5, 0.1]
+      pos: [2.583, -5.133, 1.5]
       wall_side: front
 
   floor:
@@ -143,13 +147,13 @@ main_group_1:
 
     - name: fridge_1
       type: fridge
-      size: [0.758, 0.65, 1.758]
+      size: [0.9, 0.8, 1.75]
 
     - name: fridge_1_housing
       type: housing_cabinet
       interior_obj: fridge_1
-      padding: [[0.08, 0.06], [-0.04, 0.02], [0, 0.02]]
-      pos: [3.95, -0.325, 0.884]
+      padding: [[0.001, 0.001], [-0.04, 0.02], [0, 0.02]]
+      pos: [3.95, -0.26, 0.884]
 
     - name: counter_1.003
       type: counter
@@ -166,9 +170,16 @@ main_group_1:
     - name: stack_1.006
       type: stack
       pos: [4.782, -0.325, 1.2]
-      size: [0.768, 0.65, 2.3]
+      size: [0.766, 0.65, 2.3]
       levels: [drawer, drawer, hinge_cabinet, hinge_cabinet]
       percentages: [0.2, 0.2, 0.3, 0.3]
+      configs:
+        # hinge_cabinet_1:
+        #   panel_config:
+        #     handle_vpos: center
+        hinge_cabinet:
+          panel_config:
+            handle_vpos: bottom
 
     - name: stove_1.001
       type: stove
@@ -202,7 +213,7 @@ main_group_1:
       align_to: counter_1.008
       side: left
       # offset: [0, 0, 0.02]
-      size: [0.713, 0.65, 0.92]
+      size: [0.813, 0.65, 0.92]
     
 
     - name: stack_1.002
@@ -210,7 +221,7 @@ main_group_1:
       # pos: [0.357, -0.325, 0.47]
       align_to: stack_1.005
       side: left
-      size: [0.713, 0.65, 0.84]
+      size: [0.813, 0.65, 0.84]
       levels: [drawer, drawer, drawer]
       percentages: [0.4, 0.35, 0.25]
 
@@ -227,6 +238,8 @@ main_group_1:
       align_to: fridge_1_housing
       side: top
       alignment: front
+      panel_config:
+        handle_vpos: bottom
       stack_height: 2.35
       stack_fixtures: [fridge_1_housing]
 
@@ -268,22 +281,22 @@ front_group_1:
       interior_obj: sink_1
       obj_x_percent: 0.5
       obj_y_percent: 0.5
-      pos: [1.15, -0.325, 0.46]
-      size: [1.0, 0.65, 0.92]
+      pos: [1.2, -0.325, 0.46]
+      size: [1.2, 0.65, 0.92]
 
     - name: sink_1_stack
       type: stack
       levels: [hinge_cabinet]
       percentages: [1]
-      pos: [1.15, -0.325, 0.47]
-      size: [1.0, 0.65, 0.84]
+      pos: [1.2, -0.325, 0.47]
+      size: [1.2, 0.65, 0.84]
       open_top: true
       configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'center'}}}
 
     - name: dishwasher_1
       type: dishwasher
-      pos: [2.023, -0.325, 0.45]
-      size: [0.746, 0.65, 0.89]
+      pos: [2.1, -0.375, 0.45]
+      size: [0.6, 0.6, 0.89]
 
     - name: counter_1.004
       type: counter
@@ -357,8 +370,8 @@ right_group_3:
   top_row.002:
     - name: hingecabinet_1.003
       type: hinge_cabinet
-      pos: [1.757, -0.2, 1.89]
-      size: [1.063, 0.4, 0.92]
+      pos: [1.858, -0.2, 1.89]
+      size: [1.26, 0.4, 0.92]
 
     - name: hingecabinet_1.005
       type: hinge_cabinet
@@ -425,11 +438,11 @@ stool_group_1:
   stool_row:
     - name: stool_1
       type: stool
-      pos: [-0.539, 0.757, 0.5]
+      pos: [-0.539, 0.657, 0.5]
 
     - name: stool_1.001
       type: stool
-      pos: [-1.155, 0.757, 0.5]
+      pos: [-1.155, 0.657, 0.5]
 
 stool_group_2:
   group_origin: [0, 0]
@@ -438,4 +451,8 @@ stool_group_2:
   stool_row.001:
     - name: stool_1.002
       type: stool
-      pos: [-1.588, 0.659, 0.5]
+      pos: [-1.588, 0.589, 0.5]
+
+    
+
+    

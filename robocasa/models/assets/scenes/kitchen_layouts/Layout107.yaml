@@ -1,3 +1,4 @@
+      
 room:
   walls:
     - name: wall_left_1
@@ -169,17 +170,26 @@ main_group_1:
       levels: [drawer, drawer, drawer]
       percentages: [0.4, 0.3, 0.3]
 
-    - name: stack_1.007
-      type: stack
+    - name: singlecabinet_1.001
+      type: single_cabinet
       pos: [0.896, -0.325, 0.47]
       size: [0.489, 0.65, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
+      # levels: [single_cabinet]
+      # percentages: [1]
+      orientation: left
+      panel_config:
+        handle_vpos: top
+        handle_hpos: right
 
     - name: counter_1.004
       type: counter
       pos: [4.166, -0.325, 0.46]
       size: [1.723, 0.65, 0.92]
+    
+    - name: microwave
+      type: microwave
+      size: [0.75, 0.45, null]
+      pos: [4.166, -0.325, 1.16]
 
   top_row:
     - name: hingecabinet_1.001
@@ -279,36 +289,43 @@ left_group_1:
       side: top
       interior_obj: oven
 
-    - name: microwave
-      type: microwave
-      size: [0.702, 0.65, null]
+    # - name: microwave
+    #   type: microwave
+    #   size: [0.75, 0.45, null]
 
-    - name: microwave_housing
-      type: housing_cabinet
+    # - name: microwave_housing
+    #   type: housing_cabinet
+    #   size: [0.802, 0.65, 0.55]
+    #   padding: [null, [-0.01, null], null]
+    #   align_to: oven_housing
+    #   alignment: front
+    #   side: top
+    #   interior_obj: microwave
+
+    - name: hingecabinet_1.002
+      type: hinge_cabinet
       size: [0.802, 0.65, 0.55]
-      padding: [null, [-0.01, null], null]
       align_to: oven_housing
       alignment: front
       side: top
-      interior_obj: microwave
 
     - name: top
       type: hinge_cabinet
       size: [0.802, 0.65, null]
-      align_to: microwave_housing
+      align_to: hingecabinet_1.002
       alignment: front
       side: top
       stack_height: 2.3
-      stack_fixtures: [bottom, oven_housing, microwave_housing]
+      stack_fixtures: [bottom, oven_housing, hingecabinet_1.002]
 
     - name: fridge_1
       type: fridge
-      size: [0.96, 0.65, 2.28]
+      size: [0.9, 0.8, 1.88]
 
     - name: fridge_1_housing
       type: housing_cabinet
       interior_obj: fridge_1
-      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0.21, 0.21]]
       # pos: [2.307, -0.325, 1.149]
       align_to: bottom
       side: left
@@ -365,13 +382,18 @@ right_group_1:
 
     - name: dishwasher_1
       type: dishwasher
-      pos: [3.043, -0.325, 0.47]
-      size: [0.743, 0.65, 0.84]
+      # pos: [3.043, -0.325, 0.47]
+      # pos: [3.043, -0.375, 0.47]
+      pos: [2.974, -0.375, 0.47]
+      size: [0.6, 0.6, 0.89]
 
     - name: stack_1.016
       type: stack
-      pos: [3.678, -0.325, 0.47]
-      size: [0.527, 0.65, 0.84]
+      # pos: [3.678, -0.325, 0.47]
+      pos: [3.610, -0.325, 0.47]
+      # size: [0.527, 0.65, 0.84]
+      # size: [0.676, 0.65, 0.84]
+      size: [0.670, 0.65, 0.84]
       levels: [drawer, drawer, drawer]
       percentages: [0.34, 0.33, 0.33]
 
@@ -473,13 +495,15 @@ stool_group_1:
   stool_row:
     - name: stool_1.003
       type: stool
-      pos: [-0.658, 1.157, 0.5]
+      pos: [-0.658, 1.107, 0.5]
 
     - name: stool_1.004
       type: stool
-      pos: [-1.185, 1.157, 0.5]
+      pos: [-1.185, 1.107, 0.5]
 
     - name: stool_1.001
       type: stool
-      pos: [-1.705, 1.157, 0.5]
+      pos: [-1.705, 1.107, 0.5]
 
+
+    

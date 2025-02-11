@@ -1,3 +1,5 @@
+      
+      
 room:
   walls:
     - name: wall_left_1
@@ -107,9 +109,10 @@ main_group_1:
       levels: [hinge_cabinet]
       percentages: [1]
       pos: [2.862, -0.325, 0.47]
-      size: [1.289, 0.65, 0.84]
+      # size: [1.289, 0.65, 0.84]
+      size: [1.285, 0.65, 0.84]
       open_top: true
-      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'center'}}}
+      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: counter_1.003
       type: counter
@@ -133,6 +136,27 @@ main_group_1:
       pos: [1.436, -0.325, 0.46]
       size: [1.563, 0.65, 0.92]
 
+    - name: microwave1
+      type: microwave
+      size: [0.75,0.45,null]
+      pos: [1.236,-0.325,1.16]
+
+    # - name: microwave
+    #   type: microwave
+    #   size: [0.75, 0.45, null]
+    #   align_to: singlecabinet_1.003
+    #   side: right
+    #   alignment: bottom_back
+
+    # - name: microwave_above_hingecabinet
+    #   type: hinge_cabinet
+    #   size: [microwave, 0.4, null]
+    #   align_to: microwave
+    #   side: top
+    #   alignment: back
+    #   stack_height: 0.92
+    #   stack_fixtures: [microwave]
+
     - name: framedwindow
       type: framed_window
       num_windows: 3
@@ -141,8 +165,8 @@ main_group_1:
 
     - name: stack_1.004
       type: stack
-      pos: [1.204, -0.325, 0.47]
-      size: [1.1, 0.65, 0.84]
+      pos: [1.14, -0.325, 0.47]
+      size: [0.96, 0.65, 0.84]
       levels: [hinge_cabinet]
       percentages: [1]
 
@@ -153,12 +177,18 @@ main_group_1:
       levels: [single_cabinet]
       percentages: [1]
 
-    - name: stack_1.001
-      type: stack
-      pos: [1.986, -0.325, 0.47]
-      size: [0.463, 0.65, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
+    # - name: stack_1.001
+    #   type: stack
+    #   pos: [1.986, -0.325, 0.47]
+    #   size: [0.463, 0.65, 0.84]
+    #   levels: [single_cabinet]
+    #   percentages: [1]
+
+
+    - name: dishwasher_1
+      type: dishwasher
+      pos: [1.92, -0.375, 0.45]
+      size: [0.6, 0.6, 0.89]
 
     - name: stack_1.002
       type: stack
@@ -172,28 +202,23 @@ main_group_1:
       type: single_cabinet
       pos: [0.2, -0.203, 1.89]
       size: [0.4, 0.4, 0.92]
+      orientation: left
+      panel_config:
+        handle_hpos: right
+        handle_vpos: bottom
 
-    - name: microwave
-      type: microwave
-      size: [0.75, 0.45, null]
+    - name: hingecabinet_1.002
+      type: hinge_cabinet
+      size: [0.8, 0.4, 0.92]
       align_to: singlecabinet_1.003
       side: right
       alignment: bottom_back
-
-    - name: microwave_above_hingecabinet
-      type: hinge_cabinet
-      size: [microwave, 0.4, null]
-      align_to: microwave
-      side: top
-      alignment: back
-      stack_height: 0.92
-      stack_fixtures: [microwave]
 
     - name: singlecabinet_1.001
       type: single_cabinet
       # pos: [1.379, -0.203, 1.89]
       size: [0.4, 0.4, 0.92]
-      align_to: microwave
+      align_to: hingecabinet_1.002
       side: right
       alignment: bottom_back
 
@@ -355,19 +380,73 @@ right_group_1:
       levels: [drawer, drawer, drawer]
       percentages: [0.5, 0.25, 0.25]
 
-    - name: stack_1.009
-      type: stack
+    - name: singlecabinet_1.003
+      # name: stack_1.009
+      type: single_cabinet
       pos: [0.954, -0.333, 0.47]
       size: [0.608, 0.65, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
+      orientation: left
+      panel_config:
+        handle_hpos: right
+        handle_vpos: top
 
-    - name: qianrugui_right
+    - name: right
       type: stack
       levels: [[drawer, drawer], [drawer, drawer], hinge_cabinet]
       percentages: [0.2, 0.2, 0.6]
       pos: [3.502, -0.332, 1.15]
       size: [0.8, 0.65, 2.3]
+      configs:
+        hinge_cabinet:
+          panel_config:
+            handle_vpos: center
+    
+    # - name: fridge
+    #   type: fridge
+    #   size: [0.9, 0.8, 1.75]
+    #   pos: [4.71, -0.931, 0.875]
+    
+    # - name: fridge_housing
+    #   type: housing_cabinet
+    #   padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+    #   align_to: fridge
+    #   side: top
+    #   alignment: front
+    #   interior_obj: fridge
+    
+    # - name: top
+    #   type: hinge_cabinet
+    #   size: [fridge_housing, 0.8, null]
+    #   align_to: fridge_housing
+    #   alignment: front
+    #   side: top
+    #   stack_height: 2.31
+    #   stack_fixtures: ["fridge_housing"]
+    - name: fridge_1
+      type: fridge
+      size: [0.9, 0.8, 1.78]
+
+    - name: fridge_1_housing
+      type: housing_cabinet
+      interior_obj: fridge_1
+      padding: [[0.02, 0.02], [0, 0], [0, 0]]
+      pos: [4.376, -0.332, 0.87]
+
+    - name: hingecabinet_1.007
+      type: hinge_cabinet
+      size: [fridge_1_housing, fridge_1_housing, null]
+      align_to: fridge_1_housing
+      side: top
+      alignment: back
+      stack_height: 2.32
+      stack_fixtures: [fridge_1_housing]
+
+    # - name: fridge_housing
+    #   type: housing_cabinet
+    #   interior_obj: fridge
+    #   padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+    #   pos: [4.11, -0.631, 0.875]
+    
 
     - name: stack_1.006
       type: stack
@@ -406,44 +485,44 @@ stool_group_1:
   stool_row:
     - name: stool_1_001
       type: stool
-      pos: [-0.522, 2.53, 0.5]
+      pos: [-0.622, 2.23, 0.5]
 
     - name: stool_1_002
       type: stool
-      pos: [-1.063, 2.53, 0.5]
+      pos: [-1.063, 2.23, 0.5]
 
     - name: stool_1_003
       type: stool
-      pos: [-1.601, 2.53, 0.5]
+      pos: [-1.501, 2.23, 0.5]
 
 island_group:
   group_origin: [0, 0]
   group_pos: [3.73, -3.969]
   group_z_rot: 3.1415925661670165
   island_bottom_row:
-    - name: panelbox_panel_box
-      type: stack
-      size: [0.174, 2.039, 0.84]
-      pos: [0.087, -1.02, 0.47]
-      levels: [panel_cabinet]
-      percentages: [1]
-      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+    # - name: panelbox_panel_box
+    #   type: stack
+    #   size: [0.174, 2.039, 0.84]
+    #   pos: [0.087, -1.02, 0.47]
+    #   levels: [panel_cabinet]
+    #   percentages: [1]
+    #   configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
-    - name: panelbox.001_panel_box
-      type: stack
-      size: [0.174, 2.039, 0.84]
-      pos: [1.713, -1.02, 0.47]
-      levels: [panel_cabinet]
-      percentages: [1]
-      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+    # - name: panelbox.001_panel_box
+    #   type: stack
+    #   size: [0.174, 2.039, 0.84]
+    #   pos: [1.713, -1.02, 0.47]
+    #   levels: [panel_cabinet]
+    #   percentages: [1]
+    #   configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
-    - name: panelbox.002_panel_box
-      type: stack
-      size: [1.8, 0.219, 0.84]
-      pos: [0.9, -1.023, 0.47]
-      levels: [panel_cabinet]
-      percentages: [1]
-      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+    # - name: panelbox.002_panel_box
+    #   type: stack
+    #   size: [1.8, 0.219, 0.84]
+    #   pos: [0.9, -1.023, 0.47]
+    #   levels: [panel_cabinet]
+    #   percentages: [1]
+    #   configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: stack_1.016
       type: stack
@@ -465,3 +544,7 @@ island_group:
       pos: [0.9, -1.02, 0.46]
       size: [1.8, 2.039, 0.92]
       base_opening: [False, True]
+
+    
+
+    
