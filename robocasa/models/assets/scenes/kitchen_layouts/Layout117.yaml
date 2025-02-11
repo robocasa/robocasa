@@ -1,17 +1,20 @@
-      
 room:
   walls:
     - name: wall_left_1
       type: wall
-      size: [2.193, 1.5, 0.02]
-      pos: [0.0, -2.193, 1.5]
+      # size: [2.193, 1.5, 0.02]
+      size: [2.593, 1.5, 0.02]
+      # pos: [0.0, -2.193, 1.5]
+      pos: [0.0, -2.593, 1.5]
       wall_side: left
 
     - name: wall_left_1_backing
       type: wall
       backing: true
-      size: [2.193, 1.5, 0.1]
-      pos: [0.0, -2.193, 1.5]
+      # size: [2.193, 1.5, 0.1]
+      size: [2.593, 1.5, 0.1]
+      # pos: [0.0, -2.193, 1.5]
+      pos: [0.0, -2.593, 1.5]
       wall_side: left
 
     - name: wall_main_1
@@ -41,28 +44,28 @@ room:
 
     - name: wall_main_2
       type: wall
-      size: [0.368, 1.5, 0.02]
-      pos: [4.9, -2.197, 1.5]
+      size: [0.868, 1.5, 0.02]
+      pos: [5.4, -2.197, 1.5]
 
     - name: wall_main_2_backing
       type: wall
       backing: true
-      size: [0.327, 1.5, 0.1]
-      pos: [4.94, -2.197, 1.5]
+      size: [0.827, 1.5, 0.1]
+      pos: [5.44, -2.197, 1.5]
 
-    - name: wall_right_2
-      type: wall
-      size: [1.088, 1.5, 0.02]
-      pos: [5.26, -3.312, 1.5]
-      wall_side: right
+    # - name: wall_right_2
+    #   type: wall
+    #   size: [1.088, 1.5, 0.02]
+    #   pos: [5.26, -3.312, 1.5]
+    #   wall_side: right
 
-    - name: wall_right_2_backing
-      type: wall
-      backing: true
-      backing_extended: [True, True]
-      size: [1.0, 1.5, 0.1]
-      pos: [5.262, -3.2, 1.5]
-      wall_side: right
+    # - name: wall_right_2_backing
+    #   type: wall
+    #   backing: true
+    #   backing_extended: [True, True]
+    #   size: [1.0, 1.5, 0.1]
+    #   pos: [5.262, -3.2, 1.5]
+    #   wall_side: right
     
 
   floor:
@@ -79,14 +82,18 @@ room:
 
     - name: floor_1.001
       type: floor
-      size: [2.634, 1.095, 0.02]
-      pos: [2.634, -3.292, 0.0]
+      # size: [3.134, 1.095, 0.02]
+      size: [3.134, 1.495, 0.02]
+      # pos: [3.134, -3.292, 0.0]
+      pos: [3.134, -3.692, 0.0]
 
     - name: floor_1.001_backing
       type: floor
       backing: true
-      size: [2.634, 1.095, 0.1]
-      pos: [2.634, -3.292, 0.0]
+      # size: [3.134, 1.095, 0.1]
+      size: [3.134, 1.495, 0.1]
+      # pos: [3.134, -3.292, 0.0]
+      pos: [3.134, -3.692, 0.0]
 
   wall_accessories:
     - name: wallaccessory.005
@@ -138,7 +145,7 @@ main_group_1:
       pos: [1.266, -0.325, 0.47]
       size: [1.224, 0.65, 0.84]
       open_top: true
-      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'center'}}}
+      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: counter_corner_1.001
       type: counter
@@ -213,27 +220,34 @@ main_group_1:
       panel_config:
         handle_vpos: top
 
-    - name: microwave
-      type: microwave
-      size: [0.75, 0.45, null]
+    # - name: microwave
+    #   type: microwave
+    #   size: [0.75, 0.45, null]
 
-    - name: microwave_housing
-      type: housing_cabinet
-      size: [0.836, 0.65, 0.55]
-      padding: [null, [-0.01, null], null]
-      align_to: hingecabinet_1.001
+    # - name: microwave_housing
+    #   type: housing_cabinet
+    #   size: [0.836, 0.65, 0.55]
+    #   padding: [null, [-0.01, null], null]
+    #   align_to: hingecabinet_1.001
+    #   alignment: front
+    #   side: top
+    #   interior_obj: microwave
+
+    - name: singlecabinet_1.002
+      type: single_cabinet
+      size: [0.836,0.65,0.55]
       alignment: front
       side: top
-      interior_obj: microwave
+      align_to: hingecabinet_1.001
 
     - name: top
       type: hinge_cabinet
       size: [0.836, 0.65, null]
-      align_to: microwave_housing
+      align_to: singlecabinet_1.002
       alignment: front
       side: top
       stack_height: 2.3
-      stack_fixtures: [bottom, hingecabinet_1.001, microwave_housing]
+      stack_fixtures: [bottom, hingecabinet_1.001, singlecabinet_1.002]
 
     - name: wall_main_stack_2
       type: stack
@@ -242,9 +256,12 @@ main_group_1:
       pos: [4.257, -0.325, 1.2]
       size: [0.472, 0.65, 2.3]
       configs:
-        single_cabinet:
+        single_cabinet_1:
           panel_config:
-            handle_vpos: center
+            handle_vpos: top
+        single_cabinet_2:
+          panel_config:
+            handle_vpos: bottom
 
   top_row:
     - name: singlecabinet_1.001
@@ -286,6 +303,11 @@ left_group_1:
       type: counter
       pos: [0.874, -0.325, 0.46]
       size: [1.748, 0.65, 0.92]
+    
+    # - name: fridge
+    #   type: fridge
+    #   pos: [0.874, -0.325, 0.46]
+    #   size: [1.748, 0.65, 0.92]
 
     # - name: stack_1.001
     #   type: stack
@@ -296,8 +318,13 @@ left_group_1:
 
     - name: dishwasher
       type: dishwasher
-      pos: [1.457, -0.325, 0.47]
+      pos: [1.457, -0.375, 0.47]
       size: [0.6, 0.6, 0.89]
+
+    - name: microwave
+      type: microwave
+      size: [0.75,0.45,null]
+      pos: [1.457, -0.325, 1.15]
 
     - name: stack_1.005
       type: stack
@@ -312,6 +339,25 @@ left_group_1:
       size: [0.583, 0.65, 0.84]
       levels: [single_cabinet,drawer]
       percentages: [0.7, 0.3]
+    
+    - name: fridge
+      type: fridge
+      size: [0.9, 0.8, 1.78]
+
+    - name: fridge_housing
+      type: housing_cabinet
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+      pos: [-0.470, -0.325, 0.89]
+      interior_obj: fridge
+
+    - name: fridge_top
+      type: hinge_cabinet
+      size: [fridge_housing, 0.78, null]
+      align_to: fridge_housing
+      alignment: front
+      side: top
+      stack_height: 2.36
+      stack_fixtures: ["fridge_housing"]
 
     - name: framedwindow.002
       type: framed_window
@@ -459,5 +505,3 @@ stool_group_1:
     - name: stool_1.002
       type: stool
       pos: [-1.619, 0.2, 0.5]
-
-    

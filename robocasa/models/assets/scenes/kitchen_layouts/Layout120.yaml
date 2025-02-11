@@ -152,6 +152,18 @@ left_group_1:
       size: [0.25, 0.65, 2.295]
       levels: [single_cabinet, single_cabinet]
       percentages: [0.5, 0.5]
+      configs:
+        single_cabinet_1:
+          orientation: right
+          panel_config:
+            handle_hpos: left
+            handle_vpos: top
+        single_cabinet_2:
+          orientation: right
+          panel_config:
+            handle_hpos: left
+            handle_vpos: bottom
+        
 
     - name: counter_1.001
       type: counter
@@ -338,6 +350,12 @@ front_group_1:
       size: [0.25, 0.65, 0.84]
       levels: [single_cabinet]
       percentages: [1]
+      configs:
+        single_cabinet:
+          orientation: left
+          panel_config:
+            handle_hpos: right
+            handle_vpos: top
 
     - name: counter_1.011
       type: counter
@@ -351,13 +369,10 @@ front_group_1:
       levels: [drawer, drawer, drawer, drawer]
       percentages: [0.28, 0.24, 0.24, 0.24]
 
-    - name: panelbox_panel_box
-      type: stack
-      size: [0.65, 0.65, 0.84]
-      pos: [0.325, -0.59, 0.47]
-      levels: [panel_cabinet]
-      percentages: [1]
-      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+    - name: cornerbox
+      type: box
+      size: [0.65, 0.65, 0.90]
+      pos: [0.325, -0.59, 0.45]
 
 right_group_1:
   group_origin: [0, 0]
@@ -382,7 +397,6 @@ right_group_1:
       panel_config:
         handle_vpos: top
         handle_hpos: right
-
 
     - name: counter_1.008
       type: counter
@@ -413,7 +427,7 @@ right_group_1:
       pos: [1.587, -0.325, 0.47]
       size: [1.0, 0.65, 0.84]
       open_top: true
-      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'center'}}}
+      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: counter_1.009
       type: counter
@@ -445,10 +459,22 @@ right_group_1:
       pos: [1.556, -0.022, 1.574]
       size: [0.903, 0.05, 0.979]
 
+    # - name: panelbox
+    #   type: box
+    #   # pos: [3.269, -0.325, 0.46]
+    #   pos: [3.26, -0.325, 0.42]
+    #   # size: [0.753, 0.65, 0.92]
+    #   size: [0.583, 0.65, 0.84]
+    
     - name: counter_1
       type: counter
       pos: [3.269, -0.325, 0.46]
       size: [0.753, 0.65, 0.92]
+
+    # - name: counter_1
+    #   type: counter
+    #   pos: [3.269, -0.325, 0.46]
+    #   size: [0.753, 0.65, 0.92]
 
     - name: framedwindow.002
       type: framed_window
@@ -483,8 +509,8 @@ stool_group_1:
   stool_row:
     - name: stool_1
       type: stool
-      pos: [-0.53, 0.971, 0.5]
+      pos: [-0.53, 0.901, 0.5]
 
     - name: stool_1.001
       type: stool
-      pos: [-1.308, 0.971, 0.5]
+      pos: [-1.308, 0.901, 0.5]

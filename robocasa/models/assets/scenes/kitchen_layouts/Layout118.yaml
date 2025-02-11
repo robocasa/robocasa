@@ -319,6 +319,35 @@ main_group_1:
         pos: [null, 1.0]
         rotation: [0, 0]
 
+
+right_group_1:
+  group_origin: [0, 0]
+  group_pos: [6.222, 0.0]
+  group_z_rot: -1.5707962925663537
+
+  bottom_row.002:
+    - name: fridge_1
+      type: fridge
+      # size: [0.96, 0.65, 1.75]
+      size: [0.9, 0.72, 1.75]
+
+    - name: fridge_1_housing
+      type: housing_cabinet
+      interior_obj: fridge_1
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+      # pos: [1.15, -0.325, 0.875]
+      pos: [4.11, -0.631, 0.875]
+    
+    - name: fridge_top
+      type: hinge_cabinet
+      size: [fridge_1_housing, 0.78, null]
+      align_to: fridge_1_housing
+      alignment: front
+      side: top
+      stack_height: 2.31
+      stack_fixtures: ["fridge_1_housing"]
+
+
 island_group_1:
   group_origin: [0, 0]
   group_pos: [4.982, -3.017]
@@ -382,7 +411,8 @@ island_group_1:
 
     - name: counter_1.004
       type: counter
-      pos: [1.869, 0.001, 0.521]
+      # pos: [1.869, 0.001, 0.521]
+      pos: [1.869, -0.001, 0.541]
       size: [3.737, 0.406, 1.041]
 
     - name: panelbox.007_panel_box
