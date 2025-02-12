@@ -10,20 +10,24 @@ from robocasa.scripts.run_qa_auto import auto_inspect_ep
 
 COMMON_FAULTS = [
     dict(
-        codename="jerky",
+        codename="jerk",
         description="robot motion is too jerky",
     ),
     dict(
         codename="too_many_retries",
-        description="robot tries to manipulate an object unsuccessfully too many times",
+        description="robot unsuccessfully tries to manipulate an object too many times",
     ),
     dict(
         codename="unnec_base",
         description="unnecessary usage of base",
     ),
     dict(
-        codename="slow_or_pause",
+        codename="stall",
         description="robot moving too slowly or having long abnormal pauses",
+    ),
+    dict(
+        codename="obj_phys",
+        description="object slip, drop, wobble, drag, throw, etc",
     ),
     dict(
         codename="misc",
@@ -87,15 +91,17 @@ def write_manual_qa(qa_stats_path, user_action, user_issues=None, user_notes=Non
     else:
         raise ValueError
 
-    issue_codes = None
     if user_issues is None:
-        issue_codes = None
+        issues = None
     else:
-        issue_codes = [COMMON_FAULTS[idx]["codename"] for idx in user_issues]
+        issues = dict()
+        for idx in range(len(COMMON_FAULTS)):
+            codename = COMMON_FAULTS[idx]["codename"]
+            issues[codename] = True if idx in user_issues else False
 
     all_qa_stats["manual_qa"] = dict(
         status=status,
-        issues=issue_codes,
+        issues=issues,
         notes=user_notes,
     )
 
