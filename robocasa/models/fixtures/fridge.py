@@ -8,7 +8,7 @@ class Fridge(Fixture):
 
     def __init__(
         self,
-        xml="fixtures/appliances/fridges/pack_1/model.xml",
+        xml="fixtures/fridges/Refrigerator033/model.xml",
         name="fridge",
         *args,
         **kwargs
@@ -20,3 +20,15 @@ class Fridge(Fixture):
     @property
     def nat_lang(self):
         return "fridge"
+
+
+class FridgeFrenchDoor(Fridge):
+    pass
+
+
+class FridgeSideBySide(Fridge):
+    pass
+
+
+class FridgeTopFreezer(Fridge):
+    pass
