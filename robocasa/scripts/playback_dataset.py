@@ -76,6 +76,7 @@ def playback_trajectory_with_env(
         highlight_frames = []
     highlight_timesteps = [t for (t, c) in highlight_frames]
 
+    start_traj = time.time()
     for t in range(traj_len):
         start = time.time()
 
@@ -141,7 +142,7 @@ def playback_trajectory_with_env(
 
         if first:
             break
-
+    print("total time to playback:", time.time() - start_traj)
     if render:
         env.viewer.close()
         env.viewer = None
