@@ -78,13 +78,18 @@ def auto_inspect_ep(ds_path, env=None):
         env=env,
     )
 
-    qa_stats = dict(
-        auto_qa=dict(
-            summary_stats=summary_stats,
-            all_stats=all_stats,
-        )
+    qa_stats_path = os.path.join(qa_path, "qa_stats.json")
+    if os.path.exists(qa_stats_path):
+        with open(qa_stats_path, "r") as f:
+            qa_stats = json.load(f)
+    else:
+        qa_stats = dict()
+
+    qa_stats["auto_qa"] = dict(
+        summary_stats=summary_stats,
+        all_stats=all_stats,
     )
-    with open(os.path.join(qa_path, "qa_stats.json"), "w") as f:
+    with open(qa_stats_path, "w") as f:
         f.write(json.dumps(qa_stats, indent=4))
 
     if delete_env_at_end:
@@ -98,6 +103,11 @@ if __name__ == "__main__":
         "--dataset",
         type=str,
         help="path to hdf5 dataset",
+    )
+    parser.add_argument(
+        "--overwrite",
+        help="re-scan existing demos (only valid if args.dataset is a directory)",
+        action="store_true",
     )
     args = parser.parse_args()
 
@@ -128,9 +138,11 @@ if __name__ == "__main__":
                                 continue
 
                             # if the qa stats already exist, skip
-                            if os.path.exists(
-                                os.path.join(root, "qa_stats.json")
-                            ) and os.path.exists(os.path.join(root, "qa.mp4")):
+                            if (
+                                not args.overwrite
+                                and os.path.exists(os.path.join(root, "qa_stats.json"))
+                                and os.path.exists(os.path.join(root, "qa.mp4"))
+                            ):
                                 continue
                         except:
                             continue
@@ -140,15 +152,23 @@ if __name__ == "__main__":
             if len(demo_group) > 0:
                 demo_group_list.append(demo_group)
 
+    total_num_datasets = sum([len(demo_group) for demo_group in demo_group_list])
+    num_datasets_scanned = 0
     for demo_group in demo_group_list:
         env_meta = get_env_metadata_from_dataset(dataset_path=demo_group[0])
         env = create_env_from_env_meta(env_meta)
 
         for ds_path in demo_group:
             # scan dataset quality
-            print("Auto inspecting:", ds_path)
+            print(
+                colored(
+                    f"[{num_datasets_scanned+1}/{total_num_datasets}] Auto inspecting: {ds_path}",
+                    "yellow",
+                )
+            )
             auto_inspect_ep(ds_path, env=env)
             print()
+            num_datasets_scanned += 1
 
         if env is not None:
             env.close()
