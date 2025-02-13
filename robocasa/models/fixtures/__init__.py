@@ -10,7 +10,12 @@ from robocasa.models.fixtures.microwave import Microwave
 from robocasa.models.fixtures.sink import Sink
 from robocasa.models.fixtures.counter import Counter
 from robocasa.models.fixtures.hood import Hood
-from robocasa.models.fixtures.fridge import Fridge
+from robocasa.models.fixtures.fridge import (
+    Fridge,
+    FridgeFrenchDoor,
+    FridgeSideBySide,
+    FridgeTopFreezer,
+)
 from robocasa.models.fixtures.dishwasher import Dishwasher
 
 from robocasa.models.fixtures.fixture_stack import FixtureStack
