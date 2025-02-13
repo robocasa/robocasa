@@ -5,6 +5,7 @@ Adapted/copied from https://gist.github.com/WChargin/d8eb0cbafc4d4479d004#file-t
 
 import numpy as np
 import PIL.Image
+import cv2
 
 
 class RGBTransform(object):
@@ -183,3 +184,11 @@ def apply_filter(img, color=(0, 255, 0), factor=0.15):
     img_proc = RGBTransform().mix_with(color, factor=factor).applied_to(img_proc)
     img_proc = np.array(img_proc)
     return img_proc
+
+
+def add_text_to_frame(frame, text, color):
+    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(frame, text, (50, 80), font, 2, color, 3, cv2.LINE_AA)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    return frame

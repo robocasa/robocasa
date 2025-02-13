@@ -11,7 +11,7 @@ import traceback
 
 import robosuite
 import robocasa
-from robocasa.utils.vis_utils import apply_filter
+from robocasa.utils.vis_utils import apply_filter, add_text_to_frame
 
 
 def playback_trajectory_with_env(
@@ -74,7 +74,7 @@ def playback_trajectory_with_env(
 
     if highlight_frames is None:
         highlight_frames = []
-    highlight_timesteps = [t for (t, c) in highlight_frames]
+    highlight_timesteps = [t for (t, c, l) in highlight_frames]
 
     start_traj = time.time()
     for t in range(traj_len):
@@ -135,7 +135,10 @@ def playback_trajectory_with_env(
                     # highlight the frame according to specified color
                     idx = highlight_timesteps.index(t)
                     color = highlight_frames[idx][1]
+                    label = highlight_frames[idx][2]
                     video_img = apply_filter(video_img, color=color)
+                    video_img = add_text_to_frame(video_img, label, color)
+
                 video_writer.append_data(video_img)
 
             video_count += 1

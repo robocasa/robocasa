@@ -66,7 +66,9 @@ def auto_inspect_ep(ds_path, env=None):
         for metric in all_stats[ep]:
             timesteps = all_stats[ep][metric]
             color = QA_MATRIC_TO_COLOR[metric]
-            highlight_frames += zip(timesteps, [color] * len(timesteps))
+            highlight_frames += zip(
+                timesteps, [color] * len(timesteps), [metric] * len(timesteps)
+            )
         highlight_frames_list.append(highlight_frames)
     playback_demos(
         ds_path,
