@@ -92,12 +92,12 @@ room:
     - name: wall_accessory_1
       type: wall_accessory
       attach_to: wall_left_1
-      pos: [null, -2.912, 1.107]
+      pos: [null, -2.912, 1]
 
     - name: wall_accessory_2
       type: wall_accessory
       attach_to: wall_left_1
-      pos: [null, -2.796, 1.107]
+      pos: [null, -2.796, 1]
 
     - name: light_switch
       type: wall_accessory
@@ -234,7 +234,7 @@ main_group:
     - name: hinge_cabinet_3
       type: hinge_cabinet
       # pos: [3.351, -0.203, 1.84]
-      size: [1.13, 0.4, 0.92]
+      size: [1.125, 0.4, 0.92]
       align_to: microwave
       alignment: bottom_back
       side: right
@@ -272,7 +272,7 @@ main_group:
       type: paper_towel
 
       placement:
-        fixture: counter_2
+        fixture: counter_2_main_group
         size: [1.0, 0.40]
         pos: [1.3, 0.5]
         rotation: [0, 0]
@@ -281,42 +281,48 @@ main_group:
       type: toaster
 
       placement:
-        fixture: counter_4
+        fixture: counter_4_main_group
         size: [1.0, 0.40]
         pos: [1.0, 0]
         rotation: [0, 0]
-      
 
 left_group:
   group_origin: [0, 0]
   group_pos: [0.0, -2.988]
   group_z_rot: 1.5707962925663537
   bottom_row:
-    - name: counter_1.003
-      type: counter
-      pos: [2.057, -0.325, 0.46]
-      size: [0.563, 0.65, 0.92]
 
-    - name: counter_1.005
+    - name: counter_1
       type: counter
       pos: [0.327, -0.325, 0.46]
-      size: [0.700, 0.65, 0.92]
+      size: [0.7, 0.65, 0.92]
 
     - name: sink
       type: sink
 
-    - name: sink_counter
+    - name: counter_2
       type: counter
       interior_obj: sink
       obj_x_percent: 0.5
       obj_y_percent: 0.5
-      pos: [1.226, -0.325, 0.46]
+      # pos: [1.226, -0.325, 0.46]
       size: [1.1, 0.65, 0.92]
+      align_to: counter_1
+      alignment: top_back
+      side: right
+
+    - name: counter_3
+      type: counter
+      # pos: [2.057, -0.325, 0.46]
+      size: [0.56, 0.65, 0.92]
+      align_to: counter_2
+      alignment: top_back
+      side: right
 
     - name: counter
       type: counter
-      pos: [0.78, 0.067, 0.528]
-      size: [2.234, 0.188, 1.309]
+      pos: [0.78, 0.067, 0.53]
+      size: [2.234, 0.14, 1.3]
 
   bottom_row_cabinets:
     - name: panelbox
@@ -364,17 +370,6 @@ left_group:
       align_to: stack_2
       side: right
       alignment: top_back
-  
-  counter_accessories:
-    - name: coffee_machine
-      type: coffee_machine
-
-      placement:
-        fixture: counter_1.005
-        size: [1.0, 0.52]
-        pos: [-1.0, 1.0]
-        rotation: [0, 0]
-        margin: 0.0
 
 right_group:
   group_origin: [0, 0]
@@ -413,13 +408,24 @@ island_group:
   group_origin: [0, 0]
   group_pos: [-0.12, -0.8]
   group_z_rot: -1.5707961239789638
-  island_bottom_row:
+  bottom_row:
     - name: island
       type: counter
       default_config_name: island
       pos: [1.15, -0.325, 0.46]
-      size: [2.151, 0.65, 0.92]
+      size: [2.15, 0.65, 0.92]
       base_opening: [True, False]
+
+  counter_accessories:
+    - name: coffee_machine
+      type: coffee_machine
+
+      placement:
+        fixture: island
+        size: [1.0, 0.52]
+        pos: [-1.0, 1.0]
+        rotation: [0, 0]
+        margin: 0.0
 
 stool_group:
   group_origin: [0, 0]
@@ -428,9 +434,8 @@ stool_group:
   stool_row:
     - name: stool_2
       type: stool
-      # pos: [-0.606, 0.603, 0.5]
-      pos: [-0.606, 0.663, 0.5]
+      pos: [-0.6, 0.66, 0.5]
 
     - name: stool_1
       type: stool
-      pos: [-1.575, 0.663, 0.5]
+      pos: [-1.5, 0.66, 0.5]
