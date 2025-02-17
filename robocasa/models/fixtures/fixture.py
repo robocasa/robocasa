@@ -22,6 +22,8 @@ from robocasa.utils.object_utils import get_pos_after_rel_offset
 
 
 def site_pos(site):
+    if isinstance(site, np.ndarray):
+        return site
     return string_to_array(site.get("pos"))
 
 
@@ -140,6 +142,38 @@ class Fixture(MujocoXMLObject):
         # scale based on specified max dimension
         if size is not None:
             self.set_scale_from_size(size)
+
+        # search for all geom regions
+        geom_list = find_elements(
+            self.worldbody,
+            tags="geom",
+            return_first=False,
+        )
+        if geom_list is None:
+            geom_list = []
+        for geom in geom_list:
+            name = geom.get("name")
+            if name is None:
+                continue
+            name = name.split(self.naming_prefix)[
+                1
+            ]  # strip out fixture name from prefix
+
+            if "reg_" not in name:
+                continue
+
+            pos = string_to_array(geom.get("pos"))
+            size = string_to_array(geom.get("size"))
+            p0 = pos + [-size[0], -size[1], -size[2]]
+            px = pos + [size[0], -size[1], -size[2]]
+            py = pos + [-size[0], size[1], -size[2]]
+            pz = pos + [-size[0], -size[1], size[2]]
+            prefix = "ext_" if name == "reg_main_body" else "int_"
+            print(prefix)
+            self._bounds_sites[prefix + "p0"] = p0
+            self._bounds_sites[prefix + "px"] = px
+            self._bounds_sites[prefix + "py"] = py
+            self._bounds_sites[prefix + "pz"] = pz
 
         # based on exterior points, overwritten by subclasses (e.g. Counter) that do not have such sites
         self.size = np.array([self.width, self.depth, self.height])
