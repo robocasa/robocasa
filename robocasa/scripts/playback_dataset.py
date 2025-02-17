@@ -76,7 +76,6 @@ def playback_trajectory_with_env(
         highlight_frames = []
     highlight_timesteps = [t for (t, c, l) in highlight_frames]
 
-    start_traj = time.time()
     for t in range(traj_len):
         start = time.time()
 
@@ -115,11 +114,22 @@ def playback_trajectory_with_env(
 
         # video render
         if write_video:
-            if (
-                video_count % video_skip == 0
-                or t == traj_len - 1
-                or t in highlight_timesteps
-            ):
+            if t % video_skip == 0 or t == traj_len - 1 or t in highlight_timesteps:
+                if (
+                    t in highlight_timesteps
+                    and t % video_skip != 0
+                    and t != traj_len - 1
+                ):
+                    # don't render intermediate frames if they're part of long contiguous sequence of timesteps
+                    # otherwise this will substantially slow down the video
+                    if all(
+                        [
+                            t + t1 in highlight_timesteps
+                            for t1 in range(1, video_skip * 2 + 1)
+                        ]
+                    ):
+                        continue
+
                 video_img = []
                 for cam_name in camera_names:
                     im = env.sim.render(
@@ -141,11 +151,11 @@ def playback_trajectory_with_env(
 
                 video_writer.append_data(video_img)
 
-            video_count += 1
+            # video_count += 1
 
         if first:
             break
-    print("total time to playback:", time.time() - start_traj)
+
     if render:
         env.viewer.close()
         env.viewer = None

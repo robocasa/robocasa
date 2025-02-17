@@ -15,6 +15,7 @@ from termcolor import colored
 import os
 import json
 import traceback
+import re
 
 
 def auto_inspect_ep(ds_path, env=None):
@@ -105,11 +106,21 @@ if __name__ == "__main__":
         help="path to hdf5 dataset",
     )
     parser.add_argument(
+        "--from_date",
+        type=str,
+        help="(optional) only scan folders from date yyyy-mm-dd",
+    )
+    parser.add_argument(
         "--overwrite",
         help="re-scan existing demos (only valid if args.dataset is a directory)",
         action="store_true",
     )
     args = parser.parse_args()
+
+    if args.from_date is not None:
+        assert bool(
+            re.fullmatch(r"\d{4}-\d{2}-\d{2}", args.from_date)
+        ), "date format must be yyyy-mm-dd"
 
     demo_group_list = []
     args.dataset = os.path.expanduser(args.dataset)
@@ -120,6 +131,11 @@ if __name__ == "__main__":
         for root, dirs, files in os.walk(args.dataset):
             for dir in dirs:
                 if dir == "episodes":
+                    if args.from_date is not None:
+                        ### check that the parent folder is from date yyyy-mm-dd onwards ###
+                        folder_date = root.split("/")[-1][:10]
+                        if folder_date < args.from_date:
+                            continue
                     ep_dir_list.append(os.path.join(root, dir))
 
         for ep_dir in ep_dir_list:

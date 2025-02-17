@@ -5,29 +5,46 @@ import json
 import cv2
 import h5py
 import time
+import re
 
 from robocasa.scripts.run_qa_auto import auto_inspect_ep
 
 COMMON_FAULTS = [
     dict(
         codename="jerk",
-        description="robot motion is too jerky",
+        description="robot motion is too sudden or jerky",
     ),
     dict(
-        codename="too_many_retries",
-        description="robot unsuccessfully tries to manipulate an object too many times",
-    ),
-    dict(
-        codename="unnec_base",
-        description="unnecessary usage of base",
+        codename="awk_robot_pose",
+        description="arm gets into awkward pose",
     ),
     dict(
         codename="stall",
         description="robot moving too slowly or having long abnormal pauses",
     ),
     dict(
-        codename="obj_phys",
-        description="object slip, drop, wobble, drag, throw, etc",
+        codename="coll",
+        description="undesirable collisions with environment",
+    ),
+    dict(
+        codename="awk_manipulation",
+        description="awkward maniplation of object, door, knob, lever, etc",
+    ),
+    dict(
+        codename="bad_obj_interaction",
+        description="object slip, drop, wobble, drag, knock, throw, etc",
+    ),
+    dict(
+        codename="too_many_retries",
+        description="robot unsuccessfully tries to manipulate an object too many times",
+    ),
+    dict(
+        codename="awk_nav",
+        description="awkward robot base navigation",
+    ),
+    dict(
+        codename="unnec_base",
+        description="unnecessary usage of base",
     ),
     dict(
         codename="misc",
@@ -40,7 +57,7 @@ for i, fault in enumerate(COMMON_FAULTS):
     FAULT_OPTIONS_MSG += f"[{i}] {fault['codename']}: {fault['description']}\n"
 
 
-def play_mp4_opencv(file_path):
+def play_mp4_opencv(file_path, height=500):
     """
     code adapted from Google Gemini
     """
@@ -53,7 +70,9 @@ def play_mp4_opencv(file_path):
         ret, frame = cap.read()
         if not ret:
             break
-        resized_frame = cv2.resize(frame, (800 * 3, 800), interpolation=cv2.INTER_AREA)
+        resized_frame = cv2.resize(
+            frame, (height * 3, height), interpolation=cv2.INTER_AREA
+        )
         cv2.imshow("Video", resized_frame)
         if cv2.waitKey(50) & 0xFF == ord("q"):  # Press 'q' to quit
             break
@@ -109,8 +128,7 @@ def write_manual_qa(qa_stats_path, user_action, user_issues=None, user_notes=Non
         json.dump(all_qa_stats, f, indent=4)
 
 
-def manual_inspect_ep(ds_path):
-    print(colored(f"Playing episode at: {ds_path}", "yellow"))
+def manual_inspect_ep(ds_path, video_height=500):
     qa_video = os.path.join(os.path.dirname(ds_path), "qa.mp4")
     if os.path.exists(qa_video) is False:
         print(
@@ -126,9 +144,9 @@ def manual_inspect_ep(ds_path):
         instr = ep_meta["lang"]
     print(colored(f"\tTask: {env_name}", "yellow"))
     print(colored(f"\tInstruction: {instr}", "yellow"))
-    time.sleep(1)
+    time.sleep(2.5)
     while True:
-        play_mp4_opencv(qa_video)
+        play_mp4_opencv(qa_video, height=video_height)
 
         while True:
             user_action = input("keep? yes(y) / no(n) / maybe(s) / replay(r) ")
@@ -183,7 +201,23 @@ if __name__ == "__main__":
         type=str,
         help="path to hdf5 dataset",
     )
+    parser.add_argument(
+        "--from_date",
+        type=str,
+        help="(optional) only scan folders from date yyyy-mm-dd",
+    )
+    parser.add_argument(
+        "--video_height",
+        type=int,
+        default=500,
+        help="(optional) height of video played back on screen",
+    )
     args = parser.parse_args()
+
+    if args.from_date is not None:
+        assert bool(
+            re.fullmatch(r"\d{4}-\d{2}-\d{2}", args.from_date)
+        ), "date format must be yyyy-mm-dd"
 
     ep_list = []
     args.dataset = os.path.expanduser(args.dataset)
@@ -210,10 +244,21 @@ if __name__ == "__main__":
                                 all_qa_stats = json.load(f)
                             if "manual_qa" in all_qa_stats:
                                 continue
+
+                        if args.from_date is not None:
+                            ### check that the demo date is from date yyyy-mm-dd onwards ###
+                            folder_date = root.split("/")[-3][:10]
+                            if folder_date < args.from_date:
+                                continue
                     except:
                         continue
 
                     ep_list.append(os.path.join(root, file))
 
-    for ep_path in ep_list:
-        manual_inspect_ep(ep_path)
+    for ep_num, ep_path in enumerate(ep_list):
+        print(
+            colored(
+                f"[{ep_num+1}/{len(ep_list)}] Playing episode at: {ep_path}", "yellow"
+            )
+        )
+        manual_inspect_ep(ep_path, video_height=args.video_height)

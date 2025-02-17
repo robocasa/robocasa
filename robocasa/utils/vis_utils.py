@@ -189,6 +189,7 @@ def apply_filter(img, color=(0, 255, 0), factor=0.15):
 def add_text_to_frame(frame, text, color):
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(frame, text, (50, 80), font, 2, color, 3, cv2.LINE_AA)
+    color_bgr = (color[2], color[1], color[0])
+    cv2.putText(frame, text, (50, 80), font, 2, color_bgr, 3, cv2.LINE_AA)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     return frame
