@@ -1,0 +1,37 @@
+<mujoco model="model">
+  <asset>
+    <material name="Steel" specular="0.5" shininess="0.429602173" rgba="0.233014 0.233014 0.233014 1.0"/>
+    <material name="White_Ceramic" specular="0.5" shininess="0.745867798" rgba="0.774273 0.745509 0.723106 1.0"/>
+    <material name="rubber" specular="0.5" shininess="0.42249996900000003" rgba="0.265530 0.313605 0.305268 1.0"/>
+    <material name="wood" specular="0.5" shininess="0.10710742999999999" rgba="0.800000 0.800000 0.800000 1.0"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_2.obj" name="model_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_3.obj" name="model_3_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="-0.3431880732252614 -0.3194923587852673 -0.49999999999999994" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0.3431880732252614 -0.3194923587852673 -0.49999999999999994" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="-0.3431880732252614 0.3194923587852673 -0.49999999999999994" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="-0.3431880732252614 -0.3194923587852673 0.49999999999999994" name="ext_pz"/>
+      <!-- interior bounding box points -->
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="White_Ceramic" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="Steel" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_2_vis" material="wood" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_3_vis" material="rubber" class="visual"/>
+        <geom class="collision" type="box" pos="0 0 0" size="0.3431880732252614 0.3194923587852673 0.49999999999999994"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

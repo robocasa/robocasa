@@ -1,0 +1,68 @@
+<mujoco model="microwave2">
+  <asset>
+    <texture file="visuals/material_0.png" name="tex-microwave2" type="2d"/>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <material name="microwave2" reflectance="0.5" texrepeat="1 1" texture="tex-microwave2" texuniform="false"/>
+    <material name="Oven" texture="image0" specular="0.5" shininess="0.25"/>
+    <mesh file="visuals/microwave2_0.obj" name="microwave2_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/microwave2_door_0.obj" name="microwave2_door_0_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="microwave2_0_vis" material="Oven" class="visual"/>
+        <!-- Back Wall -->
+        <geom class="collision" type="box" pos="0 0.4125 0" size="0.5 0.032 0.3"/>
+        <!-- Floor -->
+        <geom class="collision" type="box" pos="0 0.075 -0.255" size="0.5 0.352 0.045"/>
+        <!-- Top -->
+        <geom class="collision" type="box" pos="0 0.075 0.275" size="0.5 0.352 0.035"/>
+        <!-- Left Wall-->
+        <geom class="collision" type="box" pos="-0.47 0.075 0" size="0.04 0.352 0.3"/>
+        <!-- Right Wall-->
+        <geom class="collision" type="box" pos="0.38 0.075 0" size="0.12 0.352 0.3"/>
+        <!-- Keypad -->
+        <geom class="collision" type="box" pos="0.405 -0.325 0.015" size="0.095 0.0505 0.29"/>
+        <!-- start/stop buttons -->
+        <geom class="collision" type="box" pos="0.445 -0.325 -0.12" size="0.03 0.051 0.025" name="start_button" rgba="0.0 0.5 0 0.5"/>
+        <geom class="collision" type="box" pos="0.365 -0.325 -0.12" size="0.03 0.051 0.025" name="stop_button" rgba="0.0 0.5 0 0.5"/>
+        <geom class="collision" type="cylinder" pos="-0.09 0.05 -0.21" size="0.25 0.005" rgba="0 1 0 0.5" name="tray"/>
+        <body name="door">
+          <joint axis="0 0 1" limited="true" name="microjoint" range="-90 0" damping="2" frictionloss="2" armature=".01" pos="-0.45 -0.367 0" ref="0"/>
+          <!-- -0.51 -0.277 0 -->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="microwave2_door_0_vis" material="Oven" class="visual"/>
+          <!-- Door -->
+          <geom class="collision" type="box" pos="-0.075 -0.327 0.01" size="0.38 0.04 0.28"/>
+          <!-- Handle Top -->
+          <geom class="collision" type="box" pos="0.27 -0.405 0.18" size="0.03 0.038 0.021"/>
+          <!-- Handle Bottom -->
+          <geom class="collision" type="box" pos="0.27 -0.405 -0.15" size="0.03 0.038 0.021"/>
+          <!-- Handle Main -->
+          <geom class="collision" type="box" pos="0.27 -0.43 0.018" size="0.03 0.016 0.18" name="door_handle"/>
+          <!-- door sites -->
+          <site rgba="1 0 0 0" size="0.005" pos="-0.075 -0.37 0.01" name="door_p1"/>
+          <site rgba="0 1 0 0" size="0.005" pos="-0.025 -0.37 0.01" name="door_p2"/>
+          <site rgba="0 0 1 0" size="0.005" pos="-0.075 -0.37 0.06" name="door_p3"/>
+        </body>
+        <!-- exterior bounding box points -->
+        <site rgba="1 1 1 1" size="0.01" pos="-0.51 -0.37 -0.283" name="ext_p0"/>
+        <site rgba="1 0 0 1" size="0.01" pos="0.51 -0.37 -0.283" name="ext_px"/>
+        <site rgba="0 1 0 1" size="0.01" pos="-0.51 0.455 -0.283" name="ext_py"/>
+        <site rgba="0 0 1 1" size="0.01" pos="-0.51 -0.37 0.305" name="ext_pz"/>
+        <!-- interior bounding box points -->
+        <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.43 -0.27 -0.20" name="int_p0"/>
+        <site rgba="1 1 0 1" size="0.01" pos="0.26 -0.27 -0.20" name="int_px"/>
+        <site rgba="0 1 1 1" size="0.01" pos="-0.43 0.37 -0.20" name="int_py"/>
+        <site rgba="1 0 1 1" size="0.01" pos="-0.43 -0.27 0.24" name="int_pz"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

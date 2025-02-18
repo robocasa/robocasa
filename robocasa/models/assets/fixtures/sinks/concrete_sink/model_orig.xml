@@ -1,0 +1,74 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <texture file="visuals/material_0.png" name="tex-model" type="2d"/>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <material name="model" reflectance="0.5" texrepeat="1 1" texture="tex-model" texuniform="false"/>
+    <material name="m_sink" texture="image0" specular="0.5" shininess="0.25"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/spout_0.obj" name="spout_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/handle_0.obj" name="handle_0_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
+      <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="m_sink" class="visual"/>
+        <!--Add Collision Geom(s) for model here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+        <!-- Bottom -->
+        <geom class="collision" type="box" pos="0.24 0 -0.26" size="0.20 0.24 0.0125" name="bottom"/>
+        <!-- Left inside-->
+        <geom class="collision" type="box" pos="0.025 0 -0.15" size="0.0125 0.24 0.1"/>
+        <!-- Right inside-->
+        <geom class="collision" type="box" pos="0.47 0 -0.08" size="0.03 0.30 0.038"/>
+        <geom class="collision" type="box" pos="0.47 0 -0.21" size="0.03 0.26 0.10"/>
+        <!-- Front inside-->
+        <geom class="collision" type="box" pos="0.24 -0.255 -0.18" size="0.22 0.01 0.138"/>
+        <geom class="collision" type="box" pos="0.24 -0.275 -0.10" size="0.22 0.03 0.058"/>
+        <!-- Back inside-->
+        <geom class="collision" type="box" pos="0.24 0.272 -0.18" size="0.20 0.03 0.138"/>
+        <geom class="collision" type="box" pos="-0.23 0 -0.15" size="0.26 0.30 0.108"/>
+        <geom class="collision" type="cylinder" pos="-0.01 0.245 0.01" size="0.035 0.06"/>
+        <body name="spout">
+          <!--Add Joint Here-->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_0_vis" material="m_sink" class="visual"/>
+          <!--Add Collision Geom(s) for spout here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+          <geom class="collision" type="cylinder" pos="-0.009 0.246 0.16" size="0.02 0.08"/>
+          <geom class="collision" type="cylinder" pos="0.005 0.23 0.28" size="0.02 0.04" euler="0.785 0.59 0"/>
+          <geom class="collision" type="cylinder" pos="0.09 0.15 0.30" size="0.02 0.075" euler="1.57 0.785 0" name="spout_top"/>
+          <geom class="collision" type="cylinder" pos="0.15 0.09 0.27" size="0.02 0.04" euler="0 0 0"/>
+          <joint pos="-0.009 0.246 0.16" axis="0 0 1" type="hinge" damping="10" name="spout_joint"/>
+          <site type="cylinder" rgba="0.5 0.75 1 0" pos="0.155 0.09 0.0" size="0.01 0.25" name="water"/>
+        </body>
+        <body name="handle">
+          <!--Add Joint Here-->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="handle_0_vis" material="m_sink" class="visual"/>
+          <!--Add Collision Geom(s) for handle here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+          <geom class="collision" type="box" pos="0.075 0.246 0.017" size="0.015 0.03 0.03" euler="0 0 0"/>
+          <geom class="collision" type="cylinder" pos="0.08 0.246 0.08" size="0.01 0.03" euler="0 0 0" name="handle_main"/>
+          <!-- <joint pos="0.06 0.246 0.017" axis="1 0 0" type="hinge" damping="5" name="handle_joint"/> -->
+          <joint pos="0.06 0.246 0.04" axis="0 1 0" type="hinge" damping="10" name="handle_joint" range="0 0.52"/>
+          <joint pos="0.06 0.246 0.017" axis="1 0 0" type="hinge" damping="50" name="handle_temp_joint" range="-0.785 0.785"/>
+        </body>
+        <!-- exterior bounding box points -->
+        <site rgba="1 1 1 1" size="0.005" pos="-0.5 -0.3 -0.315" name="ext_p0"/>
+        <site rgba="1 0 0 1" size="0.005" pos="0.5 -0.3 -0.315" name="ext_px"/>
+        <site rgba="0 1 0 1" size="0.005" pos="-0.5 0.3 -0.315" name="ext_py"/>
+        <site rgba="0 0 1 1" size="0.005" pos="-0.5 -0.3 -0.045" name="ext_pz"/>
+        <!-- interior bounding box points -->
+        <site rgba="0.5 0.5 0.5 1" size="0.005" pos="0.04 -0.24 -0.26" name="int_p0"/>
+        <site rgba="1 1 0 1" size="0.005" pos="0.44 -0.24 -0.26" name="int_px"/>
+        <site rgba="0 1 1 1" size="0.005" pos="0.04 0.24 -0.26" name="int_py"/>
+        <site rgba="1 0 1 1" size="0.005" pos="0.04 -0.24 -0.05" name="int_pz"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

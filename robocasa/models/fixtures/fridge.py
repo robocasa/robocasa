@@ -7,11 +7,7 @@ class Fridge(Fixture):
     """
 
     def __init__(
-        self,
-        xml="fixtures/fridges/Refrigerator033/model.xml",
-        name="fridge",
-        *args,
-        **kwargs
+        self, xml="fixtures/fridges/Refrigerator033", name="fridge", *args, **kwargs
     ):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs

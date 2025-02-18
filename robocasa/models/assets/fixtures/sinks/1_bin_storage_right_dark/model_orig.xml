@@ -1,0 +1,105 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <texture type="2d" name="image0" file="visuals/increased_image0.png"/>
+    <texture type="2d" name="image6" file="visuals/increased_image6.png"/>
+    <texture type="2d" name="image3" file="visuals/increased_image3.png"/>
+    <material name="CHROME" specular="0.5" shininess="0.784646912" rgba="1.000000 1.000000 1.000000 1.000000"/>
+    <material name="SINK_LUXOR_r.001" texture="image0" specular="0.5" shininess="0.25"/>
+    <material name="black_glossy_plastic" texture="image6" specular="0.5" shininess="0.7147941889999999"/>
+    <material name="fr_act_plus_chro" specular="0.5" shininess="0.859834656" rgba="0.351345 0.351345 0.351345 1.000000"/>
+    <material name="fr_act_plus_plastick" specular="0.5" shininess="0.25" rgba="0.022759 0.022759 0.022759 1.000000"/>
+    <material name="fr_act_plus_surface" texture="image3" specular="0.5" shininess="0.33640005500000003"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_2.obj" name="model_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_3.obj" name="model_3_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_4.obj" name="model_4_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_5.obj" name="model_5_vis" scale="1 1 1"/>
+    <material name="fr_act_plus_perlator_chro" specular="0.5" shininess="0.859834656" rgba="1.000000 1.000000 1.000000 1.000000"/>
+    <mesh file="visuals/spout_0.obj" name="spout_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/spout_1.obj" name="spout_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/spout_2.obj" name="spout_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/handle_0.obj" name="handle_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/handle_1.obj" name="handle_1_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
+      <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="-0.5 -0.322 -0.318" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0.5 -0.322 -0.318" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="-0.5 0.324 -0.318" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="-0.5 -0.322 -0.065" name="ext_pz"/>
+      <!-- interior bounding box points -->
+      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.445 -0.265 -0.298" name="int_p0"/>
+      <site rgba="1 1 0 1" size="0.01" pos="0.04 -0.265 -0.298" name="int_px"/>
+      <site rgba="0 1 1 1" size="0.01" pos="-0.445 0.2 -0.298" name="int_py"/>
+      <site rgba="1 0 1 1" size="0.01" pos="-0.445 -0.265 -0.068" name="int_pz"/>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="black_glossy_plastic" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="fr_act_plus_plastick" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_2_vis" material="fr_act_plus_chro" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_3_vis" material="fr_act_plus_surface" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_4_vis" material="CHROME" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_5_vis" material="SINK_LUXOR_r.001" class="visual"/>
+        <!-- Bottom -->
+        <geom class="collision" type="box" pos="-0.2 -0.027 -0.308" size="0.24 0.23 0.01" name="bottom"/>
+        <!-- Left Wall -->
+        <geom class="collision" type="box" pos="-0.445 -0.027 -0.185" size="0.01 0.24 0.116" axisangle="0 1 0 -0.11"/>
+        <!-- Right Wall -->
+        <geom class="collision" type="box" pos="0.04 -0.027 -0.196" size="0.01 0.24 0.105" axisangle="0 1 0 0.11"/>
+        <!-- Back Wall -->
+        <geom class="collision" type="box" pos="-0.2 0.2 -0.185" size="0.25 0.01 0.116" axisangle="1 0 0 -0.11"/>
+        <!-- Front Wall -->
+        <geom class="collision" type="box" pos="-0.2 -0.26 -0.185" size="0.25 0.01 0.116" axisangle="1 0 0 0.11"/>
+        <!-- Storage -->
+        <geom class="collision" type="box" pos="0.25 -0.03 -0.098" size="0.2 0.238 0.01" axisangle="0 1 0 -0.0175"/>
+        <!-- Back Ledge -->
+        <geom class="collision" type="box" pos="0 0.265 -0.08" size="0.5 0.059 0.015"/>
+        <!-- Front Ledge -->
+        <geom class="collision" type="box" pos="0 -0.292 -0.08" size="0.5 0.03 0.015"/>
+        <!-- Right Ledge -->
+        <geom class="collision" type="box" pos="0.472 0 -0.08" size="0.028 0.3 0.015"/>
+        <!-- Left Ledge -->
+        <geom class="collision" type="box" pos="-0.472 0 -0.08" size="0.028 0.3 0.015"/>
+        <!-- Faucet Base -->
+        <geom class="collision" type="cylinder" pos="-0.14 0.2635 -0.02" size="0.028 0.05 0"/>
+        <geom class="collision" type="cylinder" pos="-0.14 0.2635 0.069" size="0.019 0.028 0"/>
+        <!-- Handle Attach Point-->
+        <geom class="collision" type="cylinder" pos="-0.1427 0.263 0.0235" size="0.028 0.0428 0" axisangle="0 1 0 1.57"/>
+        <!-- Soap Base -->
+        <geom class="collision" type="cylinder" pos="-0.37 0.2635 -0.02" size="0.017 0.048 0"/>
+        <body name="spout">
+          <joint axis="0 0 1" limited="true" name="spout_joint" range="-1.57 1.57" pos="-0.14 0.263 0.098" damping="10"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_0_vis" material="fr_act_plus_perlator_chro" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_1_vis" material="fr_act_plus_chro" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_2_vis" material="fr_act_plus_surface" class="visual"/>
+          <geom class="collision" type="cylinder" pos="-0.14 0.2635 0.18" size="0.019 0.083 0"/>
+          <geom class="collision" type="cylinder" pos="-0.14 0.245 0.29" size="0.019 0.04 0" axisangle="1 0 0 0.79"/>
+          <geom class="collision" type="cylinder" pos="-0.14 0.093 0.307" size="0.019 0.13 0" axisangle="1 0 0 1.57" name="spout_top"/>
+          <geom class="collision" type="cylinder" pos="-0.14 -0.016 0.291" size="0.017 0.01 0"/>
+          <site type="cylinder" rgba="0.5 0.75 1 1" pos="-0.14 -0.015 0.0" size="0.01 0.30" name="water"/>
+        </body>
+        <body name="handle">
+          <joint axis="1 0 0" limited="true" name="handle_temp_joint" range="-0.79 0.79" pos="-0.0699 0.2635 0.0235" damping="50"/>
+          <joint axis="0 1 0" limited="true" type="hinge" name="handle_joint" range="0 0.52" pos="-0.0699 0.2635 0.04" damping="10"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="handle_0_vis" material="fr_act_plus_surface" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="handle_1_vis" material="fr_act_plus_chro" class="visual"/>
+          <!-- Main -->
+          <geom class="collision" type="cylinder" pos="-0.053 0.2635 0.0235" size="0.028 0.017 0" axisangle="0 1 0 1.57"/>
+          <!-- Handle -->
+          <geom class="collision" type="cylinder" pos="-0.047 0.2635 0.08" size="0.006 0.034 0" name="handle_main"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

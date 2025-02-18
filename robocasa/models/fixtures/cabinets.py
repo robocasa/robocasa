@@ -904,6 +904,7 @@ class PanelCabinet(Cabinet):
     ):
         self.cabinet_type = "panel"
 
+        # xml = "fixtures/cabinets/panel.xml"
         xml = "fixtures/cabinets/panel.xml"
 
         kwargs["handle_type"] = None
@@ -1024,6 +1025,11 @@ class HousingCabinet(Cabinet):
             padding = [[None] * 2 for _ in range(3)]
 
         padding = [[None, None] if p is None else p for p in padding]
+
+        # print("name:", name)
+        # print("size:", size)
+        # print("padding:", padding)
+        # print()
 
         for d in range(3):
             if size[d] is None:

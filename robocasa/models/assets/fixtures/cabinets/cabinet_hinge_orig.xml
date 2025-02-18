@@ -1,0 +1,48 @@
+<mujoco model="hinge_cab">
+  <asset>
+    <texture file="visuals/wood1.png" type="cube" name="tex"/>
+    <material name="mat" shininess="0.1" texture="tex"/>
+  </asset>
+  <default>
+    <default class="cab">
+      <geom group="0" density="10"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom pos="0.0 0 0.28" size="0.36 0.3 0.02" type="box" material="mat" class="cab" name="top"/>
+        <geom pos="0.0 0 -0.28" size="0.36 0.3 0.02" type="box" material="mat" class="cab" name="bottom"/>
+        <geom pos="0.0 0.28 0" size="0.36 0.02 0.26" type="box" material="mat" class="cab" name="back"/>
+        <geom pos="0.38 0 0" size="0.02 0.3 0.3" type="box" material="mat" class="cab" name="right"/>
+        <geom pos="-0.38 0 0" size="0.02 0.3 0.3" type="box" material="mat" class="cab" name="left"/>
+        <geom pos="0.0 0.0 0.0" size="0.34 0.28 0.02" type="box" material="mat" class="cab" name="shelf"/>
+        <body name="hingeleftdoor" pos="-0.38 -0.32 0">
+          <joint axis="0 0 1" name="leftdoorhinge" limited="true" range="-3.00 0" damping="2"/>
+          <!-- <geom pos="0.184 -.005 0" size="0.193 0.3 0.02" type="box" material="cabinet_wood_uniform"  class="cab" name="door_left" euler="1.57 0 0"/> -->
+          <site rgba="1 0 0 0" size="0.005" pos="-0.25 -0.20 0" name="leftdoor_p1"/>
+          <site rgba="0 1 0 0" size="0.005" pos="-0.20 -0.20 0" name="leftdoor_p2"/>
+          <site rgba="0 0 1 0" size="0.005" pos="-0.25 -0.20 0.05" name="leftdoor_p3"/>
+        </body>
+        <body name="hingerightdoor" pos="0.38 -0.32 0">
+          <!-- <site rgba="1 1 1 1" size="0.2" pos="0.38 -0.32 0"/> -->
+          <joint axis="0 0 1" name="rightdoorhinge" limited="true" range="0 3.00" damping="2"/>
+          <!-- <geom pos="-0.185 -.005 0" size="0.193 0.3 0.02" type="box" material="cabinet_wood_uniform" class="cab" name="door_right" euler="1.57 0 0"/> -->
+          <site rgba="1 0 0 0" size="0.005" pos="0.25 -0.20 0" name="rightdoor_p1"/>
+          <site rgba="0 1 0 0" size="0.005" pos="0.20 -0.20 0" name="rightdoor_p2"/>
+          <site rgba="0 0 1 0" size="0.005" pos="0.25 -0.20 0.05" name="rightdoor_p3"/>
+        </body>
+        <!-- exterior bounding box points -->
+        <site rgba="0 0 0 1" size="0.005" pos="0 0 0" name="ext_p0"/>
+        <site rgba="1 0 0 1" size="0.005" pos="0 0 0" name="ext_px"/>
+        <site rgba="0 1 0 1" size="0.005" pos="0 0 0" name="ext_py"/>
+        <site rgba="0 0 1 1" size="0.005" pos="0 0 0" name="ext_pz"/>
+        <!-- interior bounding box points -->
+        <site rgba="0.5 0.5 0.5 1" size="0.005" pos="0 0 0" name="int_p0"/>
+        <site rgba="1 1 0 1" size="0.005" pos="0 0 0" name="int_px"/>
+        <site rgba="0 1 1 1" size="0.005" pos="0 0 0" name="int_py"/>
+        <site rgba="1 0 1 1" size="0.005" pos="0 0 0" name="int_pz"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

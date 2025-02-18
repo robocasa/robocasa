@@ -80,9 +80,9 @@ class Counter(ProcGenFixture):
     ):
         self.has_opening = interior_obj is not None
         if self.has_opening:
-            xml = "fixtures/counters/counter_with_opening"
+            xml = "fixtures/counters/counter_with_opening/model.xml"
         else:
-            xml = "fixtures/counters/counter"
+            xml = "fixtures/counters/counter/model.xml"
         self.interior_obj = None
 
         self.size = size

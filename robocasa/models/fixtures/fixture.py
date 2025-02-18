@@ -116,32 +116,29 @@ class Fixture(MujocoXMLObject):
 
         # set up exterior and interior sites
         self._bounds_sites = dict()
+        # self._bounds_sites_old = dict()
 
-        all_possible_site_names = []
-        for prefix in BBOX_SITE_PREFIXES:
-            for postfix in ["p0", "px", "py", "pz"]:
-                all_possible_site_names.append(f"{prefix}_{postfix}")
+        # all_possible_site_names = []
+        # for prefix in BBOX_SITE_PREFIXES:
+        #     for postfix in ["p0", "px", "py", "pz"]:
+        #         all_possible_site_names.append(f"{prefix}_{postfix}")
 
-        for site_name in all_possible_site_names:
-            site = find_elements(
-                self.worldbody,
-                tags="site",
-                attribs={"name": "{}{}".format(self.naming_prefix, site_name)},
-                return_first=True,
-            )
-            if site is None:
-                continue
-            rgba = string_to_array(site.get("rgba"))
-            if macros.SHOW_SITES:
-                rgba[-1] = 1.0
-            else:
-                rgba[-1] = 0.0
-            site.set("rgba", array_to_string(rgba))
-            self._bounds_sites[site_name] = site
-
-        # scale based on specified max dimension
-        if size is not None:
-            self.set_scale_from_size(size)
+        # for site_name in all_possible_site_names:
+        #     site = find_elements(
+        #         self.worldbody,
+        #         tags="site",
+        #         attribs={"name": "{}{}".format(self.naming_prefix, site_name)},
+        #         return_first=True,
+        #     )
+        #     if site is None:
+        #         continue
+        #     rgba = string_to_array(site.get("rgba"))
+        #     if macros.SHOW_SITES:
+        #         rgba[-1] = 1.0
+        #     else:
+        #         rgba[-1] = 0.0
+        #     site.set("rgba", array_to_string(rgba))
+        #     self._bounds_sites_old[site_name] = string_to_array(site.get("pos")) # site
 
         # search for all geom regions
         geom_list = find_elements(
@@ -149,31 +146,57 @@ class Fixture(MujocoXMLObject):
             tags="geom",
             return_first=False,
         )
+
+        # if xml == "fixtures/accessories/utensil_racks/metal/model.xml":
+        #     print("searching...")
+        #     geom_pairs = self._get_geoms(self._obj)
+        #     for (_, g) in geom_pairs:
+        #         g_name = g.get("name")
+        #         print(g_name)
+        #         # if g_name is not None and "reg_ext" in g_name:
+        #         #     print(g, g_name)
+
         if geom_list is None:
             geom_list = []
         for geom in geom_list:
-            name = geom.get("name")
-            if name is None:
+            g_name = geom.get("name")
+            if g_name is None:
                 continue
-            name = name.split(self.naming_prefix)[
+            g_name = g_name.split(self.naming_prefix)[
                 1
             ]  # strip out fixture name from prefix
 
-            if "reg_" not in name:
+            if not g_name.startswith("reg_"):
                 continue
 
-            pos = string_to_array(geom.get("pos"))
-            size = string_to_array(geom.get("size"))
-            p0 = pos + [-size[0], -size[1], -size[2]]
-            px = pos + [size[0], -size[1], -size[2]]
-            py = pos + [-size[0], size[1], -size[2]]
-            pz = pos + [-size[0], -size[1], size[2]]
-            prefix = "ext_" if name == "reg_main_body" else "int_"
-            print(prefix)
-            self._bounds_sites[prefix + "p0"] = p0
-            self._bounds_sites[prefix + "px"] = px
-            self._bounds_sites[prefix + "py"] = py
-            self._bounds_sites[prefix + "pz"] = pz
+            reg_pos = string_to_array(geom.get("pos"))
+            reg_size = string_to_array(geom.get("size"))
+            # ## special case: if
+            # if np.all(reg_size <= 0.0001):
+            #     reg_size = [0.0, 0.0, 0.0]
+            p0 = reg_pos + [-reg_size[0], -reg_size[1], -reg_size[2]]
+            px = reg_pos + [reg_size[0], -reg_size[1], -reg_size[2]]
+            py = reg_pos + [-reg_size[0], reg_size[1], -reg_size[2]]
+            pz = reg_pos + [-reg_size[0], -reg_size[1], reg_size[2]]
+            prefix = g_name[4:]
+
+            # if any(self._bounds_sites[prefix + "_p0"] != p0):
+            #     print(xml)
+            #     print("scale:", scale)
+            #     print(self._bounds_sites[prefix + "_p0"])
+            #     print(p0)
+            #     print()
+            self._bounds_sites[prefix + "_p0"] = p0
+            self._bounds_sites[prefix + "_px"] = px
+            self._bounds_sites[prefix + "_py"] = py
+            self._bounds_sites[prefix + "_pz"] = pz
+
+        # for key in self._bounds_sites_old:
+        # assert key in self._bounds_sites, f"for model {xml},\n {key} not in _bounds_sites, old keys are {self._bounds_sites_old.keys()} and new keys are {self._bounds_sites.keys()}"
+
+        # scale based on specified max dimension
+        if size is not None:
+            self.set_scale_from_size(size)
 
         # based on exterior points, overwritten by subclasses (e.g. Counter) that do not have such sites
         self.size = np.array([self.width, self.depth, self.height])
@@ -243,6 +266,10 @@ class Fixture(MujocoXMLObject):
         scale[1] = scale[1] or scale[0] or scale[2]
         scale[2] = scale[2] or scale[0] or scale[1]
         self.set_scale(scale)
+
+        for (k, v) in self._bounds_sites.items():
+            if isinstance(v, np.ndarray):
+                self._bounds_sites[k] = v * scale
 
     def get_reset_regions(self, *args, **kwargs):
         """
@@ -372,7 +399,8 @@ class Fixture(MujocoXMLObject):
             pos_dict (dict): Dictionary of sites and their new positions
         """
         for (name, pos) in pos_dict.items():
-            self._bounds_sites[name].set("pos", array_to_string(pos))
+            # self._bounds_sites[name].set("pos", array_to_string(pos))
+            self._bounds_sites[name] = np.array(pos)
 
     def get_ext_sites(self, all_points=False, relative=True):
         """

@@ -1,0 +1,63 @@
+<mujoco model="model">
+  <asset>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <material name="12_Mocco" texture="image0" specular="0.5" shininess="0.36"/>
+    <material name="Silver" specular="0.5" shininess="0.49050622600000005" rgba="0.800000 0.800000 0.800000 1.000000"/>
+    <material name="Zagl" specular="0.5" shininess="0.645972961" rgba="0.542785 0.542785 0.542785 1.000000"/>
+    <material name="material" specular="0.5" shininess="0.220900024" rgba="1.000000 1.000000 1.000000 1.000000"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_2.obj" name="model_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_3.obj" name="model_3_vis" scale="1 1 1"/>
+    <texture type="2d" name="image2" file="visuals/image2.png"/>
+    <material name="Filter_1" texture="image2" specular="0.5" shininess="0.0"/>
+    <mesh file="visuals/spout_0.obj" name="spout_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/spout_1.obj" name="spout_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/spout_2.obj" name="spout_2_vis" scale="1 1 1"/>
+    <mesh file="visuals/handle_0.obj" name="handle_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/handle_1.obj" name="handle_1_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
+      <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="0 0 0" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0 0 0" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="0 0 0" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="0 0 0" name="ext_pz"/>
+      <!-- interior bounding box points -->
+      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0 0 0" name="int_p0"/>
+      <site rgba="1 1 0 1" size="0.01" pos="0 0 0" name="int_px"/>
+      <site rgba="0 1 1 1" size="0.01" pos="0 0 0" name="int_py"/>
+      <site rgba="1 0 1 1" size="0.01" pos="0 0 0" name="int_pz"/>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="Zagl" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="material" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_2_vis" material="Silver" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_3_vis" material="12_Mocco" class="visual"/>
+        <!--Add Collision Geom(s) for model here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+        <body name="spout">
+          <!--Add Joint Here-->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_0_vis" material="Filter_1" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_1_vis" material="12_Mocco" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_2_vis" material="Silver" class="visual"/>
+          <!--Add Collision Geom(s) for spout here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+        </body>
+        <body name="handle">
+          <!--Add Joint Here-->
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="handle_0_vis" material="Zagl" class="visual"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="handle_1_vis" material="12_Mocco" class="visual"/>
+          <!--Add Collision Geom(s) for handle here - i.e. <geom class="collision" type="" pos="" size=""/>-->
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

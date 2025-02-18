@@ -1,0 +1,87 @@
+<mujoco model="model">
+  <asset>
+    <texture type="2d" name="image3" file="visuals/image3.png"/>
+    <texture type="2d" name="image0" file="visuals/image0.png"/>
+    <material name="Baked_Faucet" texture="image3" specular="0.5" shininess="0.25"/>
+    <material name="Baked_Sink" texture="image0" specular="0.5" shininess="0.25"/>
+    <mesh file="visuals/model_0.obj" name="model_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/model_1.obj" name="model_1_vis" scale="1 1 1"/>
+    <mesh file="visuals/spout_0.obj" name="spout_0_vis" scale="1 1 1"/>
+    <mesh file="visuals/handle_0.obj" name="handle_0_vis" scale="1 1 1"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
+      <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <!-- exterior bounding box points -->
+      <site rgba="0 0 0 1" size="0.01" pos="-0.5 -0.28 -0.26" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0.5 -0.28 -0.26" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="-0.5 0.28 -0.26" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="-0.5 -0.28 -0.053" name="ext_pz"/>
+      <!-- interior bounding box points (LEFT) -->
+      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.47 -0.208 -0.24" name="left_int_p0"/>
+      <site rgba="1 1 0 1" size="0.01" pos="-0.041 -0.208 -0.24" name="left_int_px"/>
+      <site rgba="0 1 1 1" size="0.01" pos="-0.47 0.162 -0.24" name="left_int_py"/>
+      <site rgba="1 0 1 1" size="0.01" pos="-0.47 -0.208 -0.053" name="left_int_pz"/>
+      <!-- interior bounding box points (RIGHT) -->
+      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0.019 -0.208 -0.24" name="right_int_p0"/>
+      <site rgba="1 1 0 1" size="0.01" pos="0.455 -0.208 -0.24" name="right_int_px"/>
+      <site rgba="0 1 1 1" size="0.01" pos="0.019 0.162 -0.24" name="right_int_py"/>
+      <site rgba="1 0 1 1" size="0.01" pos="0.019 -0.208 -0.053" name="right_int_pz"/>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="Baked_Faucet" class="visual"/>
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="Baked_Sink" class="visual"/>
+        <!-- Bottom -->
+        <geom class="collision" type="box" pos="-0.011 -0.022 -0.25" size="0.47 0.19 0.01"/>
+        <!-- Center Wall -->
+        <geom class="collision" type="box" pos="-0.011 0 -0.15" size="0.03 0.24 0.097"/>
+        <!-- Back Wall -->
+        <geom class="collision" type="box" pos="-0.011 0.172 -0.15" size="0.47 0.01 0.097"/>
+        <!-- Front Wall -->
+        <geom class="collision" type="box" pos="-0.011 -0.218 -0.15" size="0.47 0.01 0.0907"/>
+        <!-- Right Wall -->
+        <geom class="collision" type="box" pos="0.465 0 -0.15" size="0.01 0.24 0.0907"/>
+        <!-- Left Wall -->
+        <geom class="collision" type="box" pos="-0.48 0 -0.15" size="0.01 0.24 0.0907"/>
+        <!-- Back Ledge -->
+        <geom class="collision" type="box" pos="0 0.225 -0.09" size="0.5 0.045 0.037"/>
+        <!-- Front Ledge -->
+        <geom class="collision" type="box" pos="0 -0.246 -0.09" size="0.5 0.034 0.037"/>
+        <!-- Right Ledge -->
+        <geom class="collision" type="box" pos="0.478 0 -0.09" size="0.022 0.27 0.037"/>
+        <!-- Left Ledge -->
+        <geom class="collision" type="box" pos="-0.478 0 -0.09" size="0.022 0.27 0.037"/>
+        <!-- Faucet Base -->
+        <geom class="collision" type="cylinder" pos="-0.008 0.221 0.0185" size="0.03 0.071 0"/>
+        <!-- Handle Attach Point-->
+        <geom class="collision" type="cylinder" pos="0.032 0.221 0.0348" size="0.024 0.024 0" axisangle="0 1 0 90"/>
+        <body name="spout">
+          <joint axis="0 0 1" limited="true" name="faucet_joint" range="-90 90" pos="-0.008 0.221 0.0185" armature="2"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="spout_0_vis" material="Baked_Faucet" class="visual"/>
+          <!-- Faucet -->
+          <geom class="collision" type="cylinder" pos="-0.008 0.221 0.22" size="0.01 0.14 0"/>
+          <geom class="collision" type="cylinder" pos="-0.008 0.175 0.405" size="0.01 0.065 0" axisangle="1 0 0 45"/>
+          <geom class="collision" type="cylinder" pos="-0.008 0.07 0.405" size="0.01 0.065 0" axisangle="1 0 0 -60"/>
+          <geom class="collision" type="cylinder" pos="-0.008 0.01 0.25" size="0.01 0.12 0"/>
+          <geom class="collision" type="cylinder" pos="-0.01 0.008 0.115" size="0.02 0.02 0"/>
+        </body>
+        <body name="handle">
+          <joint axis="1 0 0" limited="true" name="knob_joint" range="-112.6 77.4" pos="0.07 0.221 0.0348"/>
+          <joint axis="0 1 0" type="hinge" limited="true" name="knob_hinge_joint" range="0 10" pos="0.052 0.221 0.03"/>
+          <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="handle_0_vis" material="Baked_Faucet" class="visual"/>
+          <!-- Main -->
+          <geom class="collision" type="cylinder" pos="0.07 0.221 0.0348" size="0.024 0.0135 0" axisangle="0 1 0 90"/>
+          <!-- Handle -->
+          <geom class="collision" type="cylinder" pos="0.073 0.2015 0.081" size="0.0045 0.028 0" axisangle="1 0 0 22.6"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
