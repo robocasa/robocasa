@@ -141,7 +141,7 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk(args.directory):
         for dir in dirs:
             if dir == "episodes":
-                all_session_folders.append(root, dir)
+                all_session_folders.append(os.path.join(root, dir))
     # for dir in os.listdir(args.directory):
     #     all_session_folders.append(os.path.join(args.directory, dir))
 
