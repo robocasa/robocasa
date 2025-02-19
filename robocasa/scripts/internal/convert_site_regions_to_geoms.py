@@ -28,6 +28,13 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
     if all_scanned_sites is None:
         return
 
+    object_body = find_elements(
+        root,
+        attribs={"name": "object"},
+        tags="body",
+        return_first=True,
+    )
+
     # Create a child-to-parent mapping
     parent_map = {child: parent for parent in root.iter() for child in parent}
 
@@ -66,7 +73,11 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
         if size == [0.0, 0.0, 0.0]:
             size = [0.0001, 0.0001, 0.0001]
 
-        region_name = f"reg_{site_name}"
+        if site_name == "ext":
+            region_name = "reg_main_body"
+        else:
+            region_name = f"reg_{site_name}"
+
         new_element = etree.Element("geom")
         new_element.set("name", region_name)
         new_element.set("conaffinity", "0")
@@ -75,16 +86,39 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
         new_element.set("type", "box")
         new_element.set("size", array_to_string(size))
         new_element.set("pos", array_to_string(pos))
-        new_element.set("rgba", "0 0 1 0")
 
+        if "int" in site_name:
+            new_element.set("rgba", "0 1 0 0")
+        elif "ext" in site_name:
+            new_element.set("rgba", "1 1 0 0")
+        else:
+            new_element.set("rgba", "1 1 0 0")
+
+        # parent of this site
         parent = parent_map.get(site_dict["p0"])
-        index = list(parent).index(site_dict["p0"])  # Find the index of 'child2'
-        parent.insert(index, new_element)  # Insert 'new_child' at the same position
+
+        # check if this node is contained within the <body name="object"> body
+        is_inside_object_body = False
+        node = parent
+        while node is not None:
+            if node.get("name") == "object":
+                is_inside_object_body = True
+                break
+            node = parent_map.get(node)
+
+        if is_inside_object_body:
+            # insert new element right before the site
+            index = list(parent).index(site_dict["p0"])
+            parent.insert(index, new_element)
+        else:
+            # insert element at end of "object" body
+            object_body.append(new_element)
+
         if remove_old_sites:
-            parent.remove(site_dict["p0"])  # Remove 'child2'
-            parent.remove(site_dict["px"])  # Remove 'child2'
-            parent.remove(site_dict["py"])  # Remove 'child2'
-            parent.remove(site_dict["pz"])  # Remove 'child2'
+            parent.remove(site_dict["p0"])
+            parent.remove(site_dict["px"])
+            parent.remove(site_dict["py"])
+            parent.remove(site_dict["pz"])
 
     tree.write(new_path, encoding="utf-8")
 

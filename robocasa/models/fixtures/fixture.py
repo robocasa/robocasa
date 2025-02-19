@@ -116,29 +116,6 @@ class Fixture(MujocoXMLObject):
 
         # set up exterior and interior sites
         self._bounds_sites = dict()
-        # self._bounds_sites_old = dict()
-
-        # all_possible_site_names = []
-        # for prefix in BBOX_SITE_PREFIXES:
-        #     for postfix in ["p0", "px", "py", "pz"]:
-        #         all_possible_site_names.append(f"{prefix}_{postfix}")
-
-        # for site_name in all_possible_site_names:
-        #     site = find_elements(
-        #         self.worldbody,
-        #         tags="site",
-        #         attribs={"name": "{}{}".format(self.naming_prefix, site_name)},
-        #         return_first=True,
-        #     )
-        #     if site is None:
-        #         continue
-        #     rgba = string_to_array(site.get("rgba"))
-        #     if macros.SHOW_SITES:
-        #         rgba[-1] = 1.0
-        #     else:
-        #         rgba[-1] = 0.0
-        #     site.set("rgba", array_to_string(rgba))
-        #     self._bounds_sites_old[site_name] = string_to_array(site.get("pos")) # site
 
         # search for all geom regions
         geom_list = find_elements(
@@ -146,15 +123,6 @@ class Fixture(MujocoXMLObject):
             tags="geom",
             return_first=False,
         )
-
-        # if xml == "fixtures/accessories/utensil_racks/metal/model.xml":
-        #     print("searching...")
-        #     geom_pairs = self._get_geoms(self._obj)
-        #     for (_, g) in geom_pairs:
-        #         g_name = g.get("name")
-        #         print(g_name)
-        #         # if g_name is not None and "reg_ext" in g_name:
-        #         #     print(g, g_name)
 
         if geom_list is None:
             geom_list = []
@@ -169,6 +137,13 @@ class Fixture(MujocoXMLObject):
             if not g_name.startswith("reg_"):
                 continue
 
+            rgba = string_to_array(geom.get("rgba"))
+            if macros.SHOW_SITES:
+                rgba[-1] = 0.25
+            else:
+                rgba[-1] = 0.0
+            geom.set("rgba", array_to_string(rgba))
+
             reg_pos = string_to_array(geom.get("pos"))
             reg_size = string_to_array(geom.get("size"))
             # ## special case: if
@@ -180,19 +155,10 @@ class Fixture(MujocoXMLObject):
             pz = reg_pos + [-reg_size[0], -reg_size[1], reg_size[2]]
             prefix = g_name[4:]
 
-            # if any(self._bounds_sites[prefix + "_p0"] != p0):
-            #     print(xml)
-            #     print("scale:", scale)
-            #     print(self._bounds_sites[prefix + "_p0"])
-            #     print(p0)
-            #     print()
             self._bounds_sites[prefix + "_p0"] = p0
             self._bounds_sites[prefix + "_px"] = px
             self._bounds_sites[prefix + "_py"] = py
             self._bounds_sites[prefix + "_pz"] = pz
-
-        # for key in self._bounds_sites_old:
-        # assert key in self._bounds_sites, f"for model {xml},\n {key} not in _bounds_sites, old keys are {self._bounds_sites_old.keys()} and new keys are {self._bounds_sites.keys()}"
 
         # scale based on specified max dimension
         if size is not None:
@@ -205,10 +171,10 @@ class Fixture(MujocoXMLObject):
         if self.width is not None:
             try:
                 # calculate based on bounding points
-                p0 = site_pos(self._bounds_sites["ext_p0"])
-                px = site_pos(self._bounds_sites["ext_px"])
-                py = site_pos(self._bounds_sites["ext_py"])
-                pz = site_pos(self._bounds_sites["ext_pz"])
+                p0 = site_pos(self._bounds_sites["main_body_p0"])
+                px = site_pos(self._bounds_sites["main_body_px"])
+                py = site_pos(self._bounds_sites["main_body_py"])
+                pz = site_pos(self._bounds_sites["main_body_pz"])
                 self.origin_offset = np.array(
                     [
                         np.mean((p0[0], px[0])),
@@ -347,7 +313,7 @@ class Fixture(MujocoXMLObject):
 
     @property
     def bottom_offset(self):
-        return site_pos(self._bounds_sites["ext_p0"])
+        return site_pos(self._bounds_sites["main_body_p0"])
 
     @property
     def width(self):
@@ -355,10 +321,10 @@ class Fixture(MujocoXMLObject):
         for getting the width of an object as defined by its exterior sites.
         takes scaling into account
         """
-        if "ext_px" in self._bounds_sites:
-            ext_p0 = site_pos(self._bounds_sites["ext_p0"])
-            ext_px = site_pos(self._bounds_sites["ext_px"])
-            w = ext_px[0] - ext_p0[0]
+        if "main_body_px" in self._bounds_sites:
+            main_body_p0 = site_pos(self._bounds_sites["main_body_p0"])
+            main_body_px = site_pos(self._bounds_sites["main_body_px"])
+            w = main_body_px[0] - main_body_p0[0]
             return w
         else:
             return None
@@ -369,10 +335,10 @@ class Fixture(MujocoXMLObject):
         for getting the depth of an object as defined by its exterior sites.
         takes scaling into account
         """
-        if "ext_py" in self._bounds_sites:
-            ext_p0 = site_pos(self._bounds_sites["ext_p0"])
-            ext_py = site_pos(self._bounds_sites["ext_py"])
-            d = ext_py[1] - ext_p0[1]
+        if "main_body_py" in self._bounds_sites:
+            main_body_p0 = site_pos(self._bounds_sites["main_body_p0"])
+            main_body_py = site_pos(self._bounds_sites["main_body_py"])
+            d = main_body_py[1] - main_body_p0[1]
             return d
         else:
             return None
@@ -383,10 +349,10 @@ class Fixture(MujocoXMLObject):
         for getting the height of an object as defined by its exterior sites.
         takes scaling into account
         """
-        if "ext_pz" in self._bounds_sites:
-            ext_p0 = site_pos(self._bounds_sites["ext_p0"])
-            ext_pz = site_pos(self._bounds_sites["ext_pz"])
-            h = ext_pz[2] - ext_p0[2]
+        if "main_body_pz" in self._bounds_sites:
+            main_body_p0 = site_pos(self._bounds_sites["main_body_p0"])
+            main_body_pz = site_pos(self._bounds_sites["main_body_pz"])
+            h = main_body_pz[2] - main_body_p0[2]
             return h
         else:
             return None
@@ -415,10 +381,10 @@ class Fixture(MujocoXMLObject):
             list: 4 or 8 points
         """
         sites = [
-            site_pos(self._bounds_sites["ext_p0"]),
-            site_pos(self._bounds_sites["ext_px"]),
-            site_pos(self._bounds_sites["ext_py"]),
-            site_pos(self._bounds_sites["ext_pz"]),
+            site_pos(self._bounds_sites["main_body_p0"]),
+            site_pos(self._bounds_sites["main_body_px"]),
+            site_pos(self._bounds_sites["main_body_py"]),
+            site_pos(self._bounds_sites["main_body_pz"]),
         ]
 
         if all_points:

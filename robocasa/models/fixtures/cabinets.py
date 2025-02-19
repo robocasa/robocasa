@@ -322,10 +322,10 @@ class SingleCabinet(Cabinet):
         # set sites
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
                 "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
                 "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
@@ -495,10 +495,10 @@ class HingeCabinet(Cabinet):
         # set sites
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
                 "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
                 "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
@@ -662,10 +662,10 @@ class OpenCabinet(Cabinet):
 
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
                 "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
                 "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
@@ -797,10 +797,10 @@ class Drawer(Cabinet):
 
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-ix + 2 * th, -iy, -iz + 2 * th],
                 "int_px": [ix - 2 * th, -iy, -iz + 2 * th],
                 "int_py": [-ix + 2 * th, iy - 2 * th, -iz + 2 * th],
@@ -1169,10 +1169,10 @@ class HousingCabinet(Cabinet):
         # set sites
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [
                     -x + self.padding[0][0],
                     -y + self.padding[1][0],
