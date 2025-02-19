@@ -69,9 +69,6 @@ class FixtureType(IntEnum):
     OVEN = 25
 
 
-BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
-
-
 class Fixture(MujocoXMLObject):
     """
     Base class for fixtures in robosuite kitchen environments.
