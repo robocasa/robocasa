@@ -17,6 +17,17 @@ from robocasa.scripts.internal.prettify_xmls import prettify_xmls
 
 
 def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
+    ### infer the type of fixture that this is ###
+    fxtr_type = None
+    if "coffee_machines" in new_path:
+        fxtr_type = "coffee_machine"
+    elif "sinks" in new_path:
+        fxtr_type = "sink"
+    elif "stoves" in new_path:
+        fxtr_type = "stove"
+    elif "microwaves" in new_path:
+        fxtr_type = "microwave"
+
     tree = etree.parse(old_path)
     root = tree.getroot()
 
@@ -97,6 +108,11 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
 
         if site_name == "ext":
             region_name = "reg_main_body"
+        elif "int" in site_name:
+            if fxtr_type == "sink":
+                region_name = "reg_" + site_name.replace("int", "basin")
+            else:
+                region_name = f"reg_{site_name}"
         else:
             region_name = f"reg_{site_name}"
 
@@ -106,13 +122,6 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
         new_element.set("type", "box")
         new_element.set("pos", array_to_string(pos))
         new_element.set("size", array_to_string(size))
-
-        # if "int" in site_name:
-        #     new_element.set("rgba", "0 1 0 0")
-        # elif "ext" in site_name:
-        #     new_element.set("rgba", "1 1 0 0")
-        # else:
-        #     new_element.set("rgba", "1 1 0 0")
 
         # parent of this site
         parent = parent_map.get(site_dict["p0"])

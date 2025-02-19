@@ -90,6 +90,8 @@ class Fixture(MujocoXMLObject):
         size (3-tuple): desired (width, depth, height) of the fixture
     """
 
+    RESET_REGION_NAMES = ["int"]
+
     def __init__(
         self,
         xml,
@@ -242,10 +244,14 @@ class Fixture(MujocoXMLObject):
         returns dictionary of reset regions, each region defined as position, x_bounds, y_bounds
         """
         reset_regions = {}
-        all_int_sites = self.get_int_sites()
-        for (region_name, sites) in all_int_sites.items():
-            p0, px, py, pz = sites
-            reset_regions[region_name] = {
+        for reg_name in self.RESET_REGION_NAMES:
+            p0 = self._bounds_sites.get(f"{reg_name}_p0", None)
+            if p0 is None:
+                continue
+            px = self._bounds_sites[f"{reg_name}_px"]
+            py = self._bounds_sites[f"{reg_name}_py"]
+            pz = self._bounds_sites[f"{reg_name}_pz"]
+            reset_regions[reg_name] = {
                 "offset": (np.mean((p0[0], px[0])), np.mean((p0[1], py[1])), p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
             }
@@ -414,11 +420,7 @@ class Fixture(MujocoXMLObject):
             dict: a dictionary of interior areas, each with 4 or 8 points
         """
         sites_dict = {}
-        for prefix in BBOX_SITE_PREFIXES:
-            # only consider interior sites
-            if "int" not in prefix:
-                continue
-
+        for prefix in self.RESET_REGION_NAMES:
             site_names = [
                 f"{prefix}_p0",
                 f"{prefix}_px",
