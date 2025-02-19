@@ -14,6 +14,9 @@
     <default class="collision">
       <geom group="0" rgba="0.5 0 0 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
@@ -22,8 +25,8 @@
       <body name="object" euler="0 0 -1.57">
         <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="light_switch_0_vis" material="lightswitch" class="visual"/>
         <!--Add Collision Geom(s) for light_switch here - i.e. <geom class="collision" type="" pos="" size=""/>-->
-        <geom name="reg_main_body" conaffinity="0" contype="0" group="1" type="box" size="0.0001 0.0001 0.0001" pos="0.0 0.0 0.0" rgba="1 1 0 0"/>
-        <geom name="reg_int" conaffinity="0" contype="0" group="1" type="box" size="0.0001 0.0001 0.0001" pos="0.0 0.0 0.0" rgba="0 1 0 0"/>
+        <geom class="region" name="reg_main_body" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
+        <geom class="region" name="reg_int" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
       </body>
     </body>
   </worldbody>

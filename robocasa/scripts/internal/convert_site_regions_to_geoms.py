@@ -35,6 +35,28 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
         return_first=True,
     )
 
+    default_elem = find_elements(
+        root,
+        tags="default",
+        return_first=True,
+    )
+    assert default_elem is not None
+    default_region_elem = find_elements(
+        root,
+        tags="default",
+        attribs={"name": "region"},
+        return_first=True,
+    )
+    if default_region_elem is None:
+        default_region_elem = etree.fromstring(
+            """
+            <default class="region">
+            <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+            </default>                     
+        """
+        )
+        default_elem.append(default_region_elem)
+
     # Create a child-to-parent mapping
     parent_map = {child: parent for parent in root.iter() for child in parent}
 
@@ -79,20 +101,18 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
             region_name = f"reg_{site_name}"
 
         new_element = etree.Element("geom")
+        new_element.set("class", "region")
         new_element.set("name", region_name)
-        new_element.set("conaffinity", "0")
-        new_element.set("contype", "0")
-        new_element.set("group", "1")
         new_element.set("type", "box")
-        new_element.set("size", array_to_string(size))
         new_element.set("pos", array_to_string(pos))
+        new_element.set("size", array_to_string(size))
 
-        if "int" in site_name:
-            new_element.set("rgba", "0 1 0 0")
-        elif "ext" in site_name:
-            new_element.set("rgba", "1 1 0 0")
-        else:
-            new_element.set("rgba", "1 1 0 0")
+        # if "int" in site_name:
+        #     new_element.set("rgba", "0 1 0 0")
+        # elif "ext" in site_name:
+        #     new_element.set("rgba", "1 1 0 0")
+        # else:
+        #     new_element.set("rgba", "1 1 0 0")
 
         # parent of this site
         parent = parent_map.get(site_dict["p0"])
