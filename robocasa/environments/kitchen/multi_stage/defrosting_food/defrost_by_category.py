@@ -13,6 +13,8 @@ class DefrostByCategory(Kitchen):
         vegetables in a bowl on the counter.
     """
 
+    EXCLUDE_LAYOUTS = [7, 9]  # these layouts have placement issues
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
