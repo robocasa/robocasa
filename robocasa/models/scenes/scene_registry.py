@@ -73,7 +73,11 @@ def get_layout_path(layout_id):
     Return:
         str: yaml path for specified layout
     """
-    if isinstance(layout_id, int) or isinstance(layout_id, np.int64):
+    if (
+        isinstance(layout_id, int)
+        or isinstance(layout_id, np.int64)
+        or isinstance(layout_id, np.int32)
+    ):
         layout_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), LayoutType)
         )
@@ -103,7 +107,11 @@ def get_style_path(style_id):
     Return:
         str: yaml path for specified style
     """
-    if isinstance(style_id, int) or isinstance(style_id, np.int64):
+    if (
+        isinstance(style_id, int)
+        or isinstance(style_id, np.int64)
+        or isinstance(layout_id, np.int32)
+    ):
         style_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), StyleType)
         )
