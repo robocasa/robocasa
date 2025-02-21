@@ -33,6 +33,8 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Fridge)
     elif fixture_type == FixtureType.DISHWASHER:
         return isinstance(fixture, Dishwasher)
+    elif fixture_type == FixtureType.COFFEE_MACHINE:
+        return isinstance(fixture, CoffeeMachine)
     elif fixture_type == FixtureType.CABINET_TOP:
         cls_check = any(
             [
