@@ -573,7 +573,7 @@ def get_playback_args():
     parser.add_argument(
         "--camera_width",
         type=int,
-        default=512,
+        default=768,
         help="(optional, for offscreen rendering) width of image observations",
     )
 
