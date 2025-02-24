@@ -28,6 +28,13 @@ class FoodCleanup(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
         self.init_robot_base_pos = self.cab
+        if "object_cfgs" in self._ep_meta:
+            object_cfgs = self._ep_meta["object_cfgs"]
+            self.num_food = len(
+                [cfg for cfg in object_cfgs if cfg["name"].startswith("food")]
+            )
+        else:
+            self.num_food = self.rng.choice([i for i in range(1, 4)])
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -48,7 +55,6 @@ class FoodCleanup(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-        self.num_food = self.rng.choice([i for i in range(1, 4)])
         for i in range(self.num_food):
             cfgs.append(
                 dict(
