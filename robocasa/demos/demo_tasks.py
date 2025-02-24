@@ -134,7 +134,7 @@ if __name__ == "__main__":
             parser.video_path = False
 
         parser.render = not args.render_offscreen
-        parser.use_actions = False
+        parser.use_actions = True
         parser.use_abs_actions = False
         parser.render_image_names = ["robot0_agentview_center"]
         parser.use_obs = False

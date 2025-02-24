@@ -101,7 +101,10 @@ def playback_trajectory_with_env(
     traj_len = states.shape[0]
     action_playback = actions is not None
     if action_playback:
-        assert states.shape[0] == actions.shape[0]
+        if states.shape[0] != actions.shape[0]:
+            min_len = min(states.shape[0], actions.shape[0])
+            states = states[:min_len]
+            actions = actions[:min_len]
 
     if render is False:
         print(colored("Running episode...", "yellow"))
@@ -128,7 +131,8 @@ def playback_trajectory_with_env(
         else:
             reset_to(env, {"states": states[i]})
 
-        print(env.get_contacts(env.robots[0].gripper["right"]))
+        # print(env.get_contacts(env.robots[0].gripper["right"]))
+        # print(env.get_contacts(env.door_fxtr))
 
         # Print contacts for current state
         print(f"\nContacts at step {i+1}/{traj_len}:")
