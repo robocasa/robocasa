@@ -609,33 +609,6 @@ front_group_1:
   group_z_rot: -3.1415925661670165
   bottom_row_cabinets:
 
-    - name: stack_1.002
-      type: stack
-      pos: [1.742, -0.3, 0.47]
-      size: [0.4, 0.6, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
-
-    - name: stack_1.007
-      type: stack
-      pos: [1.297, -0.3, 0.47] # 1.042
-      size: [0.52, 0.6, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
-      configs:
-        single_cabinet:
-          orientation: left
-          panel_config:
-            handle_vpos: top
-    
-    - name: panelbox_3
-      type: box
-      #pos: [1.992, -0.325, 0.445]
-      size: [0.12, 0.6, 0.89]
-      align_to: stack_1.002
-      side: right
-      alignment: top_back
-
     - name: fridge_1
       type: fridge_top_freezer
       size: [0.75, 0.8, 1.68]
@@ -646,9 +619,27 @@ front_group_1:
       padding: [[0.02, 0.02], [0, 0], [0, 0]]
       pos: [0.642, -0.4, 0.84]
 
+    - name: stack_1
+      type: stack
+      size: [0.934, 0.6, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: fridge_1_housing
+      side: right
+      alignment: bottom_back
+      offset: [0, 0, 0.05]
+    
+    - name: box
+      type: box
+      #pos: [1.992, -0.325, 0.445]
+      size: [0.1, 0.6, 0.89]
+      align_to: stack_1
+      side: right
+      alignment: top_back
+
   bottom_row:
 
-    - name: counter_1.006
+    - name: counter_1
       type: counter
       pos: [1.536, -0.325, 0.46]
       size: [0.984, 0.65, 0.92]
@@ -680,7 +671,7 @@ front_group_1:
     - name: toaster
       type: toaster
       placement:
-        fixture: counter_1.006
+        fixture: counter_1_front_group_1
         size: [1.0, 0.40]
         pos: [1.0, 0]
         rotation: [0, 0]
