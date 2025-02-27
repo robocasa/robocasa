@@ -76,6 +76,12 @@ class ManipulateDoor(Kitchen):
         self.hinge_qpos_addr = self.sim.model.get_joint_qpos_addr(
             self.door_fxtr.joints[0]
         )
+        self.gripper_qpos_joint1_addr = self.sim.model.get_joint_qpos_addr(
+            self.robots[0].gripper_joints['right'][0]
+        )
+        self.gripper_qpos_joint2_addr = self.sim.model.get_joint_qpos_addr(
+            self.robots[0].gripper_joints['right'][1]
+        )
 
     def _setup_observables(self):
         """
@@ -96,6 +102,20 @@ class ManipulateDoor(Kitchen):
         observables["door_angle"] = Observable(
             name="door_angle",
             sensor=door_angle,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        @sensor(modality="object")
+        def gripper_angle(obs_cache):
+            # Return gripper angle
+            joint1 = self.sim.data.qpos[self.gripper_qpos_joint1_addr]
+            joint2 = self.sim.data.qpos[self.gripper_qpos_joint2_addr]
+            return np.array([joint1, joint2])
+
+        observables["gripper_angle"] = Observable(
+            name="gripper_angle",
+            sensor=gripper_angle,
             sampling_rate=self.control_freq,
             active=True,
         )
