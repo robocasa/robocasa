@@ -93,32 +93,107 @@ class ManipulateDoor(Kitchen):
         observables = super()._setup_observables()
 
         @sensor(modality="object")
-        def door_angle(obs_cache):
+        def hinge_angle(obs_cache):
             # Return normalized door angle instead of raw angle
             door_state = self.door_fxtr.get_door_state(env=self)
             # Convert dict values to list before creating numpy array
             return np.array(list(door_state.values()))
 
-        observables["door_angle"] = Observable(
-            name="door_angle",
-            sensor=door_angle,
+        observables["hinge_angle"] = Observable(
+            name="hinge_angle",
+            sensor=hinge_angle,
             sampling_rate=self.control_freq,
             active=True,
         )
 
         @sensor(modality="object")
-        def gripper_angle(obs_cache):
-            # Return gripper angle
-            joint1 = self.sim.data.qpos[self.gripper_qpos_joint1_addr]
-            joint2 = self.sim.data.qpos[self.gripper_qpos_joint2_addr]
-            return np.array([joint1, joint2])
+        def handle_pos_quat(obs_cache):
+            # Return handle rotation
+            try:
+                handle_xpos = self.sim.data.get_geom_xpos(self.door_fxtr.contact_geoms[12])
+                handle_xmat = self.sim.data.get_geom_xmat(self.door_fxtr.contact_geoms[12])
+                handle_quat = Rotation.from_matrix(handle_xmat).as_quat()
+                return np.array(handle_xpos.tolist() + handle_quat.tolist())
+            except Exception as e:
+                print(f"Error getting handle rotation: {e}")
+                return np.zeros(9)
 
-        observables["gripper_angle"] = Observable(
-            name="gripper_angle",
-            sensor=gripper_angle,
+        observables["handle_pos_quat"] = Observable(
+            name="handle_pos_quat",
+            sensor=handle_pos_quat,
             sampling_rate=self.control_freq,
             active=True,
         )
+
+        @sensor(modality="object")
+        def gripper_pos_quat_angle(obs_cache):
+            # Return gripper angle
+            eef_pos = self.sim.data.get_body_xpos(self.robots[0].gripper["right"].bodies[1])
+            eef_quat = self.sim.data.get_body_xquat(self.robots[0].gripper["right"].bodies[1])
+            joint1 = self.sim.data.qpos[self.gripper_qpos_joint1_addr]
+            joint2 = self.sim.data.qpos[self.gripper_qpos_joint2_addr]
+            return np.array(eef_pos.tolist() + eef_quat.tolist() + [joint1])
+
+        observables["gripper_pos_quat_angle"] = Observable(
+            name="gripper_pos_quat_angle",
+            sensor=gripper_pos_quat_angle,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        # @sensor(modality="object")
+        # def gripper_finger1_pos(obs_cache):
+        #     # Return gripper finger1 position
+        #     finger1_xpos = self.sim.data.get_geom_xpos(self.robots[0].gripper["right"].contact_geoms[1])
+        #     return np.array(finger1_xpos)
+
+        # observables["gripper_finger1_pos"] = Observable(
+        #     name="gripper_finger1_pos",
+        #     sensor=gripper_finger1_pos,
+        #     sampling_rate=self.control_freq,
+        #     active=True,
+        # )
+
+        # @sensor(modality="object")
+        # def gripper_finger1_quat(obs_cache):
+        #     # Return gripper finger1 rotation
+        #     finger1_xmat = self.sim.data.get_geom_xmat(self.robots[0].gripper["right"].contact_geoms[1])
+        #     finger1_quat = Rotation.from_matrix(finger1_xmat).as_quat()
+        #     return np.array(finger1_quat)
+
+        # observables["gripper_finger1_quat"] = Observable(
+        #     name="gripper_finger1_quat",
+        #     sensor=gripper_finger1_quat,
+        #     sampling_rate=self.control_freq,
+        #     active=True,
+        # )
+
+        # @sensor(modality="object")
+        # def gripper_finger2_pos(obs_cache):
+        #     # Return gripper finger2 position
+        #     finger2_xpos = self.sim.data.get_geom_xpos(self.robots[0].gripper["right"].contact_geoms[3])
+        #     return np.array(finger2_xpos)
+
+        # observables["gripper_finger2_pos"] = Observable(
+        #     name="gripper_finger2_pos",
+        #     sensor=gripper_finger2_pos,
+        #     sampling_rate=self.control_freq,
+        #     active=True,
+        # )
+
+        # @sensor(modality="object")
+        # def gripper_finger2_quat(obs_cache):
+        #     # Return gripper finger2 rotation
+        #     finger2_xmat = self.sim.data.get_geom_xmat(self.robots[0].gripper["right"].contact_geoms[3])
+        #     finger2_quat = Rotation.from_matrix(finger2_xmat).as_quat()
+        #     return np.array(finger2_quat)
+
+        # observables["gripper_finger2_quat"] = Observable(
+        #     name="gripper_finger2_quat",
+        #     sensor=gripper_finger2_quat,
+        #     sampling_rate=self.control_freq,
+        #     active=True,
+        # )
 
         return observables
 

@@ -154,6 +154,16 @@ def collect_human_trajectory(
 
         # Run environment step
         obs, _, _, _ = env.step(env_action)
+        # from scipy.spatial.transform import Rotation
+        # try:
+        #     # for key in obs:
+        #     #     if any(s in key for s in ["gripper", "handle", "eef"]):
+        #     #         print(f"{key}: {obs[key]}")
+        #     print(f"eff_euler: {Rotation.from_quat(obs['robot0_eef_quat']).as_euler('xyz')}")
+        #     print(f"eff_site_euler: {Rotation.from_quat(obs['robot0_eef_quat_site']).as_euler('xyz')}")
+        #     print(f"handle_euler: {Rotation.from_quat(obs['handle_pos_quat'][3:7]).as_euler('xyz')}")
+        # except:
+        #     pass
         if render:
             env.render()
 
