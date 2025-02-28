@@ -1,4 +1,5 @@
 from robocasa.environments.kitchen.kitchen import *
+from robosuite.utils.transform_utils import mat2quat
 
 
 class ManipulateDoor(Kitchen):
@@ -262,6 +263,44 @@ class ManipulateDoor(Kitchen):
             )
 
         return cfgs
+
+    def get_handle_location(self):
+        """
+        Get the position of the door handle in world coordinates.
+
+        Returns:
+            np.ndarray: 3D position [x, y, z] of the handle
+        """
+        # Get the handle name based on the door fixture type
+        if (
+            isinstance(self.door_fxtr, SingleCabinet)
+            or isinstance(self.door_fxtr, Drawer)
+            or isinstance(self.door_fxtr, Microwave)
+        ):
+            handle_name = self.door_fxtr.handle_name
+        elif isinstance(self.door_fxtr, HingeCabinet):
+            # For double doors, you might need to choose which handle
+            handle_name = self.door_fxtr.left_handle_name
+        else:
+            # For other fixture types, try to find a handle site
+            handle_name = f"{self.door_fxtr.name}_door_handle_handle"
+
+        # If handle_name ends with "_handle", replace it with "_main"
+        # if handle_name.endswith("_handle"):
+        #     handle_name_main = handle_name[:-7] + "_main"
+        # else:
+        #     handle_name_main = handle_name
+
+        # Get the handle position from MuJoCo
+
+        # try:
+        # If not a site, try as a body
+        handle_geom_id = self.sim.model.geom_name2id(handle_name)
+        handle_pos = self.sim.data.geom_xpos[handle_geom_id]
+        handle_quat = self.sim.data.geom_xmat[handle_geom_id].reshape(3, 3)
+        handle_quat = mat2quat(handle_quat)
+
+        return handle_pos, handle_quat
 
 
 class OpenDoor(ManipulateDoor):
