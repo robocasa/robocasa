@@ -22,9 +22,13 @@ genai.configure(api_key=GEMINI_KEY)
 
 # Models to use
 models = {
-    "Claude": ["claude-3-opus-20240229", "claude-3-5-sonnet-20241022"],
-    "Gemini": ["gemini-2.0-flash", "gemini-1.5-pro"],
-    "GPT": ["gpt-4o", "o1-preview", "o1-mini"],
+    "Claude": [
+        "claude-3-opus-20240229",
+        "claude-3-5-sonnet-20241022",
+        "claude-3-7-sonnet-20250219",
+    ],
+    # "Gemini": ["gemini-2.0-flash", "gemini-1.5-pro"],
+    # "GPT": ["gpt-4o", "o1-preview", "o1-mini"],
 }
 
 # Load prompt template
