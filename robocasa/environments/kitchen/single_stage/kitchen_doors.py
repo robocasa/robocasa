@@ -110,14 +110,23 @@ class ManipulateDoor(Kitchen):
         @sensor(modality="object")
         def handle_pos_quat(obs_cache):
             # Return handle rotation
-            try:
-                handle_xpos = self.sim.data.get_geom_xpos(self.door_fxtr.contact_geoms[12])
-                handle_xmat = self.sim.data.get_geom_xmat(self.door_fxtr.contact_geoms[12])
-                handle_quat = Rotation.from_matrix(handle_xmat).as_quat()
-                return np.array(handle_xpos.tolist() + handle_quat.tolist())
-            except Exception as e:
-                print(f"Error getting handle rotation: {e}")
-                return np.zeros(9)
+            if (
+                isinstance(self.door_fxtr, SingleCabinet)
+                or isinstance(self.door_fxtr, Drawer)
+                or isinstance(self.door_fxtr, Microwave)
+            ):
+                handle_name = self.door_fxtr.handle_name
+            elif isinstance(self.door_fxtr, HingeCabinet):
+                # For double doors, you might need to choose which handle
+                handle_name = self.door_fxtr.left_handle_name
+            else:
+                # For other fixture types, try to find a handle site
+                handle_name = f"{self.door_fxtr.name}_door_handle_handle"
+            handle_geom_id = self.sim.model.geom_name2id(handle_name)
+            handle_pos = self.sim.data.geom_xpos[handle_geom_id]
+            handle_quat = self.sim.data.geom_xmat[handle_geom_id].reshape(3, 3)
+            handle_quat = mat2quat(handle_quat)
+            return np.array(handle_pos.tolist() + handle_quat.tolist())
 
         observables["handle_pos_quat"] = Observable(
             name="handle_pos_quat",
