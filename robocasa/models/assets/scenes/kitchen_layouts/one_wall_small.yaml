@@ -129,20 +129,17 @@ main_group:
       side: right
 
     - name: fridge
-      type: fridge_french_door
-      size: [0.85, 0.80, 1.78]
+      type: fridge
+
+      size: [null, null, 1.75]
+
+    - name: fridge_housing
+      type: housing_cabinet
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
       align_to: counter_right
       side: right
       alignment: bottom_back
-
-    # - name: fridge_housing
-    #   type: housing_cabinet
-    #   padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-    #   size: [0.85, 0.70, 1.80]
-    #   align_to: counter_right
-    #   side: right
-    #   alignment: bottom_back
-    #   interior_obj: fridge
+      interior_obj: fridge
   
   # Top row (cabinets and microwave)
   top_row:
@@ -205,12 +202,12 @@ main_group:
       handle_type: knob
       default_config_name: cab_top_small
 
-      size: [fridge, fridge, null]
-      align_to: fridge
+      size: [fridge_housing, fridge_housing, null]
+      align_to: fridge_housing
       side: top
       alignment: back
       stack_height: 2.31
-      stack_fixtures: ["fridge"]
+      stack_fixtures: ["fridge_housing"]
 
   # Cabinets built into counters
   bottom_row_cabinets:

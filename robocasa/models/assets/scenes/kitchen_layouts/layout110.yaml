@@ -155,7 +155,6 @@ main_group:
         single_cabinet:
           orientation: left
           panel_config:
-            handle_hpos: right
             handle_vpos: top
 
     - name: box
@@ -165,6 +164,7 @@ main_group:
       align_to: stack_2
       side: left
       alignment: top_back
+
     - name: stack_3
       type: stack
       size: [0.656, 0.6, 0.84]
@@ -189,8 +189,8 @@ main_group:
       type: stack
       levels: [hinge_cabinet]
       percentages: [1]
-      pos: [5.489, -0.196, 1.2]
-      size: [0.773, 0.67, 2.25]
+      pos: [5.5, -0.3, 1.175]
+      size: [0.8, 0.6, 2.25]
       configs:
         hinge_cabinet:
           panel_config:
@@ -201,7 +201,7 @@ main_group:
       levels: [hinge_cabinet]
       percentages: [1]
       # pos: [5.489, -0.196, 1.145]
-      size: [0.773, 0.67, 2.25]
+      size: [0.8, 0.6, 2.25]
       align_to: stack_5
       side: right
       alignment: back
@@ -230,7 +230,6 @@ main_group:
       size: [0.325, 0.4, 0.92]
       orientation: left
       panel_config:
-        handle_hpos: right
         handle_vpos: bottom
       align_to: cab_2
       side: left
@@ -285,7 +284,7 @@ left_group:
   group_pos: [0.005, -4.19]
   group_z_rot: 1.5707962925663537
   bottom_row:
-    - name: counter_1.004
+    - name: counter_1
       type: counter
       pos: [1.0135, -0.325, 0.46]
       size: [1.7, 0.65, 0.92]
@@ -303,11 +302,11 @@ left_group:
       type: counter
       interior_obj: sink_1
       obj_x_percent: 0.5
-      obj_y_percent: 0.5
+      obj_y_percent: 0.7
       pos: [2.459, -0.325, 0.46]
       size: [1.194, 0.65, 0.92]
 
-    - name: counter_1.003
+    - name: counter_2
       type: counter
       pos: [3.298, -0.325, 0.46]
       size: [0.484, 0.65, 0.92]
@@ -329,7 +328,7 @@ left_group:
       size: [0.394, 0.6, 0.84]
       levels: [single_cabinet]
       percentages: [1]
-      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top', 'handle_hpos': 'right'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: panelbox_1
       type: box
@@ -383,7 +382,6 @@ left_group:
       size: [0.409, 0.4, 0.92]
       orientation: left
       panel_config:
-        handle_hpos: right
         handle_vpos: bottom
 
     - name: cabcorner_1_cab_corner
@@ -401,7 +399,7 @@ left_group:
     - name: paper_towel
       type: paper_towel
       placement:
-        fixture: counter_1.004
+        fixture: counter_1_left_group
         size: [1.0, 0.40]
         pos: [-1.0, 1.0]
         rotation: [0, 0]
@@ -409,7 +407,7 @@ left_group:
     - name: coffee_machine
       type: coffee_machine
       placement:
-        fixture: counter_1.004
+        fixture: counter_1_left_group
         size: [1.0, 0.52]
         pos: [1.0, 1.0]
         rotation: [0, 0]
@@ -417,7 +415,7 @@ left_group:
     - name: knife_block
       type: knife_block
       placement:
-        fixture: counter_1.003
+        fixture: counter_2_left_group
         size: [1.0, 0.40]
         pos: [1.0, 1.0]
         rotation: [0, 0]
@@ -565,15 +563,16 @@ front_group_2:
       percentages: [1]
 
     - name: singlecabinet_1.010
-      type: single_cabinet
+      type: stack
       #pos: [1.333,-0.3,0.46]
       align_to: stack_1.008
       side: left
       alignment: top_back
       size: [0.846, 0.6, 0.84]
+      levels: [single_cabinet]
+      percentages: [1]
       orientation: right
       panel_config:
-        handle_hpos: left
         handle_vpos: top
 
     - name: stack_1.020
@@ -610,34 +609,6 @@ front_group_1:
   group_z_rot: -3.1415925661670165
   bottom_row_cabinets:
 
-    - name: stack_1.002
-      type: stack
-      pos: [1.742, -0.3, 0.47]
-      size: [0.4, 0.6, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
-
-    - name: stack_1.007
-      type: stack
-      pos: [1.297, -0.3, 0.47] # 1.042
-      size: [0.52, 0.6, 0.84]
-      levels: [single_cabinet]
-      percentages: [1]
-      configs:
-        single_cabinet:
-          orientation: left
-          panel_config:
-            handle_hpos: right
-            handle_vpos: top
-    
-    - name: panelbox_3
-      type: box
-      #pos: [1.992, -0.325, 0.445]
-      size: [0.12, 0.6, 0.89]
-      align_to: stack_1.002
-      side: right
-      alignment: top_back
-
     - name: fridge_1
       type: fridge_top_freezer
       size: [0.75, 0.8, 1.68]
@@ -648,9 +619,27 @@ front_group_1:
       padding: [[0.02, 0.02], [0, 0], [0, 0]]
       pos: [0.642, -0.4, 0.84]
 
+    - name: stack_1
+      type: stack
+      size: [0.934, 0.6, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: fridge_1_housing
+      side: right
+      alignment: bottom_back
+      offset: [0, 0, 0.05]
+    
+    - name: box
+      type: box
+      #pos: [1.992, -0.325, 0.445]
+      size: [0.1, 0.6, 0.89]
+      align_to: stack_1
+      side: right
+      alignment: top_back
+
   bottom_row:
 
-    - name: counter_1.006
+    - name: counter_1
       type: counter
       pos: [1.536, -0.325, 0.46]
       size: [0.984, 0.65, 0.92]
@@ -676,14 +665,13 @@ front_group_1:
       size: [0.578, 0.4, 0.92]
       orientation: left
       panel_config:
-        handle_hpos: right
         handle_vpos: bottom
   
   counter_accessories:
     - name: toaster
       type: toaster
       placement:
-        fixture: counter_1.006
+        fixture: counter_1_front_group_1
         size: [1.0, 0.40]
         pos: [1.0, 0]
         rotation: [0, 0]
