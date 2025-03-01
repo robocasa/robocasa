@@ -160,6 +160,7 @@ def collect_human_trajectory(
         #     # for key in obs:
         #     #     if any(s in key for s in ["gripper", "handle", "eef"]):
         #     #         print(f"{key}: {obs[key]}")
+        env.env.viewer.mjprint(f"eff_pos:\n{obs['robot0_eef_pos']}")
         print(f"eff_quat: {obs['robot0_eef_quat']}")
         print(f"eff_euler: {R.from_quat(obs['robot0_eef_quat']).as_euler('xyz')}")
         print(f"base_quat: {obs['robot0_base_quat']}")
