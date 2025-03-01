@@ -10,16 +10,16 @@ class LayoutType(IntEnum):
     Enum for available layouts in RoboCasa environment
     """
 
-    ONE_WALL_SMALL = 0
-    ONE_WALL_LARGE = 1
-    L_SHAPED_SMALL = 2
-    L_SHAPED_LARGE = 3
-    GALLEY = 4
-    U_SHAPED_SMALL = 5
-    U_SHAPED_LARGE = 6
-    G_SHAPED_SMALL = 7
-    G_SHAPED_LARGE = 8
-    WRAPAROUND = 9
+    LAYOUT0 = 0
+    LAYOUT1 = 1
+    LAYOUT2 = 2
+    LAYOUT3 = 3
+    LAYOUT4 = 4
+    LAYOUT5 = 5
+    LAYOUT6 = 6
+    LAYOUT7 = 7
+    LAYOUT8 = 8
+    LAYOUT9 = 9
 
     LAYOUT101 = 101
     LAYOUT102 = 102

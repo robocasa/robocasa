@@ -13,6 +13,7 @@ from robosuite.utils.transform_utils import (
     rotate_2d_point,
 )
 
+from robocasa.models.objects.objects import MJCFObject
 from robocasa.utils.object_utils import obj_in_region, objs_intersect
 
 
@@ -211,7 +212,7 @@ class UniformRandomSampler(ObjectPositionSampler):
             rng=rng,
         )
 
-    def _sample_x(self):
+    def _sample_x(self, obj_size=None):
         """
         Samples the x location for a given object
 
@@ -219,9 +220,20 @@ class UniformRandomSampler(ObjectPositionSampler):
             float: sampled x position
         """
         minimum, maximum = self.x_range
+        if obj_size is not None:
+            buffer = min(obj_size[0], obj_size[1]) / 2
+            if self.ensure_object_boundary_in_range:
+                minimum += buffer
+                maximum -= buffer
+
+        if minimum > maximum:
+            raise RandomizationError(
+                f"Invalid x range for placement initializer: ({minimum}, {maximum})"
+            )
+
         return self.rng.uniform(high=maximum, low=minimum)
 
-    def _sample_y(self):
+    def _sample_y(self, obj_size=None):
         """
         Samples the y location for a given object
 
@@ -229,6 +241,17 @@ class UniformRandomSampler(ObjectPositionSampler):
             float: sampled y position
         """
         minimum, maximum = self.y_range
+        if obj_size is not None:
+            buffer = min(obj_size[0], obj_size[1]) / 2
+            if self.ensure_object_boundary_in_range:
+                minimum += buffer
+                maximum -= buffer
+
+        if minimum > maximum:
+            raise RandomizationError(
+                f"Invalid y range for placement initializer: ({minimum}, {maximum})"
+            )
+
         return self.rng.uniform(high=maximum, low=minimum)
 
     def _sample_quat(self):
@@ -343,10 +366,22 @@ class UniformRandomSampler(ObjectPositionSampler):
                 )
             region_points += base_offset
 
+            from robocasa.models.fixtures import Fixture
+
+            if isinstance(obj, MJCFObject) or isinstance(obj, Fixture):
+                obj_points = obj.get_bbox_points()
+                p0 = obj_points[0]
+                px = obj_points[1]
+                py = obj_points[2]
+                pz = obj_points[3]
+                obj_size = (px[0] - p0[0], py[1] - p0[1], pz[2] - p0[2])
+            else:
+                obj_size = None
+
             for i in range(5000):  # 5000 retries
                 # sample object coordinates
-                relative_x = self._sample_x()
-                relative_y = self._sample_y()
+                relative_x = self._sample_x(obj_size)
+                relative_y = self._sample_y(obj_size)
 
                 # apply rotation
                 object_x, object_y = rotate_2d_point(

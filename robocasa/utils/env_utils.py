@@ -301,6 +301,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
             fixture = env.get_fixture(
                 id=fixture_id,
                 ref=placement.get("ref", None),
+                full_name_check=True if cfg["type"] == "fixture" else False,
             )
 
             # calculate the total available space where object could be placed
