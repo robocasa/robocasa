@@ -29,6 +29,7 @@ import robocasa
 import robocasa.macros as macros
 from robocasa.models.fixtures import FixtureType
 from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimic_format
+from scipy.spatial.transform import Rotation as R
 
 
 def is_empty_input_spacemouse(action_dict):
@@ -159,11 +160,59 @@ def collect_human_trajectory(
         #     # for key in obs:
         #     #     if any(s in key for s in ["gripper", "handle", "eef"]):
         #     #         print(f"{key}: {obs[key]}")
-        #     print(f"eff_euler: {Rotation.from_quat(obs['robot0_eef_quat']).as_euler('xyz')}")
-        #     print(f"eff_site_euler: {Rotation.from_quat(obs['robot0_eef_quat_site']).as_euler('xyz')}")
-        #     print(f"handle_euler: {Rotation.from_quat(obs['handle_pos_quat'][3:7]).as_euler('xyz')}")
+        print(f"eff_quat: {obs['robot0_eef_quat']}")
+        print(f"eff_euler: {R.from_quat(obs['robot0_eef_quat']).as_euler('xyz')}")
+        print(f"base_quat: {obs['robot0_base_quat']}")
+        print(f"base_euler: {R.from_quat(obs['robot0_base_quat']).as_euler('xyz')}")
+        # print(f"eff_site_euler: {R.from_quat(obs['robot0_eef_quat_site']).as_euler('xyz')}")
+        print(f"handle_quat: {obs['handle_pos_quat']}")
+        print(
+            f"handle_euler: {R.from_quat(obs['handle_pos_quat'][3:7]).as_euler('xyz')}"
+        )
+
+        print(f"base_pos: {obs['robot0_base_pos']}")
+        print(f"eff_pos: {obs['robot0_eef_pos']}")
+
+        # Compute robot_base_w for debugging
+        handle_init_pos = obs["handle_pos_quat"][:3]
+        handle_init_quat = obs["handle_pos_quat"][3:7]
+        handle_init_rot = R.from_quat(handle_init_quat).as_matrix()
+
+        gripper_pos = obs["robot0_eef_pos"]
+        gripper_quat = obs["robot0_eef_quat"]
+        gripper_rot = R.from_quat(gripper_quat).as_matrix()
+
+        # Compute relative position in world frame
+        rel_pos_world = gripper_pos - handle_init_pos
+        # Transform relative position to handle frame
+        pos_in_handle = handle_init_rot.T @ rel_pos_world
+
+        expected_relative_rot_handle = R.from_quat(np.array([0.5, 0.5, 0.5, -0.5]))
+
+        # Transform gripper rotation to handle frame
+        rot_in_handle = handle_init_rot.T @ gripper_rot
+
+        # Compute the difference between the expected relative rotation and the actual relative rotation
+        rel_rot_diff = expected_relative_rot_handle * R.from_matrix(rot_in_handle).inv()
+
+        def vee_operator(w):
+            return np.array([w[2, 1], w[0, 2], w[1, 0]])
+
+        angular_w_handle = vee_operator(rel_rot_diff.as_matrix())
+        # move that difference to the base frame
+        world_w = handle_init_rot @ angular_w_handle
+
+        robot_base_pos = obs["robot0_base_pos"]
+        robot_base_quat = obs["robot0_base_quat"]
+        robot_base_rot = R.from_quat(robot_base_quat).as_matrix()
+
+        robot_base_w = robot_base_rot.T @ world_w
+        print(f"robot_base_w: {robot_base_w}")
         # except:
         #     pass
+
+        print("--------------------------------")
+
         if render:
             env.render()
 
@@ -490,7 +539,7 @@ if __name__ == "__main__":
 
     # initialize device
     if args.device == "keyboard":
-        from robosuite.devices import Keyboard
+        from robosuite.devices import Keybyoard
 
         device = Keyboard(
             env=env,

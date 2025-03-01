@@ -78,10 +78,10 @@ class ManipulateDoor(Kitchen):
             self.door_fxtr.joints[0]
         )
         self.gripper_qpos_joint1_addr = self.sim.model.get_joint_qpos_addr(
-            self.robots[0].gripper_joints['right'][0]
+            self.robots[0].gripper_joints["right"][0]
         )
         self.gripper_qpos_joint2_addr = self.sim.model.get_joint_qpos_addr(
-            self.robots[0].gripper_joints['right'][1]
+            self.robots[0].gripper_joints["right"][1]
         )
 
     def _setup_observables(self):
@@ -138,8 +138,14 @@ class ManipulateDoor(Kitchen):
         @sensor(modality="object")
         def gripper_pos_quat_angle(obs_cache):
             # Return gripper angle
-            eef_pos = self.sim.data.get_body_xpos(self.robots[0].gripper["right"].bodies[1])
-            eef_quat = self.sim.data.get_body_xquat(self.robots[0].gripper["right"].bodies[1])
+            eef_pos = self.sim.data.get_body_xpos(
+                self.robots[0].gripper["right"].bodies[1]
+            )
+            eef_quat = self.sim.data.get_body_xquat(
+                self.robots[0].gripper["right"].bodies[1]
+            )
+            # change quat order from wxyz to xyzw
+            eef_quat = np.concatenate([eef_quat[1:], eef_quat[:1]])
             joint1 = self.sim.data.qpos[self.gripper_qpos_joint1_addr]
             joint2 = self.sim.data.qpos[self.gripper_qpos_joint2_addr]
             return np.array(eef_pos.tolist() + eef_quat.tolist() + [joint1])
