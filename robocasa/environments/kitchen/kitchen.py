@@ -600,6 +600,14 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.style_id if isinstance(self.style_id, dict) else int(self.style_id)
         )
         ep_meta["object_cfgs"] = [copy_dict_for_json(cfg) for cfg in self.object_cfgs]
+
+        # serialize np arrays to lists
+        for cfg in ep_meta["object_cfgs"]:
+            if cfg.get("reset_region", None) is not None:
+                for (k, v) in cfg["reset_region"].items():
+                    if isinstance(v, np.ndarray):
+                        cfg["reset_region"][k] = list(v)
+
         ep_meta["fixtures"] = {
             k: {"cls": v.__class__.__name__} for (k, v) in self.fixtures.items()
         }
