@@ -142,7 +142,7 @@ class ManipulateDoor(Kitchen):
                 self.robots[0].gripper["right"].bodies[1]
             )
             eef_quat = self.sim.data.get_body_xquat(
-                self.robots[0].gripper["right"].bodies[1]
+                self.robots[0].gripper["right"].bodies[2]
             )
             # change quat order from wxyz to xyzw
             eef_quat = np.concatenate([eef_quat[1:], eef_quat[:1]])
