@@ -141,3 +141,6 @@ class BeverageSorting(Kitchen):
                     self, "non_alcohol2", c2
                 ):
                     return True
+
+        # return False otherwise
+        return False
