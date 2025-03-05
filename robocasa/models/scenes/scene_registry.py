@@ -131,7 +131,7 @@ def get_style_path(style_id):
     if (
         isinstance(style_id, int)
         or isinstance(style_id, np.int64)
-        or isinstance(layout_id, np.int32)
+        or isinstance(style_id, np.int32)
     ):
         style_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), StyleType)
