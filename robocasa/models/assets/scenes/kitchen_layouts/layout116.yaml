@@ -13,9 +13,9 @@ room:
       pos: [0.0, -0.325, 1.5]
       wall_side: left
 
-    - name: wall_main
+    - name: wall_main #最左边的墙
       type: wall
-      size: [2.544, 1.5, 0.02]
+      size: [2.544, 1.5, 0.02] #[2.544, 1.5, 0.02]
       pos: [2.583, 0.0, 1.5]
 
     - name: wall_main_backing
@@ -27,7 +27,7 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [0.525, 1.5, 0.02]
+      size: [0.525, 1.5, 0.02] #[0.525, 1.5, 0.02]
       pos: [5.166, -0.525, 1.5]
       wall_side: right
 
@@ -51,10 +51,10 @@ room:
       pos: [5.166, -3.589, 1.5]
       wall_side: right
 
-    - name: wall_right_2
+    - name: wall_right_2 #问题1的墙
       type: wall
       size: [0.418, 0.459, 0.02]
-      pos: [5.166, -1.547, 2.541]
+      pos: [5.166, -1.547, 2.541] #[5.166, -1.547, 2.541]
       wall_side: right
 
     - name: wall_right_2_backing
@@ -139,7 +139,7 @@ main_group:
     - name: counter_1
       type: counter
       pos: [3, -0.325, 0.46]
-      size: [0.9, 0.65, 0.92]
+      size: [0.92, 0.65, 0.92]
 
     - name: stove
       type: stove
@@ -161,7 +161,7 @@ main_group:
     - name: stack_1
       type: stack
       # pos: [1.3, -0.325, 0.47]
-      size: [1, 0.6, 0.84]
+      size: [1.01, 0.6, 0.84] #[1.0, 0.6, 0.84]修改柜子长度
       levels: [hinge_cabinet]
       percentages: [1]
       configs: {'hinge_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
@@ -271,8 +271,10 @@ main_group:
       type: paper_towel
       placement:
         fixture: counter_1_main_group
+        sample_region_kwargs:
+          ref: cab_3
         size: [1.0, 0.40]
-        pos: [1.0, 1.0]
+        pos: [1.5, 1.5]
         rotation: [0, 0]
 
     - name: coffee_machine
