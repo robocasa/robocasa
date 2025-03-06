@@ -185,19 +185,13 @@ main_group_1:
       stack_fixtures: [microwave]
 
   counter_accessories:
-    - name: coffee_machine
-      type: coffee_machine
-      placement:
-        fixture: counter_1_main_group_1
-        size: [1.0, 0.52]
-        pos: [-1.0, 1.0]
-        rotation: [0, 0]
-        margin: 0.0
 
     - name: toaster
       type: toaster
       placement:
         fixture: counter_2_main_group_1
+        sample_region_kwargs:
+          ref: cab_1_main_group
         size: [1.0, 0.40]
         pos: [1.0, 0]
         rotation: [0, 0]
@@ -302,13 +296,17 @@ left_group_1:
       alignment: back
   
   counter_accessories:
-    - name: knife_block
-      type: knife_block
+
+    - name: coffee_machine
+      type: coffee_machine
       placement:
         fixture: counter_1_left_group_1
-        size: [1.0, obj]
-        pos: [1.0, 1.0]
+        sample_region_kwargs:
+          ref: cab_2_left_group_1
+        size: [1.0, 0.52]
+        pos: [-1.0, 1.0]
         rotation: [0, 0]
+        margin: 0.0
 
 island_group_1:
   group_origin: [0, 0]
@@ -351,7 +349,6 @@ island_group_1:
       type: stack
       levels: [hinge_cabinet, panel_cabinet]
       percentages: [0.7, 0.3]
-      # pos: [0.51, -0.3, 0.47]
       size: [1, 0.6, 0.84]
       align_to: panel_stack_1
       side: right
@@ -366,7 +363,6 @@ island_group_1:
 
     - name: panel_stack_2
       type: stack
-      # pos: [1.862, -0.3, 0.47]
       size: [0.05, 0.6, 0.84]
       levels: [panel_cabinet]
       percentages: [1]
@@ -386,12 +382,12 @@ island_group_1:
         pos: [1.0, 0.5]
         rotation: [0, 0]
     
-    - name: plant
-      type: plant
+    - name: knife_block
+      type: knife_block
       placement:
         fixture: counter_2_island_group_1
-        size: [0.5, 0.5]
-        pos: [-1.0, 0.5]
+        size: [1.0, obj]
+        pos: [1.0, 1.0]
         rotation: [0, 0]
 
 stool_group_1:
