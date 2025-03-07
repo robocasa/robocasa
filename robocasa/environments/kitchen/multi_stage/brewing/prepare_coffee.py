@@ -25,7 +25,7 @@ class PrepareCoffee(Kitchen):
         super()._setup_kitchen_references()
 
         self.coffee_machine = self.register_fixture_ref(
-            "coffee_machine", dict(id="coffee_machine")
+            "coffee_machine", dict(id=FixtureType.COFFEE_MACHINE)
         )
         self.cab = self.register_fixture_ref(
             "cab", dict(id=self.cab_id, ref=self.coffee_machine)
