@@ -48,6 +48,7 @@ def create_env(
         camera_heights=camera_heights,
         has_renderer=render_onscreen,
         has_offscreen_renderer=(not render_onscreen),
+        renderer="mjviewer",
         ignore_done=True,
         use_object_obs=True,
         use_camera_obs=(not render_onscreen),
