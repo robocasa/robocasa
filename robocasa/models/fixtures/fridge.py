@@ -30,5 +30,5 @@ class FridgeSideBySide(Fridge):
     pass
 
 
-class FridgeTopFreezer(Fridge):
+class FridgeBottomFreezer(Fridge):
     pass

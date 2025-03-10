@@ -65,6 +65,8 @@ class FixtureType(IntEnum):
     FRIDGE = 23
     DISHWASHER = 24
     OVEN = 25
+    TOASTER_OVEN = 26
+    BLENDER = 27
 
 
 BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
