@@ -301,6 +301,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
             fixture = env.get_fixture(
                 id=fixture_id,
                 ref=placement.get("ref", None),
+                full_name_check=True if cfg["type"] == "fixture" else False,
             )
 
             # calculate the total available space where object could be placed
@@ -556,6 +557,9 @@ def create_obj(env, cfg):
         """
         mjcf_path = cfg["info"]["mjcf_path"]
         # replace with correct base path
+        mjcf_path = mjcf_path.replace(
+            "\\", "/"
+        )  # replace windows backslashes with forward slashes
         new_base_path = os.path.join(robocasa.models.assets_root, "objects")
         new_path = os.path.join(new_base_path, mjcf_path.split("/objects/")[-1])
         obj_groups = new_path

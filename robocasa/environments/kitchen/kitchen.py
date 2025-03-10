@@ -408,7 +408,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self, self.fixture_cfgs, z_offset=0.0
         )
         fxtr_placements = None
-        for i in range(10):
+        for i in range(3):
             try:
                 fxtr_placements = fxtr_placement_initializer.sample()
             except RandomizationError as e:
@@ -613,6 +613,14 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.style_id if isinstance(self.style_id, dict) else int(self.style_id)
         )
         ep_meta["object_cfgs"] = [copy_dict_for_json(cfg) for cfg in self.object_cfgs]
+
+        # serialize np arrays to lists
+        for cfg in ep_meta["object_cfgs"]:
+            if cfg.get("reset_region", None) is not None:
+                for (k, v) in cfg["reset_region"].items():
+                    if isinstance(v, np.ndarray):
+                        cfg["reset_region"][k] = list(v)
+
         ep_meta["fixtures"] = {
             k: {"cls": v.__class__.__name__} for (k, v) in self.fixtures.items()
         }
@@ -1050,7 +1058,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             object_scale=object_scale,
         )
 
-    def get_fixture(self, id, ref=None, size=(0.2, 0.2)):
+    def get_fixture(self, id, ref=None, size=(0.2, 0.2), full_name_check=False):
         """
         search fixture by id (name, object, or type)
 
@@ -1080,7 +1088,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     if fixture_is_type(fxtr, id)
                 ]
             else:
-                matches = [name for name in self.fixtures.keys() if id in name]
+                if full_name_check:
+                    matches = [name for name in self.fixtures.keys() if name == id]
+                else:
+                    matches = [name for name in self.fixtures.keys() if id in name]
             if id == FixtureType.COUNTER or id == FixtureType.COUNTER_NON_CORNER:
                 matches = [
                     name

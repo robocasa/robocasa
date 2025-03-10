@@ -345,6 +345,7 @@ class Counter(ProcGenFixture):
             conaffinity=0,
             contype=0,
             mass=1e-8,
+            rgba=None,  # a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5]))), #None
         )
         self._obj.append(g_vis)
         # manually update visual geoms registry
@@ -456,6 +457,7 @@ class Counter(ProcGenFixture):
                 )
                 geoms[geom_name].append(g)
 
+        rgba = None  # a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
         for side in SIDES:
             # convert coordinate of bottom-left corner to coordinate of center
             # the origin is now the center of the entire fixture
@@ -504,6 +506,7 @@ class Counter(ProcGenFixture):
                 conaffinity=0,
                 contype=0,
                 mass=1e-8,
+                rgba=rgba,
             )
             self._obj.append(g_vis)
             # manually update visual geoms registry

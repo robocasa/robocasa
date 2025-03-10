@@ -26,6 +26,7 @@ import h5py
 import json
 import argparse
 import numpy as np
+from collections import OrderedDict
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -169,9 +170,14 @@ if __name__ == "__main__":
     # for k, v in obj_cat_counts.items():
     #     print(k, v)
     print()
-    print("obj cat counts:", obj_cat_counts)
-    print("layout_counts:", layout_counts)
-    print("style_counts:", style_counts)
+    print("obj cat counts:", json.dumps(obj_cat_counts, indent=4))
+    print(
+        "layout_counts:",
+        json.dumps(OrderedDict(sorted(layout_counts.items())), indent=4),
+    )
+    print(
+        "style_counts:", json.dumps(OrderedDict(sorted(style_counts.items())), indent=4)
+    )
     print("num unique lang instructions:", len(set(langs)))
 
     f.close()
