@@ -41,6 +41,21 @@ class LayoutType(IntEnum):
     LAYOUT118 = 118
     LAYOUT119 = 119
     LAYOUT120 = 120
+    LAYOUT121 = 121
+    LAYOUT122 = 122
+    LAYOUT123 = 123
+    LAYOUT124 = 124
+    LAYOUT125 = 125
+    LAYOUT126 = 126
+    LAYOUT127 = 127
+    LAYOUT128 = 128
+    LAYOUT129 = 129
+    LAYOUT130 = 130
+    LAYOUT131 = 131
+    LAYOUT132 = 132
+    LAYOUT133 = 133
+    LAYOUT134 = 134
+    LAYOUT135 = 135
 
     # negative values correspond to groups (see LAYOUT_GROUPS_TO_IDS)
     ALL = -1

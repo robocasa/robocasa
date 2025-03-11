@@ -27,15 +27,15 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [2.691, 1.5, 0.02]
-      pos: [3.822, -2.691, 1.5]
+      size: [2.725, 1.5, 0.02]
+      pos: [3.822, -2.725, 1.5]
       wall_side: right
 
     - name: wall_right_1_backing
       type: wall
       backing: true
-      size: [2.691, 1.5, 0.1]
-      pos: [3.822, -2.691, 1.5]
+      size: [2.725, 1.5, 0.1]
+      pos: [3.822, -2.725, 1.5]
       wall_side: right
 
   floor:
@@ -128,25 +128,8 @@ left_group:
 
     - name: counter_2
       type: counter
-      # pos: [2.0, -0.325, 0.46]
-      size: [0.8, 0.65, 0.92]
+      size: [2.4, 0.65, 0.92]
       align_to: stove
-      side: left
-      alignment: top_back
-
-    - name: counter_3
-      type: counter
-      # pos: [1.2, -0.325, 0.46]
-      size: [0.8, 0.65, 0.92]
-      align_to: counter_2
-      side: left
-      alignment: top_back
-
-    - name: counter_4
-      type: counter
-      # pos: [0.4, -0.325, 0.46]
-      size: [0.8, 0.65, 0.92]
-      align_to: counter_3
       side: left
       alignment: top_back
 
@@ -201,7 +184,7 @@ left_group:
     - name: fridge_housing
       type: housing_cabinet
       interior_obj: fridge
-      padding: [[0.06, 0.04], [-0.04, 0.02], [0, 0.02]]
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
       # pos: [4.7, -0.4, 0.875]
       align_to: stack_1
       side: right
@@ -273,6 +256,8 @@ left_group:
       type: plant
       placement:
         fixture: counter_1_left_group
+        sample_region_kwargs:
+          ref: cab_6_left_group
         size: [0.40, 0.40]
         pos: [null, 1.0]
         rotation: [0, 0]
@@ -280,17 +265,11 @@ left_group:
     - name: coffee_machine
       type: coffee_machine
       placement:
-        fixture: counter_3_left_group
+        fixture: counter_2_left_group
+        sample_region_kwargs:
+          ref: cab_2_left_group
         size: [1.0, 0.52]
-        pos: [null, 1.0]
-        rotation: [0, 0]
-    
-    - name: paper_towel
-      type: paper_towel
-      placement:
-        fixture: counter_4_left_group
-        size: [1.0, 0.40]
-        pos: [null, 1.0]
+        pos: [0, 1.0]
         rotation: [0, 0]
 
 right_group:
@@ -298,39 +277,23 @@ right_group:
   group_pos: [3.822, 0.0]
   group_z_rot: -1.5707964611537577
   bottom_row:
-    - name: counter_1
-      type: counter
-      pos: [0.55, -0.325, 0.46]
-      # size: [0.349, 0.65, 0.92]
-      size: [1.1, 0.65, 0.92]
 
     - name: sink
       type: sink
 
-    - name: counter_2
+    - name: counter_1
       type: counter
       interior_obj: sink
-      obj_x_percent: 0.5
-      obj_y_percent: 0.5
-      # pos: [1.587, -0.325, 0.46]
-      size: [1.0, 0.65, 0.92]
-      align_to: counter_1
-      side: right
-      alignment: top_back
-
-    - name: counter_3
-      type: counter
-      # pos: [2.768, -0.325, 0.46]
-      size: [0.895, 0.65, 0.92]
-      align_to: counter_2
-      side: right
-      alignment: top_back
+      obj_x_percent: 0.53
+      obj_y_percent: 0.7
+      size: [2.995, 0.65, 0.92]
+      pos: [1.4975, -0.325, 0.46]
 
     - name: corner_counter
       type: counter
       size: [0.65, 0.65, 0.92]
       hollow: [False, False]
-      align_to: counter_3
+      align_to: counter_1
       side: right
       alignment: top_back
 
@@ -350,7 +313,6 @@ right_group:
 
     - name: dishwasher
       type: dishwasher
-      # pos: [0.785, -0.375, 0.45]
       size: [0.6, 0.6, 0.89]
       align_to: stack_1
       side: right
@@ -360,7 +322,6 @@ right_group:
       type: stack
       levels: [hinge_cabinet]
       percentages: [1]
-      # pos: [1.587, -0.325, 0.47]
       size: [1.0, 0.6, 0.84]
       open_top: true
       configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'top'}}}
@@ -471,6 +432,14 @@ front_group:
       side: right
       alignment: top_back
 
+  counter_accessories:
+    - name: paper_towel
+      type: paper_towel
+      placement:
+        fixture: counter_1_front_group
+        size: [1.0, 0.40]
+        pos: [1.0, 0]
+        rotation: [0, 0]
 
 stool_group_1:
   group_origin: [0, 0]
@@ -479,8 +448,8 @@ stool_group_1:
   stool_row:
     - name: stool_1
       type: stool
-      pos: [-0.53, 0.9, 0.5]
+      pos: [-0.53, 0.95, 0.5]
 
     - name: stool_2
       type: stool
-      pos: [-1.308, 0.9, 0.5]
+      pos: [-1.308, 0.95, 0.5]

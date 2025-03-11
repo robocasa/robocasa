@@ -40,15 +40,15 @@ room:
 
     - name: wall_left_2
       type: wall
-      size: [1.076, 0.574, 0.02]
-      pos: [0.0, -2.2, 0.578]
+      size: [1.114, 0.574, 0.02]
+      pos: [0.0, -2.24, 0.578]
       wall_side: left
 
     - name: wall_left_2_backing
       type: wall
       backing: true
-      size: [1.076, 0.574, 0.04]
-      pos: [0.0, -2.2, 0.578]
+      size: [1.114, 0.574, 0.04]
+      pos: [0.0, -2.24, 0.578]
       wall_side: left
 
     - name: wall_left_3
@@ -120,17 +120,17 @@ main_group:
   group_pos: [0.0, 0.0]
   group_z_rot: 0.0
   bottom_row:
-    - name: counter_1
+    - name: counter_corner
       type: counter
       pos: [0.325, -0.325, 0.46]
       size: [0.65, 0.65, 0.92]
       hollow: [False, False]
 
-    - name: counter_2
+    - name: counter_1
       type: counter
       # pos: [1.22, -0.325, 0.46]
       size: [1.131, 0.65, 0.92]
-      align_to: counter_1
+      align_to: counter_corner
       alignment: top_back
       side: right
 
@@ -138,15 +138,16 @@ main_group:
       type: stove
       # pos: [2.286, -0.325, 0.46]
       size: [0.76, 0.66, 0.915]
-      align_to: counter_2
+      align_to: counter_1
       side: right
       alignment: top_back
 
-    - name: counter_3
+    - name: counter_2
       type: counter
       size: [1.131, 0.65, 0.92]
       align_to: stove_1
       side: right
+      alignment: top_back
 
   bottom_row_cabinets:
     - name: stack_1
@@ -195,12 +196,6 @@ main_group:
       alignment: bottom_back
       side: right
 
-      configs:
-        single_cabinet_2:
-          panel_config:
-            handle_vpos: bottom
-            handle_hpos: left
-
   top_row:
     - name: cab_1
       type: hinge_cabinet
@@ -235,7 +230,7 @@ main_group:
       alignment: bottom_back
       side: right
 
-  counter_accessories:
+  counter_stack:
     - name: counter_stack
       type: stack
       levels: [single_cabinet, single_cabinet, hinge_cabinet]
@@ -250,25 +245,24 @@ main_group:
         single_cabinet_1:
           panel_config:
             handle_vpos: bottom
-            handle_hpos: right
           orientation: left
 
         single_cabinet_2:
           panel_config:
             handle_vpos: bottom
-            handle_hpos: right
           orientation: left
 
         hinge_cabinet:
-          # open_top: true
           panel_config:
             handle_vpos: bottom
+
+  counter_accessories:
 
     - name: paper_towel
       type: paper_towel
 
       placement:
-        fixture: counter_2_main_group
+        fixture: counter_1_main_group
         size: [1.0, 0.40]
         pos: [1.3, 0.5]
         rotation: [0, 0]
@@ -277,14 +271,14 @@ main_group:
       type: toaster
 
       placement:
-        fixture: counter_3_main_group
+        fixture: counter_2_main_group
         size: [1.0, 0.40]
         pos: [1.0, 0]
         rotation: [0, 0]
 
 left_group:
   group_origin: [0, 0]
-  group_pos: [0.0, -2.988]
+  group_pos: [0.0, -3.038]
   group_z_rot: 1.5707962925663537
   bottom_row:
 
@@ -294,28 +288,27 @@ left_group:
     - name: counter_1
       type: counter
       interior_obj: sink
-      obj_x_percent: 0.53
-      obj_y_percent: 0.5
-      pos: [1.1575, -0.325, 0.46]
-      size: [2.361, 0.65, 0.92]
+      obj_x_percent: 0.5
+      obj_y_percent: 0.7
+      size: [2.388, 0.65, 0.92]
+      pos: [1.194, -0.325, 0.46]
 
     - name: counter
       type: counter
-      pos: [0.78, 0.067, 0.53]
-      size: [2.234, 0.14, 1.3]
+      pos: [0.797, 0.067, 0.53]
+      size: [2.308, 0.14, 1.3]
 
   bottom_row_cabinets:
     - name: panel_cab
       type: stack
       size: [0.1, 0.6, 0.84]
-      pos: [0.025, -0.3, 0.47]
+      pos: [0.05, -0.3, 0.47]
       levels: [panel_cabinet]
       percentages: [1]
       configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
 
     - name: dishwasher
       type: dishwasher
-      # pos: [0.375, -0.375, 0.445]
       size: [0.6, 0.6, 0.89]
       align_to: panel_cab
       side: right
@@ -325,18 +318,15 @@ left_group:
       type: stack
       levels: [hinge_cabinet, panel_cabinet]
       percentages: [0.75, 0.25]
-      # pos: [1.226, -0.3, 0.47]
       size: [1.1, 0.6, 0.84]
       open_top: true
-      # configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'top'}}}
       align_to: dishwasher
       side: right
       alignment: top_back
 
     - name: stack_2
       type: stack
-      # pos: [2.049, -0.3, 0.47]
-      size: [0.55, 0.6, 0.84]
+      size: [0.538, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.75, 0.25]
       align_to: stack_1
@@ -346,7 +336,6 @@ left_group:
     - name: box
       type: box
       size: [0.1, 0.6, 0.89]
-      # pos: [2.335, -0.3, 0.445]
       align_to: stack_2
       side: right
       alignment: top_back
@@ -363,7 +352,6 @@ right_group:
 
     - name: fridge
       type: fridge_top_freezer
-      # type: fridge
       size: [0.85, 0.80, 1.75]
 
     - name: fridge_housing
@@ -401,7 +389,7 @@ island_group:
       type: coffee_machine
 
       placement:
-        fixture: island_island_group
+        fixture: island
         size: [1.0, 0.52]
         pos: [-1.0, 1.0]
         rotation: [0, 0]
