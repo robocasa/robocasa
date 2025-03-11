@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 
 import robosuite
 
-from robosuite.models.objects import MujocoXMLObject
+from robocasa.models.objects.objects import MujocoXMLObjectRobocasa
 from robosuite.utils.mjcf_utils import array_to_string, string_to_array
 
 import robosuite.utils.transform_utils as T
@@ -68,7 +68,7 @@ def postprocess_model_xml(xml_str):
     return ET.tostring(root, encoding="utf8").decode("utf8")
 
 
-class MJCFObject(MujocoXMLObject):
+class MJCFObject(MujocoXMLObjectRobocasa):
     """
     Blender object with support for changing the scaling
     """
