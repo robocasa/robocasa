@@ -1,5 +1,6 @@
 from robocasa.models.fixtures import Fixture
 import numpy as np
+from robosuite.utils.mjcf_utils import string_to_array
 
 
 class CoffeeMachine(Fixture):
@@ -34,7 +35,7 @@ class CoffeeMachine(Fixture):
         """
         return {
             "bottom": {
-                "offset": s2a(self._receptacle_pouring_site.get("pos")),
+                "offset": string_to_array(self._receptacle_pouring_site.get("pos")),
                 "size": (0.01, 0.01),
             }
         }
