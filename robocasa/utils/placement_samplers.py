@@ -398,7 +398,7 @@ class UniformRandomSampler(ObjectPositionSampler):
                 quat = self._sample_quat()
                 # multiply this quat by the object's initial rotation if it has the attribute specified
                 if hasattr(obj, "init_quat"):
-                    quat = quat_multiply(obj.init_quat, quat)
+                    quat = quat_multiply(quat, obj.init_quat)
                 quat = convert_quat(
                     quat_multiply(
                         convert_quat(ref_quat, to="xyzw"),

@@ -14,29 +14,29 @@ room:
 
     - name: wall_right_1
       type: wall
-      size: [1.518, 1.5, 0.02]
-      pos: [6.755, -1.517, 1.5]
+      size: [1.51835, 1.5, 0.02]
+      pos: [6.754507, -1.51835, 1.5]
       wall_side: right
 
     - name: wall_right_1_backing
       type: wall
       backing: true
       backing_extended:  [True,False] 
-      size: [1.518, 1.5, 0.1]
-      pos: [6.755, -1.517, 1.5]
+      size: [1.50, 1.5, 0.1]
+      pos: [6.754507, -1.5, 1.5]
       wall_side: right
 
     - name: wall_main_2
       type: wall
-      size: [0.485, 1.5, 0.02]
-      pos: [7.315, -3.077, 1.5]
+      size: [0.502921, 1.5, 0.02]
+      pos: [7.297428, -3.0767, 1.5]
 
     - name: wall_main_2_backing
       type: wall
       backing: true
       backing_extended:  [False,False] 
-      size: [0.485, 1.5, 0.1]
-      pos: [7.315, -3.077, 1.5]
+      size: [0.462921, 1.5, 0.1]
+      pos: [7.337428, -3.0767, 1.5]
 
     - name: wall_right_2
       type: wall
@@ -62,7 +62,7 @@ room:
       type: wall
       backing: true
       backing_extended:  [False,False] 
-      size: [0.977, 1.5, 0.1]
+      size: [0.98, 1.5, 0.1]
       pos: [6.823, -4.877, 1.5]
       wall_side: front
 
@@ -82,16 +82,16 @@ room:
 
     - name: wall_right_5
       type: wall
-      size: [0.7, 1.5, 0.02]
-      pos: [4.054, -5.653, 1.5]
+      size: [0.7183, 1.5, 0.02]
+      pos: [4.05449, -5.635008, 1.5]
       wall_side: right
 
     - name: wall_right_5_backing
       type: wall
       backing: true
       backing_extended:  [False,True] 
-      size: [0.7, 1.5, 0.1]
-      pos: [4.054, -5.653, 1.5]
+      size: [0.718, 1.5, 0.1]
+      pos: [4.05, -5.635008, 1.5]
       wall_side: right
 
     - name: wall_front_4
@@ -138,17 +138,18 @@ room:
 
     - name: wall_front_3
       type: wall
-      size: [0.24, 1.5, 0.02]
-      pos: [4.338, -4.877, 1.5]
+      size: [0.241811, 1.5, 0.02]
+      pos: [4.3363, -4.8767, 1.5]
       wall_side: front
 
     - name: wall_front_3_backing
       type: wall
       backing: true
       backing_extended:  [False,False] 
-      size: [0.24, 1.5, 0.1]
-      pos: [4.338, -4.877, 1.5]
+      size: [0.201811, 1.5, 0.1]
+      pos: [4.3763, -4.8767, 1.5]
       wall_side: front
+
 
     - name: wall_front_2
       type: wall
@@ -177,6 +178,21 @@ room:
       size: [0.776, 0.18, 0.1]
       pos: [1.662, -6.353, 2.82]
       wall_side: front
+
+    - name: wall_front_7
+      type: wall
+      size: [0.73, 0.531934, 0.02]
+      pos: [1.661961, -6.353303, 0.531934]
+      wall_side: front
+
+    - name: wall_front_7_backing
+      type: wall
+      backing: true
+      backing_extended:  [False,False] 
+      size: [0.73606, 0.531934, 0.1]
+      pos: [1.661961, -6.353303, 0.531934]
+      wall_side: front
+
 
   floor:
     - name: floor_1
@@ -265,21 +281,48 @@ main_group_1:
       obj_x_percent: 0.565
       obj_y_percent: 0.7
 
-  top_row:
+    - name: fridgefrenchdoor
+      type: fridge_french_door
+      size: [0.85, 0.8, 1.78]
+      alignment: bottom_back
+      align_to: counter_1
+      side: right
+      offset: [0, 0, 0]
+
+    - name: fridgefrenchdoor_housing
+      type: housing_cabinet
+      interior_obj: fridgefrenchdoor
+      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
+      pos: [6.145, -0.39, 0.9]
+
     - name: hingecabinet_1
       type: hinge_cabinet
-      pos: [6.149, -0.4, 2.026]
+      #pos: [6.149, -0.4, 2.026]
       size: [0.89, 0.8, 0.545]
+      alignment: back
+      align_to: fridgefrenchdoor_housing
+      side: top
+      offset: [0, 0, 0]   
+
+
+
+  top_row: 
 
     - name: singlecabinet_5
       type: single_cabinet
-      pos: [5.327, -0.203, 1.839]
+      #pos: [-5.327, -0.203, 1.839]
       size: [0.756, 0.4, 0.92]
+      align_to: hingecabinet_1
+      side: left
+      alignment: top_back
 
     - name: singlecabinet_4
       type: single_cabinet
-      pos: [4.546, -0.203, 1.839]
+      #pos: [4.546, -0.203, 1.839]
       size: [0.806, 0.4, 0.92]
+      align_to: singlecabinet_5
+      side: left
+      alignment: top_back
 
     - name: singlecabinet_1
       type: single_cabinet
@@ -336,28 +379,28 @@ main_group_1:
       percentages: [0.7, 0.3]
       configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
 
+    - name: cube_1
+      type: box
+      size: [0.1, 0.6, 0.89]
+      pos: [4.45, -0.3, 0.445]
+
     - name: stack_5
       type: stack
-      pos: [4.729, -0.3, 0.47]
-      size: [0.65, 0.6, 0.84]
+      pos: [4.8, -0.3, 0.47]
+      size: [0.6, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
       configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
 
-    - name: dishwasher_1
-      type: dishwasher
-      size: [0.6, 0.6, 0.89]
-      align_to: stack_5
-      side: left
-      alignment: top_back
 
     - name: stack_6
       type: stack
-      pos: [5.38, -0.3, 0.47]
-      size: [0.65, 0.6, 0.84]
+      pos: [5.3999, -0.3, 0.47]
+      size: [0.6, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
       configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
+
 
     - name: stack_7
       type: stack
@@ -367,39 +410,23 @@ main_group_1:
       percentages: [0.7, 0.3]
       configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'top'}}}
 
+    - name: dishwasher_1
+      type: dishwasher
+      size: [0.6, 0.6, 0.89]
+      align_to: stack_7
+      side: right
+      alignment: top_back
+
+
   counter_accessories:
 
     - name: toaster
       type: toaster
-      placement: 
-        fixture: 'counter_1_main_group_1'
-        sample_region_kwargs:
-          ref: singlecabinet_4
-        size: [1.0, 0.4] 
-        pos: [1.0, 0]
-        rotation: [0, 0]
-
+      placement: {'fixture': 'counter_1_main_group_1', 'size': [1.0, 0.4], 'pos': [1.0, 0], 'rotation': [0, 0]}
 
     - name: knifeblock
       type: knife_block
-      placement: 
-        fixture: counter_1_main_group_1
-        sample_region_kwargs:
-          ref: singlecabinet_3
-        size: [1.0, 'obj'] 
-        #pos: [1.0, 1.0]
-        rotation': [0, 0]
-
-  wall_stack:
-    - name: fridgesidebyside
-      type: fridge_side_by_side
-      size: [0.85, 0.8, 1.75]
-
-    - name: fridgesidebyside_housing
-      type: housing_cabinet
-      interior_obj: fridgesidebyside
-      padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-      pos: [6.15, -0.404, 0.878]
+      placement: {'fixture': 'counter_1_main_group_1', 'size': [1.0, 'obj'], 'pos': [1.0, 1.0], 'rotation': [0, 0]}
 
 island_group_1:
   group_origin: [0, 0]
