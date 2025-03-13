@@ -17,7 +17,7 @@ from robosuite.utils.mjcf_utils import (
 
 import robocasa
 import robocasa.macros as macros
-from robocasa.models.objects import MujocoXMLObject
+from robocasa.models.objects.objects import MujocoXMLObjectRobocasa
 from robocasa.utils.object_utils import get_pos_after_rel_offset
 
 
@@ -75,7 +75,7 @@ BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
 BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
 
 
-class Fixture(MujocoXMLObject):
+class Fixture(MujocoXMLObjectRobocasa):
     """
     Base class for fixtures in robosuite kitchen environments.
 

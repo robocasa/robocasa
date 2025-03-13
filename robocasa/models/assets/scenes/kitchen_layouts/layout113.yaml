@@ -91,48 +91,30 @@ main_group:
   group_pos: [0.0, 0.0]
   group_z_rot: 0.0
   bottom_row:
-    - name: counter_1
+    - name: counter_corner_1
       type: counter
       pos: [0.325, -0.325, 0.46]
       size: [0.65, 0.65, 0.92]
       hollow: [False, False]
 
-    - name: counter_2
-      type: counter
-      # pos: [1.436, -0.325, 0.46]
-      size: [1.3, 0.65, 0.92]
-      align_to: counter_1
-      side: right
-      alignment: top_back
-
     - name: sink_1
       type: sink
 
-    - name: counter_3
+    - name: counter_1
       type: counter
       interior_obj: sink_1
-      obj_x_percent: 0.5
-      obj_y_percent: 0.5
-      # pos: [2.862, -0.325, 0.46]
-      size: [1.552, 0.65, 0.92]
-      align_to: counter_2
+      obj_x_percent: 0.47
+      obj_y_percent: 0.7
+      size: [4.363, 0.65, 0.92]
+      align_to: counter_corner_1
       side: right
       alignment: top_back
 
-    - name: counter_4
+    - name: counter_corner_2
       type: counter
-      # pos: [4.258, -0.325, 0.46]
-      size: [1.511, 0.65, 0.92]
-      align_to: counter_3
-      side: right
-      alignment: top_back
-
-    - name: counter_5
-      type: counter
-      # pos: [5.338, -0.325, 0.46]
       size: [0.65, 0.65, 0.92]
       hollow: [False, False]
-      align_to: counter_4
+      align_to: counter_1
       side: right
       alignment: top_back
 
@@ -210,7 +192,6 @@ main_group:
       size: [0.4, 0.4, 0.92]
       orientation: left
       panel_config:
-        handle_hpos: right
         handle_vpos: bottom
 
     - name: cab_2
@@ -229,7 +210,7 @@ main_group:
       alignment: bottom_back
 
     - name: cab_4
-      type: single_cabinet
+      type: hinge_cabinet
       pos: [4.66, -0.2, 1.84]
       size: [1.2, 0.4, 0.92]
 
@@ -246,6 +227,8 @@ main_group:
       type: coffee_machine
       placement:
         fixture: counter_1_main_group
+        sample_region_kwargs:
+          ref: stack_1_main_group
         size: [1.0, 0.52]
         pos: [-1.0, 1.0]
         rotation: [0, 0]
@@ -253,7 +236,9 @@ main_group:
     - name: paper_towel
       type: paper_towel
       placement:
-        fixture: counter_4_main_group
+        fixture: counter_1_main_group
+        sample_region_kwargs:
+          ref: cab_4_main_group
         size: [1.0, 0.40]
         pos: [null, 1.0]
         rotation: [0, 0]
@@ -270,7 +255,6 @@ left_group:
 
     - name: stove
       type: stove
-      # pos: [-2.178, -0.45, 0.46]
       size: [0.76, 0.66, 0.915]
       align_to: counter_1
       side: left
@@ -278,7 +262,6 @@ left_group:
     
     - name: counter_2
       type: counter
-      # pos: [-3.41, -0.325, 0.46]
       size: [1.706, 0.65, 0.92]
       align_to: stove
       side: left
@@ -288,7 +271,6 @@ left_group:
 
     - name: stack_1
       type: stack
-      # pos: [-1.594, -0.3, 0.47]
       size: [0.577, 0.6, 0.84]
       levels: [drawer, drawer, drawer]
       percentages: [0.34, 0.33, 0.33]
@@ -299,7 +281,6 @@ left_group:
 
     - name: stack_2
       type: stack
-      # pos: [-1.022, -0.3, 0.47]
       size: [0.523, 0.6, 0.84]
       levels: [hinge_cabinet]
       percentages: [1]
@@ -310,14 +291,12 @@ left_group:
     - name: box
       type: box
       size: [0.1, 0.6, 0.89]
-      # pos: [-0.65, -0.3, 0.445]
       align_to: stack_2
       side: right
       alignment: top_back
 
     - name: stack_3
       type: stack
-      # pos: [-2.844, -0.3, 0.47]
       size: [0.577, 0.6, 0.84]
       levels: [drawer, drawer, drawer]
       percentages: [0.34, 0.33, 0.33]
@@ -365,7 +344,7 @@ left_group:
     - name: plant
       type: plant
       placement:
-        fixture: counter_1_left_group
+        fixture: counter_2_left_group
         size: [0.40, 0.40]
         pos: [1.0, 1.0]
         rotation: [0, 0]
@@ -378,7 +357,7 @@ right_group:
     - name: counter_1
       type: counter
       pos: [1.895, -0.325, 0.46]
-      size: [2.49, 0.65, 0.92]
+      size: [2.5, 0.65, 0.92]
 
   bottom_row_cabinets:
     - name: box
@@ -392,10 +371,10 @@ right_group:
       size: [0.60, 0.6, 0.84]
       levels: [single_cabinet]
       percentages: [1]
-      # configs: {'single_cabinet': {'panel_config': {'handle_hpos': 'right', 'handle_vpos': 'top'}}}
       align_to: box
       side: right
       alignment: top_back
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_2
       type: stack
@@ -423,7 +402,7 @@ right_group:
       levels: [hinge_cabinet, drawer]
       percentages: [0.75, 0.25]
       # pos: [3.5, -0.3, 0.47]
-      size: [0.8, 0.6, 0.84]
+      size: [0.8, 0.8, 0.84]
       align_to: stack_3
       side: right
       alignment: bottom_back
@@ -434,7 +413,7 @@ right_group:
 
     - name: microwave_housing
       type: housing_cabinet
-      size: [0.8, 0.6, 0.55]
+      size: [0.8, 0.8, 0.55]
       padding: [null, [-0.01, null], null]
       align_to: bottom
       alignment: front
@@ -443,7 +422,7 @@ right_group:
 
     - name: top
       type: hinge_cabinet
-      size: [0.8, 0.6, null]
+      size: [0.8, 0.8, null]
       align_to: microwave_housing
       alignment: front
       side: top
@@ -451,8 +430,8 @@ right_group:
       stack_fixtures: [bottom, microwave_housing]
 
     - name: fridge
-      type: fridge_top_freezer
-      size: [0.85, 0.80, 1.75]
+      type: fridge_bottom_freezer
+      size: [0.78, 0.80, 1.75]
 
     - name: fridge_housing
       type: housing_cabinet
@@ -498,7 +477,7 @@ right_group:
 
 island_group:
   group_origin: [0, 0]
-  group_pos: [3.73, -3.3]
+  group_pos: [3.73, -3.5]
   group_z_rot: 3.1415925661670165
   bottom_row:
     - name: island_1
@@ -567,17 +546,14 @@ island_group:
 
 stool_group:
   group_origin: [0, 0]
-  group_pos: [1.766, -1.045]
+  group_pos: [1.766, -1.245]
   group_z_rot: 3.1415925661670165
   stool_row:
+
     - name: stool_1
       type: stool
-      pos: [-0.622, 2.23, 0.5]
+      pos: [-0.7, 2.23, 0.5]
 
     - name: stool_2
       type: stool
-      pos: [-1.063, 2.23, 0.5]
-
-    - name: stool_3
-      type: stool
-      pos: [-1.501, 2.23, 0.5]
+      pos: [-1.4, 2.23, 0.5]

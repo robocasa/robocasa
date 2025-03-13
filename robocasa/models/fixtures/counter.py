@@ -345,7 +345,6 @@ class Counter(ProcGenFixture):
             conaffinity=0,
             contype=0,
             mass=1e-8,
-            rgba=None,  # a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5]))), #None
         )
         self._obj.append(g_vis)
         # manually update visual geoms registry
@@ -353,6 +352,7 @@ class Counter(ProcGenFixture):
 
         # break the top width into chunks
         chunk_positions, chunk_sizes = self._get_chunks(pos, size, chunk_size=0.5)
+        rgba = a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
         for i in range(len(chunk_sizes)):
             g = new_geom(
                 name=geom_name + "_{}".format(i),
@@ -361,7 +361,7 @@ class Counter(ProcGenFixture):
                 pos=chunk_positions[i],
                 group=0,
                 density=10,
-                rgba="0.5 0 0 1",
+                rgba=rgba,
             )
             self._obj.append(g)
             # manually update contact geoms registry
@@ -457,7 +457,7 @@ class Counter(ProcGenFixture):
                 )
                 geoms[geom_name].append(g)
 
-        rgba = None  # a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
+        rgba = a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
         for side in SIDES:
             # convert coordinate of bottom-left corner to coordinate of center
             # the origin is now the center of the entire fixture
@@ -506,7 +506,6 @@ class Counter(ProcGenFixture):
                 conaffinity=0,
                 contype=0,
                 mass=1e-8,
-                rgba=rgba,
             )
             self._obj.append(g_vis)
             # manually update visual geoms registry
@@ -521,7 +520,7 @@ class Counter(ProcGenFixture):
                     pos=chunk_positions[i],
                     group=0,
                     density=10,
-                    rgba="0.5 0 0 1",
+                    rgba=rgba,
                 )
                 self._obj.append(g)
                 self._contact_geoms.append("top_{}_{}".format(side, i))

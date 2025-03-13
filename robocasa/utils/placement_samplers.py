@@ -43,6 +43,7 @@ class ObjectPositionSampler:
         mujoco_objects=None,
         ensure_object_boundary_in_range=True,
         ensure_valid_placement=True,
+        reference_object=None,
         reference_pos=(0, 0, 0),
         reference_rot=0,
         z_offset=0.0,
@@ -65,6 +66,7 @@ class ObjectPositionSampler:
             )
         self.ensure_object_boundary_in_range = ensure_object_boundary_in_range
         self.ensure_valid_placement = ensure_valid_placement
+        self.reference_object = reference_object
         self.reference_pos = reference_pos
         self.reference_rot = reference_rot
         self.z_offset = z_offset
@@ -185,6 +187,7 @@ class UniformRandomSampler(ObjectPositionSampler):
         rotation_axis="z",
         ensure_object_boundary_in_range=True,
         ensure_valid_placement=True,
+        reference_object=None,
         reference_pos=(0, 0, 0),
         reference_rot=0,
         z_offset=0.0,
@@ -206,6 +209,7 @@ class UniformRandomSampler(ObjectPositionSampler):
             mujoco_objects=mujoco_objects,
             ensure_object_boundary_in_range=ensure_object_boundary_in_range,
             ensure_valid_placement=ensure_valid_placement,
+            reference_object=reference_object,
             reference_pos=reference_pos,
             reference_rot=reference_rot,
             z_offset=z_offset,
@@ -368,7 +372,9 @@ class UniformRandomSampler(ObjectPositionSampler):
 
             from robocasa.models.fixtures import Fixture
 
-            if isinstance(obj, MJCFObject) or isinstance(obj, Fixture):
+            if (
+                isinstance(obj, MJCFObject) or isinstance(obj, Fixture)
+            ) and self.rotation_axis == "z":
                 obj_points = obj.get_bbox_points()
                 p0 = obj_points[0]
                 px = obj_points[1]
@@ -423,7 +429,13 @@ class UniformRandomSampler(ObjectPositionSampler):
 
                 # objects cannot overlap
                 if self.ensure_valid_placement:
-                    for (x, y, z), other_quat, other_obj in placed_objects.values():
+                    for placed_obj_name, (
+                        (x, y, z),
+                        other_quat,
+                        other_obj,
+                    ) in placed_objects.items():
+                        if placed_obj_name == self.reference_object:
+                            continue
                         if objs_intersect(
                             obj=obj,
                             obj_pos=[object_x, object_y, object_z],
