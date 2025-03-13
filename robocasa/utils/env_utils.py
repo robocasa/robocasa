@@ -296,12 +296,13 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
         if placement is None:
             continue
         fixture_id = placement.get("fixture", None)
+        reference_object = None
         if fixture_id is not None:
             # get fixture to place object on
             fixture = env.get_fixture(
                 id=fixture_id,
                 ref=placement.get("ref", None),
-                full_name_check=True if cfg["type"] == "fixture" else False,
+                full_name_check=True if cfg["type"] == "fixture" else False,  # hack
             )
 
             # calculate the total available space where object could be placed
@@ -314,6 +315,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
                 reset_region = fixture.sample_reset_region(
                     env=env, **sample_region_kwargs
                 )
+                reference_object = fixture.name
             cfg["reset_region"] = reset_region
             outer_size = reset_region["size"]
             margin = placement.get("margin", 0.04)
@@ -464,14 +466,15 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
                 x_range=x_range,
                 y_range=y_range,
                 rotation=rotation,
-                ensure_object_boundary_in_range=placement.get(
-                    "ensure_object_boundary_in_range", True
-                ),
-                ensure_valid_placement=placement.get("ensure_valid_placement", True),
+                reference_object=reference_object,
                 reference_pos=ref_pos,
                 reference_rot=ref_rot,
                 z_offset=z_offset,
                 rng=env.rng,
+                ensure_object_boundary_in_range=placement.get(
+                    "ensure_object_boundary_in_range", True
+                ),
+                ensure_valid_placement=placement.get("ensure_valid_placement", True),
                 rotation_axis=placement.get("rotation_axis", "z"),
             ),
             sample_args=placement.get("sample_args", None),
