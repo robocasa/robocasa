@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="model">
+    <compiler angle="radian" />
+    <asset>
+        <mesh file="visuals/door.obj" name="door_vis" />
+        <mesh file="visuals/door_Clear.obj" name="door_Clear_vis" />
+        <mesh file="visuals/Microwave052_Body001.obj" name="Microwave052_Body001_vis" />
+        <mesh file="visuals/Microwave052_Disc001.obj" name="Microwave052_Disc001_vis" />
+        <texture file="visuals/T_Microwave052_BC001.png" name="Microwave052_Body001_material" type="2d" />
+        <material name="Microwave052_Body001_material" rgba="1 1 1 1.0" texture="Microwave052_Body001_material" shininess="3" specular="3" />
+        <texture file="visuals/T_Microwave052_BC001.png" name="door_material" type="2d" />
+        <material name="door_material" rgba="1 1 1 1.0" texture="door_material" shininess="3" specular="3" />
+        <material name="door_Clear_material" rgba="0.03637973591685295 0.03637973591685295 0.03637973591685295 0.800000011920929" shininess="0.4472135901451111" specular="0.3103448502657381" />
+        <texture file="visuals/T_Microwave052_BC001.png" name="Microwave052_Disc001_material" type="2d" />
+        <material name="Microwave052_Disc001_material" rgba="1 1 1 1.0" texture="Microwave052_Disc001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
+    </asset>
+    <default>
+        <default class="visual">
+            <geom conaffinity="0" contype="0" group="1" type="mesh" />
+        </default>
+        <default class="collision">
+            <geom group="0" rgba="0.5 0 0 0.5" />
+    </default>
+        <default class="spawn">
+            <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0" />
+            <site group="0" rgba="1 1 1 0.5" />
+        </default>
+    </default>
+    <worldbody>
+        <body>
+            <site rgba="0 0 0 0.5" size="0.01" pos="-0.27229833602905273 -0.14798074215650558 -0.17739703506231308" name="ext_p0" />
+            <site rgba="1 0 0 0.5" size="0.01" pos="0.27229833602905273 -0.14798074215650558 -0.17739703506231308" name="ext_px" />
+            <site rgba="0 1 0 0.5" size="0.01" pos="-0.27229833602905273 0.17948067933321 -0.17739703506231308" name="ext_py" />
+            <site rgba="0 0 1 0.5" size="0.01" pos="-0.27229833602905273 -0.14798074215650558 0.17739704996347427" name="ext_pz" />
+            <site rgba="0 1 1 0.5" size="0.004999999888241291" pos="-0.25162574648857117 0.13240665197372437 -0.125636026263237" name="int_py" />
+            <site rgba="1 1 0 0.5" size="0.004999998956918716" pos="0.13128428161144257 -0.11101965606212616 -0.1256360113620758" name="int_px" />
+            <site rgba="1 0.75 0.8 0.5" size="0.004999999888241291" pos="-0.25162604451179504 -0.11101965606212616 0.12273052334785461" name="int_pz" />
+            <site rgba="0.5 0.5 0.5 0.5" size="0.004999999888241291" pos="-0.25162574648857117 -0.11101965606212616 -0.12563587725162506" name="int_p0" />
+            <geom class="collision" type="box" pos="-0.05763543024659157 0.011082738637924194 -0.10156214982271194" size="0.11278744786977768 0.11278744786977768 0.0015410884516313672" quat="1.0 0.0 0.0 0.0" name="tray" rgba="0 1 0 0.5" />
+            <geom class="collision" type="box" pos="0.18966542184352875 -0.14820145070552826 -0.07778368890285492" size="0.010899275541305542 0.0010898024775087833 0.007179934997111559" quat="1.0 0.0 0.0 0.0" name="stop_button" rgba="0.0 0.5 0 0.5" />
+            <geom class="collision" type="box" pos="0.24208709597587585 -0.14820145070552826 -0.07778368890285492" size="0.010918227955698967 0.0010898024775087833 0.007179934997111559" quat="1.0 0.0 0.0 0.0" name="start_button" rgba="0.0 0.5 0 0.5" />
+            <body name="object">
+                <geom mesh="Microwave052_Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Microwave052_Body001_material" />
+                <geom class="collision" type="box" pos="-0.05659213289618492 0.03011004440486431 -0.14544464647769928" size="0.21588470041751862 0.14965368807315826 0.030888402834534645" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="-0.2642818093299866 0.03011004440486431 0.005621984601020813" size="0.008194477297365665 0.14965367317199707 0.12430523335933685" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="-0.05659213289618492 0.15773612260818481 0.009011216461658478" size="0.21588464081287384 0.022027362138032913 0.12627333402633667" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="-0.05659213289618492 -0.13249026238918304 0.16826875507831573" size="0.21588461101055145 0.015356582589447498 0.009394942782819271" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="0.21471159160137177 0.017012299969792366 0.0012703281827270985" size="0.05791550129652023 0.16275137662887573 0.17673948407173157" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="-0.05659213289618492 0.03011004440486431 0.15290997922420502" size="0.21588455140590668 0.1496536135673523 0.02475374937057495" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="0.14710645377635956 0.03011004440486431 0.005621984601020813" size="0.011839081533253193 0.1496535986661911 0.12430515885353088" quat="1.0 0.0 0.0 0.0" />
+                <body name="door">
+                    <joint axis="0.0 0.0 -1.0" pos="-0.27229833602905273 -0.12021714448928833 -0.0004099905490875244" limited="true" name="microjoint" range="0.0 1.5707963267948966" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
+                    <geom mesh="door_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="door_material" />
+                    <geom class="collision" type="box" pos="-0.05747814476490021 -0.1336144506931305 7.297919364646077e-05" size="0.2102060317993164 0.010283015668392181 0.15368500351905823" quat="1.0 0.0 0.0 0.0" />
+                    <geom class="collision" type="box" pos="0.14707039296627045 -0.17343617975711823 -0.01623465120792389" size="0.008900480344891548 0.005757460370659828 0.08767075091600418" quat="1.0 0.0 0.0 0.0" name="door_handle" />
+                    <geom class="collision" type="box" pos="0.14707039296627045 -0.15629811584949493 0.09394919127225876" size="0.008900480344891548 0.005757460370659828 0.011349364183843136" quat="0.823179304599762 -0.5677815079689026 -0.0 0.0" />
+                    <geom class="collision" type="box" pos="0.14707039296627045 -0.16797927021980286 0.08249380439519882" size="0.008900480344891548 0.005757460370659828 0.009123585186898708" quat="0.969722330570221 -0.24421025812625885 -0.0 0.0" />
+                    <geom class="collision" type="box" pos="0.14707039296627045 -0.16796772181987762 -0.11498462408781052" size="0.008900480344891548 0.005757460370659828 0.009099206887185574" quat="0.969722330570221 0.24421025812625885 0.0 0.0" />
+                    <geom class="collision" type="box" pos="0.14707039296627045 -0.15629811584949493 -0.12641854584217072" size="0.008900480344891548 0.005757460370659828 0.011349364183843136" quat="0.823179304599762 0.5677815079689026 0.0 0.0" />
+                    <body name="door_Clear">
+                        <geom mesh="door_Clear_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="door_Clear_material" />
+                        <geom class="collision" type="box" pos="-0.056987322866916656 -0.1371203511953354 -0.0003347874735482037" size="0.15617835521697998 0.006391293369233608 0.09085484594106674" quat="1.0 0.0 0.0 0.0" />
+                    </body>
+                </body>
+                <body name="Microwave052_Disc001">
+                    <joint axis="0.0 0.0 1.0" pos="-0.05763543024659157 0.011082738637924194 -0.10824134945869446" limited="false" name="Microwave052_Disc001_joint" range="0 360" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
+                    <geom mesh="Microwave052_Disc001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Microwave052_Disc001_material" />
+                    <geom class="collision" type="cylinder" pos="-0.05763543024659157 0.011082738637924194 -0.10634709149599075" size="0.11278744786977768 0.0018401468405500054" quat="1.0 0.0 0.0 0.0" />
+                </body>
+            </body>
+        </body>
+    </worldbody>
+    <actuator>
+        <motor name="microjoint_actuator" joint="microjoint" gear="10" />
+        <motor name="Microwave052_Disc001_joint_actuator" joint="Microwave052_Disc001_joint" gear="10" />
+    </actuator>
+</mujoco>

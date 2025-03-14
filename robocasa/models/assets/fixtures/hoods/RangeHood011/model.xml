@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="model">
+    <compiler angle="radian" />
+    <asset>
+        <mesh file="visuals/RangeHood011_Body001.obj" name="RangeHood011_Body001_vis" />
+        <mesh file="visuals/RangeHood011_Button001.obj" name="RangeHood011_Button001_vis" />
+        <mesh file="visuals/RangeHood011_Button002.obj" name="RangeHood011_Button002_vis" />
+        <mesh file="visuals/RangeHood011_Button003.obj" name="RangeHood011_Button003_vis" />
+        <texture file="visuals/T_RangeHood011_BC001.png" name="RangeHood011_Body001_material" type="2d" />
+        <material name="RangeHood011_Body001_material" rgba="1 1 1 1.0" texture="RangeHood011_Body001_material" shininess="1" specular="1" />
+        <texture file="visuals/T_RangeHood011_BC001.png" name="RangeHood011_Button001_material" type="2d" />
+        <material name="RangeHood011_Button001_material" rgba="1 1 1 1.0" texture="RangeHood011_Button001_material" shininess="0.141421377658844" specular="0.3103448502657381" />
+        <texture file="visuals/T_RangeHood011_BC001.png" name="RangeHood011_Button002_material" type="2d" />
+        <material name="RangeHood011_Button002_material" rgba="1 1 1 1.0" texture="RangeHood011_Button002_material" shininess="0.141421377658844" specular="0.3103448502657381" />
+        <texture file="visuals/T_RangeHood011_BC001.png" name="RangeHood011_Button003_material" type="2d" />
+        <material name="RangeHood011_Button003_material" rgba="1 1 1 1.0" texture="RangeHood011_Button003_material" shininess="0.141421377658844" specular="0.3103448502657381" />
+    </asset>
+    <default>
+        <default class="visual">
+            <geom conaffinity="0" contype="0" group="1" type="mesh" />
+        </default>
+        <default class="collision">
+            <geom group="0" rgba="0.5 0 0 0.5" />
+    </default>
+        <default class="spawn">
+            <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0" />
+            <site group="0" rgba="1 1 1 0.5" />
+        </default>
+    </default>
+    <worldbody>
+        <body>
+            <site rgba="0 0 0 0.5" size="0.01" pos="-0.632510 -0.349237 -0.554879" name="ext_p0" />
+            <site rgba="1 0 0 0.5" size="0.01" pos="0.632899 -0.349237 -0.554879" name="ext_px" />
+            <site rgba="0 1 0 0.5" size="0.01" pos="-0.632510 0.347604 -0.554879" name="ext_py" />
+            <site rgba="0 0 1 0.5" size="0.01" pos="-0.632510 -0.349237 0.554879" name="ext_pz" />
+            <body name="object">
+                <geom mesh="RangeHood011_Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="RangeHood011_Body001_material" />
+                <geom class="collision" type="box" pos="0.000000 0.002957 -0.508652" size="0.6347796320915222 0.346395343542099 0.04388433322310448" quat="1.0 0.0 0.0 0.0" />
+                <geom class="collision" type="box" pos="0.000000 0.000225 0.041080" size="0.17218053340911865 0.1794510930776596 0.5134961605072021" quat="1.0 0.0 0.0 0.0" />
+                <body name="RangeHood011_Button001">
+                    <joint axis="0.0 1.0 0.0" pos="-0.050493 -0.347430 -0.509334" limited="true" name="RangeHood011_Button001_joint" range="0.0 0.002" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
+                    <geom mesh="RangeHood011_Button001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="RangeHood011_Button001_material" />
+                    <geom class="collision" type="box" pos="-0.050596 -0.347587 -0.509225" size="0.021772533655166626 0.0017649864312261343 0.0058954209089279175" quat="1.0 0.0 0.0 0.0" />
+                </body>
+                <body name="RangeHood011_Button002">
+                    <joint axis="0.0 1.0 0.0" pos="0.000195 -0.347279 -0.509487" limited="true" name="RangeHood011_Button002_joint" range="0.0 0.002" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
+                    <geom mesh="RangeHood011_Button002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="RangeHood011_Button002_material" />
+                    <geom class="collision" type="box" pos="0.000195 -0.347279 -0.509487" size="0.006683302111923695 0.0014560507843270898 0.009603694081306458" quat="1.0 0.0 0.0 0.0" />
+                </body>
+                <body name="RangeHood011_Button003">
+                    <joint axis="0.0 1.0 0.0" pos="0.050872 -0.347430 -0.509334" limited="true" name="RangeHood011_Button003_joint" range="0.0 0.002" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
+                    <geom mesh="RangeHood011_Button003_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="RangeHood011_Button003_material" />
+                    <geom class="collision" type="box" pos="0.050837 -0.347587 -0.509225" size="0.021772533655166626 0.0017649864312261343 0.0058954209089279175" quat="1.0 0.0 0.0 0.0" />
+                </body>
+            </body>
+        </body>
+    </worldbody>
+    <actuator>
+        <motor name="RangeHood011_Button001_joint_actuator" joint="RangeHood011_Button001_joint" gear="0.5" />
+        <motor name="RangeHood011_Button002_joint_actuator" joint="RangeHood011_Button002_joint" gear="0.1" />
+        <motor name="RangeHood011_Button003_joint_actuator" joint="RangeHood011_Button003_joint" gear="0.5" />
+    </actuator>
+</mujoco>
