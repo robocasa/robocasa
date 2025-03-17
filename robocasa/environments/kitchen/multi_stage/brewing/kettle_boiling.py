@@ -28,7 +28,6 @@ class KettleBoiling(Kitchen):
                 name="obj",
                 obj_groups=("kettle_non_electric"),
                 graspable=True,
-                heatable=True,
                 placement=dict(
                     fixture=self.counter,
                     sample_region_kwargs=dict(

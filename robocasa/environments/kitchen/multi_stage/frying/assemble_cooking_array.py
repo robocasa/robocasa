@@ -63,10 +63,8 @@ class AssembleCookingArray(Kitchen):
                 name="meat",
                 obj_groups="meat",
                 graspable=True,
-                heatable=True,
                 placement=dict(
                     fixture=self.counter,
-                    loc="nn",
                     sample_region_kwargs=dict(
                         ref=self.stove,
                     ),

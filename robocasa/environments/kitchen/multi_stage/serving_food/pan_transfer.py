@@ -46,12 +46,6 @@ class PanTransfer(Kitchen):
                     size=(0.05, 0.05),
                     ensure_object_boundary_in_range=False,
                     try_to_place_in="pan",
-                    container_kwargs=dict(
-                        rotation=[
-                            (-3 * np.pi / 8, -np.pi / 4),
-                            (np.pi / 4, 3 * np.pi / 8),
-                        ],
-                    ),
                 ),
             )
         )

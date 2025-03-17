@@ -57,7 +57,6 @@ class BreadSetupSlicing(Kitchen):
                     name=f"obj_{i}",
                     obj_groups="bread",
                     graspable=True,
-                    heatable=True,
                     placement=dict(
                         fixture=self.counter,
                         sample_region_kwargs=dict(top_size=(1.0, 0.4)),
