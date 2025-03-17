@@ -40,7 +40,6 @@ class HeatMultipleWater(Kitchen):
                 name="obj",
                 obj_groups=("pot"),
                 graspable=True,
-                heatable=True,
                 placement=dict(
                     fixture=self.ref_counter,
                     sample_region_kwargs=dict(
