@@ -17,6 +17,7 @@ FIXTURES = dict(
     drawer=Drawer,
     counter=Counter,
     stove=Stove,
+    stove_wide=Stove,
     stovetop=Stovetop,
     oven=Oven,
     microwave=Microwave,

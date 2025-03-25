@@ -24,6 +24,37 @@ def get_all_style_configs():
     return style_config_list
 
 
+def get_all_dict_items(dictionary):
+    items = []
+    for key, value in dictionary.items():
+        inner_dicts = []
+        if isinstance(value, dict):
+            inner_dicts.append(value)
+        elif isinstance(value, list):
+            for elem in value:
+                if isinstance(elem, dict):
+                    inner_dicts.append(elem)
+        else:
+            items.append((key, value))
+        for d in inner_dicts:
+            items.extend(get_all_dict_items(d))
+    return items
+
+
+def get_layout_ids(filter_by=None):
+    layout_id_list = []
+    for i in range(10):
+        layout_path = get_layout_path(layout_id=i)
+        if filter_by is not None:
+            with open(layout_path, "r") as f:
+                layout_config = yaml.safe_load(f)
+            layout_items = get_all_dict_items(layout_config)
+            if filter_by not in layout_items:
+                continue
+        layout_id_list.append(i)
+    return layout_id_list
+
+
 FIXTURE_TO_TEST_ENVS = dict(
     microwave=[
         dict(env_name="PnPCounterToMicrowave"),
@@ -34,6 +65,12 @@ FIXTURE_TO_TEST_ENVS = dict(
         dict(env_name="TurnOffMicrowave"),
     ],
     stove=[
+        dict(env_name="PnPCounterToStove"),
+        dict(env_name="PnPStoveToCounter"),
+        dict(env_name="TurnOnStove"),
+        dict(env_name="TurnOffStove"),
+    ],
+    stovetop=[
         dict(env_name="PnPCounterToStove"),
         dict(env_name="PnPStoveToCounter"),
         dict(env_name="TurnOnStove"),
@@ -57,11 +94,29 @@ FIXTURE_TO_TEST_ENVS = dict(
     oven=[
         dict(env_name="Kitchen", init_robot_base_pos=FixtureType.OVEN),
     ],
-    fridge=[
+    fridge_french_door=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+    ],
+    fridge_side_by_side=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+    ],
+    fridge_bottom_freezer=[
         dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
     ],
     toaster=[
         dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER),
+    ],
+    toaster_oven=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER_OVEN),
+    ],
+    blender=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.BLENDER),
+    ],
+    stand_mixer=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.STAND_MIXER),
+    ],
+    electric_kettle=[
+        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.ELECTRIC_KETTLE),
     ],
 )
 
@@ -104,6 +159,9 @@ if __name__ == "__main__":
 
         device = None
 
+        # get valid layouts for this fixture type
+        layout_ids = get_layout_ids(filter_by=("type", fixture_type))
+
         for fixture_name in fixture_list:
             style_configs = get_all_style_configs()
             for cfg in style_configs:
@@ -114,6 +172,7 @@ if __name__ == "__main__":
                     render_onscreen=args.interactive,
                     seed=0,  # set seed=None to run unseeded
                     style_ids=style_configs,
+                    layout_ids=layout_ids,
                     translucent_robot=True,
                     **env_kwargs,
                 )

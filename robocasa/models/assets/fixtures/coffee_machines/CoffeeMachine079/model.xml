@@ -1,86 +1,85 @@
-<?xml version='1.0' encoding='utf-8'?>
 <mujoco model="model">
-    <compiler angle="radian" />
-    <asset>
-        <mesh file="visuals/CoffeeMachine079_Body001.obj" name="CoffeeMachine079_Body001_vis" />
-        <mesh file="visuals/CoffeeMachine079_Lever001.obj" name="CoffeeMachine079_Lever001_vis" />
-        <mesh file="visuals/CoffeeMachine079_Lid001.obj" name="CoffeeMachine079_Lid001_vis" />
-        <mesh file="visuals/CoffeeMachine079_Lid002.obj" name="CoffeeMachine079_Lid002_vis" />
-        <texture file="visuals/T_CoffeeMachine079_BC001.png" name="CoffeeMachine079_Body001_material" type="2d" />
-        <material name="CoffeeMachine079_Body001_material" rgba="1 1 1 1.0" texture="CoffeeMachine079_Body001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-        <texture file="visuals/T_CoffeeMachine079_BC001.png" name="CoffeeMachine079_Lever001_material" type="2d" />
-        <material name="CoffeeMachine079_Lever001_material" rgba="1 1 1 1.0" texture="CoffeeMachine079_Lever001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-        <texture file="visuals/T_CoffeeMachine079_BC001.png" name="CoffeeMachine079_Lid001_material" type="2d" />
-        <material name="CoffeeMachine079_Lid001_material" rgba="1 1 1 1.0" texture="CoffeeMachine079_Lid001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-        <texture file="visuals/T_CoffeeMachine079_BC001.png" name="CoffeeMachine079_Lid002_material" type="2d" />
-        <material name="CoffeeMachine079_Lid002_material" rgba="1 1 1 1.0" texture="CoffeeMachine079_Lid002_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-    </asset>
-    <default>
-        <default class="visual">
-            <geom conaffinity="0" contype="0" group="1" type="mesh" />
-        </default>
-        <default class="collision">
-            <geom group="0" rgba="0.5 0 0 0.5" />
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visuals/Body001.obj" name="Body001_vis"/>
+    <mesh file="visuals/Lever001.obj" name="Lever001_vis"/>
+    <mesh file="visuals/Lid001.obj" name="Lid001_vis"/>
+    <mesh file="visuals/Lid002.obj" name="Lid002_vis"/>
+    <texture file="visuals/T_BC001.png" name="Body001_material" type="2d"/>
+    <material name="Body001_material" rgba="1 1 1 1.0" texture="Body001_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Lever001_material" type="2d"/>
+    <material name="Lever001_material" rgba="1 1 1 1.0" texture="Lever001_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Lid001_material" type="2d"/>
+    <material name="Lid001_material" rgba="1 1 1 1.0" texture="Lid001_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Lid002_material" type="2d"/>
+    <material name="Lid002_material" rgba="1 1 1 1.0" texture="Lid002_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
     </default>
-        <default class="spawn">
-            <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0" />
-            <site group="0" rgba="1 1 1 0.5" />
-        </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
     </default>
-    <worldbody>
-        <body>
-            <site rgba="0 0 0 0.5" size="0.01" pos="-0.246819 -0.231188 -0.240356" name="ext_p0" />
-            <site rgba="1 0 0 0.5" size="0.01" pos="0.246819 -0.231188 -0.240356" name="ext_px" />
-            <site rgba="0 1 0 0.5" size="0.01" pos="-0.246819 0.229991 -0.240356" name="ext_py" />
-            <site rgba="0 0 1 0.5" size="0.01" pos="-0.246819 -0.231188 0.240356" name="ext_pz" />
-            <geom class="collision" type="box" pos="-0.087522 -0.083110 0.087754" size="0.010969026014208794 0.010969026945531368 0.0009464259492233396" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="stop_button" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="-0.067620 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button1" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="-0.022921 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button2" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="0.022409 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button3" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="0.066001 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button4" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="-0.067620 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button5" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="-0.022921 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button6" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="0.022409 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button7" rgba="0.0 0.5 0 0.5" />
-            <geom class="collision" type="box" pos="0.066001 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button8" rgba="0.0 0.5 0 0.5" />
-            <body name="object">
-                <site type="cylinder" rgba="0.8 0.5 0.25 1" size="0.00476753618568182 0.07823579758405685" pos="0.089613 -0.017313 -0.102797" name="coffee_liquid" />
-                <site rgba="0 0 0 0" size="0.009999999776482582 0.009999999776482582" pos="0.071368 -0.013145 -0.131837" name="receptacle_place_site" />
-                <geom mesh="CoffeeMachine079_Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="CoffeeMachine079_Body001_material" />
-                <geom class="collision" type="box" pos="0.000105 0.043753 -0.212237" size="0.24726365506649017 0.17936858534812927 0.028345149010419846" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.000105 0.159042 0.030007" size="0.2478623390197754 0.06819771230220795 0.21179157495498657" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="-0.002506 -0.037027 0.087560" size="0.21858230233192444 0.02245669811964035 0.04059399664402008" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.001512 -0.055951 0.144199" size="0.2160433679819107 0.09598646312952042 0.007202429231256247" quat="0.7951401472091675 0.6064257025718689 5.1805210240248005e-19 -3.975108974454604e-19" />
-                <geom class="collision" type="box" pos="-0.114317 0.030881 0.144011" size="0.1104680597782135 0.06870367377996445 0.09704537689685822" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.000105 -0.129553 -0.176942" size="0.23021727800369263 0.010661262087523937 0.006522972136735916" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.215032 0.026315 0.144022" size="0.006732685025781393 0.06731262803077698 0.09705666452646255" quat="0.9986422061920166 0.0 -0.0 -0.05209389328956604" />
-                <geom class="collision" type="box" pos="-0.114317 -0.025151 0.140538" size="0.11046846956014633 0.021891482174396515 0.09598618000745773" quat="0.9943941235542297 -0.10573705285787582 2.347834212776419e-17 2.9629944949529133e-24" />
-                <geom class="collision" type="box" pos="0.206652 0.027432 0.144022" size="0.00865946151316166 0.06737849116325378 0.09705666452646255" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.238291 -0.023754 -0.176539" size="0.11538030207157135 0.009120794013142586 0.00652298191562295" quat="0.712139368057251 0.0 0.0 0.7020381093025208" />
-                <geom class="collision" type="box" pos="-0.233319 -0.022146 -0.176539" size="0.01184128038585186 0.11553887277841568 0.006522973999381065" quat="1.0 0.0 0.0 0.0" />
-                <body name="CoffeeMachine079_Lever001">
-                    <joint axis="0.0 0.0 1.0" pos="0.089719 -0.016300 -0.010711" limited="true" name="CoffeeMachine079_Lever001_joint" range="-0.7853981633974483 0.7853981633974483" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
-                    <geom mesh="CoffeeMachine079_Lever001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="CoffeeMachine079_Lever001_material" />
-                    <geom class="collision" type="cylinder" pos="0.089905 -0.015113 -0.003314" size="0.04549261927604675 0.015040182508528233" quat="1.0 0.0 0.0 0.0" />
-                    <geom class="collision" type="cylinder" pos="0.089772 -0.077588 -0.001375" size="0.011933913454413414 0.02030511200428009" quat="0.7071068286895752 -0.7071067690849304 -0.0 0.0" />
-                    <geom class="collision" type="cylinder" pos="0.089772 -0.160917 -0.001375" size="0.0169413723051548 0.06716911494731903" quat="0.7071068286895752 -0.7071067690849304 -0.0 0.0" />
-                    <geom class="collision" type="cylinder" pos="0.089772 -0.208129 -0.001375" size="0.019784532487392426 0.019781887531280518" quat="0.7071068286895752 -0.7071067690849304 -0.0 0.0" />
-                </body>
-                <body name="CoffeeMachine079_Lid001">
-                    <joint axis="0.0 0.0 1.0" pos="0.000001 -0.018964 -0.176706" limited="true" name="CoffeeMachine079_Lid001_joint" range="0.0 0.05" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
-                    <geom mesh="CoffeeMachine079_Lid001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="CoffeeMachine079_Lid001_material" />
-                    <geom class="collision" type="box" pos="-0.000331 -0.020131 -0.175761" size="0.21466021239757538 0.09051737934350967 0.004174286499619484" quat="1.0 0.0 0.0 0.0" />
-                </body>
-                <body name="CoffeeMachine079_Lid002">
-                    <joint axis="-1.0 0.0 0.0" pos="0.100462 0.086028 0.238831" limited="true" name="CoffeeMachine079_Lid002_joint" range="0.0 1.5707963267948966" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
-                    <geom mesh="CoffeeMachine079_Lid002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="CoffeeMachine079_Lid002_material" />
-                    <geom class="collision" type="box" pos="0.099777 0.042738 0.233322" size="0.0956917256116867 0.042488355189561844 0.006732695735991001" quat="1.0 0.0 0.0 0.0" />
-                </body>
-            </body>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <site rgba="0 0 0 0.5" size="0.01" pos="-0.246819 -0.231188 -0.240356" name="ext_p0"/>
+      <site rgba="1 0 0 0.5" size="0.01" pos="0.246819 -0.231188 -0.240356" name="ext_px"/>
+      <site rgba="0 1 0 0.5" size="0.01" pos="-0.246819 0.229991 -0.240356" name="ext_py"/>
+      <site rgba="0 0 1 0.5" size="0.01" pos="-0.246819 -0.231188 0.240356" name="ext_pz"/>
+      <geom class="collision" type="box" pos="-0.087522 -0.083110 0.087754" size="0.010969026014208794 0.010969026945531368 0.0009464259492233396" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="stop_button" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="-0.067620 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button1" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="-0.022921 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button2" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="0.022409 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button3" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="0.066001 -0.060172 0.161621" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button4" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="-0.067620 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button5" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="-0.022921 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button6" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="0.022409 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button7" rgba="0.0 0.5 0 0.5"/>
+      <geom class="collision" type="box" pos="0.066001 -0.070424 0.124545" size="0.013672706671059132 0.013672706671059132 0.0010539739159867167" quat="0.6087614297866821 -0.7933533191680908 -0.0 0.0" name="start_button8" rgba="0.0 0.5 0 0.5"/>
+      <body name="object">
+        <site type="cylinder" rgba="0.8 0.5 0.25 1" size="0.00476753618568182 0.07823579758405685" pos="0.089613 -0.017313 -0.102797" name="coffee_liquid"/>
+        <site rgba="0 0 0 0" size="0.009999999776482582 0.009999999776482582" pos="0.071368 -0.013145 -0.131837" name="receptacle_place_site"/>
+        <geom mesh="Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Body001_material"/>
+        <geom class="collision" type="box" pos="0.000105 0.043753 -0.212237" size="0.24726365506649017 0.17936858534812927 0.028345149010419846" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.000105 0.159042 0.030007" size="0.2478623390197754 0.06819771230220795 0.21179157495498657" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="-0.002506 -0.037027 0.087560" size="0.21858230233192444 0.02245669811964035 0.04059399664402008" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.001512 -0.055951 0.144199" size="0.2160433679819107 0.09598646312952042 0.007202429231256247" quat="0.7951401472091675 0.6064257025718689 5.1805210240248005e-19 -3.975108974454604e-19"/>
+        <geom class="collision" type="box" pos="-0.114317 0.030881 0.144011" size="0.1104680597782135 0.06870367377996445 0.09704537689685822" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.000105 -0.129553 -0.176942" size="0.23021727800369263 0.010661262087523937 0.006522972136735916" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.215032 0.026315 0.144022" size="0.006732685025781393 0.06731262803077698 0.09705666452646255" quat="0.9986422061920166 0.0 -0.0 -0.05209389328956604"/>
+        <geom class="collision" type="box" pos="-0.114317 -0.025151 0.140538" size="0.11046846956014633 0.021891482174396515 0.09598618000745773" quat="0.9943941235542297 -0.10573705285787582 2.347834212776419e-17 2.9629944949529133e-24"/>
+        <geom class="collision" type="box" pos="0.206652 0.027432 0.144022" size="0.00865946151316166 0.06737849116325378 0.09705666452646255" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.238291 -0.023754 -0.176539" size="0.11538030207157135 0.009120794013142586 0.00652298191562295" quat="0.712139368057251 0.0 0.0 0.7020381093025208"/>
+        <geom class="collision" type="box" pos="-0.233319 -0.022146 -0.176539" size="0.01184128038585186 0.11553887277841568 0.006522973999381065" quat="1.0 0.0 0.0 0.0"/>
+        <body name="Lever001">
+          <joint axis="0.0 0.0 1.0" pos="0.089719 -0.016300 -0.010711" limited="true" name="Lever001_joint" range="-0.7853981633974483 0.7853981633974483" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+          <geom mesh="Lever001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lever001_material"/>
+          <geom class="collision" type="cylinder" pos="0.089905 -0.015113 -0.003314" size="0.04549261927604675 0.015040182508528233" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="0.089772 -0.077588 -0.001375" size="0.011933913454413414 0.02030511200428009" quat="0.7071068286895752 -0.7071067690849304 -0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="0.089772 -0.160917 -0.001375" size="0.0169413723051548 0.06716911494731903" quat="0.7071068286895752 -0.7071067690849304 -0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="0.089772 -0.208129 -0.001375" size="0.019784532487392426 0.019781887531280518" quat="0.7071068286895752 -0.7071067690849304 -0.0 0.0"/>
         </body>
-    </worldbody>
-    <actuator>
-        <motor name="CoffeeMachine079_Lever001_joint_actuator" joint="CoffeeMachine079_Lever001_joint" gear="10" />
-        <motor name="CoffeeMachine079_Lid001_joint_actuator" joint="CoffeeMachine079_Lid001_joint" gear="30" />
-        <motor name="CoffeeMachine079_Lid002_joint_actuator" joint="CoffeeMachine079_Lid002_joint" gear="30" />
-    </actuator>
+        <body name="Lid001">
+          <joint axis="0.0 0.0 1.0" pos="0.000001 -0.018964 -0.176706" limited="true" name="Lid001_joint" range="0.0 0.05" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+          <geom mesh="Lid001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lid001_material"/>
+          <geom class="collision" type="box" pos="-0.000331 -0.020131 -0.175761" size="0.21466021239757538 0.09051737934350967 0.004174286499619484" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+        <body name="Lid002">
+          <joint axis="-1.0 0.0 0.0" pos="0.100462 0.086028 0.238831" limited="true" name="Lid002_joint" range="0.0 1.5707963267948966" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+          <geom mesh="Lid002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lid002_material"/>
+          <geom class="collision" type="box" pos="0.099777 0.042738 0.233322" size="0.0956917256116867 0.042488355189561844 0.006732695735991001" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="Lever001_joint_actuator" joint="Lever001_joint" gear="10"/>
+    <motor name="Lid001_joint_actuator" joint="Lid001_joint" gear="30"/>
+    <motor name="Lid002_joint_actuator" joint="Lid002_joint" gear="30"/>
+  </actuator>
 </mujoco>

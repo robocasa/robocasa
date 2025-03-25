@@ -1,5 +1,4 @@
 from copy import deepcopy
-
 import numpy as np
 
 from robocasa.models.fixtures import Fixture
@@ -25,8 +24,17 @@ class Stove(Fixture):
         name (str): name of the object
     """
 
-    def __init__(self, xml="fixtures/stoves/stove_orig", name="stove", *args, **kwargs):
+    def __init__(
+        self,
+        xml="fixtures/stoves/stove_orig",
+        name="stove",
+        stove_type="standard",
+        *args,
+        **kwargs
+    ):
 
+        assert stove_type in ["standard", "wide"]
+        self.stove_type = stove_type
         self._knob_joints = None
         self._burner_sites = None
 
@@ -214,23 +222,3 @@ class Stovetop(Stove):
 
     def __init__(self, xml="fixtures/stoves/stove_orig", name="stove", *args, **kwargs):
         super().__init__(xml=xml, name=name, *args, **kwargs)
-
-
-class Oven(Fixture):
-    """
-    Oven fixture class
-
-    Args:
-        xml (str): path to mjcf xml file
-
-        name (str): name of the object
-    """
-
-    def __init__(self, xml="fixtures/ovens/samsung", name="oven", *args, **kwargs):
-        super().__init__(
-            xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
-        )
-
-    @property
-    def nat_lang(self):
-        return "oven"

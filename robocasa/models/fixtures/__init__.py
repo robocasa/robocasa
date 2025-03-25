@@ -20,7 +20,8 @@ from robocasa.models.fixtures.toaster import Toaster
 from robocasa.models.fixtures.toaster_oven import ToasterOven
 from robocasa.models.fixtures.blender import Blender
 from robocasa.models.fixtures.stand_mixer import StandMixer
-from robocasa.models.fixtures.stove import Stove, Stovetop, Oven
+from robocasa.models.fixtures.stove import Stove, Stovetop
+from robocasa.models.fixtures.oven import Oven
 from robocasa.models.fixtures.microwave import Microwave
 
 from robocasa.models.fixtures.fixture_stack import FixtureStack
