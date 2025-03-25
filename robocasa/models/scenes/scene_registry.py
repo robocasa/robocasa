@@ -173,14 +173,16 @@ def unpack_layout_ids(layout_ids):
     if not isinstance(layout_ids, list):
         layout_ids = [layout_ids]
 
-    layout_ids = [int(id) for id in layout_ids]
-
     all_layout_ids = []
     for id in layout_ids:
-        if id < 0:
-            all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
-        else:
+        if isinstance(id, dict):
             all_layout_ids.append(id)
+        else:
+            id = int(id)
+            if id < 0:
+                all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
+            else:
+                all_layout_ids.append(id)
     return all_layout_ids
 
 
