@@ -51,7 +51,8 @@ def strip_out_keyword(mjcf_path, keyword, verbose=False, dry_run=False):
                 # print(new_asset_path)
                 # print()
                 if not dry_run:
-                    os.rename(old_asset_path, new_asset_path)
+                    if os.path.exists(old_asset_path):
+                        os.rename(old_asset_path, new_asset_path)
 
     if not dry_run:
         tree.write(mjcf_path, encoding="utf-8")
@@ -80,21 +81,33 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk(directory):
         for file in files:
             if file.endswith(".xml"):
-                xml_paths.append(os.path.join(root, file))
+                full_path = os.path.join(root, file)
+                if full_path.endswith(
+                    "assets/fixtures/counters/counter/model.xml"
+                ) or full_path.endswith(
+                    "assets/fixtures/counters/counter_with_opening/model.xml"
+                ):
+                    # make an exception for counters, as we want to keep the existing naming conventions
+                    continue
+                xml_paths.append(full_path)
 
     modified_paths = []
     for path in tqdm(xml_paths):
         keyword = os.path.basename(os.path.dirname(path)) + "_"
-        modified = strip_out_keyword(path, keyword)
+        modified = strip_out_keyword(path, keyword, dry_run=args.dry_run)
 
         if keyword.startswith("StandMixer"):
             ### special case for FoodMixer being renamed to StandMixer ###
             new_prefix = keyword.replace("StandMixer", "FoodMixer")
-            modified = modified or strip_out_keyword(path, new_prefix)
+            modified = modified or strip_out_keyword(
+                path, new_prefix, dry_run=args.dry_run
+            )
         if keyword.startswith("Oven"):
             ### special case for WallStackOven being renamed to Oven ###
             new_prefix = keyword.replace("Oven", "WallStackOven")
-            modified = modified or strip_out_keyword(path, new_prefix)
+            modified = modified or strip_out_keyword(
+                path, new_prefix, dry_run=args.dry_run
+            )
 
         if modified:
             prettify_xmls(filepath=path)
