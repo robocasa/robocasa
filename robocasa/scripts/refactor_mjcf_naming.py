@@ -94,8 +94,7 @@ if __name__ == "__main__":
     modified_paths = []
     for path in tqdm(xml_paths):
         keyword = os.path.basename(os.path.dirname(path)) + "_"
-        modified = strip_out_keyword(path, keyword, dry_run=args.dry_run)
-
+        modified = False
         if keyword.startswith("StandMixer"):
             ### special case for FoodMixer being renamed to StandMixer ###
             new_prefix = keyword.replace("StandMixer", "FoodMixer")
@@ -108,6 +107,8 @@ if __name__ == "__main__":
             modified = modified or strip_out_keyword(
                 path, new_prefix, dry_run=args.dry_run
             )
+
+        modified = modified or strip_out_keyword(path, keyword, dry_run=args.dry_run)
 
         if modified:
             prettify_xmls(filepath=path)
