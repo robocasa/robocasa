@@ -94,15 +94,16 @@ class ManipulateDoor(Kitchen):
         observables = super()._setup_observables()
 
         @sensor(modality="object")
-        def hinge_angle(obs_cache):
-            # Return normalized door angle instead of raw angle
+        def hinge_pos_quat_angle(obs_cache):
+            cab_pos = self.sim.data.get_body_xpos(self.door_fxtr.root_body)
+            cab_quat = self.sim.data.get_body_xquat(self.door_fxtr.root_body)
             door_state = self.door_fxtr.get_door_state(env=self)
-            # Convert dict values to list before creating numpy array
-            return np.array(list(door_state.values()))
+            angle = list(door_state.values())
+            return np.array(cab_pos.tolist() + cab_quat.tolist() + angle)
 
-        observables["hinge_angle"] = Observable(
-            name="hinge_angle",
-            sensor=hinge_angle,
+        observables["hinge_pos_quat_angle"] = Observable(
+            name="hinge_pos_quat_angle",
+            sensor=hinge_pos_quat_angle,
             sampling_rate=self.control_freq,
             active=True,
         )
