@@ -74,9 +74,6 @@ class FixtureType(IntEnum):
 BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
 
 
-BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
-
-
 class Fixture(MujocoXMLObjectRobocasa):
     """
     Base class for fixtures in robosuite kitchen environments.
