@@ -1,73 +1,71 @@
-<?xml version='1.0' encoding='utf-8'?>
 <mujoco model="model">
-    <compiler angle="radian" />
-    <asset>
-        <mesh file="visuals/Toaster033_Body001.obj" name="Toaster033_Body001_vis" />
-        <mesh file="visuals/Toaster033_Knob001.obj" name="Toaster033_Knob001_vis" />
-        <mesh file="visuals/Toaster033_Lever001.obj" name="Toaster033_Lever001_vis" />
-        <mesh file="visuals/Toaster033_Lever002.obj" name="Toaster033_Lever002_vis" />
-        <texture file="visuals/T_Toaster033_BC001.png" name="Toaster033_Body001_material" type="2d" />
-        <material name="Toaster033_Body001_material" rgba="1 1 1 1.0" texture="Toaster033_Body001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-        <texture file="visuals/T_Toaster033_BC001.png" name="Toaster033_Knob001_material" type="2d" />
-        <material name="Toaster033_Knob001_material" rgba="1 1 1 1.0" texture="Toaster033_Knob001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-        <texture file="visuals/T_Toaster033_BC001.png" name="Toaster033_Lever001_material" type="2d" />
-        <material name="Toaster033_Lever001_material" rgba="1 1 1 1.0" texture="Toaster033_Lever001_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-        <texture file="visuals/T_Toaster033_BC001.png" name="Toaster033_Lever002_material" type="2d" />
-        <material name="Toaster033_Lever002_material" rgba="1 1 1 1.0" texture="Toaster033_Lever002_material" shininess="0.4472135901451111" specular="0.3103448502657381" />
-    </asset>
-    <default>
-        <default class="visual">
-            <geom conaffinity="0" contype="0" group="1" type="mesh" />
-        </default>
-        <default class="collision">
-            <geom group="0" rgba="0.5 0 0 0.5" />
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visuals/Body001.obj" name="Body001_vis"/>
+    <mesh file="visuals/Knob001.obj" name="Knob001_vis"/>
+    <mesh file="visuals/Lever001.obj" name="Lever001_vis"/>
+    <mesh file="visuals/Lever002.obj" name="Lever002_vis"/>
+    <texture file="visuals/T_BC001.png" name="Body001_texture" type="2d"/>
+    <material name="Body001_material" rgba="1 1 1 1.0" texture="Body001_texture" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Knob001_material" type="2d"/>
+    <material name="Knob001_material" rgba="1 1 1 1.0" texture="Knob001_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Lever001_material" type="2d"/>
+    <material name="Lever001_material" rgba="1 1 1 1.0" texture="Lever001_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Lever002_material" type="2d"/>
+    <material name="Lever002_material" rgba="1 1 1 1.0" texture="Lever002_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
     </default>
-        <default class="spawn">
-            <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0" />
-            <site group="0" rgba="1 1 1 0.5" />
-        </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
     </default>
-    <worldbody>
-        <body>
-            <site rgba="0 0 0 0.5" size="0.01" pos="-0.08836461789906025 -0.14924896508455276 -0.10364182107150555" name="ext_p0" />
-            <site rgba="1 0 0 0.5" size="0.01" pos="0.08836461417376995 -0.14924896508455276 -0.10364182107150555" name="ext_px" />
-            <site rgba="0 1 0 0.5" size="0.01" pos="-0.08836461789906025 0.15771006792783737 -0.10364182107150555" name="ext_py" />
-            <site rgba="0 0 1 0.5" size="0.01" pos="-0.08836461789906025 -0.14924896508455276 0.10364185459911823" name="ext_pz" />
-            <body name="object">
-                <geom mesh="Toaster033_Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Toaster033_Body001_material" />
-                <geom class="collision" type="box" pos="-0.0668114423751831 0.009903835132718086 -0.0005613416433334351" size="0.01924031786620617 0.08814771473407745 0.1030309870839119" quat="0.9999994039535522 0.0 0.0 0.0011026470456272364" />
-                <geom class="collision" type="box" pos="-0.03942231461405754 -0.11139825731515884 -0.0020172670483589172" size="0.03628779575228691 0.03261887654662132 0.10157506167888641" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.039364155381917953 -0.11139825731515884 -0.0020172595977783203" size="0.03628779575228691 0.03261887654662132 0.10157506167888641" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.06672827899456024 0.009903835132718086 -0.0005613416433334351" size="0.01924031786620617 0.08814771473407745 0.1030309870839119" quat="0.9999994039535522 0.0 0.0 0.0011026470456272364" />
-                <geom class="collision" type="box" pos="0.00017148071492556483 0.11547525227069855 -0.0020172595977783203" size="0.0750097706913948 0.016098059713840485 0.10157506167888641" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="0.025555122643709183 0.14358015358448029 -0.0020172595977783203" size="0.022411147132515907 0.010441772639751434 0.10157506167888641" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="-0.025233332067728043 0.14358015358448029 -0.0020172595977783203" size="0.022901266813278198 0.010441772639751434 0.10157506167888641" quat="1.0 0.0 0.0 0.0" />
-                <geom class="collision" type="box" pos="-4.5042932470096275e-05 0.009903833270072937 0.032767415046691895" size="0.011079089716076851 0.08814218640327454 0.06665803492069244" quat="0.9999994039535522 0.0 0.0 0.0011026470456272364" />
-                <geom class="collision" type="box" pos="0.00019487626559566706 0.009903833270072937 -0.06961466372013092" size="0.04670744761824608 0.08820829540491104 0.03398900106549263" quat="0.9999994039535522 0.0 0.0 0.0011026470456272364" />
-                <body name="Toaster033_Knob001">
-                    <joint axis="0.0 1.0 0.0" pos="-2.141982122338959e-06 -0.1547059267759323 -0.05330842360854149" limited="true" name="Toaster033_Knob001_joint" range="0.0 5.759586531581287" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05" />
-                    <geom mesh="Toaster033_Knob001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Toaster033_Knob001_material" />
-                    <geom class="collision" type="cylinder" pos="5.5375949159497395e-08 -0.15111759305000305 -0.05336711183190346" size="0.02036231756210327 0.006218915339559317" quat="0.7071068286895752 0.7071067690849304 0.0 0.0" />
-                </body>
-                <body name="Toaster033_Lever001">
-                    <joint axis="0.0 0.0 -1.0" pos="4.738194547826424e-08 -0.15945732593536377 0.0744793489575386" limited="true" name="Toaster033_Lever001_joint" range="0.0 0.085" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="10" />
-                    <geom mesh="Toaster033_Lever001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Toaster033_Lever001_material" />
-                    <geom class="collision" type="box" pos="9.756477811606601e-05 -0.16241571307182312 0.07451826333999634" size="0.013781191781163216 0.011563438922166824 0.007472217548638582" quat="1.0 0.0 0.0 0.0" />
-                    <geom class="collision" type="box" pos="-1.1287965207884554e-05 -0.14086195826530457 0.07453355193138123" size="0.001985369948670268 0.009772082790732384 0.003962809219956398" quat="1.0 0.0 0.0 0.0" />
-                </body>
-                <body name="Toaster033_Lever002">
-                    <joint axis="0.0 0.0 -1.0" pos="0.0008320579654537141 0.1638750433921814 0.09434099495410919" limited="true" name="Toaster033_Lever002_joint" range="0.0 0.045" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.8" springref="-0.8" />
-                    <geom mesh="Toaster033_Lever002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Toaster033_Lever002_material" />
-                    <geom class="collision" type="box" pos="0.000776228669565171 0.16303493082523346 0.09390617907047272" size="0.014823615550994873 0.0052513619884848595 0.0022263729479163885" quat="0.9949135780334473 0.10073205828666687 0.0 0.0" />
-                    <geom class="collision" type="box" pos="0.0007762226741760969 0.17070825397968292 0.09598800539970398" size="0.01078353077173233 0.002129259752109647 0.002226372715085745" quat="0.978563129901886 0.2059471756219864 0.0 0.0" />
-                    <geom class="collision" type="box" pos="0.0008213110268115997 0.14686161279678345 0.09322738647460938" size="0.0014786535175517201 0.010506780818104744 0.0017218152061104774" quat="1.0 0.0 0.0 0.0" />
-                </body>
-            </body>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <site rgba="0 0 0 1" size="0.01" pos="-0.08836461789906025 -0.14924896508455276 -0.10364182107150555" name="ext_p0"/>
+      <site rgba="1 0 0 1" size="0.01" pos="0.08836461417376995 -0.14924896508455276 -0.10364182107150555" name="ext_px"/>
+      <site rgba="0 1 0 1" size="0.01" pos="-0.08836461789906025 0.15771006792783737 -0.10364182107150555" name="ext_py"/>
+      <site rgba="0 0 1 1" size="0.01" pos="-0.08836461789906025 -0.14924896508455276 0.10364185459911823" name="ext_pz"/>
+      <body name="object">
+        <geom mesh="Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Body001_material"/>
+        <geom class="collision" type="box" pos="-0.0668114423751831 0.009903835132718086 -0.0005613416433334351" size="0.01918303780257702 0.08816641569137573 0.1030309870839119" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="-0.03942231461405754 -0.11139825731515884 -0.0020172670483589172" size="0.03628779575228691 0.03261887654662132 0.10157506167888641" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.039364155381917953 -0.11139825731515884 -0.0020172595977783203" size="0.03628779575228691 0.03261887654662132 0.10157506167888641" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.06672827899456024 0.009903835132718086 -0.0005613416433334351" size="0.01918303780257702 0.08816641569137573 0.1030309870839119" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.00017148071492556483 0.11547525227069855 -0.0020172595977783203" size="0.0750097706913948 0.016098059713840485 0.10157506167888641" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.025555122643709183 0.14358015358448029 -0.0020172595977783203" size="0.022411147132515907 0.010441772639751434 0.10157506167888641" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="-0.025233332067728043 0.14358015358448029 -0.0020172595977783203" size="0.022901266813278198 0.010441772639751434 0.10157506167888641" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="-4.5042932470096275e-05 0.009903833270072937 0.032767415046691895" size="0.011021790094673634 0.08816640079021454 0.06665803492069244" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="box" pos="0.00019487626559566706 0.009903833270072937 -0.06961466372013092" size="0.046650230884552 0.08816640079021454 0.03398900106549263" quat="1.0 0.0 0.0 0.0"/>
+        <body name="Knob001">
+          <joint axis="0.0 1.0 0.0" pos="-2.141982122338959e-06 -0.1547059267759323 -0.05330842360854149" limited="true" name="Knob001_joint" range="0.0 5.759586531581287" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+          <geom mesh="Knob001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Knob001_material"/>
+          <geom class="collision" type="cylinder" pos="5.5375949159497395e-08 -0.15111759305000305 -0.05336711183190346" size="0.02036231756210327 0.006218915339559317" quat="0.7071068286895752 0.7071067690849304 0.0 0.0"/>
         </body>
-    </worldbody>
-    <actuator>
-        <motor name="Toaster033_Knob001_joint_actuator" joint="Toaster033_Knob001_joint" gear="10" />
-        <motor name="Toaster033_Lever001_joint_actuator" joint="Toaster033_Lever001_joint" gear="2" />
-        <motor name="Toaster033_Lever002_joint_actuator" joint="Toaster033_Lever002_joint" gear="3" />
+        <body name="Lever001">
+          <joint axis="0.0 0.0 -1.0" pos="4.738194547826424e-08 -0.15945732593536377 0.0744793489575386" limited="true" name="Lever001_joint" range="0.020 0.085" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="1" springref="-2"/>
+          <geom mesh="Lever001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lever001_material"/>
+          <geom class="collision" type="box" pos="9.756477811606601e-05 -0.16241571307182312 0.07451826333999634" size="0.013781191781163216 0.011563438922166824 0.007472217548638582" quat="1.0 0.0 0.0 0.0" name="lever_knob"/>
+          <geom class="collision" type="box" pos="-1.1287965207884554e-05 -0.14086195826530457 0.07453355193138123" size="0.001985369948670268 0.009772082790732384 0.003962809219956398" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="box" pos="0.027605822309851646 0.010780483484268188 0.07484529167413712" size="0.013781191781163216 0.07324540615081787 0.0029944388661533594" quat="1.0 0.0 0.0 0.0" name="slot_right_floor"/>
+          <geom class="collision" type="box" pos="-0.027450185269117355 0.010780483484268188 0.07484529167413712" size="0.013781191781163216 0.07324540615081787 0.0029944388661533594" quat="1.0 0.0 0.0 0.0" name="slot_left_floor"/>
+        </body>
+        <body name="Lever_back">
+          <joint axis="0.0 0.0 -1.0" pos="0.0008320579654537141 0.1638750433921814 0.09434099495410919" limited="true" name="Lever_back_joint" range="0.0 0.04" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+          <geom mesh="Lever002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lever002_material"/>
+          <geom class="collision" type="box" pos="0.000776228669565171 0.16303493082523346 0.09390617907047272" size="0.014823615550994873 0.0052513619884848595 0.0022263729479163885" quat="0.9949135780334473 0.10073204338550568 0.0 0.0"/>
+          <geom class="collision" type="box" pos="0.0007762226741760969 0.17070825397968292 0.09598800539970398" size="0.01078353077173233 0.002129259752109647 0.002226372715085745" quat="0.978563129901886 0.2059471756219864 0.0 0.0"/>
+          <geom class="collision" type="box" pos="0.0008213110268115997 0.14686161279678345 0.09322738647460938" size="0.0014786535175517201 0.010506780818104744 0.0017218152061104774" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
     </actuator>
 </mujoco>
