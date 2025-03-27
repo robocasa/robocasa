@@ -26,7 +26,7 @@ class Stove(Fixture):
 
     def __init__(
         self,
-        xml="fixtures/stoves/stove_orig",
+        xml="fixtures/stoves/basic_sleek_induc",
         name="stove",
         stove_type="standard",
         *args,
