@@ -43,7 +43,7 @@ room:
     - name: wall_main_2
       type: wall
       size: [0.845981, 1.5, 0.02]
-      pos: [0.855517, -2.299999, 1.5]
+      pos: [0.855, -2.299999, 1.5]
 
     - name: wall_main_2_backing
       type: wall
@@ -51,6 +51,23 @@ room:
       backing_extended: [False, False]
       size: [0.805981, 1.5, 0.1]
       pos: [0.815517, -2.299999, 1.5]
+
+    - name: wall_left_2
+      type: wall
+      size: [0.731, 0.57, 0.02]
+      pos: [1.741498, -3.072505, 0.57]
+      wall_side: left
+
+    - name: wall_right_2
+      type: wall
+      size: [0.731, 0.57, 0.02]
+      pos: [1.502499, -3.072505, 0.57]
+      wall_side: right
+
+    - name: wall_main_3
+      type: wall
+      size: [0.0799, 0.57, 0.02]
+      pos: [1.621498, -3.845012, 0.57]
 
   floor:
     - name: floor_1
@@ -118,19 +135,19 @@ main_group_1:
   bottom_row:
     - name: counter_corner_1
       type: counter
-      pos: [2.067, -0.325, 0.46]
-      size: [0.65, 0.65, 0.92]
+      pos: [2.0665, -0.325, 0.46]
+      size: [0.65, 0.650004, 0.92]
       hollow: [False, False]
 
     - name: counter_1
       type: counter
-      pos: [2.917, -0.325, 0.46]
-      size: [1.051, 0.65, 0.92]
+      pos: [2.9171, -0.325, 0.46]
+      size: [1.051177, 0.650008, 0.92]
 
     - name: counter_2
       type: counter
-      pos: [4.798, -0.325, 0.46]
-      size: [1.19, 0.65, 0.92]
+      pos: [4.7976, -0.325, 0.46]
+      size: [1.189956, 0.650008, 0.92]
 
     - name: stove
       type: stove
@@ -139,18 +156,22 @@ main_group_1:
       side: left
       alignment: top_back
 
+    - name: counter_corner_2
+      type: counter
+      size: [0.654511, 0.650004, 0.92]
+      hollow: [False, False]
+      alignment: top_back
+      align_to: counter_2
+      side: right
+      offset: [0, 0, 0]
+
     - name: stove_hood
       type: hood
-      size: [0.75, 0.6, null]
+      size: [0.76, 0.6, null]
       align_to: stove
       side: top
       offset: [0, 0, 0.75]
 
-    - name: counter_corner_2
-      type: counter
-      pos: [5.718, -0.325, 0.46]
-      size: [0.65, 0.65, 0.92]
-      hollow: [False, False]
 
   top_row:
     - name: hingecabinet_1
@@ -224,14 +245,14 @@ front_group_1:
   bottom_row:
     - name: counter_1
       type: counter
-      pos: [-1.357, -0.276, 0.46]
-      size: [1.413, 0.65, 0.92]
+      pos: [-1.3567, -0.2761, 0.46]
+      size: [1.413194, 0.650008, 0.92]
 
   bottom_row_cabinets:
     - name: stack_1
       type: stack
-      pos: [-1.1132, -0.251, 0.47]
-      size: [0.92647, 0.6, 0.84]
+      pos: [-1.0882, -0.251, 0.47]
+      size: [0.87647, 0.6, 0.84]
       levels: [hinge_cabinet, drawer]
       percentages: [0.7, 0.3]
       configs: none
@@ -241,12 +262,17 @@ front_group_1:
       size: [0.1, 0.6, 0.89]
       pos: [-0.6, -0.2511, 0.445]
 
+    - name: cube_2
+      type: box
+      size: [0.05, 0.6, 0.89]
+      pos: [-2.0382, -0.251, 0.445]
+
     - name: stack_2
       type: stack
       size: [0.486795, 0.6, 0.84]
       levels: [single_cabinet]
       percentages: [1]
-      configs:  {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
+      configs: none
       alignment: top_back
       align_to: stack_1
       side: left
@@ -270,7 +296,7 @@ right_group_1:
     - name: counter_1
       type: counter
       pos: [1.187, -0.325, 0.46]
-      size: [1.073, 0.65, 0.92]
+      size: [1.0745, 0.65, 0.92]
 
   top_row:
     - name: singlecabinet_1
@@ -287,9 +313,12 @@ right_group_1:
 
     - name: opencabinet_1
       type: open_cabinet
-      pos: [1.285, -0.214, 1.538]
-      size: [0.877, 0.427, 0.425]
+      #pos: [1.285, -0.214, 1.538]
+      size: [0.877, 0.426, 0.425]
       num_shelves: 1
+      align_to: hingecabinet_1
+      side: bottom
+      alignment: back
 
   bottom_row_cabinets:
     - name: cube_1
@@ -414,9 +443,18 @@ left_group_1:
 
     - name: counter_corner_1
       type: counter
-      pos: [-3.52, -0.451, 0.46]
+      #pos: [-3.52, -0.451, 0.46]
       size: [0.65, 0.65, 0.92]
       hollow: [False, False]
+      align_to: counter_1
+      side: left
+      alignment: top_back
+
+    - name: counter_2
+      type: counter
+      pos: [-3.0725, -0.006, 0.585]
+      size: [1.545, 0.24, 1.17]
+
 
   top_row:
     - name: singlecabinet_1
