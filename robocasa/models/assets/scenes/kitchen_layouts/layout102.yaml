@@ -194,7 +194,7 @@ main_group:
 
     - name: stack_5
       type: stack
-      size: [0.38, 0.6, 0.84]
+      size: [0.39, 0.6, 0.84]
       align_to: stack_4
       side: right
       alignment: top_front
@@ -234,7 +234,7 @@ main_group:
 
     - name: top_corner_2
       type: box
-      size: [0.672, 0.4, 0.92]
+      size: [0.678, 0.4, 0.92]
       align_to: cab_2
       side: right
       alignment: top_back
@@ -295,19 +295,33 @@ left_group:
 
     - name: stack_2
       type: stack
-      size: [1.2, 0.6, 0.84]
+      size: [1.15, 0.6, 0.84]
       levels: [drawer, drawer, panel_cabinet]
-      percentages: [0.34, 0.34, 0.33]
+      percentages: [0.35, 0.35, 0.3]
       align_to: stack_1
+      side: left
+      alignment: top_back
+
+    - name: box_3
+      type: box
+      size: [0.05, 0.6, 0.89]
+      align_to: stack_2
       side: left
       alignment: top_back
 
     - name: stack_3
       type: stack
-      size: [0.7, 0.6, 0.84]
+      size: [0.65, 0.6, 0.84]
       levels: [drawer, drawer, drawer]
-      percentages: [0.34, 0.34, 0.33]
-      align_to: stack_2
+      percentages: [0.35, 0.35, 0.3]
+      align_to: box_3
+      side: left
+      alignment: top_back
+
+    - name: box_2
+      type: box
+      size: [0.05, 0.6, 0.89]
+      align_to: stack_3
       side: left
       alignment: top_back
 
@@ -321,10 +335,10 @@ left_group:
       type: housing_cabinet
       interior_obj: fridge_1
       padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-      align_to: stack_3
+      align_to: box_2
       side: left
       alignment: bottom_back
-      offset: [0, 0, -0.05]
+      offset: [0, 0, 0]
 
   top_row:
 
@@ -378,8 +392,8 @@ right_group_1:
       type: stack
       levels: [drawer]
       percentages: [1]
-      pos: [1.35, -0.3, 0.2]
-      size: [0.8, 0.6, 0.3]
+      pos: [1.35, -0.35, 0.2]
+      size: [0.8, 0.7, 0.3]
 
     - name: oven
       type: oven
@@ -400,7 +414,7 @@ right_group_1:
 
     - name: microwave_housing
       type: housing_cabinet
-      size: [0.8, 0.6, 0.55]
+      size: [0.8, 0.7, 0.55]
       padding: [null, [-0.01, null], null]
       align_to: oven_housing
       alignment: front
@@ -409,7 +423,7 @@ right_group_1:
 
     - name: top
       type: hinge_cabinet
-      size: [0.8, 0.6, null]
+      size: [0.8, 0.7, null]
       align_to: microwave_housing
       alignment: front
       side: top
@@ -470,6 +484,9 @@ right_group_1:
       align_to: top
       side: left
       alignment: top_back
+      orientation: left
+      panel_config:
+        handle_vpos: bottom
 
     - name: cab_3
       type: hinge_cabinet

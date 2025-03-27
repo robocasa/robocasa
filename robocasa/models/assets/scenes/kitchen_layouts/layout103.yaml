@@ -100,12 +100,6 @@ main_group_1:
       size: [0.66, 0.65, 0.92]
       hollow: [False, False]
 
-    - name: counter_corner_2
-      type: counter
-      pos: [4.382, -0.325, 0.46]
-      size: [0.65, 0.65, 0.92]
-      hollow: [False, False]
-
     - name: sink_1
       type: sink
 
@@ -114,8 +108,20 @@ main_group_1:
       interior_obj: sink_1
       obj_x_percent: 0.675
       obj_y_percent: 0.7
-      pos: [2.3535, -0.325, 0.46]
-      size: [3.407, 0.65, 0.92]
+      # pos: [2.3535, -0.325, 0.46]
+      size: [3.405, 0.65, 0.92]
+      align_to: counter_corner_1
+      side: right
+      alignment: top_back
+
+    - name: counter_corner_2
+      type: counter
+      # pos: [4.382, -0.325, 0.46]
+      size: [0.65, 0.65, 0.92]
+      align_to: counter_1
+      side: right
+      alignment: top_back
+      hollow: [False, False]
 
   bottom_row_cabinets:
  
@@ -179,7 +185,7 @@ main_group_1:
     - name: window_group_1
       type: framed_window
       num_windows: 3
-      pos: [2.794, -0.001, 1.84]
+      pos: [2.794, -0.025, 1.84]
       size: [2.056, 0.05, 0.92]
 
     - name: cab_corner
@@ -329,6 +335,11 @@ right_group_1:
       align_to: stack_1
       side: left
       alignment: bottom_back
+      configs:
+        single_cabinet:
+          orientation: left
+          panel_config:
+            handle_vpos: top
 
     - name: box
       type: box
@@ -412,7 +423,7 @@ right_group_1:
         sample_region_kwargs:
           ref: cab_2_right_group_1
         size: [1.0, 0.52]
-        pos: [1.0, 0.5]
+        pos: [1.0, 1.0]
         rotation: [0, 0]
         margin: 0.0
 

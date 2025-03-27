@@ -56,6 +56,21 @@ class LayoutType(IntEnum):
     LAYOUT133 = 133
     LAYOUT134 = 134
     LAYOUT135 = 135
+    LAYOUT136 = 136
+    LAYOUT137 = 137
+    LAYOUT138 = 138
+    LAYOUT139 = 139
+    LAYOUT140 = 140
+    LAYOUT141 = 141
+    LAYOUT142 = 142
+    LAYOUT143 = 143
+    LAYOUT144 = 144
+    LAYOUT145 = 145
+    LAYOUT146 = 146
+    LAYOUT147 = 147
+    LAYOUT148 = 148
+    LAYOUT149 = 149
+    LAYOUT150 = 150
 
     # negative values correspond to groups (see LAYOUT_GROUPS_TO_IDS)
     ALL = -1
@@ -70,6 +85,7 @@ LAYOUT_GROUPS_TO_IDS = {
     -3: [1, 3, 6, 8, 9],  # island
     -4: [1, 3, 6, 7, 8, 9],  # dining
     -20: list(range(101, 121)),
+    -35: list(range(101, 136)),
 }
 
 
