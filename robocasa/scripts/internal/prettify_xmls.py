@@ -15,7 +15,12 @@ def prettify_xmls(folder=None, filepath=None):
                 if f.endswith(".xml"):
                     filepaths.append(os.path.join(root, f))
 
-    for f in tqdm(filepaths):
+    if len(filepaths) > 1:
+        paths_iters = tqdm(filepaths)
+    else:
+        paths_iters = filepaths
+
+    for f in paths_iters:
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.parse(f, parser)
         xml = etree.tostring(tree, pretty_print=True, encoding=str)

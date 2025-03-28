@@ -15,19 +15,17 @@
       <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
       <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <!-- exterior bounding box points -->
-      <site rgba="0 0 0 1" size="0.01" pos="-0.5 -0.425 -0.2615" name="ext_p0"/>
-      <site rgba="1 0 0 1" size="0.01" pos="0.5 -0.425 -0.2615" name="ext_px"/>
-      <site rgba="0 1 0 1" size="0.01" pos="-0.5 0.425 -0.2615" name="ext_py"/>
-      <site rgba="0 0 1 1" size="0.01" pos="-0.5 -0.425 -0.028" name="ext_pz"/>
       <!-- interior bounding box points -->
-      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.45 -0.375 -0.245" name="int_p0"/>
-      <site rgba="1 1 0 1" size="0.01" pos="0.45 -0.375 -0.245" name="int_px"/>
-      <site rgba="0 1 1 1" size="0.01" pos="-0.45 0.29 -0.245" name="int_py"/>
-      <site rgba="1 0 1 1" size="0.01" pos="-0.45 -0.375 -0.028" name="int_pz"/>
       <body name="object">
         <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="kitchen_sink" class="visual"/>
         <!-- Bottom -->
@@ -66,6 +64,8 @@
           <geom class="collision" type="cylinder" pos="0 0.368 0.1165" size="0.034 0.0165 0" axisangle="1 0 0 0.17"/>
           <geom class="collision" type="box" pos="0 0.293 0.208" size="0.023 0.13 0.0065" axisangle="1 0 0 -0.63" name="handle_main"/>
         </body>
+        <geom class="region" name="reg_main_body" type="box" pos="0.0 0.0 -0.14475000000000002" size="0.5 0.425 0.11675"/>
+        <geom class="region" name="reg_basin" type="box" pos="0.0 -0.04250000000000001 -0.1365" size="0.45 0.3325 0.1085"/>
       </body>
     </body>
   </worldbody>

@@ -7,6 +7,9 @@
     <default class="cab">
       <geom group="0" density="10"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
@@ -18,15 +21,9 @@
                 <geom pos="0.30 0.40 -0.28" size="0.02 0.20" euler="-1.57 0 0" type="cylinder" class="cab" rgba="0.5 0.5 0.5 1" name="bar_right"/> -->
         </body>
         <!-- exterior bounding box points -->
-        <site rgba="0 0 0 1" size="0.01" pos="0 0 0" name="ext_p0"/>
-        <site rgba="1 0 0 1" size="0.01" pos="0 0 0" name="ext_px"/>
-        <site rgba="0 1 0 1" size="0.01" pos="0 0 0" name="ext_py"/>
-        <site rgba="0 0 1 1" size="0.01" pos="0 0 0" name="ext_pz"/>
+        <geom class="region" name="reg_main_body" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
         <!-- interior bounding box points -->
-        <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0 0 0" name="int_p0"/>
-        <site rgba="1 1 0 1" size="0.01" pos="0 0 0" name="int_px"/>
-        <site rgba="0 1 1 1" size="0.01" pos="0 0 0" name="int_py"/>
-        <site rgba="1 0 1 1" size="0.01" pos="0 0 0" name="int_pz"/>
+        <geom class="region" name="reg_int" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
       </body>
       <site rgba="0 0 0 0" size="0.005" pos="0 0 -0.06" name="bottom_site"/>
       <site rgba="0 0 0 0" size="0.005" pos="0 0 0.04" name="top_site"/>

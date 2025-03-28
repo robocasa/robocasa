@@ -17,24 +17,15 @@
       <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
       <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <!-- exterior bounding box points -->
-      <site rgba="0 0 0 1" size="0.01" pos="-0.5 -0.259 -0.26" name="ext_p0"/>
-      <site rgba="1 0 0 1" size="0.01" pos="0.5 -0.259 -0.26" name="ext_px"/>
-      <site rgba="0 1 0 1" size="0.01" pos="-0.5 0.259 -0.26" name="ext_py"/>
-      <site rgba="0 0 1 1" size="0.01" pos="-0.5 -0.259 -0.024" name="ext_pz"/>
       <!-- interior bounding box points (LEFT) -->
-      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.08 -0.16 -0.15" name="left_int_p0"/>
-      <site rgba="1 1 0 1" size="0.01" pos="0.06 -0.16 -0.15" name="left_int_px"/>
-      <site rgba="0 1 1 1" size="0.01" pos="-0.08 0.16 -0.15" name="left_int_py"/>
-      <site rgba="1 0 1 1" size="0.01" pos="-0.08 -0.16 -0.04" name="left_int_pz"/>
       <!-- interior bounding box points (RIGHT) -->
-      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0.11 -0.2 -0.24" name="right_int_p0"/>
-      <site rgba="1 1 0 1" size="0.01" pos="0.44 -0.2 -0.24" name="right_int_px"/>
-      <site rgba="0 1 1 1" size="0.01" pos="0.11 0.205 -0.24" name="right_int_py"/>
-      <site rgba="1 0 1 1" size="0.01" pos="0.11 -0.2 -0.03" name="right_int_pz"/>
       <body name="object">
         <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="sink_Mat" class="visual"/>
         <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="tap_Mat" class="visual"/>
@@ -91,6 +82,9 @@
           <geom class="collision" type="cylinder" pos="0.145 0.2205 0.0385" size="0.018 0.0118 0" axisangle="0 1 0 90"/>
           <geom class="collision" type="box" pos="0.1525 0.22 0.08353" size="0.0043 0.0021 0.032"/>
         </body>
+        <geom class="region" name="reg_main_body" type="box" pos="0.0 0.0 -0.14200000000000002" size="0.5 0.259 0.11800000000000001"/>
+        <geom class="region" name="reg_left_basin" type="box" pos="-0.010000000000000002 0.0 -0.095" size="0.07 0.16 0.05499999999999999"/>
+        <geom class="region" name="reg_right_basin" type="box" pos="0.275 0.0024999999999999883 -0.135" size="0.165 0.2025 0.105"/>
       </body>
     </body>
   </worldbody>

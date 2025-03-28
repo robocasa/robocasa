@@ -31,19 +31,17 @@
       <!-- <geom group="0" rgba="0.5 0 0 0.5"/> -->
       <geom group="0" rgba="0.5 0 0 0.5" solimp="0.998 0.998 0.001" solref="0.001 2"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <!-- exterior bounding box points -->
-      <site rgba="0 0 0 1" size="0.01" pos="-0.5 -0.322 -0.318" name="ext_p0"/>
-      <site rgba="1 0 0 1" size="0.01" pos="0.5 -0.322 -0.318" name="ext_px"/>
-      <site rgba="0 1 0 1" size="0.01" pos="-0.5 0.324 -0.318" name="ext_py"/>
-      <site rgba="0 0 1 1" size="0.01" pos="-0.5 -0.322 -0.065" name="ext_pz"/>
       <!-- interior bounding box points -->
-      <site rgba="0.5 0.5 0.5 1" size="0.01" pos="-0.445 -0.265 -0.298" name="int_p0"/>
-      <site rgba="1 1 0 1" size="0.01" pos="0.04 -0.265 -0.298" name="int_px"/>
-      <site rgba="0 1 1 1" size="0.01" pos="-0.445 0.2 -0.298" name="int_py"/>
-      <site rgba="1 0 1 1" size="0.01" pos="-0.445 -0.265 -0.068" name="int_pz"/>
       <body name="object">
         <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_0_vis" material="black_glossy_plastic" class="visual"/>
         <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_1_vis" material="fr_act_plus_plastick" class="visual"/>
@@ -99,6 +97,8 @@
           <!-- Handle -->
           <geom class="collision" type="cylinder" pos="-0.047 0.2635 0.08" size="0.006 0.034 0" name="handle_main"/>
         </body>
+        <geom class="region" name="reg_main_body" type="box" pos="0.0 0.0010000000000000009 -0.1915" size="0.5 0.323 0.1265"/>
+        <geom class="region" name="reg_basin" type="box" pos="-0.2025 -0.0325 -0.183" size="0.2425 0.2325 0.11499999999999999"/>
       </body>
     </body>
   </worldbody>

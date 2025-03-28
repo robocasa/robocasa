@@ -130,21 +130,6 @@ class Cabinet(ProcGenFixture):
         )
         material.set("texture", tex_name)
 
-    def get_reset_regions(self, env):
-        """
-        Get the reset regions for the cabinet. This is used to reset the object to a specific location.
-        Reset region is defined as the bottom of the cabinet
-        """
-        reset_regions = {}
-        all_int_sites = self.get_int_sites()
-        for (region_name, sites) in all_int_sites.items():
-            p0, px, py, pz = sites
-            reset_regions[region_name] = {
-                "offset": (0, 0, p0[2]),
-                "size": (px[0] - p0[0], py[1] - p0[1]),
-            }
-        return reset_regions
-
     def _create_cab(self):
         raise NotImplementedError()
 
@@ -322,10 +307,10 @@ class SingleCabinet(Cabinet):
         # set sites
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
                 "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
                 "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
@@ -495,10 +480,10 @@ class HingeCabinet(Cabinet):
         # set sites
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
                 "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
                 "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
@@ -662,10 +647,10 @@ class OpenCabinet(Cabinet):
 
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
                 "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
                 "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
@@ -797,10 +782,10 @@ class Drawer(Cabinet):
 
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [-ix + 2 * th, -iy, -iz + 2 * th],
                 "int_px": [ix - 2 * th, -iy, -iz + 2 * th],
                 "int_py": [-ix + 2 * th, iy - 2 * th, -iz + 2 * th],
@@ -904,6 +889,7 @@ class PanelCabinet(Cabinet):
     ):
         self.cabinet_type = "panel"
 
+        # xml = "fixtures/cabinets/panel.xml"
         xml = "fixtures/cabinets/panel.xml"
 
         kwargs["handle_type"] = None
@@ -1024,6 +1010,11 @@ class HousingCabinet(Cabinet):
             padding = [[None] * 2 for _ in range(3)]
 
         padding = [[None, None] if p is None else p for p in padding]
+
+        # print("name:", name)
+        # print("size:", size)
+        # print("padding:", padding)
+        # print()
 
         for d in range(3):
             if size[d] is None:
@@ -1163,10 +1154,10 @@ class HousingCabinet(Cabinet):
         # set sites
         self.set_bounds_sites(
             {
-                "ext_p0": [-x, -y, -z],
-                "ext_px": [x, -y, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y, z],
+                "main_body_p0": [-x, -y, -z],
+                "main_body_px": [x, -y, -z],
+                "main_body_py": [-x, y, -z],
+                "main_body_pz": [-x, -y, z],
                 "int_p0": [
                     -x + self.padding[0][0],
                     -y + self.padding[1][0],

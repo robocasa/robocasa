@@ -22,6 +22,8 @@ from robocasa.utils.object_utils import get_pos_after_rel_offset
 
 
 def site_pos(site):
+    if isinstance(site, np.ndarray):
+        return site
     return string_to_array(site.get("pos"))
 
 
@@ -71,9 +73,6 @@ class FixtureType(IntEnum):
     ELECTRIC_KETTLE = 29
 
 
-BBOX_SITE_PREFIXES = ["ext", "int", "left_int"]
-
-
 class Fixture(MujocoXMLObjectRobocasa):
     """
     Base class for fixtures in robosuite kitchen environments.
@@ -91,6 +90,8 @@ class Fixture(MujocoXMLObjectRobocasa):
 
         size (3-tuple): desired (width, depth, height) of the fixture
     """
+
+    RESET_REGION_NAMES = ["int"]
 
     def __init__(
         self,
@@ -119,27 +120,48 @@ class Fixture(MujocoXMLObjectRobocasa):
         # set up exterior and interior sites
         self._bounds_sites = dict()
 
-        all_possible_site_names = []
-        for prefix in BBOX_SITE_PREFIXES:
-            for postfix in ["p0", "px", "py", "pz"]:
-                all_possible_site_names.append(f"{prefix}_{postfix}")
+        # search for all geom regions
+        geom_list = find_elements(
+            self.worldbody,
+            tags="geom",
+            return_first=False,
+        )
 
-        for site_name in all_possible_site_names:
-            site = find_elements(
-                self.worldbody,
-                tags="site",
-                attribs={"name": "{}{}".format(self.naming_prefix, site_name)},
-                return_first=True,
-            )
-            if site is None:
+        if geom_list is None:
+            geom_list = []
+        for geom in geom_list:
+            g_name = geom.get("name")
+            if g_name is None:
                 continue
-            rgba = string_to_array(site.get("rgba"))
+            g_name = g_name.split(self.naming_prefix)[
+                1
+            ]  # strip out fixture name from prefix
+
+            if not g_name.startswith("reg_"):
+                continue
+
+            rgba = string_to_array(geom.get("rgba"))
             if macros.SHOW_SITES:
-                rgba[-1] = 1.0
+                rgba[-1] = 0.25
             else:
                 rgba[-1] = 0.0
-            site.set("rgba", array_to_string(rgba))
-            self._bounds_sites[site_name] = site
+            geom.set("rgba", array_to_string(rgba))
+
+            reg_pos = string_to_array(geom.get("pos"))
+            reg_size = string_to_array(geom.get("size"))
+            # ## special case: if
+            # if np.all(reg_size <= 0.0001):
+            #     reg_size = [0.0, 0.0, 0.0]
+            p0 = reg_pos + [-reg_size[0], -reg_size[1], -reg_size[2]]
+            px = reg_pos + [reg_size[0], -reg_size[1], -reg_size[2]]
+            py = reg_pos + [-reg_size[0], reg_size[1], -reg_size[2]]
+            pz = reg_pos + [-reg_size[0], -reg_size[1], reg_size[2]]
+            prefix = g_name[4:]
+
+            self._bounds_sites[prefix + "_p0"] = p0
+            self._bounds_sites[prefix + "_px"] = px
+            self._bounds_sites[prefix + "_py"] = py
+            self._bounds_sites[prefix + "_pz"] = pz
 
         # scale based on specified max dimension
         if size is not None:
@@ -152,10 +174,10 @@ class Fixture(MujocoXMLObjectRobocasa):
         if self.width is not None:
             try:
                 # calculate based on bounding points
-                p0 = site_pos(self._bounds_sites["ext_p0"])
-                px = site_pos(self._bounds_sites["ext_px"])
-                py = site_pos(self._bounds_sites["ext_py"])
-                pz = site_pos(self._bounds_sites["ext_pz"])
+                p0 = site_pos(self._bounds_sites["main_body_p0"])
+                px = site_pos(self._bounds_sites["main_body_px"])
+                py = site_pos(self._bounds_sites["main_body_py"])
+                pz = site_pos(self._bounds_sites["main_body_pz"])
                 self.origin_offset = np.array(
                     [
                         np.mean((p0[0], px[0])),
@@ -214,15 +236,23 @@ class Fixture(MujocoXMLObjectRobocasa):
         scale[2] = scale[2] or scale[0] or scale[1]
         self.set_scale(scale)
 
+        for (k, v) in self._bounds_sites.items():
+            if isinstance(v, np.ndarray):
+                self._bounds_sites[k] = v * scale
+
     def get_reset_regions(self, *args, **kwargs):
         """
         returns dictionary of reset regions, each region defined as position, x_bounds, y_bounds
         """
         reset_regions = {}
-        all_int_sites = self.get_int_sites()
-        for (region_name, sites) in all_int_sites.items():
-            p0, px, py, pz = sites
-            reset_regions[region_name] = {
+        for reg_name in self.RESET_REGION_NAMES:
+            p0 = self._bounds_sites.get(f"{reg_name}_p0", None)
+            if p0 is None:
+                continue
+            px = self._bounds_sites[f"{reg_name}_px"]
+            py = self._bounds_sites[f"{reg_name}_py"]
+            pz = self._bounds_sites[f"{reg_name}_pz"]
+            reset_regions[reg_name] = {
                 "offset": (np.mean((p0[0], px[0])), np.mean((p0[1], py[1])), p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
             }
@@ -290,7 +320,7 @@ class Fixture(MujocoXMLObjectRobocasa):
 
     @property
     def bottom_offset(self):
-        return site_pos(self._bounds_sites["ext_p0"])
+        return site_pos(self._bounds_sites["main_body_p0"])
 
     @property
     def width(self):
@@ -298,10 +328,10 @@ class Fixture(MujocoXMLObjectRobocasa):
         for getting the width of an object as defined by its exterior sites.
         takes scaling into account
         """
-        if "ext_px" in self._bounds_sites:
-            ext_p0 = site_pos(self._bounds_sites["ext_p0"])
-            ext_px = site_pos(self._bounds_sites["ext_px"])
-            w = ext_px[0] - ext_p0[0]
+        if "main_body_px" in self._bounds_sites:
+            main_body_p0 = site_pos(self._bounds_sites["main_body_p0"])
+            main_body_px = site_pos(self._bounds_sites["main_body_px"])
+            w = main_body_px[0] - main_body_p0[0]
             return w
         else:
             return None
@@ -312,10 +342,10 @@ class Fixture(MujocoXMLObjectRobocasa):
         for getting the depth of an object as defined by its exterior sites.
         takes scaling into account
         """
-        if "ext_py" in self._bounds_sites:
-            ext_p0 = site_pos(self._bounds_sites["ext_p0"])
-            ext_py = site_pos(self._bounds_sites["ext_py"])
-            d = ext_py[1] - ext_p0[1]
+        if "main_body_py" in self._bounds_sites:
+            main_body_p0 = site_pos(self._bounds_sites["main_body_p0"])
+            main_body_py = site_pos(self._bounds_sites["main_body_py"])
+            d = main_body_py[1] - main_body_p0[1]
             return d
         else:
             return None
@@ -326,10 +356,10 @@ class Fixture(MujocoXMLObjectRobocasa):
         for getting the height of an object as defined by its exterior sites.
         takes scaling into account
         """
-        if "ext_pz" in self._bounds_sites:
-            ext_p0 = site_pos(self._bounds_sites["ext_p0"])
-            ext_pz = site_pos(self._bounds_sites["ext_pz"])
-            h = ext_pz[2] - ext_p0[2]
+        if "main_body_pz" in self._bounds_sites:
+            main_body_p0 = site_pos(self._bounds_sites["main_body_p0"])
+            main_body_pz = site_pos(self._bounds_sites["main_body_pz"])
+            h = main_body_pz[2] - main_body_p0[2]
             return h
         else:
             return None
@@ -342,7 +372,8 @@ class Fixture(MujocoXMLObjectRobocasa):
             pos_dict (dict): Dictionary of sites and their new positions
         """
         for (name, pos) in pos_dict.items():
-            self._bounds_sites[name].set("pos", array_to_string(pos))
+            # self._bounds_sites[name].set("pos", array_to_string(pos))
+            self._bounds_sites[name] = np.array(pos)
 
     def get_ext_sites(self, all_points=False, relative=True):
         """
@@ -357,10 +388,10 @@ class Fixture(MujocoXMLObjectRobocasa):
             list: 4 or 8 points
         """
         sites = [
-            site_pos(self._bounds_sites["ext_p0"]),
-            site_pos(self._bounds_sites["ext_px"]),
-            site_pos(self._bounds_sites["ext_py"]),
-            site_pos(self._bounds_sites["ext_pz"]),
+            site_pos(self._bounds_sites["main_body_p0"]),
+            site_pos(self._bounds_sites["main_body_px"]),
+            site_pos(self._bounds_sites["main_body_py"]),
+            site_pos(self._bounds_sites["main_body_pz"]),
         ]
 
         if all_points:
@@ -390,11 +421,7 @@ class Fixture(MujocoXMLObjectRobocasa):
             dict: a dictionary of interior areas, each with 4 or 8 points
         """
         sites_dict = {}
-        for prefix in BBOX_SITE_PREFIXES:
-            # only consider interior sites
-            if "int" not in prefix:
-                continue
-
+        for prefix in self.RESET_REGION_NAMES:
             site_names = [
                 f"{prefix}_p0",
                 f"{prefix}_px",

@@ -15,6 +15,8 @@ class Sink(Fixture):
         name (str): name of the object
     """
 
+    RESET_REGION_NAMES = ["basin", "basin_right", "basin_left"]
+
     def __init__(self, xml="fixtures/sink.xml", name="sink", *args, **kwargs):
         self._handle_joint = None
         self._water_site = None
