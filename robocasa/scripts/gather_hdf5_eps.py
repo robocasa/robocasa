@@ -29,9 +29,7 @@ from robocasa.scripts.collect_demos import gather_demonstrations_as_hdf5
 from robosuite.controllers import load_composite_controller_config
 
 
-def merge_eps(session_folder):
-    all_eps_directory = os.path.join(session_folder, "episodes")
-
+def merge_eps(all_eps_directory):
     successful_episodes = []
 
     env_info = None
@@ -107,7 +105,9 @@ def merge_eps(session_folder):
         convert_to_robomimic_format(hdf5_path)
 
     # copy demo.hdf5 -> demo_orig.hdf5, if the latter doesn't currently exist
-    if not os.path.exists(os.path.join(session_folder, "demo_orig.hdf5")):
+    if os.path.exists(os.path.join(session_folder, "demo.hdf5")) and not os.path.exists(
+        os.path.join(session_folder, "demo_orig.hdf5")
+    ):
         shutil.copy(
             os.path.join(session_folder, "demo.hdf5"),
             os.path.join(session_folder, "demo_orig.hdf5"),
@@ -141,7 +141,9 @@ if __name__ == "__main__":
     for root, dirs, files in os.walk(args.directory):
         for dir in dirs:
             if dir == "episodes":
-                all_session_folders.append(root)
+                all_session_folders.append(os.path.join(root, dir))
+    # for dir in os.listdir(args.directory):
+    #     all_session_folders.append(os.path.join(args.directory, dir))
 
     for session_folder in all_session_folders:
         print(colored(f"\nMerging demos for {session_folder}", "yellow"))

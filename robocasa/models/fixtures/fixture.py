@@ -17,7 +17,7 @@ from robosuite.utils.mjcf_utils import (
 
 import robocasa
 import robocasa.macros as macros
-from robocasa.models.objects import MujocoXMLObject
+from robocasa.models.objects.objects import MujocoXMLObjectRobocasa
 from robocasa.utils.object_utils import get_pos_after_rel_offset
 
 
@@ -67,9 +67,13 @@ class FixtureType(IntEnum):
     FRIDGE = 23
     DISHWASHER = 24
     OVEN = 25
+    TOASTER_OVEN = 26
+    BLENDER = 27
+    STAND_MIXER = 28
+    ELECTRIC_KETTLE = 29
 
 
-class Fixture(MujocoXMLObject):
+class Fixture(MujocoXMLObjectRobocasa):
     """
     Base class for fixtures in robosuite kitchen environments.
 

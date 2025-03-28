@@ -44,7 +44,9 @@ class TestTasksValidity(unittest.TestCase):
                 print(colored(f"Exiting Test Early.", "yellow"))
                 break
             except Exception:
-                print(colored(f"Test {env_name} Failed.", "red"))
+                print(
+                    colored(f"Test {env_name} Failed:\n{traceback.format_exc()}", "red")
+                )
                 if env_name not in error_dict.keys():
                     error_dict[env_name] = []
                 error_dict[env_name].append(traceback.format_exc())

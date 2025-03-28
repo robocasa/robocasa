@@ -12,6 +12,8 @@ class MealPrepStaging(Kitchen):
         and meat on different pans.
     """
 
+    EXCLUDE_LAYOUTS = [7]  # challenges with placing pans on table for layout 7
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

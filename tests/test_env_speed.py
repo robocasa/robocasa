@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 from termcolor import colored
 
-TASKS = [
+TASKS_COMPOSITE30 = [
     "PrewashFoodAssembly",
     "StackBowlsInSink",
     "DryDrinkware",
@@ -37,28 +37,61 @@ TASKS = [
     "CupcakeCleanup",
 ]
 
-task_infos = {}
 
-for task in TASKS:
-    args = get_args()
-    args.env = task
-    args.onscreen = True
-    args.camera = "robot0_frontview"
-    args.seed = 0
-    args.n_trials = 30
-    args.layout_id = -1
-    args.style_id = -1
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
 
-    info = run_bench(args)
-    task_infos[task] = info
+    parser.add_argument(
+        "--tasks",
+        type=str,
+        nargs="+",
+    )
+    parser.add_argument(
+        "--layouts",
+        type=int,
+        nargs="+",
+    )
+    args = parser.parse_args()
 
-print()
-print(colored("***** Summary of stats *****", "yellow"))
-for task, info in task_infos.items():
-    reset_time_list = info["reset_time_list"]
-    steps_per_sec_list = info["steps_per_sec_list"]
+    all_infos = {}
 
-    print(colored(f"Task: {task}", "yellow"))
-    print(colored("reset time: {:.2f}s".format(np.mean(reset_time_list)), "yellow"))
-    print(colored("fps: {:.2f}".format(np.mean(steps_per_sec_list)), "yellow"))
+    task_list = args.tasks
+    if task_list is None:
+        task_list = ["PnPCounterToStove"]
+
+    layout_list = args.layouts
+    if layout_list is None:
+        layout_list = list(range(0, 10)) + list(range(101, 121))
+
+    for task in task_list:
+        all_infos[task] = {}
+        for layout in layout_list:
+            print(colored(f"Task: {task}; Layout: {layout}", "yellow"))
+            info = run_bench(
+                env_name=task,
+                robots="PandaOmron",
+                onscreen=True,
+                camera="robot0_frontview",
+                seed=0,
+                n_trials=30,
+                layout=layout,
+                style=-1,
+            )
+            all_infos[task][layout] = info
+            print()
+
     print()
+    print(colored("***** Summary of stats *****", "yellow"))
+    for task in all_infos.keys():
+        for layout in all_infos[task].keys():
+            reset_time_list = all_infos[task][layout]["reset_time_list"]
+            steps_per_sec_list = all_infos[task][layout]["steps_per_sec_list"]
+
+            print(colored(f"Task: {task}; Layout: {layout}", "yellow"))
+            print(
+                colored(
+                    "reset time: {:.2f}s".format(np.mean(reset_time_list)), "yellow"
+                )
+            )
+            print(colored("fps: {:.2f}".format(np.mean(steps_per_sec_list)), "yellow"))
+            print()

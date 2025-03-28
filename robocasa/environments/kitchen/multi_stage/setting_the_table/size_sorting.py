@@ -26,6 +26,13 @@ class SizeSorting(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, size=(1, 0.4))
         )
         self.init_robot_base_pos = self.counter
+        if "object_cfgs" in self._ep_meta:
+            object_cfgs = self._ep_meta["object_cfgs"]
+            self.num_objs = len(
+                [cfg for cfg in object_cfgs if cfg["name"].startswith("obj_")]
+            )
+        else:
+            self.num_objs = self.rng.choice([2, 3])
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -41,8 +48,6 @@ class SizeSorting(Kitchen):
 
     def _get_obj_cfgs(self):
         cfgs = []
-
-        self.num_objs = self.rng.choice([2, 3])
         stack_cat = self.rng.choice(["cup", "bowl"])
         scale = 0.80
         # pass in object scale to the config to make the objects smaller and thus stackable

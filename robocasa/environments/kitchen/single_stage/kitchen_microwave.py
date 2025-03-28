@@ -50,7 +50,6 @@ class MicrowavePressButton(Kitchen):
             dict(
                 name="obj",
                 obj_groups="all",
-                heatable=True,
                 placement=dict(
                     fixture=self.microwave,
                     size=(0.05, 0.05),

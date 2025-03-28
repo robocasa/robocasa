@@ -1,15 +1,15 @@
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visuals/ElectricKettle001_Body001.obj" name="ElectricKettle001_Body001_vis"/>
-    <mesh file="visuals/ElectricKettle001_Button002.obj" name="ElectricKettle001_Button002_vis"/>
-    <mesh file="visuals/ElectricKettle001_Handle001.obj" name="ElectricKettle001_Handle001_vis"/>
-    <mesh file="visuals/ElectricKettle001_Button001.obj" name="ElectricKettle001_Button001_vis"/>
-    <mesh file="visuals/ElectricKettle001_Lid001.obj" name="ElectricKettle001_Lid001_vis"/>
-    <mesh file="visuals/ElectricKettle001_Handle001_Clear.obj" name="ElectricKettle001_Handle001_Clear_vis"/>
-    <texture file="visuals/T_ElectricKettle001_BC001.png" name="T_ElectricKettle001_BC001" type="2d"/>
-    <material name="material" rgba="1 1 1 1" texture="T_ElectricKettle001_BC001"/>
-    <material name="material_Clear" rgba="1 1 1 0.4" texture="T_ElectricKettle001_BC001"/>
+    <mesh file="visuals/Body001.obj" name="Body001_vis"/>
+    <mesh file="visuals/Button002.obj" name="Button002_vis"/>
+    <mesh file="visuals/Handle001.obj" name="Handle001_vis"/>
+    <mesh file="visuals/Button001.obj" name="Button001_vis"/>
+    <mesh file="visuals/Lid001.obj" name="Lid001_vis"/>
+    <mesh file="visuals/Handle001_Clear.obj" name="Handle001_Clear_vis"/>
+    <texture file="visuals/T_BC001.png" name="T_BC001" type="2d"/>
+    <material name="material" rgba="1 1 1 1" texture="T_BC001"/>
+    <material name="material_Clear" rgba="1 1 1 0.4" texture="T_BC001"/>
   </asset>
   <default>
     <default class="visual">
@@ -25,7 +25,7 @@
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="ElectricKettle001_Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
         <geom class="collision" type="box" pos="0.0 0.07726078480482101 0.009566003456711769" size="0.0025674684438854456 0.013775872066617012 0.008990506641566753" quat="0.7071067690849304 0.0 0.0 -0.7071067690849304"/>
         <geom class="collision" type="box" pos="-0.02437663823366165 0.07331445068120956 0.009566000662744045" size="0.002567468211054802 0.013775867410004139 0.008990505710244179" quat="0.8110213279724121 0.0 0.0 -0.5850166082382202"/>
         <geom class="collision" type="box" pos="-0.04602629691362381 0.062054891139268875 0.009566003456711769" size="0.002567468211054802 0.013775872066617012 0.008990506641566753" quat="0.8932319283485413 0.0 0.0 -0.449596107006073"/>
@@ -46,9 +46,9 @@
         <geom class="collision" type="box" pos="0.05914850905537605 0.04970595985651016 0.009566003456711769" size="0.002567468909546733 0.013775874860584736 0.008990506641566753" quat="0.3423670530319214 0.0 0.0 -0.9395662546157837"/>
         <geom class="collision" type="box" pos="0.04069571942090988 0.06567410379648209 0.009566003456711769" size="0.0025674679782241583 0.013775869272649288 0.008990506641566753" quat="0.4864504635334015 0.0 0.0 -0.8737081289291382"/>
         <geom class="collision" type="box" pos="0.018833518028259277 0.07493015378713608 0.009566000662744045" size="0.002567468211054802 0.013775870203971863 0.008990505710244179" quat="0.6149123907089233 0.0 0.0 -0.78859543800354"/>
-        <body name="ElectricKettle001_Handle001">
-          <joint axis="0 0 1" pos="0.0 0.0 0.019041121006011963" limited="true" name="ElectricKettle001_Handle001_joint" range="0.0 0.02" type="slide" damping="2" frictionloss="2" armature=".01"/>
-          <geom mesh="ElectricKettle001_Handle001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <body name="Handle001">
+          <joint axis="0 0 1" pos="0.0 0.0 0.019041121006011963" limited="true" name="Handle001_joint" range="0.0 0.02" type="slide" damping="2" frictionloss="2" armature=".01"/>
+          <geom mesh="Handle001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
           <geom class="collision" type="box" pos="0.07114657759666443 0.014071319252252579 0.051101066172122955" size="0.0059483167715370655 0.020590348169207573 0.005948314908891916" quat="0.5410292744636536 0.5156148076057434 -0.43833237886428833 -0.49929279088974"/>
           <geom class="collision" type="box" pos="0.08698375523090363 -7.450580596923828e-09 0.2055806666612625" size="0.010406920686364174 0.016176754608750343 0.012970302253961563" quat="0.6185635924339294 0.34260621666908264 -0.34260621666908264 -0.6185635924339294"/>
           <geom class="collision" type="box" pos="0.10708519071340561 -7.450580596923828e-09 0.1791350394487381" size="0.010406920686364174 0.016176756471395493 0.02673378959298134" quat="0.6847237944602966 0.17650292813777924 -0.17650292813777924 -0.6847237944602966"/>
@@ -96,13 +96,13 @@
           <geom class="collision" type="box" pos="0.018833518028259277 0.07493015378713608 0.052683018147945404" size="0.002567468211054802 0.013775870203971863 0.030322927981615067" quat="0.6149123907089233 0.0 0.0 -0.78859543800354"/>
           <geom class="collision" type="box" pos="0.015694178640842438 0.06244012713432312 0.15227310359477997" size="0.0025674679782241583 0.013775871135294437 0.07080358266830444" quat="0.6120721697807312 0.07570669054985046 0.059032782912254333 -0.7849530577659607"/>
           <geom class="collision" type="box" pos="0.06511648744344711 0.0 0.21094107627868652" size="0.015497389249503613 0.016176752746105194 0.012970301322638988" quat="0.7044461369514465 -0.06128261610865593 0.06128261610865593 -0.7044461369514465"/>
-          <body name="ElectricKettle001_Button002">
-            <joint axis="0 1 0" pos="0.06595715880393982 -0.00025021814508363605 0.23366549611091614" limited="true" name="ElectricKettle001_Button002_joint" range="0.0 0.2617993877991494" type="hinge" damping="2" frictionloss="2" armature=".01"/>
-            <geom mesh="ElectricKettle001_Button002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+          <body name="Button002">
+            <joint axis="0 1 0" pos="0.06595715880393982 -0.00025021814508363605 0.23366549611091614" limited="true" name="Button002_joint" range="0.0 0.2617993877991494" type="hinge" damping="2" frictionloss="2" armature=".01"/>
+            <geom mesh="Button002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
             <geom class="collision" type="box" pos="0.06635893136262894 0.0 0.2311476618051529" size="0.0036123027093708515 0.014906937256455421 0.0023257581051439047" quat="0.08908417075872421 0.7014727592468262 -0.7014727592468262 -0.08908417075872421"/>
           </body>
-          <body name="ElectricKettle001_Handle001_Clear">
-            <geom mesh="ElectricKettle001_Handle001_Clear_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material_Clear"/>
+          <body name="Handle001_Clear">
+            <geom mesh="Handle001_Clear_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material_Clear"/>
             <geom class="collision" type="box" pos="0.07114657759666443 0.014071319252252579 0.051101066172122955" size="0.0059483167715370655 0.020590348169207573 0.005948314908891916" quat="0.5410292744636536 0.5156148076057434 -0.43833237886428833 -0.49929279088974"/>
             <geom class="collision" type="box" pos="0.08698375523090363 -7.450580596923828e-09 0.2055806666612625" size="0.010406920686364174 0.016176754608750343 0.012970302253961563" quat="0.6185635924339294 0.34260621666908264 -0.34260621666908264 -0.6185635924339294"/>
             <geom class="collision" type="box" pos="0.10708519071340561 -7.450580596923828e-09 0.1791350394487381" size="0.010406920686364174 0.016176756471395493 0.02673378959298134" quat="0.6847237944602966 0.17650292813777924 -0.17650292813777924 -0.6847237944602966"/>
@@ -151,13 +151,13 @@
             <geom class="collision" type="box" pos="0.015694178640842438 0.06244012713432312 0.15227310359477997" size="0.0025674679782241583 0.013775871135294437 0.07080358266830444" quat="0.6120721697807312 0.07570669054985046 0.059032782912254333 -0.7849530577659607"/>
             <geom class="collision" type="box" pos="0.06511648744344711 0.0 0.21094107627868652" size="0.015497389249503613 0.016176752746105194 0.012970301322638988" quat="0.7044461369514465 -0.06128261610865593 0.06128261610865593 -0.7044461369514465"/>
           </body>
-          <body name="ElectricKettle001_Lid001">
-            <joint axis="0 1 0" pos="0.0442967489361763 -2.2959327907301486e-05 0.2309522032737732" limited="true" name="ElectricKettle001_Lid001_joint" range="0.0 1.5707963267948966" type="hinge" damping="2" frictionloss="2" armature=".01"/>
-            <geom mesh="ElectricKettle001_Lid001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+          <body name="Lid001">
+            <joint axis="0 1 0" pos="0.0442967489361763 -2.2959327907301486e-05 0.2309522032737732" limited="true" name="Lid001_joint" range="0.0 1.5707963267948966" type="hinge" damping="2" frictionloss="2" armature=".01"/>
+            <geom mesh="Lid001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
             <geom class="collision" type="cylinder" pos="-0.00397300161421299 0.0 0.23204299807548523" size="0.040286511182785034 0.004160699434578419" quat="0.7071067690849304 0.0 0.0 -0.7071067690849304"/>
-            <body name="ElectricKettle001_Button001">
-              <joint axis="-1 0 0" pos="0.004197737202048302 -9.533429874863941e-06 0.24028132855892181" limited="true" name="ElectricKettle001_Button001_joint" range="0.0 0.015" type="slide" damping="2" frictionloss="2" armature=".01"/>
-              <geom mesh="ElectricKettle001_Button001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+            <body name="Button001">
+              <joint axis="-1 0 0" pos="0.004197737202048302 -9.533429874863941e-06 0.24028132855892181" limited="true" name="Button001_joint" range="0.0 0.015" type="slide" damping="2" frictionloss="2" armature=".01"/>
+              <geom mesh="Button001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
               <geom class="collision" type="box" pos="0.005577339790761471 0.0002364879474043846 0.23937781155109406" size="0.006799906957894564 0.008221696130931377 0.0016638693632557988" quat="0.7071067690849304 0.0 0.0 -0.7071067690849304"/>
             </body>
           </body>
@@ -167,9 +167,9 @@
     </body>
   </worldbody>
   <actuator>
-    <motor name="ElectricKettle001_Handle001_joint_actuator" joint="ElectricKettle001_Handle001_joint" gear="10"/>
-    <motor name="ElectricKettle001_Button002_joint_actuator" joint="ElectricKettle001_Button002_joint" gear="10"/>
-    <motor name="ElectricKettle001_Lid001_joint_actuator" joint="ElectricKettle001_Lid001_joint" gear="10"/>
-    <motor name="ElectricKettle001_Button001_joint_actuator" joint="ElectricKettle001_Button001_joint" gear="10"/>
+    <motor name="Handle001_joint_actuator" joint="Handle001_joint" gear="10"/>
+    <motor name="Button002_joint_actuator" joint="Button002_joint" gear="10"/>
+    <motor name="Lid001_joint_actuator" joint="Lid001_joint" gear="10"/>
+    <motor name="Button001_joint_actuator" joint="Button001_joint" gear="10"/>
   </actuator>
 </mujoco>

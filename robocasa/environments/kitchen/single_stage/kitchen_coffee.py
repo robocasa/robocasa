@@ -21,7 +21,7 @@ class PnPCoffee(Kitchen):
         Setup the kitchen references for the coffee tasks. (Coffee machine and counter)
         """
         super()._setup_kitchen_references()
-        self.coffee_machine = self.get_fixture("coffee_machine")
+        self.coffee_machine = self.get_fixture(FixtureType.COFFEE_MACHINE)
         self.counter = self.get_fixture(FixtureType.COUNTER, ref=self.coffee_machine)
         self.init_robot_base_pos = self.coffee_machine
 
@@ -137,7 +137,7 @@ class CoffeePressButton(Kitchen):
         Setup the kitchen references for the coffee press button task. (Coffee machine and counter the coffee machine is on)
         """
         super()._setup_kitchen_references()
-        self.coffee_machine = self.get_fixture("coffee_machine")
+        self.coffee_machine = self.get_fixture(FixtureType.COFFEE_MACHINE)
         self.counter = self.get_fixture(FixtureType.COUNTER, ref=self.coffee_machine)
         self.init_robot_base_pos = self.coffee_machine
 

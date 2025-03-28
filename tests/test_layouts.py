@@ -32,7 +32,7 @@ TEST_ENVS = [
     dict(env_name="CoffeeServeMug"),
     dict(env_name="CoffeePressButton"),
     dict(env_name="Kitchen", init_robot_base_pos=FixtureType.DISHWASHER),
-    dict(env_name="Kitchen", init_robot_base_pos=FixtureType.OVEN),
+    dict(env_name="Kitchen", init_robot_base_pos=FixtureType.COFFEE_MACHINE),
     dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
     dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER),
 ]

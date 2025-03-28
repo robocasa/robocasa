@@ -10,16 +10,16 @@ class LayoutType(IntEnum):
     Enum for available layouts in RoboCasa environment
     """
 
-    ONE_WALL_SMALL = 0
-    ONE_WALL_LARGE = 1
-    L_SHAPED_SMALL = 2
-    L_SHAPED_LARGE = 3
-    GALLEY = 4
-    U_SHAPED_SMALL = 5
-    U_SHAPED_LARGE = 6
-    G_SHAPED_SMALL = 7
-    G_SHAPED_LARGE = 8
-    WRAPAROUND = 9
+    LAYOUT0 = 0
+    LAYOUT1 = 1
+    LAYOUT2 = 2
+    LAYOUT3 = 3
+    LAYOUT4 = 4
+    LAYOUT5 = 5
+    LAYOUT6 = 6
+    LAYOUT7 = 7
+    LAYOUT8 = 8
+    LAYOUT9 = 9
 
     LAYOUT101 = 101
     LAYOUT102 = 102
@@ -41,6 +41,36 @@ class LayoutType(IntEnum):
     LAYOUT118 = 118
     LAYOUT119 = 119
     LAYOUT120 = 120
+    LAYOUT121 = 121
+    LAYOUT122 = 122
+    LAYOUT123 = 123
+    LAYOUT124 = 124
+    LAYOUT125 = 125
+    LAYOUT126 = 126
+    LAYOUT127 = 127
+    LAYOUT128 = 128
+    LAYOUT129 = 129
+    LAYOUT130 = 130
+    LAYOUT131 = 131
+    LAYOUT132 = 132
+    LAYOUT133 = 133
+    LAYOUT134 = 134
+    LAYOUT135 = 135
+    LAYOUT136 = 136
+    LAYOUT137 = 137
+    LAYOUT138 = 138
+    LAYOUT139 = 139
+    LAYOUT140 = 140
+    LAYOUT141 = 141
+    LAYOUT142 = 142
+    LAYOUT143 = 143
+    LAYOUT144 = 144
+    LAYOUT145 = 145
+    LAYOUT146 = 146
+    LAYOUT147 = 147
+    LAYOUT148 = 148
+    LAYOUT149 = 149
+    LAYOUT150 = 150
 
     # negative values correspond to groups (see LAYOUT_GROUPS_TO_IDS)
     ALL = -1
@@ -54,6 +84,8 @@ LAYOUT_GROUPS_TO_IDS = {
     -2: [0, 2, 4, 5, 7],  # no island
     -3: [1, 3, 6, 8, 9],  # island
     -4: [1, 3, 6, 7, 8, 9],  # dining
+    -20: list(range(101, 121)),
+    -35: list(range(101, 136)),
 }
 
 
@@ -96,7 +128,11 @@ def get_layout_path(layout_id):
     Return:
         str: yaml path for specified layout
     """
-    if isinstance(layout_id, int) or isinstance(layout_id, np.int64):
+    if (
+        isinstance(layout_id, int)
+        or isinstance(layout_id, np.int64)
+        or isinstance(layout_id, np.int32)
+    ):
         layout_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), LayoutType)
         )
@@ -126,7 +162,11 @@ def get_style_path(style_id):
     Return:
         str: yaml path for specified style
     """
-    if isinstance(style_id, int) or isinstance(style_id, np.int64):
+    if (
+        isinstance(style_id, int)
+        or isinstance(style_id, np.int64)
+        or isinstance(style_id, np.int32)
+    ):
         style_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), StyleType)
         )
@@ -149,14 +189,16 @@ def unpack_layout_ids(layout_ids):
     if not isinstance(layout_ids, list):
         layout_ids = [layout_ids]
 
-    layout_ids = [int(id) for id in layout_ids]
-
     all_layout_ids = []
     for id in layout_ids:
-        if id < 0:
-            all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
-        else:
+        if isinstance(id, dict):
             all_layout_ids.append(id)
+        else:
+            id = int(id)
+            if id < 0:
+                all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
+            else:
+                all_layout_ids.append(id)
     return all_layout_ids
 
 

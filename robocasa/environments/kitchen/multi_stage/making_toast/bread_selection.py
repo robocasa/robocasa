@@ -57,7 +57,7 @@ class BreadSelection(Kitchen):
                     ),
                     size=(0.3, 0.5),
                     pos=(1, -1.0),
-                    rot=np.pi / 2,
+                    rotation=[np.pi / 2, np.pi / 2],
                 ),
             )
         )

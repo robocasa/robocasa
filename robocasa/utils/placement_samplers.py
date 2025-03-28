@@ -13,6 +13,7 @@ from robosuite.utils.transform_utils import (
     rotate_2d_point,
 )
 
+from robocasa.models.objects.objects import MJCFObject
 from robocasa.utils.object_utils import obj_in_region, objs_intersect
 
 
@@ -42,6 +43,7 @@ class ObjectPositionSampler:
         mujoco_objects=None,
         ensure_object_boundary_in_range=True,
         ensure_valid_placement=True,
+        reference_object=None,
         reference_pos=(0, 0, 0),
         reference_rot=0,
         z_offset=0.0,
@@ -64,6 +66,7 @@ class ObjectPositionSampler:
             )
         self.ensure_object_boundary_in_range = ensure_object_boundary_in_range
         self.ensure_valid_placement = ensure_valid_placement
+        self.reference_object = reference_object
         self.reference_pos = reference_pos
         self.reference_rot = reference_rot
         self.z_offset = z_offset
@@ -184,6 +187,7 @@ class UniformRandomSampler(ObjectPositionSampler):
         rotation_axis="z",
         ensure_object_boundary_in_range=True,
         ensure_valid_placement=True,
+        reference_object=None,
         reference_pos=(0, 0, 0),
         reference_rot=0,
         z_offset=0.0,
@@ -205,13 +209,14 @@ class UniformRandomSampler(ObjectPositionSampler):
             mujoco_objects=mujoco_objects,
             ensure_object_boundary_in_range=ensure_object_boundary_in_range,
             ensure_valid_placement=ensure_valid_placement,
+            reference_object=reference_object,
             reference_pos=reference_pos,
             reference_rot=reference_rot,
             z_offset=z_offset,
             rng=rng,
         )
 
-    def _sample_x(self):
+    def _sample_x(self, obj_size=None):
         """
         Samples the x location for a given object
 
@@ -219,9 +224,20 @@ class UniformRandomSampler(ObjectPositionSampler):
             float: sampled x position
         """
         minimum, maximum = self.x_range
+        if obj_size is not None:
+            buffer = min(obj_size[0], obj_size[1]) / 2
+            if self.ensure_object_boundary_in_range:
+                minimum += buffer
+                maximum -= buffer
+
+        if minimum > maximum:
+            raise RandomizationError(
+                f"Invalid x range for placement initializer: ({minimum}, {maximum})"
+            )
+
         return self.rng.uniform(high=maximum, low=minimum)
 
-    def _sample_y(self):
+    def _sample_y(self, obj_size=None):
         """
         Samples the y location for a given object
 
@@ -229,6 +245,17 @@ class UniformRandomSampler(ObjectPositionSampler):
             float: sampled y position
         """
         minimum, maximum = self.y_range
+        if obj_size is not None:
+            buffer = min(obj_size[0], obj_size[1]) / 2
+            if self.ensure_object_boundary_in_range:
+                minimum += buffer
+                maximum -= buffer
+
+        if minimum > maximum:
+            raise RandomizationError(
+                f"Invalid y range for placement initializer: ({minimum}, {maximum})"
+            )
+
         return self.rng.uniform(high=maximum, low=minimum)
 
     def _sample_quat(self):
@@ -343,10 +370,24 @@ class UniformRandomSampler(ObjectPositionSampler):
                 )
             region_points += base_offset
 
+            from robocasa.models.fixtures import Fixture
+
+            if (
+                isinstance(obj, MJCFObject) or isinstance(obj, Fixture)
+            ) and self.rotation_axis == "z":
+                obj_points = obj.get_bbox_points()
+                p0 = obj_points[0]
+                px = obj_points[1]
+                py = obj_points[2]
+                pz = obj_points[3]
+                obj_size = (px[0] - p0[0], py[1] - p0[1], pz[2] - p0[2])
+            else:
+                obj_size = None
+
             for i in range(5000):  # 5000 retries
                 # sample object coordinates
-                relative_x = self._sample_x()
-                relative_y = self._sample_y()
+                relative_x = self._sample_x(obj_size)
+                relative_y = self._sample_y(obj_size)
 
                 # apply rotation
                 object_x, object_y = rotate_2d_point(
@@ -363,7 +404,7 @@ class UniformRandomSampler(ObjectPositionSampler):
                 quat = self._sample_quat()
                 # multiply this quat by the object's initial rotation if it has the attribute specified
                 if hasattr(obj, "init_quat"):
-                    quat = quat_multiply(obj.init_quat, quat)
+                    quat = quat_multiply(quat, obj.init_quat)
                 quat = convert_quat(
                     quat_multiply(
                         convert_quat(ref_quat, to="xyzw"),
@@ -388,7 +429,13 @@ class UniformRandomSampler(ObjectPositionSampler):
 
                 # objects cannot overlap
                 if self.ensure_valid_placement:
-                    for (x, y, z), other_quat, other_obj in placed_objects.values():
+                    for placed_obj_name, (
+                        (x, y, z),
+                        other_quat,
+                        other_obj,
+                    ) in placed_objects.items():
+                        if placed_obj_name == self.reference_object:
+                            continue
                         if objs_intersect(
                             obj=obj,
                             obj_pos=[object_x, object_y, object_z],

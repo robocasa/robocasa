@@ -33,6 +33,8 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Fridge)
     elif fixture_type == FixtureType.DISHWASHER:
         return isinstance(fixture, Dishwasher)
+    elif fixture_type == FixtureType.COFFEE_MACHINE:
+        return isinstance(fixture, CoffeeMachine)
     elif fixture_type == FixtureType.CABINET_TOP:
         cls_check = any(
             [
@@ -101,6 +103,10 @@ def fixture_is_type(fixture, fixture_type):
         return True
     elif fixture_type == FixtureType.TOASTER:
         return isinstance(fixture, Toaster)
+    elif fixture_type == FixtureType.TOASTER_OVEN:
+        return isinstance(fixture, ToasterOven)
+    elif fixture_type == FixtureType.BLENDER:
+        return isinstance(fixture, Blender)
     elif fixture_type == FixtureType.TOP_DRAWER:
         height_check = 0.7 <= fixture.pos[2] <= 0.9
         return height_check and isinstance(fixture, Drawer)

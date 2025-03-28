@@ -266,6 +266,61 @@ def compute_robot_base_placement_pose(env, ref_fixture, ref_object=None, offset=
     return robot_base_pos, robot_base_ori
 
 
+def _check_cfg_is_valid(cfg):
+    """
+    check a object / fixture config for correctness. called by _get_placement_initializer
+    """
+    VALID_CFG_KEYS = set(
+        {
+            "type",
+            "name",
+            "model",
+            "obj_groups",
+            "exclude_obj_groups",
+            "graspable",
+            "cookable",
+            "washable",
+            "microwavable",
+            "freezable",
+            "max_size",
+            "object_scale",
+            "placement",
+            "info",
+            "init_robot_here",
+        }
+    )
+
+    VALID_PLACEMENT_KEYS = set(
+        {
+            "size",
+            "pos",
+            "offset",
+            "margin",
+            "rotation_axis",
+            "rotation",
+            "ensure_object_boundary_in_range",
+            "ensure_valid_placement",
+            "sample_args",
+            "sample_region_kwargs",
+            "ref_obj",
+            "fixture",
+            "try_to_place_in",
+        }
+    )
+
+    for k in cfg:
+        assert (
+            k in VALID_CFG_KEYS
+        ), f"got invaild key \"{k}\" in {cfg['type']} config {cfg['name']}"
+    placement = cfg.get("placement", None)
+    if placement is None:
+        return
+    for k in cfg["placement"]:
+        assert (
+            k in VALID_PLACEMENT_KEYS
+        ), f"got invaild key \"{k}\" in placement config for {cfg['name']}"
+
+
 def _get_placement_initializer(env, cfg_list, z_offset=0.01):
 
     """
@@ -284,6 +339,9 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
     placement_initializer = SequentialCompositeSampler(name="SceneSampler", rng=env.rng)
 
     for (obj_i, cfg) in enumerate(cfg_list):
+        # check cfg keys are set up correctly
+        _check_cfg_is_valid(cfg)
+
         # determine which object is being placed
         if cfg["type"] == "fixture":
             mj_obj = env.fixtures[cfg["name"]]
@@ -295,12 +353,37 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
         placement = cfg.get("placement", None)
         if placement is None:
             continue
+
         fixture_id = placement.get("fixture", None)
-        if fixture_id is not None:
+        reference_object = None
+
+        # set up placement sampler kwargs
+        sampler_kwargs = dict(
+            name="{}_Sampler".format(cfg["name"]),
+            mujoco_objects=mj_obj,
+            rng=env.rng,
+            ensure_object_boundary_in_range=placement.get(
+                "ensure_object_boundary_in_range", True
+            ),
+            ensure_valid_placement=placement.get("ensure_valid_placement", True),
+            rotation_axis=placement.get("rotation_axis", "z"),
+            rotation=placement.get("rotation", np.array([-np.pi / 4, np.pi / 4])),
+        )
+
+        # infer and fill in rest of configs now
+        if fixture_id is None:
+            target_size = placement.get("size", None)
+            x_range = np.array([-target_size[0] / 2, target_size[0] / 2])
+            y_range = np.array([-target_size[1] / 2, target_size[1] / 2])
+
+            ref_pos = [0, 0, 0]
+            ref_rot = 0.0
+        else:
             # get fixture to place object on
             fixture = env.get_fixture(
                 id=fixture_id,
                 ref=placement.get("ref", None),
+                full_name_check=True if cfg["type"] == "fixture" else False,  # hack
             )
 
             # calculate the total available space where object could be placed
@@ -313,6 +396,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
                 reset_region = fixture.sample_reset_region(
                     env=env, **sample_region_kwargs
                 )
+                reference_object = fixture.name
             cfg["reset_region"] = reset_region
             outer_size = reset_region["size"]
             margin = placement.get("margin", 0.04)
@@ -343,9 +427,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
                 if x_halfsize == 0.0:
                     inner_xpos = 0.0
                 else:
-                    ref_fixture = env.get_fixture(
-                        placement["sample_region_kwargs"]["ref"]
-                    )
+                    ref_fixture = env.get_fixture(sample_region_kwargs["ref"])
                     ref_pos = ref_fixture.pos
                     fixture_to_ref = OU.get_rel_transform(fixture, ref_fixture)[0]
                     outer_to_ref = fixture_to_ref - reset_region["offset"]
@@ -360,9 +442,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
                 if y_halfsize == 0.0:
                     inner_ypos = 0.0
                 else:
-                    ref_fixture = env.get_fixture(
-                        placement["sample_region_kwargs"]["ref"]
-                    )
+                    ref_fixture = env.get_fixture(sample_region_kwargs["ref"])
                     ref_pos = ref_fixture.pos
                     fixture_to_ref = OU.get_rel_transform(fixture, ref_fixture)[0]
                     outer_to_ref = fixture_to_ref - reset_region["offset"]
@@ -392,15 +472,21 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
                 + reset_region["offset"][1]
                 + intra_offset[1]
             )
-            rotation = placement.get("rotation", np.array([-np.pi / 4, np.pi / 4]))
-        else:
-            target_size = placement.get("size", None)
-            x_range = np.array([-target_size[0] / 2, target_size[0] / 2])
-            y_range = np.array([-target_size[1] / 2, target_size[1] / 2])
-            rotation = placement.get("rotation", np.array([-np.pi / 4, np.pi / 4]))
-            ref_pos = [0, 0, 0]
-            ref_rot = 0.0
 
+        placement_initializer.append_sampler(
+            sampler=UniformRandomSampler(
+                reference_object=reference_object,
+                reference_pos=ref_pos,
+                reference_rot=ref_rot,
+                z_offset=z_offset,
+                x_range=x_range,
+                y_range=y_range,
+                **sampler_kwargs,
+            ),
+            sample_args=placement.get("sample_args", None),
+        )
+
+        # optional: visualize the sampling region
         if macros.SHOW_SITES is True:
             """
             show outer reset region
@@ -455,26 +541,6 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
             )
             site_tree = ET.fromstring(site_str)
             env.model.worldbody.append(site_tree)
-
-        placement_initializer.append_sampler(
-            sampler=UniformRandomSampler(
-                name="{}_Sampler".format(cfg["name"]),
-                mujoco_objects=mj_obj,
-                x_range=x_range,
-                y_range=y_range,
-                rotation=rotation,
-                ensure_object_boundary_in_range=placement.get(
-                    "ensure_object_boundary_in_range", True
-                ),
-                ensure_valid_placement=placement.get("ensure_valid_placement", True),
-                reference_pos=ref_pos,
-                reference_rot=ref_rot,
-                z_offset=z_offset,
-                rng=env.rng,
-                rotation_axis=placement.get("rotation_axis", "z"),
-            ),
-            sample_args=placement.get("sample_args", None),
-        )
 
     return placement_initializer
 
@@ -556,6 +622,9 @@ def create_obj(env, cfg):
         """
         mjcf_path = cfg["info"]["mjcf_path"]
         # replace with correct base path
+        mjcf_path = mjcf_path.replace(
+            "\\", "/"
+        )  # replace windows backslashes with forward slashes
         new_base_path = os.path.join(robocasa.models.assets_root, "objects")
         new_path = os.path.join(new_base_path, mjcf_path.split("/objects/")[-1])
         obj_groups = new_path

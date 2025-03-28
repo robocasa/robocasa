@@ -60,8 +60,7 @@ class WarmCroissant(Kitchen):
                         ref=self.stove,
                     ),
                     pos=("ref", -1.0),
-                    try_to_place_in_container=True,
-                    container_group="plate",
+                    try_to_place_in="plate",
                 ),
             )
         )
