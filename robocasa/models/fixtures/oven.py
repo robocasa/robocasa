@@ -11,7 +11,9 @@ class Oven(Fixture):
         name (str): name of the object
     """
 
-    def __init__(self, xml="fixtures/ovens/samsung", name="oven", *args, **kwargs):
+    RESET_REGION_NAMES = ["rack_bottom", "rack_top"]
+
+    def __init__(self, xml="fixtures/ovens/Oven001", name="oven", *args, **kwargs):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )

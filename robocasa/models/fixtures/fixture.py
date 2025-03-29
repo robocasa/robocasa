@@ -141,11 +141,11 @@ class Fixture(MujocoXMLObjectRobocasa):
                 continue
 
             rgba = string_to_array(geom.get("rgba"))
-            if macros.SHOW_SITES:
-                rgba[-1] = 0.25
-            else:
-                rgba[-1] = 0.0
-            geom.set("rgba", array_to_string(rgba))
+            # if macros.SHOW_SITES:
+            #     rgba[-1] = 0.25
+            # else:
+            #     rgba[-1] = 0.0
+            # geom.set("rgba", array_to_string(rgba))
 
             reg_pos = string_to_array(geom.get("pos"))
             reg_size = string_to_array(geom.get("size"))

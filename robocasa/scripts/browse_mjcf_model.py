@@ -100,50 +100,45 @@ def read_model(
                 g.set("rgba", "1.0 0.0 0.0 0.0")
 
     if show_bbox:
-        sites = {}
-        for site in find_elements(root, tags="site", return_first=False):
-            name = site.get("name", None)
-            if name is not None:
-                sites[name] = s2a(site.get("pos"))
+        # reg_geoms = {}
+        for geom in find_elements(root, tags="geom", return_first=False):
+            name = geom.get("name", None)
+            if name is None:
+                continue
+            if not name.startswith("reg_"):
+                continue
 
-        ext_bbox_center = None
-        ext_bbox_size = None
-        if "ext_p0" in sites:
-            ext_bbox_center = np.array(
-                [
-                    np.mean([sites["ext_p0"][0], sites["ext_px"][0]]),
-                    np.mean([sites["ext_p0"][1], sites["ext_py"][1]]),
-                    np.mean([sites["ext_p0"][2], sites["ext_pz"][2]]),
-                ]
-            )
-            ext_bbox_size = np.array(
-                [
-                    sites["ext_px"][0] - sites["ext_p0"][0],
-                    sites["ext_py"][1] - sites["ext_p0"][1],
-                    sites["ext_pz"][2] - sites["ext_p0"][2],
-                ]
-            )
-        elif "bottom_site" in sites:
-            ext_bbox_center = np.mean([sites["top_site"], sites["bottom_site"]], axis=0)
-            ext_bbox_size = (
-                np.array(
-                    [
-                        sites["horizontal_radius_site"][0],
-                        sites["horizontal_radius_site"][1],
-                        sites["top_site"][2] - ext_bbox_center[2],
-                    ]
-                )
-                * 2
-            )
+            if name == "reg_main_body":
+                group = 0
+                geom.set("rgba", "0 1 0 0.3")
+            else:
+                group = 2
+                geom.set("rgba", "1 1 0 0.3")
 
-        if (ext_bbox_center is not None) and (ext_bbox_size is not None):
-            ext_bbox_site = ET.fromstring(
-                """<site type="box" pos="{pos}" size="{hsize}" rgba="0 1 0 0.2"/>""".format(
-                    pos=a2s(ext_bbox_center),
-                    hsize=a2s(ext_bbox_size / 2),
+            geom.set("group", str(group))
+
+            pos = s2a(geom.get("pos"))
+            size = s2a(geom.get("size"))
+            points = [
+                pos + [-size[0], -size[1], -size[2]],
+                pos + [-size[0], -size[1], size[2]],
+                pos + [-size[0], size[1], -size[2]],
+                pos + [-size[0], size[1], size[2]],
+                pos + [size[0], -size[1], -size[2]],
+                pos + [size[0], -size[1], size[2]],
+                pos + [size[0], size[1], -size[2]],
+                pos + [size[0], size[1], size[2]],
+            ]
+
+            for point in points:
+                ext_bbox_site = ET.fromstring(
+                    """<geom type="sphere" pos="{pos}" size="0.005" rgba="{rgba}" group="{group}" />""".format(
+                        pos=a2s(point),
+                        rgba="0 0 0 1",
+                        group=group,
+                    )
                 )
-            )
-            worldbody.append(ext_bbox_site)
+                worldbody.append(ext_bbox_site)
 
     sites = find_elements(root, tags="site", return_first=False)
     if sites is not None:
