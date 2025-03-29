@@ -304,17 +304,25 @@ class SingleCabinet(Cabinet):
             handle_vpos=handle_vpos,
         )
 
-        # set sites
-        self.set_bounds_sites(
+        int_p0 = np.array([-x + th * 2, -y + th * 2, -z + th * 2])
+        int_p1 = np.array(
+            [
+                x - th * 2,
+                y - th * 2,
+                z - th * 2,
+            ]
+        )
+
+        self.set_regions(
             {
-                "main_body_p0": [-x, -y, -z],
-                "main_body_px": [x, -y, -z],
-                "main_body_py": [-x, y, -z],
-                "main_body_pz": [-x, -y, z],
-                "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
-                "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
-                "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
-                "int_pz": [-x + th * 2, -y + th * 2, z - th * 2],
+                "main": {
+                    "pos": [0.0, 0.0, 0.0],
+                    "halfsize": [x, y, z],
+                },
+                "int": {
+                    "pos": (int_p0 + int_p1) / 2,
+                    "halfsize": (int_p1 - int_p0) / 2,
+                },
             }
         )
 
@@ -477,17 +485,25 @@ class HingeCabinet(Cabinet):
                 door_name=side + "_door",
             )
 
-        # set sites
-        self.set_bounds_sites(
+        int_p0 = np.array([-x + th * 2, -y + th * 2, -z + th * 2])
+        int_p1 = np.array(
+            [
+                x - th * 2,
+                y - th * 2,
+                z - th * 2,
+            ]
+        )
+
+        self.set_regions(
             {
-                "main_body_p0": [-x, -y, -z],
-                "main_body_px": [x, -y, -z],
-                "main_body_py": [-x, y, -z],
-                "main_body_pz": [-x, -y, z],
-                "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
-                "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
-                "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
-                "int_pz": [-x + th * 2, -y + th * 2, z - th * 2],
+                "main": {
+                    "pos": [0.0, 0.0, 0.0],
+                    "halfsize": [x, y, z],
+                },
+                "int": {
+                    "pos": (int_p0 + int_p1) / 2,
+                    "halfsize": (int_p1 - int_p0) / 2,
+                },
             }
         )
 
@@ -617,16 +633,14 @@ class OpenCabinet(Cabinet):
         This also involves calculating the exterior and interior bounding boxes.
         """
         # no need to divide size here
-        x, y, z = self.size
-        th = self.thickness
+        x, y, z = [dim / 2 for dim in self.size]
+        th = self.thickness / 2
 
-        shelf_size = [x, y, th]
+        shelf_size = [x * 2, y * 2, th * 2]
         # evenly spaced, taking thickness into account
         shelf_z_positions = (
-            np.linspace(
-                start=th / 2, stop=z - th / 2, num=self.num_shelves, endpoint=False
-            )
-            - z / 2
+            np.linspace(start=th, stop=z * 2 - th, num=self.num_shelves, endpoint=False)
+            - z
         )
 
         # create and position shelves
@@ -645,16 +659,31 @@ class OpenCabinet(Cabinet):
             shelf_elem = shelf.get_obj()
             self.get_obj().append(shelf_elem)
 
-        self.set_bounds_sites(
+        int_p0 = np.array(
+            [
+                -x + th * 2,
+                -y + th * 2,
+                -z + th * 2,
+            ]
+        )
+        int_p1 = np.array(
+            [
+                x - th * 2,
+                y - th * 2,
+                z - th * 2,
+            ]
+        )
+
+        self.set_regions(
             {
-                "main_body_p0": [-x, -y, -z],
-                "main_body_px": [x, -y, -z],
-                "main_body_py": [-x, y, -z],
-                "main_body_pz": [-x, -y, z],
-                "int_p0": [-x + th * 2, -y + th * 2, -z + th * 2],
-                "int_px": [x - th * 2, -y + th * 2, -z + th * 2],
-                "int_py": [-x + th * 2, y - th * 2, -z + th * 2],
-                "int_pz": [-x + th * 2, -y + th * 2, z - th * 2],
+                "main": {
+                    "pos": [0.0, 0.0, 0.0],
+                    "halfsize": [x, y, z],
+                },
+                "int": {
+                    "pos": (int_p0 + int_p1) / 2,
+                    "halfsize": (int_p1 - int_p0) / 2,
+                },
             }
         )
 
@@ -780,16 +809,31 @@ class Drawer(Cabinet):
             handle_vpos="center",
         )
 
-        self.set_bounds_sites(
+        int_p0 = np.array(
+            [
+                -ix + 2 * th,
+                -iy,
+                -iz + 2 * th,
+            ]
+        )
+        int_p1 = np.array(
+            [
+                ix - 2 * th,
+                iy - 2 * th,
+                iz,
+            ]
+        )
+
+        self.set_regions(
             {
-                "main_body_p0": [-x, -y, -z],
-                "main_body_px": [x, -y, -z],
-                "main_body_py": [-x, y, -z],
-                "main_body_pz": [-x, -y, z],
-                "int_p0": [-ix + 2 * th, -iy, -iz + 2 * th],
-                "int_px": [ix - 2 * th, -iy, -iz + 2 * th],
-                "int_py": [-ix + 2 * th, iy - 2 * th, -iz + 2 * th],
-                "int_pz": [-ix + 2 * th, -iy, iz],
+                "main": {
+                    "pos": [0.0, 0.0, 0.0],
+                    "halfsize": [x, y, z],
+                },
+                "int": {
+                    "pos": (int_p0 + int_p1) / 2,
+                    "halfsize": (int_p1 - int_p0) / 2,
+                },
             }
         )
 
@@ -811,7 +855,22 @@ class Drawer(Cabinet):
             int_sites[site] = get_fixture_to_point_rel_offset(
                 self, np.array(env.sim.data.get_site_xpos(self.naming_prefix + site))
             )
-        self.set_bounds_sites(int_sites)
+        int_p0 = np.array(int_sites["int_p0"])
+        int_p1 = np.array(
+            [
+                int_sites["int_px"][0],
+                int_sites["int_py"][1],
+                int_sites["int_pz"][2],
+            ]
+        )
+        self.set_regions(
+            {
+                "int": {
+                    "pos": (int_p0 + int_p1) / 2,
+                    "halfsize": (int_p1 - int_p0) / 2,
+                }
+            }
+        )
 
     def set_door_state(self, min, max, env, rng):
         """
@@ -1151,32 +1210,30 @@ class HousingCabinet(Cabinet):
             self._obj.append(g)
             self._obj.append(g_vis)
 
-        # set sites
-        self.set_bounds_sites(
+        int_p0 = np.array(
+            [
+                -x + self.padding[0][0],
+                -y + self.padding[1][0],
+                -z + self.padding[2][0],
+            ]
+        )
+        int_p1 = np.array(
+            [
+                x - self.padding[0][1],
+                y - self.padding[1][1],
+                z - self.padding[2][1],
+            ]
+        )
+
+        self.set_regions(
             {
-                "main_body_p0": [-x, -y, -z],
-                "main_body_px": [x, -y, -z],
-                "main_body_py": [-x, y, -z],
-                "main_body_pz": [-x, -y, z],
-                "int_p0": [
-                    -x + self.padding[0][0],
-                    -y + self.padding[1][0],
-                    -z + self.padding[2][0],
-                ],
-                "int_px": [
-                    x - self.padding[0][1],
-                    -y + self.padding[1][0],
-                    -z + self.padding[2][0],
-                ],
-                "int_py": [
-                    -x + self.padding[0][0],
-                    y - self.padding[1][1],
-                    -z + self.padding[2][0],
-                ],
-                "int_pz": [
-                    -x + self.padding[0][0],
-                    -y + self.padding[1][0],
-                    z - self.padding[2][1],
-                ],
+                "main": {
+                    "pos": [0.0, 0.0, 0.0],
+                    "halfsize": [x, y, z],
+                },
+                "int": {
+                    "pos": (int_p0 + int_p1) / 2,
+                    "halfsize": (int_p1 - int_p0) / 2,
+                },
             }
         )

@@ -124,12 +124,15 @@ class Counter(ProcGenFixture):
 
         # set sites
         x, y, z = np.array(self.size) / 2
-        self.set_bounds_sites(
+
+        main_p0 = np.array([-x, -y + self.overhang, -z])
+        main_p1 = np.array([x, y, z])
+        self.set_regions(
             {
-                "main_body_p0": [-x, -y + self.overhang, -z],
-                "main_body_px": [x, -y + self.overhang, -z],
-                "main_body_py": [-x, y, -z],
-                "main_body_pz": [-x, -y + self.overhang, z],
+                "main": {
+                    "pos": (main_p0 + main_p1) / 2,
+                    "halfsize": (main_p1 - main_p0) / 2,
+                }
             }
         )
 
