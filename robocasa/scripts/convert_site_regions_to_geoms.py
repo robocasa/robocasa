@@ -107,7 +107,7 @@ def refactor_xml_regions(old_path, new_path, remove_old_sites=True):
             size = [0.0001, 0.0001, 0.0001]
 
         if site_name == "ext":
-            region_name = "reg_main_body"
+            region_name = "reg_main"
         elif "int" in site_name:
             if fxtr_type == "sink":
                 region_name = "reg_" + site_name.replace("int", "basin")
@@ -172,9 +172,9 @@ if __name__ == "__main__":
                 xml_paths.append(os.path.join(root, file))
 
     for path in xml_paths:
-        orig_path = path[:-4] + "_orig.xml"
-        if not os.path.exists(orig_path):
-            shutil.copy(path, orig_path)
+        orig_path = path[:-4] + ".xml"
+        # if not os.path.exists(orig_path):
+        #     shutil.copy(path, orig_path)
 
         remove_old_sites = True
         model_name = path.split("/")[-1]
