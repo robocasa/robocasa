@@ -19,7 +19,12 @@ class Fridge(Fixture):
 
 
 class FridgeFrenchDoor(Fridge):
-    pass
+    RESET_REGION_NAMES = [
+        "fridge_left_shelf0",
+        "fridge_left_shelf1",
+        "fridge_right_shelf0",
+        "fridge_right_shelf1",
+    ]
 
 
 class FridgeSideBySide(Fridge):
