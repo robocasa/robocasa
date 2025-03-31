@@ -236,12 +236,14 @@ class Fixture(MujocoXMLObjectRobocasa):
                 if isinstance(v, np.ndarray):
                     reg_dict[k] = v * scale
 
-    def get_reset_regions(self, *args, **kwargs):
+    def get_reset_regions(self, env, reset_region_names=None):
         """
         returns dictionary of reset regions, each region defined as position, x_bounds, y_bounds
         """
         reset_regions = {}
-        for reg_name in self.RESET_REGION_NAMES:
+        if reset_region_names is None:
+            reset_region_names = self.RESET_REGION_NAMES
+        for reg_name in reset_region_names:
             reg_dict = self._regions.get(reg_name, None)
             if reg_dict is None:
                 continue
