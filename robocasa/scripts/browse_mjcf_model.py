@@ -108,8 +108,8 @@ def read_model(
             if not name.startswith("reg_"):
                 continue
 
-            if name == "reg_main_body":
-                group = 0
+            if name == "reg_main":
+                group = 3
                 geom.set("rgba", "0 1 0 0.3")
             else:
                 group = 2
@@ -132,7 +132,7 @@ def read_model(
 
             for point in points:
                 ext_bbox_site = ET.fromstring(
-                    """<geom type="sphere" pos="{pos}" size="0.005" rgba="{rgba}" group="{group}" />""".format(
+                    """<geom type="sphere" pos="{pos}" size="0.002" rgba="{rgba}" group="{group}" />""".format(
                         pos=a2s(point),
                         rgba="0 0 0 1",
                         group=group,
@@ -234,34 +234,35 @@ if __name__ == "__main__":
         mjcf_path_list = [args.mjcf]
 
     load_time_list = []
-    for mjcf_path in mjcf_path_list:
-        sim, info = read_model(
-            xml=None,
-            filepath=mjcf_path,
-            hide_sites=False,
-            show_bbox=args.show_bbox,
-            show_coll_geoms=args.show_coll_geoms,
-        )
-        load_time = info["sim_load_time"]
-        print("sim load time:", load_time)
-        load_time_list.append(load_time)
-
-        if args.screenshot:
-            image = get_model_screenshot(
-                sim=sim,
-                cam_settings=cam_settings,
+    while True:
+        for mjcf_path in mjcf_path_list:
+            sim, info = read_model(
+                xml=None,
+                filepath=mjcf_path,
+                hide_sites=False,
+                show_bbox=args.show_bbox,
+                show_coll_geoms=args.show_coll_geoms,
             )
-            im = Image.fromarray(image)
-            im.save("screenshot.png")
-        else:
-            render_model(
-                sim=sim,
-                cam_settings=cam_settings,
-            )
+            load_time = info["sim_load_time"]
+            print("sim load time:", load_time)
+            load_time_list.append(load_time)
 
-    if len(mjcf_path_list) > 1:
-        mean = np.mean(load_time_list)
-        median = np.median(load_time_list)
-        print()
-        print("Mean loading time: {:.4f} s".format(mean))
-        print("Median loading time: {:.4f} s".format(median))
+            if args.screenshot:
+                image = get_model_screenshot(
+                    sim=sim,
+                    cam_settings=cam_settings,
+                )
+                im = Image.fromarray(image)
+                im.save("screenshot.png")
+            else:
+                render_model(
+                    sim=sim,
+                    cam_settings=cam_settings,
+                )
+
+        if len(mjcf_path_list) > 1:
+            mean = np.mean(load_time_list)
+            median = np.median(load_time_list)
+            print()
+            print("Mean loading time: {:.4f} s".format(mean))
+            print("Median loading time: {:.4f} s".format(median))
