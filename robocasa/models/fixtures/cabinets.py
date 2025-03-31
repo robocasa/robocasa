@@ -64,6 +64,7 @@ class Cabinet(ProcGenFixture):
         panel_config=None,
         open_top=False,  # remove top element
         texture=None,
+        num_shelves=0,
         *args,
         **kwargs,
     ):
@@ -76,6 +77,7 @@ class Cabinet(ProcGenFixture):
             handle_config = dict()
         self.handle_type = handle_type
         self.handle_config = handle_config
+        self.num_shelves = num_shelves
 
         super().__init__(
             xml=xml,
@@ -100,6 +102,20 @@ class Cabinet(ProcGenFixture):
                 self._remove_element(elem)
 
         self._set_texture()
+
+    def get_reset_region_names(self):
+        return [f"shelf{i}" for i in range(self.num_shelves)]
+
+    def _add_init_elements(self):
+        # add procedural region elements (will later have correct values set)
+        for shelf_i in range(self.num_shelves):
+            region_elem_str = """<geom name="{name}" type="box" pos="{pos}" size="{size}" group="1" conaffinity="0" contype="0" rgba="0.0 1.0 0.0 0.0"/>""".format(
+                name="{}_reg_shelf{}".format(self.name, shelf_i),
+                pos=a2s([0.0, 0.0, 0.0]),
+                size=a2s([0.0001, 0.0001, 0.0001]),
+            )
+            region_elem = ET.fromstring(region_elem_str)
+            self._obj.append(region_elem)
 
     def _set_texture(self):
         """
@@ -192,6 +208,48 @@ class Cabinet(ProcGenFixture):
         self.merge_assets(door)
         parent_body.append(door_elem)
 
+    def _add_shelves(self, num_shelves, upper_shelf_indent=0.005):
+        """
+        helper function to add shelves and set their reset regions
+        """
+
+        # divide sizes by two according to mujoco conventions
+        x, y, z = [dim / 2 if dim is not None else None for dim in self.size]
+        th = self.thickness / 2
+
+        regions = {}
+        total_int_height = 2 * (z - th)
+        for shelf_i in range(num_shelves):
+            shelf_z = (-z + th) + shelf_i * (total_int_height / num_shelves)
+            shelf_indent = 0 if shelf_i == 0 else upper_shelf_indent
+            shelf_pos = np.array([0, shelf_indent, shelf_z])
+            shelf_halfsize = np.array([x - 2 * th, y - th * 2 - shelf_indent, th])
+            if shelf_i > 0:
+                shelf = CabinetShelf(
+                    pos=shelf_pos,
+                    size=shelf_halfsize * 2,
+                    name="{}_shelf{}".format(self.name, shelf_i),
+                    texture=self.texture,
+                )
+
+                # merge shelf
+                self.merge_assets(shelf)
+                shelf_elem = shelf.get_obj()
+                self.get_obj().append(shelf_elem)
+
+            region_pos = shelf_pos.copy()
+            region_pos[2] = (-z + th) + (shelf_i + 0.5) * (
+                total_int_height / num_shelves
+            )
+            region_halfsize = shelf_halfsize.copy()
+            region_halfsize[2] = total_int_height / num_shelves / 2 - th
+            regions[f"shelf{shelf_i}"] = {
+                "pos": region_pos,
+                "halfsize": region_halfsize,
+            }
+
+        self.set_regions(regions)
+
     def set_door_state(self, min, max, env, rng):
         pass
 
@@ -215,8 +273,10 @@ class SingleCabinet(Cabinet):
 
     def __init__(
         self,
+        size,
         name="single_cab",
         orientation="right",
+        num_shelves=None,
         *args,
         **kwargs,
     ):
@@ -224,11 +284,17 @@ class SingleCabinet(Cabinet):
         self.orientation = orientation
         self.cabinet_type = "single"
 
+        if num_shelves is None:
+            num_shelves = max(1, int(size[2] / 0.30))
+        assert num_shelves >= 1
+
         xml = "fixtures/cabinets/cabinet_single.xml"
 
         super().__init__(
-            xml=xml,
             name=name,
+            xml=xml,
+            size=size,
+            num_shelves=num_shelves,
             *args,
             **kwargs,
         )
@@ -267,7 +333,6 @@ class SingleCabinet(Cabinet):
             "back": [x - 2 * th, th, z - 2 * th],
             "left": [th, y - th, z - 2 * th],
             "right": [th, y - th, z - 2 * th],
-            "shelf": [x - 2 * th, y - 0.05, th],
         }
         positions = {
             "top": [0, th, z - th],
@@ -275,7 +340,6 @@ class SingleCabinet(Cabinet):
             "back": [0, y - th, 0],
             "left": [-x + th, th, 0],
             "right": [x - th, th, 0],
-            "shelf": [0, 0.05 - th, 0],
         }
         set_geom_dimensions(sizes, positions, self.geoms, rotated=True)
 
@@ -304,24 +368,13 @@ class SingleCabinet(Cabinet):
             handle_vpos=handle_vpos,
         )
 
-        int_p0 = np.array([-x + th * 2, -y + th * 2, -z + th * 2])
-        int_p1 = np.array(
-            [
-                x - th * 2,
-                y - th * 2,
-                z - th * 2,
-            ]
-        )
-
+        self._add_shelves(num_shelves=self.num_shelves, upper_shelf_indent=0.005)
+        # main body region
         self.set_regions(
             {
                 "main": {
                     "pos": [0.0, 0.0, 0.0],
                     "halfsize": [x, y, z],
-                },
-                "int": {
-                    "pos": (int_p0 + int_p1) / 2,
-                    "halfsize": (int_p1 - int_p0) / 2,
                 },
             }
         )
@@ -394,7 +447,9 @@ class HingeCabinet(Cabinet):
 
     def __init__(
         self,
+        size,
         name="hinge_cab",
+        num_shelves=None,
         *args,
         **kwargs,
     ):
@@ -402,9 +457,15 @@ class HingeCabinet(Cabinet):
 
         xml = "fixtures/cabinets/cabinet_hinge.xml"
 
+        if num_shelves is None:
+            num_shelves = max(1, int(size[2] / 0.30))
+        assert num_shelves >= 1
+
         super().__init__(
             xml=xml,
             name=name,
+            size=size,
+            num_shelves=num_shelves,
             *args,
             **kwargs,
         )
@@ -423,7 +484,6 @@ class HingeCabinet(Cabinet):
             "back",
             "right",
             "left",
-            "shelf",
         ]
         body_names = ["hingeleftdoor", "hingerightdoor"]
         joint_names = ["leftdoorhinge", "rightdoorhinge"]
@@ -457,7 +517,6 @@ class HingeCabinet(Cabinet):
             "back": [0, y - th, 0],
             "left": [-x + th, th, 0],
             "right": [x - th, th, 0],
-            "shelf": [0, 0.05 - th, 0],
         }
         sizes = {
             "top": [x, y - th, th],
@@ -465,7 +524,6 @@ class HingeCabinet(Cabinet):
             "back": [x - 2 * th, th, z - 2 * th],
             "left": [th, y - th, z - 2 * th],
             "right": [th, y - th, z - 2 * th],
-            "shelf": [x - 2 * th, y - 0.05, th],
         }
         set_geom_dimensions(sizes, positions, self.geoms, rotated=True)
 
@@ -485,24 +543,13 @@ class HingeCabinet(Cabinet):
                 door_name=side + "_door",
             )
 
-        int_p0 = np.array([-x + th * 2, -y + th * 2, -z + th * 2])
-        int_p1 = np.array(
-            [
-                x - th * 2,
-                y - th * 2,
-                z - th * 2,
-            ]
-        )
-
+        self._add_shelves(num_shelves=self.num_shelves, upper_shelf_indent=0.005)
+        # main body region
         self.set_regions(
             {
                 "main": {
                     "pos": [0.0, 0.0, 0.0],
                     "halfsize": [x, y, z],
-                },
-                "int": {
-                    "pos": (int_p0 + int_p1) / 2,
-                    "halfsize": (int_p1 - int_p0) / 2,
                 },
             }
         )
@@ -608,11 +655,11 @@ class OpenCabinet(Cabinet):
         *args,
         **kwargs,
     ):
-        self.num_shelves = num_shelves
         self.shelves = list()
         super().__init__(
             xml="fixtures/cabinets/cabinet_open.xml",
             name=name,
+            num_shelves=num_shelves,
             *args,
             **kwargs,
         )
@@ -636,56 +683,41 @@ class OpenCabinet(Cabinet):
         x, y, z = [dim / 2 for dim in self.size]
         th = self.thickness / 2
 
-        shelf_size = [x * 2, y * 2, th * 2]
-        # evenly spaced, taking thickness into account
-        shelf_z_positions = (
-            np.linspace(start=th, stop=z * 2 - th, num=self.num_shelves, endpoint=False)
-            - z
-        )
-
-        # create and position shelves
-        for i in range(self.num_shelves):
-            shelf_pos = [0, 0, shelf_z_positions[i]]
+        regions = {
+            "main": {
+                "pos": [0.0, 0.0, 0.0],
+                "halfsize": [x, y, z],
+            },
+        }
+        total_int_height = 2 * (z - th)
+        for shelf_i in range(self.num_shelves):
+            shelf_z = (-z + th) + shelf_i * (total_int_height / self.num_shelves)
+            shelf_pos = np.array([0.0, 0.0, shelf_z])
+            shelf_halfsize = np.array([x, y, th])
             shelf = CabinetShelf(
-                size=shelf_size,
                 pos=shelf_pos,
-                name="{}_shelf_{}".format(self.name, i),
+                size=shelf_halfsize * 2,
+                name="{}_shelf{}".format(self.name, shelf_i),
                 texture=self.texture,
             )
-            self.shelves.append(shelf)
 
-            # merge shelves
+            # merge shelf
             self.merge_assets(shelf)
             shelf_elem = shelf.get_obj()
             self.get_obj().append(shelf_elem)
 
-        int_p0 = np.array(
-            [
-                -x + th * 2,
-                -y + th * 2,
-                -z + th * 2,
-            ]
-        )
-        int_p1 = np.array(
-            [
-                x - th * 2,
-                y - th * 2,
-                z - th * 2,
-            ]
-        )
-
-        self.set_regions(
-            {
-                "main": {
-                    "pos": [0.0, 0.0, 0.0],
-                    "halfsize": [x, y, z],
-                },
-                "int": {
-                    "pos": (int_p0 + int_p1) / 2,
-                    "halfsize": (int_p1 - int_p0) / 2,
-                },
+            region_pos = shelf_pos.copy()
+            region_pos[2] = (-z + th) + (shelf_i + 0.5) * (
+                total_int_height / self.num_shelves
+            )
+            region_halfsize = shelf_halfsize.copy()
+            region_halfsize[2] = total_int_height / self.num_shelves / 2 - th
+            regions[f"shelf{shelf_i}"] = {
+                "pos": region_pos,
+                "halfsize": region_halfsize,
             }
-        )
+
+        self.set_regions(regions)
 
     @property
     def nat_lang(self):
@@ -724,6 +756,9 @@ class Drawer(Cabinet):
             *args,
             **kwargs,
         )
+
+    def get_reset_region_names(self):
+        return ("int",)
 
     def _get_cab_components(self):
         """
