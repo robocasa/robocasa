@@ -3,7 +3,9 @@ from robocasa.utils.dataset_registry import (
     SINGLE_STAGE_TASK_DATASETS,
     MULTI_STAGE_TASK_DATASETS,
 )
-from robocasa.scripts.playback_dataset import get_env_metadata_from_dataset
+from robocasa.scripts.dataset_scripts.playback_dataset import (
+    get_env_metadata_from_dataset,
+)
 from robosuite.controllers import load_composite_controller_config
 import robosuite.utils.transform_utils as T
 from robosuite.utils.mjcf_utils import (

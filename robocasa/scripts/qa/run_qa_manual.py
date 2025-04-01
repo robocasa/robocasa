@@ -7,7 +7,7 @@ import h5py
 import time
 import re
 
-from robocasa.scripts.run_qa_auto import auto_inspect_ep
+from robocasa.scripts.qa.run_qa_auto import auto_inspect_ep
 
 COMMON_FAULTS = [
     dict(

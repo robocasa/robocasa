@@ -50,6 +50,12 @@ DOWNLOAD_ASSET_REGISTRY = {
         folder=os.path.join(robocasa.__path__[0], "models/assets/objects/aigen_objs"),
         check_folder_exists=False,
     ),
+    "objs_lightwheel": dict(
+        message="Downloading lightwheel objects",
+        url="https://utexas.box.com/shared/static/xhbxldptvssy5ibbsxogv42xhnajcp8t.zip",
+        folder=os.path.join(robocasa.__path__[0], "models/assets/objects/lightwheel"),
+        check_folder_exists=False,
+    ),
 }
 
 

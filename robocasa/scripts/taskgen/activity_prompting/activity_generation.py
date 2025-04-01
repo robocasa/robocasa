@@ -92,7 +92,7 @@ async def main():
     if output_dir is None:
         output_dir = os.path.join(
             robocasa.__path__[0],
-            "scripts/internal/taskgen/activity_prompting/outputs/local",
+            "scripts/taskgen/activity_prompting/outputs/local",
         )
     os.makedirs(output_dir, exist_ok=True)
 

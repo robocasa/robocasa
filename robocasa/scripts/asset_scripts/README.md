@@ -2,7 +2,7 @@
 This guide explains how to import and visualize assets in RoboCasa.
 
 ## Installation
-1. setup v-hacd: `scripts/model_zoo; bash install_vhacd.sh`
+1. setup v-hacd: `scripts/asset_scripts; bash install_vhacd.sh`
 2. install additional dependencies: `pip install trimesh`
 
 ## Overview
@@ -16,7 +16,7 @@ The structure of generated assets is as follows:
 #### `import_glb_model.py`
 Import a `.glb` model:
 ```
-python robocasa/scripts/model_zoo/import_glb_model.py --prescale --center --no_cached_coll --path <path-to-glb-model>
+python robocasa/scripts/asset_scripts/import_glb_model.py --prescale --center --no_cached_coll --path <path-to-glb-model>
 ```
 
 ## Inspecting objects

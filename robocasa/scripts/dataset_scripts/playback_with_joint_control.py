@@ -5,7 +5,7 @@ import robosuite
 import os
 
 from robocasa.utils.dataset_registry import get_ds_path
-from robocasa.scripts.playback_dataset import (
+from robocasa.scripts.dataset_scripts.playback_dataset import (
     get_env_metadata_from_dataset,
     playback_trajectory_with_env,
 )

@@ -6,22 +6,6 @@ BASE_ASSET_ZOO_PATH = os.path.join(robocasa.models.assets_root, "objects")
 
 # Constant that contains information about each object category. These will be used to generate the ObjCat classes for each category
 OBJ_CATEGORIES = dict(
-    liquor=dict(
-        types=("drink", "alcohol"),
-        graspable=True,
-        washable=False,
-        microwavable=False,
-        cookable=False,
-        freezable=False,
-        aigen=dict(
-            model_folders=["aigen_objs/alcohol"],
-            scale=1.50,
-        ),
-        objaverse=dict(
-            model_folders=["objaverse/alcohol"],
-            scale=1.35,
-        ),
-    ),
     apple=dict(
         types=("fruit"),
         graspable=True,
@@ -814,6 +798,22 @@ OBJ_CATEGORIES = dict(
             scale=0.90,
         ),
     ),
+    liquor=dict(
+        types=("drink", "alcohol"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        aigen=dict(
+            model_folders=["aigen_objs/alcohol"],
+            scale=1.50,
+        ),
+        objaverse=dict(
+            model_folders=["objaverse/alcohol"],
+            scale=1.35,
+        ),
+    ),
     mango=dict(
         types=("fruit"),
         graspable=True,
@@ -1276,6 +1276,7 @@ OBJ_CATEGORIES = dict(
             scale=0.95,
         ),
     ),
+    ### AI gen objects ###
     dates=dict(
         graspable=False,
         washable=True,
@@ -2028,6 +2029,95 @@ OBJ_CATEGORIES = dict(
         cookable=True,
         freezable=False,
         types=("meat", "cooked_food"),
+    ),
+    ### lightwheel objects ###
+    colander=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.20,
+        ),
+    ),
+    reamer=dict(
+        types=("tool"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    ice_cube=dict(
+        types=(),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.25,
+        ),
+    ),
+    jar=dict(
+        types=("decoration", "receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        freezable=True,
+        lightwheel=dict(
+            scale=0.90,
+        ),
+    ),
+    measuring_cup=dict(
+        types=("tool"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.60,
+        ),
+    ),
+    sandwich_bread=dict(
+        types=("bread_food"),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.75,
+        ),
+    ),
+    strainer=dict(
+        types=("tool", "receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.40,
+        ),
+    ),
+    sugar_cube=dict(
+        types=("sweets"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=2.0,
+        ),
     ),
 )
 
