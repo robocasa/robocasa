@@ -85,4 +85,6 @@ class FridgeBottomFreezer(Fridge):
             "fridge_shelf0",
             "fridge_shelf1",
             "fridge_shelf2",
+            "freezer_top",
+            "freezer_bottom",
         )
