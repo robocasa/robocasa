@@ -10,7 +10,7 @@ from termcolor import colored
 import robocasa
 from robocasa.scripts.download_datasets import download_datasets
 from robocasa.scripts.download_kitchen_assets import download_and_extract_zip
-from robocasa.scripts.playback_dataset import playback_dataset
+from robocasa.scripts.dataset_scripts.playback_dataset import playback_dataset
 from robocasa.utils.dataset_registry import get_ds_path
 import os
 

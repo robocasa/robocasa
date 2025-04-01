@@ -47,7 +47,7 @@ class ObjCat:
 
         priority: priority of the object
 
-        aigen_cat (bool): True if the object is an AI-generated object otherwise its an objaverse object
+        reg_type (str): registry type (options: objaverse, aigen_objs, lightwheel)
     """
 
     def __init__(
@@ -67,14 +67,14 @@ class ObjCat:
         density=100,
         friction=(0.95, 0.3, 0.1),
         priority=None,
-        aigen_cat=False,
+        reg_type="objaverse",
     ):
         self.name = name
         if not isinstance(types, tuple):
             types = (types,)
         self.types = types
 
-        self.aigen_cat = aigen_cat
+        self.reg_type = reg_type
 
         self.graspable = graspable
         self.washable = washable
@@ -91,17 +91,16 @@ class ObjCat:
         self.exclude = exclude or []
 
         if model_folders is None:
-            subf = "aigen_objs" if self.aigen_cat else "objaverse"
-            model_folders = ["{}/{}".format(subf, name)]
+            model_folders = ["{}/{}".format(reg_type, name)]
         cat_mjcf_paths = []
         for folder in model_folders:
             cat_path = os.path.join(BASE_ASSET_ZOO_PATH, folder)
-            for root, _, files in os.walk(cat_path):
-                if "model.xml" in files:
-                    model_name = os.path.basename(root)
+            for model_name in os.listdir(cat_path):
+                model_dir = os.path.join(cat_path, model_name)
+                if os.path.isdir(model_dir) and "model.xml" in os.listdir(model_dir):
                     if model_name in self.exclude:
                         continue
-                    cat_mjcf_paths.append(os.path.join(root, "model.xml"))
+                    cat_mjcf_paths.append(os.path.join(model_dir, "model.xml"))
         self.mjcf_paths = sorted(cat_mjcf_paths)
 
     def get_mjcf_kwargs(self):
@@ -136,20 +135,29 @@ for (name, kwargs) in OBJ_CATEGORIES.items():
             "types",
             "aigen",
             "objaverse",
+            "lightwheel",
         ]
     objaverse_kwargs = common_properties.pop("objaverse", None)
     aigen_kwargs = common_properties.pop("aigen", None)
+    lightwheel_kwargs = common_properties.pop("lightwheel", None)
     assert "scale" not in kwargs
     OBJ_CATEGORIES[name] = {}
 
     # create instances
     if objaverse_kwargs is not None:
         objaverse_kwargs.update(common_properties)
-        OBJ_CATEGORIES[name]["objaverse"] = ObjCat(name=name, **objaverse_kwargs)
+        OBJ_CATEGORIES[name]["objaverse"] = ObjCat(
+            name=name, reg_type="objaverse", **objaverse_kwargs
+        )
     if aigen_kwargs is not None:
         aigen_kwargs.update(common_properties)
         OBJ_CATEGORIES[name]["aigen"] = ObjCat(
-            name=name, aigen_cat=True, **aigen_kwargs
+            name=name, reg_type="aigen_objs", **aigen_kwargs
+        )
+    if lightwheel_kwargs is not None:
+        lightwheel_kwargs.update(common_properties)
+        OBJ_CATEGORIES[name]["lightwheel"] = ObjCat(
+            name=name, reg_type="lightwheel", **lightwheel_kwargs
         )
 
 

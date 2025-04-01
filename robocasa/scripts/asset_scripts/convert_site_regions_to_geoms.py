@@ -13,7 +13,7 @@ from lxml import etree
 import shutil
 
 import robocasa
-from robocasa.scripts.internal.prettify_xmls import prettify_xmls
+from robocasa.scripts.asset_scripts.prettify_xmls import prettify_xmls
 
 
 def refactor_xml_regions(old_path, new_path, remove_old_sites=True):

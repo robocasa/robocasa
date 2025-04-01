@@ -1,4 +1,4 @@
-from robocasa.scripts.playback_dataset import (
+from robocasa.scripts.dataset_scripts.playback_dataset import (
     playback_trajectory_with_env,
     get_env_metadata_from_dataset,
     reset_to,

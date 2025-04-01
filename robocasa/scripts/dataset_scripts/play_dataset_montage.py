@@ -3,7 +3,7 @@ from robocasa.utils.dataset_registry import (
     MULTI_STAGE_TASK_DATASETS,
 )
 from robocasa.utils.dataset_registry import get_ds_path
-from robocasa.scripts.playback_dataset import playback_dataset
+from robocasa.scripts.dataset_scripts.playback_dataset import playback_dataset
 
 import os
 import argparse

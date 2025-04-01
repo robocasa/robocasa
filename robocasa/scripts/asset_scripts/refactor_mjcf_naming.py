@@ -19,7 +19,7 @@ import shutil
 from tqdm import tqdm
 
 import robocasa
-from robocasa.scripts.prettify_xmls import prettify_xmls
+from robocasa.scripts.asset_scripts.prettify_xmls import prettify_xmls
 
 
 def strip_out_keyword(mjcf_path, keyword, verbose=False, dry_run=False):
@@ -89,26 +89,31 @@ if __name__ == "__main__":
                 ):
                     # make an exception for counters, as we want to keep the existing naming conventions
                     continue
+                print(full_path)
                 xml_paths.append(full_path)
 
     modified_paths = []
     for path in tqdm(xml_paths):
-        keyword = os.path.basename(os.path.dirname(path)) + "_"
+        model_name = os.path.basename(os.path.dirname(path))
+        keyword_list = [model_name + "_", model_name]
         modified = False
-        if keyword.startswith("StandMixer"):
+        if model_name.startswith("StandMixer"):
             ### special case for FoodMixer being renamed to StandMixer ###
-            new_prefix = keyword.replace("StandMixer", "FoodMixer")
-            modified = modified or strip_out_keyword(
-                path, new_prefix, dry_run=args.dry_run
-            )
-        if keyword.startswith("Oven"):
+            new_keyword_list = [
+                keyword.replace("StandMixer", "FoodMixer") for keyword in keyword_list
+            ]
+            keyword_list = new_keyword_list + keyword_list
+        if model_name.startswith("Oven"):
             ### special case for WallStackOven being renamed to Oven ###
-            new_prefix = keyword.replace("Oven", "WallStackOven")
-            modified = modified or strip_out_keyword(
-                path, new_prefix, dry_run=args.dry_run
-            )
+            new_keyword_list = [
+                keyword.replace("Oven", "WallStackOven") for keyword in keyword_list
+            ]
+            keyword_list = new_keyword_list + keyword_list
 
-        modified = modified or strip_out_keyword(path, keyword, dry_run=args.dry_run)
+        for keyword in keyword_list:
+            modified = modified or strip_out_keyword(
+                path, keyword, dry_run=args.dry_run
+            )
 
         if modified:
             prettify_xmls(filepath=path)
