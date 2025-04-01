@@ -56,6 +56,8 @@ class FridgeFrenchDoor(Fridge):
             "fridge_right_shelf0",
             "fridge_right_shelf1",
             "fridge_right_shelf2",
+            "freezer_top",
+            "freezer_bottom",
         )
 
 
