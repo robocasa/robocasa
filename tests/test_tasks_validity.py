@@ -38,7 +38,7 @@ class TestTasksValidity(unittest.TestCase):
                     env,
                     num_rollouts=NUM_ROLLOUTS,
                     num_steps=NUM_STEPS,
-                    video_path="/tmp/test.mp4",
+                    video_path=f"/tmp/{env_name}.mp4",
                 )
             except KeyboardInterrupt:
                 print(colored(f"Exiting Test Early.", "yellow"))
