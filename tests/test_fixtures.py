@@ -167,7 +167,7 @@ if __name__ == "__main__":
             for cfg in style_configs:
                 cfg[fixture_type] = fixture_name
 
-            for env_kwargs in env_kwargs_list:
+            for env_i, env_kwargs in enumerate(env_kwargs_list):
                 env = create_env(
                     render_onscreen=args.interactive,
                     seed=0,  # set seed=None to run unseeded
@@ -178,11 +178,12 @@ if __name__ == "__main__":
                 )
 
                 if args.interactive is False:
+                    env_name = env_kwargs["env_name"]
                     info = run_random_rollouts(
                         env,
                         num_rollouts=3,
                         num_steps=100,
-                        video_path=f"/tmp/robocasa_test_fixtures/{fixture_type}_{fixture_name}_{test_env}.mp4",
+                        video_path=f"/tmp/robocasa_test_fixtures/{fixture_type}_{fixture_name}_{env_name}{env_i}.mp4",
                     )
                 else:
                     # set up devices for interactive mode
