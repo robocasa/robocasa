@@ -6,11 +6,9 @@ class Dishwasher(Fixture):
     Dishwasher fixture class
     """
 
-    RESET_REGION_NAMES = ["rack_top", "rack_bottom"]
-
     def __init__(
         self,
-        xml="fixtures/appliances/dishwashers/pack_1/model.xml",
+        xml="fixtures/appliances/dishwashers/Dishwasher031",
         name="dishwasher",
         *args,
         **kwargs
@@ -18,6 +16,9 @@ class Dishwasher(Fixture):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )
+
+    def get_reset_region_names(self):
+        return ("rack_bottom", "rack_top")
 
     @property
     def nat_lang(self):

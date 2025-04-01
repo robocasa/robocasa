@@ -85,8 +85,6 @@ class Fixture(MujocoXMLObjectRobocasa):
         size (3-tuple): desired (width, depth, height) of the fixture
     """
 
-    RESET_REGION_NAMES = ["int"]
-
     def __init__(
         self,
         xml,
@@ -110,6 +108,9 @@ class Fixture(MujocoXMLObjectRobocasa):
         )
         if pos is not None:
             self.set_pos(pos)
+
+        # add any additional elements needed during initialization
+        self._add_init_elements()
 
         # set up exterior and interior sites
         self._regions = dict()
@@ -135,12 +136,12 @@ class Fixture(MujocoXMLObjectRobocasa):
                 continue
 
             rgba = string_to_array(geom.get("rgba"))
-            # if macros.SHOW_SITES:
-            #     rgba[0:3] = np.random.uniform(0, 1, (3,))
-            #     rgba[-1] = 1.0
-            # else:
-            #     rgba[-1] = 0.0
-            # geom.set("rgba", array_to_string(rgba))
+            if macros.SHOW_SITES and g_name != "reg_main":
+                rgba[0:3] = np.random.uniform(0, 1, (3,))
+                rgba[-1] = 0.3
+            else:
+                rgba[-1] = 0.0
+            geom.set("rgba", array_to_string(rgba))
 
             reg_dict = dict()
             reg_pos = string_to_array(geom.get("pos"))
@@ -194,6 +195,12 @@ class Fixture(MujocoXMLObjectRobocasa):
         else:
             self.rng = np.random.default_rng()
 
+    def get_reset_region_names(self):
+        return ("int",)
+
+    def _add_init_elements(self):
+        pass
+
     def set_origin(self, origin):
         """
         Set the origin of the fixture to a specified position
@@ -236,13 +243,13 @@ class Fixture(MujocoXMLObjectRobocasa):
                 if isinstance(v, np.ndarray):
                     reg_dict[k] = v * scale
 
-    def get_reset_regions(self, env, reset_region_names=None):
+    def get_reset_regions(self, env, reset_region_names=None, z_range=(0.50, 1.60)):
         """
         returns dictionary of reset regions, each region defined as position, x_bounds, y_bounds
         """
         reset_regions = {}
         if reset_region_names is None:
-            reset_region_names = self.RESET_REGION_NAMES
+            reset_region_names = self.get_reset_region_names()
         for reg_name in reset_region_names:
             reg_dict = self._regions.get(reg_name, None)
             if reg_dict is None:
@@ -251,6 +258,12 @@ class Fixture(MujocoXMLObjectRobocasa):
             px = reg_dict["px"]
             py = reg_dict["py"]
             pz = reg_dict["pz"]
+
+            if z_range is not None:
+                reg_abs_z = self.pos[2] + p0[2]
+                if reg_abs_z < z_range[0] or reg_abs_z > z_range[1]:
+                    continue
+
             reset_regions[reg_name] = {
                 "offset": (np.mean((p0[0], px[0])), np.mean((p0[1], py[1])), p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
@@ -432,7 +445,7 @@ class Fixture(MujocoXMLObjectRobocasa):
             dict: a dictionary of interior areas, each with 4 or 8 points
         """
         sites_dict = {}
-        for prefix in self.RESET_REGION_NAMES:
+        for prefix in self.get_reset_region_names():
             reg_dict = self._regions.get(prefix, None)
             if reg_dict is None:
                 continue

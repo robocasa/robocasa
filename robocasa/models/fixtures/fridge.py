@@ -17,7 +17,9 @@ class Fridge(Fixture):
     def get_reset_regions(self, env, reg_type="fridge"):
         assert reg_type in ["fridge", "freezer"]
         reset_region_names = [
-            reg_name for reg_name in self.RESET_REGION_NAMES if reg_type in reg_name
+            reg_name
+            for reg_name in self.get_reset_region_names()
+            if reg_type in reg_name
         ]
         reset_regions = {}
         for reg_name in reset_region_names:
@@ -43,30 +45,42 @@ class Fridge(Fixture):
 
 
 class FridgeFrenchDoor(Fridge):
-    RESET_REGION_NAMES = [
-        "fridge_left_shelf0",
-        "fridge_left_shelf1",
-        "fridge_left_shelf2",
-        "fridge_right_shelf0",
-        "fridge_right_shelf1",
-        "fridge_right_shelf2",
-    ]
+    def __init__(self, xml="fixtures/fridges/Refrigerator033", *args, **kwargs):
+        super().__init__(xml=xml, *args, **kwargs)
+
+    def get_reset_region_names(self):
+        return (
+            "fridge_left_shelf0",
+            "fridge_left_shelf1",
+            "fridge_left_shelf2",
+            "fridge_right_shelf0",
+            "fridge_right_shelf1",
+            "fridge_right_shelf2",
+        )
 
 
 class FridgeSideBySide(Fridge):
-    RESET_REGION_NAMES = [
-        "freezer_shelf0",
-        "freezer_shelf1",
-        "freezer_shelf2",
-        "fridge_shelf0",
-        "fridge_shelf1",
-        "fridge_shelf2",
-    ]
+    def __init__(self, xml="fixtures/fridges/Refrigerator031", *args, **kwargs):
+        super().__init__(xml=xml, *args, **kwargs)
+
+    def get_reset_region_names(self):
+        return (
+            "freezer_shelf0",
+            "freezer_shelf1",
+            "freezer_shelf2",
+            "fridge_shelf0",
+            "fridge_shelf1",
+            "fridge_shelf2",
+        )
 
 
 class FridgeBottomFreezer(Fridge):
-    RESET_REGION_NAMES = [
-        "fridge_shelf0",
-        "fridge_shelf1",
-        "fridge_shelf2",
-    ]
+    def __init__(self, xml="fixtures/fridges/Refrigerator060", *args, **kwargs):
+        super().__init__(xml=xml, *args, **kwargs)
+
+    def get_reset_region_names(self):
+        return (
+            "fridge_shelf0",
+            "fridge_shelf1",
+            "fridge_shelf2",
+        )
