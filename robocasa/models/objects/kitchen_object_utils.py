@@ -95,6 +95,9 @@ class ObjCat:
         cat_mjcf_paths = []
         for folder in model_folders:
             cat_path = os.path.join(BASE_ASSET_ZOO_PATH, folder)
+            if not os.path.exists(cat_path):
+                # skip if the asset path folder does not exist
+                continue
             for model_name in os.listdir(cat_path):
                 model_dir = os.path.join(cat_path, model_name)
                 if os.path.isdir(model_dir) and "model.xml" in os.listdir(model_dir):
