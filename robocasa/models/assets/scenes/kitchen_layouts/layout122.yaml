@@ -10,10 +10,10 @@ room:
       type: wall
       backing: true
       backing_extended: [False, False]
-      size: [0.377, 1.5, 0.1]
-      pos: [1.520077, -0.377, 1.5]
+      size: [0.3569, 1.5, 0.1]
+      pos: [1.520077, -0.357, 1.5]
       wall_side: left
-
+      
     - name: wall_main_1
       type: wall
       size: [1.424997, 1.5, 0.02]
@@ -87,7 +87,7 @@ main_group_1:
     - name: counter_1
       type: counter
       pos: [1.1, -0.325, 0.46]
-      size: [2.19999, 0.650008, 0.92]
+      size: [2.19999, 0.65, 0.92]
       interior_obj: sink
       obj_x_percent: 0.75
       obj_y_percent: 0.7
@@ -96,7 +96,7 @@ main_group_1:
     - name: counter_corner_1
       type: counter
       pos: [2.525, -0.325, 0.46]
-      size: [0.65, 0.650004, 0.92]
+      size: [0.65, 0.65, 0.92]
       hollow: [False, False]
 
   top_row:
@@ -157,6 +157,12 @@ main_group_1:
       type: knife_block
       placement: {'fixture': 'counter_1_main_group_1', 'size': [1.0, 'obj'], 'pos': [1.0, 1.0], 'rotation': [0, 0]}
 
+
+    - name: toaster
+      type: toaster
+      placement: {'fixture': 'counter_1_main_group_1', 'size': [1.0, 0.4], 'pos': [1.0, 0], 'rotation': [0, 0]}
+
+
 right_group_1:
   group_origin: [0, 0]
   group_pos: [4.370071, 2.5e-05]
@@ -165,21 +171,54 @@ right_group_1:
     - name: counter_1
       type: counter
       pos: [0.9499, -0.3253, 0.46]
-      size: [0.600005, 0.650008, 0.92]
+      size: [0.600005, 0.65, 0.92]
 
-    - name: stove
-      type: stove
-      size: [0.76, 0.66, 0.915]
-      alignment: bottom_back
+    - name: widestove
+      type: stove_wide
+      size: [0.91, 0.7, 0.915]
+      #pos: [1.7049, -0.3505, 0.4625]
+      alignment: top_back
       align_to: counter_1
       side: right
       offset: [0, 0, 0]
 
+    - name: widestove_hood
+      type: hood
+      size: [0.91, 0.6, null]
+      align_to: widestove
+      side: top
+      offset: [0, 0, 0.75]
+
+  top_row:
+    - name: singlecabinet_1
+      type: single_cabinet
+      pos: [2.46, -0.2, 1.843]
+      size: [0.60004, 0.4, 0.92]
+      orientation: right
+      panel_config: {'handle_hpos': 'left', 'handle_vpos': 'bottom'}
+
+    - name: hingecabinet_2
+      type: hinge_cabinet
+      pos: [0.6249, -0.2, 1.84]
+      size: [1.250007, 0.4, 0.92]
+
   wall_stack:
+    - name: bottom
+      type: stack
+      levels: [drawer]
+      percentages: [1]
+      pos: [4.0499, -0.4012, 0.2]
+      size: [0.8, 0.8, 0.3]
+
+    - name: microwave
+      type: microwave
+      size: [0.75, 0.5, null]
+
     - name: counter_2
       type: counter
-      pos: [2.3099, -0.3257, 0.46]
+      pos: [2.4599, -0.3258, 0.46]
       size: [0.600025, 0.650008, 0.92]
+
 
     - name: fridgesidebyside
       type: fridge_side_by_side
@@ -193,19 +232,7 @@ right_group_1:
       type: housing_cabinet
       interior_obj: fridgesidebyside
       padding: [[0.02, 0.02], [-0.04, 0.02], [0, 0.02]]
-      pos: [3.0549, -0.3909, 0.885]
-
-    - name: bottom
-      type: stack
-      levels: [drawer]
-      percentages: [1]
-      pos: [3.8999, -0.4012, 0.2]
-      size: [0.8, 0.8, 0.3]
-
-    - name: microwave
-      type: microwave
-      size: [0.75, 0.5, null]
-
+      pos: [3.2049, -0.391, 0.885]
 
     - name: hingecabinet_1
       type: hinge_cabinet
@@ -214,7 +241,6 @@ right_group_1:
       align_to: fridgesidebyside_housing
       side: top
       offset: [0, 0, 0]
-
 
     - name: oven_cabinet
       type: hinge_cabinet
@@ -241,29 +267,6 @@ right_group_1:
       stack_height: 2.252976131439209
       stack_fixtures: [bottom, oven_cabinet, microwave_housing]
 
-  top_row:
-    - name: singlecabinet_1
-      type: single_cabinet
-      #pos: [2.31, -0.2007, 1.84]
-      size: [0.600021, 0.4, 0.92]
-      orientation: right
-      panel_config: {'handle_hpos': 'left', 'handle_vpos': 'bottom'}
-      alignment: top_back
-      align_to: hingecabinet_1
-      side: left
-      offset: [0, 0, 0]
-
-    - name: hingecabinet_2
-      type: hinge_cabinet
-      pos: [0.6249, -0.2002, 1.84]
-      size: [1.250007, 0.4, 0.92]
-
-    - name: hood_1
-      type: hood
-      pos: [1.6299, -0.3005, 1.84]
-      size: [0.76, 0.6, null]
-
-
   bottom_row_cabinet:
     - name: cube_1
       type: box
@@ -273,7 +276,7 @@ right_group_1:
     - name: cube_2
       type: box
       size: [0.05, 0.6, 0.89]
-      pos: [2.5849, -0.3008, 0.442024]
+      pos: [2.7349, -0.3008, 0.442024]
 
     - name: stack_1
       type: stack
@@ -285,16 +288,20 @@ right_group_1:
 
     - name: stack_2
       type: stack
-      pos: [2.2849, -0.3007, 0.47]
+      pos: [2.4349, -0.3007, 0.47]
       size: [0.55, 0.6, 0.84]
       levels: [drawer, drawer, drawer]
       percentages: [0.3, 0.35, 0.35]
       configs: none
-
+      
   counter_accessories:
     - name: papertowel
       type: paper_towel
       placement: {'fixture': 'counter_1_right_group_1', 'size': [0.4, 0.3], 'pos': [1.0, 0.5], 'rotation': [0, 0]}
+
+    - name: plant
+      type: plant
+      placement: {'fixture': 'counter_1_right_group_1', 'size': [0.5, 0.5], 'pos': [-1.0, 0.5], 'rotation': [0, 0]}
 
     - name: coffee_machine
       type: coffee_machine
@@ -302,7 +309,7 @@ right_group_1:
 
 island_group_1:
   group_origin: [0, 0]
-  group_pos: [1.595414, -4.467987]
+  group_pos: [1.193931, -4.76056]
   group_z_rot: 1.5707969669156234
   island_bottom_row:
     - name: counter_1
@@ -348,29 +355,20 @@ island_group_1:
       percentages: [0.35, 0.35, 0.3]
       configs: none
 
-  counter_accessories:
-    - name: plant
-      type: plant
-      placement: {'fixture': 'counter_1_island_group_1', 'size': [0.5, 0.5], 'pos': [-1.0, 0.5], 'rotation': [0, 0]}
-
-    - name: toaster
-      type: toaster
-      placement: {'fixture': 'counter_1_island_group_1', 'size': [1.0, 0.4], 'pos': [1.0, 0], 'rotation': [0, 0]}
 
 stool_group_1:
   group_origin: [0, 0]
-  group_pos: [1.429886, -4.11254]
+  group_pos: [1.028403, -4.405113]
   group_z_rot: 1.5707969669156234
   stool_row:
     - name: stool_1
       type: stool
-      pos: [1.4843, -0.15, 0.5]
+      pos: [1.4843, -0.18, 0.5]
 
     - name: stool_2
       type: stool
-      pos: [0.8593, -0.15, 0.5]
+      pos: [0.8593, -0.18, 0.5]
 
     - name: stool_3
       type: stool
-      pos: [0.25, -0.15, 0.5]
-
+      pos: [0.25, -0.18, 0.5]
