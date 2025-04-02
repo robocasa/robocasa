@@ -2,15 +2,15 @@ room:
   walls:
     - name: wall_main_1
       type: wall
-      size: [3.375, 1.5, 0.02]
-      pos: [3.38, -0.0, 1.5]
+      size: [3.720725, 1.5, 0.02]
+      pos: [3.033783, 0, 1.5]
 
     - name: wall_main_1_backing
       type: wall
       backing: true
-      backing_extended:  [False,False] 
-      size: [3.375, 1.5, 0.1]
-      pos: [3.38, -0.0, 1.5]
+      backing_extended:  [False,True] 
+      size: [3.720725, 1.5, 0.1]
+      pos: [3.033783, 0, 1.5]
 
     - name: wall_right_1
       type: wall
@@ -68,16 +68,16 @@ room:
 
     - name: wall_front_5
       type: wall
-      size: [0.441, 1.5, 0.02]
-      pos: [0.445, -6.353, 1.5]
+      size: [0.786434, 1.5, 0.02]
+      pos: [0.099466, -6.353303, 1.5]
       wall_side: front
 
     - name: wall_front_5_backing
       type: wall
       backing: true
       backing_extended:  [False,False] 
-      size: [0.441, 1.5, 0.1]
-      pos: [0.445, -6.353, 1.5]
+      size: [0.786434, 1.5, 0.1]
+      pos: [0.099466, -6.353303, 1.5]
       wall_side: front
 
     - name: wall_right_5
@@ -197,14 +197,14 @@ room:
   floor:
     - name: floor_1
       type: floor
-      size: [2.025, 3.177, 0.02]
-      pos: [2.029, -3.177, 0.0]
+      size: [2.370716, 3.176661, 0.02]
+      pos: [1.683774, -3.176641, 0]
 
     - name: floor_1_backing
       type: floor
       backing: true
-      size: [2.025, 3.177, 0.1]
-      pos: [2.029, -3.177, 0.0]
+      size: [2.370716, 3.176661, 0.1]
+      pos: [1.683774, -3.176641, 0]
 
     - name: floor_2
       type: floor
@@ -279,7 +279,7 @@ main_group_1:
       size: [5.7, 0.65, 0.92]
       interior_obj: sink
       obj_x_percent: 0.565
-      obj_y_percent: 0.7
+      obj_y_percent: 0.5
 
     - name: fridgefrenchdoor
       type: fridge_french_door
@@ -315,6 +315,8 @@ main_group_1:
       align_to: hingecabinet_1
       side: left
       alignment: top_back
+      orientation: right
+      panel_config: {'handle_vpos': 'bottom'}
 
     - name: singlecabinet_4
       type: single_cabinet
@@ -323,21 +325,30 @@ main_group_1:
       align_to: singlecabinet_5
       side: left
       alignment: top_back
+      orientation: right
+      panel_config: {'handle_vpos': 'bottom'}
 
     - name: singlecabinet_1
       type: single_cabinet
-      pos: [0.389, -0.203, 1.839]
+      pos: [0.389, -0.203, 1.885]
       size: [0.768, 0.4, 0.92]
+      orientation: left
+      panel_config: {'handle_vpos': 'bottom'}
+
 
     - name: singlecabinet_2
       type: single_cabinet
-      pos: [1.157, -0.203, 1.839]
+      pos: [1.157, -0.203, 1.885]
       size: [0.768, 0.4, 0.92]
+      orientation: left
+      panel_config: {'handle_vpos': 'bottom'}
 
     - name: singlecabinet_3
       type: single_cabinet
-      pos: [1.925, -0.203, 1.839]
+      pos: [1.925, -0.203, 1.885]
       size: [0.768, 0.4, 0.92]
+      orientation: left
+      panel_config: {'handle_vpos': 'bottom'}
 
     - name: framedwindow
       type: framed_window
@@ -352,7 +363,7 @@ main_group_1:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top', 'handle_hpos': 'left'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
 
     - name: stack_2
@@ -361,15 +372,15 @@ main_group_1:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_3
       type: stack
       pos: [1.629, -0.3, 0.47]
       size: [0.65, 0.6, 0.84]
-      levels: [single_cabinet, drawer]
-      percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
+      levels: [drawer, drawer, drawer]
+      percentages: [0.35, 0.35, 0.3]
+
 
     - name: stack_4
       type: stack
@@ -377,7 +388,7 @@ main_group_1:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: cube_1
       type: box
@@ -390,7 +401,7 @@ main_group_1:
       size: [0.6, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
+      configs: {'single_cabinet': {'orientation': 'right', 'panel_config': {'handle_vpos': 'top'}}}
 
 
     - name: stack_6
@@ -399,7 +410,7 @@ main_group_1:
       size: [0.6, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top'}}}
+      configs: {'single_cabinet': {'orientation': 'right', 'panel_config': {'handle_vpos': 'top'}}}
 
 
     - name: stack_7
@@ -451,7 +462,7 @@ island_group_1:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: none
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_2
       type: stack
@@ -459,7 +470,7 @@ island_group_1:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: none
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_3
       type: stack
@@ -497,7 +508,7 @@ island_group_2.001:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: none
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_6
       type: stack
@@ -505,7 +516,7 @@ island_group_2.001:
       size: [0.65, 0.6, 0.84]
       levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: none
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_7
       type: stack
@@ -549,41 +560,40 @@ front_group_1:
       type: stack
       pos: [1.125, -0.42, 0.47]
       size: [0.65, 0.6, 0.84]
-      levels: [hinge_cabinet, drawer]
+      levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top', 'handle_hpos': 'right'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_2
       type: stack
       pos: [1.775, -0.42, 0.47]
       size: [0.65, 0.6, 0.84]
-      levels: [hinge_cabinet, drawer]
+      levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top', 'handle_hpos': 'right'}}}
+      configs: {'single_cabinet': {'orientation': 'right', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_3
       type: stack
       pos: [2.425, -0.42, 0.47]
       size: [0.65, 0.6, 0.84]
-      levels: [hinge_cabinet, drawer]
+      levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top', 'handle_hpos': 'right'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_4
       type: stack
       pos: [3.075, -0.42, 0.47]
       size: [0.65, 0.6, 0.84]
-      levels: [hinge_cabinet, drawer]
+      levels: [single_cabinet, drawer]
       percentages: [0.7, 0.3]
-      configs: {'single_cabinet': {'panel_config': {'handle_vpos': 'top', 'handle_hpos': 'right'}}}
+      configs: {'single_cabinet': {'orientation': 'right', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_5
       type: stack
       pos: [3.725, -0.42, 0.47]
       size: [0.65, 0.6, 0.84]
       levels: [drawer, drawer, drawer]
-      percentages: [0.3, 0.35, 0.35]
-      configs: none
+      percentages: [0.35, 0.35, 0.3]
 
   wall_stack:
     - name: bottom

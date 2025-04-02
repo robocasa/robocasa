@@ -3,28 +3,28 @@ room:
     - name: wall_left_1
       type: wall
       size: [0.467, 1.5, 0.02]
-      pos: [2.544004, -0.467815, 1.5]
+      pos: [2.397308, -0.467815, 1.5]
       wall_side: left
 
     - name: wall_left_1_backing
       type: wall
       backing: true
       backing_extended: [True, False]
-      size: [0.465, 1.5, 0.1]
-      pos: [2.544004, -0.467815, 1.5]
+      size: [0.45, 1.5, 0.1]
+      pos: [2.397308, -0.45, 1.5]
       wall_side: left
 
-    - name: wall_main_1 
+    - name: wall_main_1
       type: wall
-      size: [1.326198, 1.5, 0.02]
-      pos: [3.872459, 0, 1.5]
+      size: [1.399546, 1.5, 0.02]
+      pos: [3.796855, 0, 1.5]
 
     - name: wall_main_1_backing
       type: wall
       backing: true
       backing_extended:  [True, False]
-      size: [1.326198, 1.5, 0.1]
-      pos: [3.872459, 0, 1.5]
+      size: [1.399546, 1.5, 0.1]
+      pos: [3.796855, 0, 1.5]
 
     - name: wall_right_1
       type: wall
@@ -42,19 +42,19 @@ room:
 
     - name: wall_main_2
       type: wall
-      size: [0.199, 1.5, 0.02]
-      pos: [2.304421, -0.975629, 1.5]
+      size: [0.126, 1.5, 0.02]
+      pos: [2.231073, -0.975629, 1.5]
 
     - name: wall_main_2_backing
       type: wall
       backing: true
       backing_extended: [False, False]
-      size: [0.159584, 1.5, 0.1]
-      pos: [2.264421, -0.975629, 1.5]
+      size: [0.086235, 1.5, 0.1]
+      pos: [2.191073, -0.975629, 1.5]
 
     - name: wall_main_3
       type: wall
-      size: [0.575, 0.254745, 0.02]
+      size: [0.571, 0.254745, 0.02]
       pos: [1.4549, -0.975629, 2.745255]
 
     - name: wall_main_3_backing
@@ -94,26 +94,25 @@ room:
   floor:
     - name: floor_1
       type: floor
-      size: [1.326199, 3.380099, 0.02]
-      pos: [3.872462, -3.380097, 0]
+      size: [1.399547, 3.380099, 0.02]
+      pos: [3.796857, -3.380097, 0]
 
     - name: floor_1_backing
       type: floor
       backing: true
-      size: [1.326199, 3.380099, 0.1]
-      pos: [3.872462, -3.380097, 0]
+      size: [1.399547, 3.380099, 0.1]
+      pos: [3.796857, -3.380097, 0]
 
     - name: floor_2
       type: floor
-      size: [1.2325, 2.892285, 0.02]
-      pos: [1.232495, -3.867913, 0]
+      size: [1.15866, 2.892285, 0.02]
+      pos: [1.158656, -3.867913, 0]
 
     - name: floor_2_backing
       type: floor
       backing: true
-      size: [1.2325, 2.892285, 0.1]
-      pos: [1.232495, -3.867913, 0]
-
+      size: [1.15866, 2.892285, 0.1]
+      pos: [1.158656, -3.867913, 0]
 
   wall_accessories:
     - name: wallaccessory
@@ -227,6 +226,7 @@ right_group_1:
 
     - name: hingecabinet_1
       type: hinge_cabinet
+      is_corner_cab: true
       pos: [0.4236, -0.2001, 1.84]
       size: [0.847338, 0.4, 0.92]
 
@@ -331,7 +331,7 @@ right_group_1:
 
     - name: papertowel
       type: paper_towel
-      placement: {'fixture': 'counter_1_right_group_1', 'size': [0.4, 0.3], 'pos': [1.0, 0.5], 'rotation': [0, 0]}
+      placement: {'fixture': 'counter_1_right_group_1', 'size': [0.4, 0.3], 'pos': [-1.0, 0.5], 'rotation': [0, 0]}
 
 left_group_1:
   group_origin: [0, 0]
@@ -358,12 +358,16 @@ left_group_1:
       size: [0.6, 0.6, 0.84]
       levels: [single_cabinet]
       percentages: [1]
-      configs: none
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
   counter_accessories:
     - name: plant
       type: plant
       placement: {'fixture': 'counter_1_left_group_1', 'size': [0.5, 0.5], 'pos': [-1.0, 0.5], 'rotation': [0, 0]}
+
+    - name: knifeblock
+      type: knife_block
+      placement: {'fixture': 'counter_1_left_group_1', 'size': [1.0, 'obj'], 'pos': [1.0, 1.0], 'rotation': [0, 0]}
 
 island_group_1:
   group_origin: [0, 0]
@@ -412,7 +416,7 @@ island_group_1:
       size: [0.436, 0.6, 0.84]
       levels: [single_cabinet]
       percentages: [1]
-      configs: {'single_cabinet': {'orientation': 'right', 'panel_config': {'handle_vpos': 'top'}}}
+      configs: {'single_cabinet': {'orientation': 'left', 'panel_config': {'handle_vpos': 'top'}}}
 
     - name: stack_2
       type: stack
@@ -429,10 +433,6 @@ island_group_1:
       side: left
       alignment: top_back
   
-  counter_accessories:
-    - name: knifeblock
-      type: knife_block
-      placement: {'fixture': 'counter_2_island_group_1', 'size': [1.0, 'obj'], 'pos': [1.0, 1.0], 'rotation': [0, 0]}
 
 stool_group_1:
   group_origin: [0, 0]
