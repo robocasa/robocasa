@@ -65,6 +65,7 @@ class Cabinet(ProcGenFixture):
         open_top=False,  # remove top element
         texture=None,
         num_levels=0,
+        is_corner_cab=None,
         *args,
         **kwargs,
     ):
@@ -91,6 +92,9 @@ class Cabinet(ProcGenFixture):
         self.door_gap = door_gap
         self.size = np.array(size)
         self.texture = texture
+
+        # meta data to check whether cabinet is a corner cabinet
+        self.is_corner_cab = is_corner_cab
 
         # place and size each component
         self.geoms = None

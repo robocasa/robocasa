@@ -46,10 +46,16 @@ def fixture_is_type(fixture, fixture_type):
             return False
         if "stack" in fixture.name:  # wall stack cabinets not valid
             return False
-        # check the height of the cabinet to see if it is a top cabinet
-        fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
-        height_check = 1.0 <= fxtr_bottom_z <= 1.60
-        return height_check
+        if fixture.is_corner_cab is True:  # ignore corner cabinets
+            return False
+        # check that there are valid reset regions
+        reset_regions = fixture.get_reset_regions(
+            z_range=(1.0, 1.50)
+        )  # find reset regions within bounds
+        if len(reset_regions) > 0:
+            return True
+        else:
+            return False
     elif fixture_type == FixtureType.MICROWAVE:
         return isinstance(fixture, Microwave)
     elif fixture_type in [FixtureType.DOOR_HINGE, FixtureType.DOOR_TOP_HINGE]:
