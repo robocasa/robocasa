@@ -5,7 +5,7 @@ import argparse
 import os
 import time
 import xml.etree.ElementTree as ET
-
+import traceback
 import cv2
 import mujoco
 import mujoco.viewer
@@ -110,7 +110,7 @@ def read_model(
 
             if name == "reg_main":
                 group = 3
-                geom.set("rgba", "0 1 0 0.3")
+                geom.set("rgba", "0 1 0 1.0")
             else:
                 group = 2
                 geom.set("rgba", "1 1 0 0.3")
@@ -236,13 +236,22 @@ if __name__ == "__main__":
     load_time_list = []
     while True:
         for mjcf_path in mjcf_path_list:
-            sim, info = read_model(
-                xml=None,
-                filepath=mjcf_path,
-                hide_sites=False,
-                show_bbox=args.show_bbox,
-                show_coll_geoms=args.show_coll_geoms,
-            )
+            if len(mjcf_path_list) > 1:
+                print(f"Reading: {mjcf_path}")
+
+            sim = None
+            try:
+                sim, info = read_model(
+                    xml=None,
+                    filepath=mjcf_path,
+                    hide_sites=False,
+                    show_bbox=args.show_bbox,
+                    show_coll_geoms=args.show_coll_geoms,
+                )
+            except Exception as e:
+                print("Exception!")
+                traceback.print_exc()
+
             load_time = info["sim_load_time"]
             print("sim load time:", load_time)
             load_time_list.append(load_time)
@@ -260,9 +269,12 @@ if __name__ == "__main__":
                     cam_settings=cam_settings,
                 )
 
+            del sim
+
         if len(mjcf_path_list) > 1:
             mean = np.mean(load_time_list)
             median = np.median(load_time_list)
             print()
             print("Mean loading time: {:.4f} s".format(mean))
             print("Median loading time: {:.4f} s".format(median))
+            exit()

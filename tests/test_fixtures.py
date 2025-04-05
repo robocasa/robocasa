@@ -3,7 +3,9 @@ import numpy as np
 import tqdm
 import traceback
 import argparse
+import yaml
 
+import robocasa
 from robocasa.scripts.browse_mjcf_model import read_model
 import robocasa.macros as macros
 from robocasa.models.fixtures.fixture import FixtureType
@@ -154,6 +156,16 @@ if __name__ == "__main__":
 
         if fixture_list is None:
             continue
+
+        if "all" in fixture_list:
+            yaml_path = os.path.join(
+                robocasa.__path__[0],
+                "models/assets/fixtures/fixture_registry",
+                f"{fixture_type}.yaml",
+            )
+            with open(yaml_path) as yaml_f:
+                fixture_registry = yaml.safe_load(yaml_f)
+            fixture_list = list(fixture_registry.keys())
 
         env_kwargs_list = FIXTURE_TO_TEST_ENVS[fixture_type]
 
