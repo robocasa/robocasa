@@ -1,5 +1,5 @@
 from robocasa.environments.kitchen.kitchen import *
-from robosuite.utils.transform_utils import mat2quat
+from robosuite.utils.transform_utils import mat2quat, convert_quat
 
 
 class ManipulateDoor(Kitchen):
@@ -102,6 +102,7 @@ class ManipulateDoor(Kitchen):
             cab_body = f"{self.door_fxtr.name}_{self.door_fxtr._bodies[0]}"
             cab_pos = self.sim.data.get_body_xpos(cab_body)
             cab_quat = self.sim.data.get_body_xquat(cab_body)
+            cab_quat = convert_quat(cab_quat)
             return np.array(cab_pos.tolist() + cab_quat.tolist())
 
         observables["cabinet_pos_quat"] = Observable(
@@ -117,6 +118,7 @@ class ManipulateDoor(Kitchen):
             door_body = f"{self.door_fxtr.name}_{self.door_fxtr._bodies[1]}"
             door_pos = self.sim.data.get_body_xpos(door_body)
             door_quat = self.sim.data.get_body_xquat(door_body)
+            door_quat = convert_quat(door_quat)
             return np.array(door_pos.tolist() + door_quat.tolist())
 
         observables["door_pos_quat"] = Observable(
@@ -164,7 +166,7 @@ class ManipulateDoor(Kitchen):
                 self.robots[0].gripper["right"].bodies[2]
             )
             # change quat order from wxyz to xyzw
-            eef_quat = np.concatenate([eef_quat[1:], eef_quat[:1]])
+            eef_quat = convert_quat(eef_quat)
             return np.array(eef_pos.tolist() + eef_quat.tolist())
 
         observables["gripper_pos_quat"] = Observable(
