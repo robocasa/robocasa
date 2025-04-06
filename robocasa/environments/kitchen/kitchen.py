@@ -416,7 +416,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 fxtr_placements = fxtr_placement_initializer.sample()
             except RandomizationError as e:
                 if macros.VERBOSE:
-                    print("Ranomization error in initial placement. Try #{}".format(i))
+                    print("Randomization error in initial placement. Try #{}".format(i))
                 continue
             break
         if fxtr_placements is None:
