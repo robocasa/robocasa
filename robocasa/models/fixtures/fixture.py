@@ -493,6 +493,32 @@ class Fixture(MujocoXMLObjectRobocasa):
         points = [(np.matmul(rot, p) + trans) for p in bbox_offsets]
         return points
 
+    def set_door_state(self, min, max, env):
+        """
+        Sets how open the door is. Chooses a random amount between min and max.
+        Min and max are percentages of how open the door is
+
+        Args:
+            min (float): minimum percentage of how open the door is
+
+            max (float): maximum percentage of how open the door is
+
+            env (MujocoEnv): environment
+        """
+        raise NotImplementedError
+
+    def open_door(self, env, min=0.90, max=1.0, **kwargs):
+        """
+        helper function to open the door. calls set_door_state function
+        """
+        self.set_door_state(env=env, min=min, max=max, **kwargs)
+
+    def close_door(self, env, min=0.0, max=0.0, **kwargs):
+        """
+        helper function to close the door. calls set_door_state function
+        """
+        self.set_door_state(env=env, min=min, max=max, **kwargs)
+
     def _remove_element(self, elem):
         # # This method not currently working
         # parent_elem = find_parent(self._obj, elem)

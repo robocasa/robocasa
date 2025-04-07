@@ -67,7 +67,7 @@ class PnPCounterToCab(PnP):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.cab.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+        self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
         """
@@ -188,7 +188,7 @@ class PnPCabToCounter(PnP):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.cab.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+        self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
         """
@@ -517,7 +517,7 @@ class PnPCounterToMicrowave(PnP):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.microwave.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+        self.microwave.open_door(env=self)
 
     def get_ep_meta(self):
         """
@@ -643,7 +643,7 @@ class PnPMicrowaveToCounter(PnP):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.microwave.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+        self.microwave.open_door(env=self)
 
     def get_ep_meta(self):
         """

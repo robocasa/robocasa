@@ -59,8 +59,8 @@ class BeverageSorting(Kitchen):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.cab1.set_door_state(min=0.85, max=0.9, env=self, rng=self.rng)
-        self.cab2.set_door_state(min=0.85, max=0.9, env=self, rng=self.rng)
+        self.cab1.set_door_state(min=0.85, max=0.9, env=self)
+        self.cab2.set_door_state(min=0.85, max=0.9, env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []

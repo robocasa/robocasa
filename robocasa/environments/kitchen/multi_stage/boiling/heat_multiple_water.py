@@ -80,7 +80,7 @@ class HeatMultipleWater(Kitchen):
 
     def _reset_internal(self):
         super()._reset_internal()
-        self.ref_cab.set_door_state(min=0.9, max=1.0, env=self, rng=self.rng)
+        self.ref_cab.open_door(env=self)
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
 
         for knob in valid_knobs:

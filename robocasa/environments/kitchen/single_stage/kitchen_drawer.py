@@ -79,9 +79,9 @@ class ManipulateDrawer(Kitchen):
         This includes setting the drawer state based on the behavior
         """
         if self.behavior == "open":
-            self.drawer.set_door_state(min=0.0, max=0.0, env=self, rng=self.rng)
+            self.drawer.close_door(env=self)
         elif self.behavior == "close":
-            self.drawer.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+            self.drawer.open_door(env=self)
         # set the door state then place the objects otherwise objects initialized in opened drawer will fall down before the drawer is opened
         super()._reset_internal()
 

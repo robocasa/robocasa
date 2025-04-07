@@ -26,7 +26,7 @@ class Microwave(Fixture):
         )
         self._turned_on = False
 
-    def set_door_state(self, min, max, env, rng):
+    def set_door_state(self, min, max, env):
         """
         Sets how open the door is. Chooses a random amount between min and max.
         Min and max are percentages of how open the door is
@@ -37,8 +37,6 @@ class Microwave(Fixture):
             max (float): maximum percentage of how open the door is
 
             env (MujocoEnv): environment
-
-            rng (np.random.Generator): random number generator
 
         """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
@@ -53,7 +51,7 @@ class Microwave(Fixture):
 
         env.sim.data.set_joint_qpos(
             "{}_microjoint".format(self.name),
-            sign * rng.uniform(desired_min, desired_max),
+            sign * env.rng.uniform(desired_min, desired_max),
         )
 
     def get_door_state(self, env):

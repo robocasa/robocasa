@@ -43,7 +43,7 @@ class DryDrinkware(Kitchen):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.cab.set_door_state(min=0.9, max=1, env=self, rng=self.rng)
+        self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []

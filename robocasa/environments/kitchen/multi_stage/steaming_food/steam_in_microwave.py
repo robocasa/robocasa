@@ -42,7 +42,7 @@ class SteamInMicrowave(Kitchen):
     def _reset_internal(self):
         super()._reset_internal()
         self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
-        self.microwave.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+        self.microwave.open_door(env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []

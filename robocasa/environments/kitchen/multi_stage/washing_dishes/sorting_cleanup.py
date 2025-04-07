@@ -39,7 +39,7 @@ class SortingCleanup(Kitchen):
     def _reset_internal(self):
         super()._reset_internal()
         # not fully open since it may come in contact with eef
-        self.cab.set_door_state(min=0.5, max=0.6, env=self, rng=self.rng)
+        self.cab.set_door_state(min=0.5, max=0.6, env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []

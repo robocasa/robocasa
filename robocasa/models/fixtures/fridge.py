@@ -1,5 +1,9 @@
 import numpy as np
 from robocasa.models.fixtures import Fixture
+from robosuite.utils.mjcf_utils import (
+    string_to_array,
+    find_elements,
+)
 
 
 class Fridge(Fixture):
@@ -13,6 +17,26 @@ class Fridge(Fixture):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )
+        joint_elems = find_elements(
+            root=self.worldbody, tags="joint", return_first=False
+        )
+        self._fridge_door_joint_info = dict()
+        self._freezer_door_joint_info = dict()
+        for elem in joint_elems:
+            elem_name = elem.get("name")
+            if elem_name is None:
+                continue
+            # strip out name prefix
+            stripped_name = elem_name[len(self.name) + 1 :]
+            if "door" in stripped_name:
+                if "fridge" in stripped_name:
+                    self._fridge_door_joint_info[elem_name] = dict(
+                        range=string_to_array(elem.get("range")),
+                    )
+                elif "freezer" in stripped_name:
+                    self._freezer_door_joint_info[elem_name] = dict(
+                        range=string_to_array(elem.get("range")),
+                    )
 
     def get_reset_regions(self, env, reg_type="fridge"):
         assert reg_type in ["fridge", "freezer"]
@@ -38,6 +62,36 @@ class Fridge(Fixture):
                 "size": (px[0] - p0[0], py[1] - p0[1]),
             }
         return reset_regions
+
+    def set_door_state(self, min, max, env, door_type="fridge"):
+        """
+        Sets how open the door is. Chooses a random amount between min and max.
+        Min and max are percentages of how open the door is
+        Args:
+            min (float): minimum percentage of how open the door is
+            max (float): maximum percentage of how open the door is
+            env (MujocoEnv): environment
+            rng (np.random.Generator): random number generator
+        """
+        assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
+
+        rng = None or env.rng
+
+        assert door_type in ["fridge", "freezer"]
+        joint_info = (
+            self._fridge_door_joint_info
+            if door_type == "fridge"
+            else self._freezer_door_joint_info
+        )
+
+        for joint_name, info in joint_info.items():
+            joint_min, joint_max = info["range"]
+            desired_min = joint_min + (joint_max - joint_min) * min
+            desired_max = joint_min + (joint_max - joint_min) * max
+            env.sim.data.set_joint_qpos(
+                joint_name,
+                rng.uniform(desired_min, desired_max),
+            )
 
     @property
     def nat_lang(self):

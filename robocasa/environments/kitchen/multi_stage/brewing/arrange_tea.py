@@ -27,7 +27,7 @@ class ArrangeTea(Kitchen):
 
     def _reset_internal(self):
         super()._reset_internal()
-        self.cab.set_door_state(min=0.9, max=1.0, env=self, rng=self.rng)
+        self.cab.open_door(env=self)
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
