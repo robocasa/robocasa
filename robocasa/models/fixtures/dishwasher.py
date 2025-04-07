@@ -46,15 +46,13 @@ class Dishwasher(Fixture):
         """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
-        rng = None or env.rng
-
         for joint_name, info in self._dishwasher_door_joint_info.items():
             joint_min, joint_max = info["range"]
             desired_min = joint_min + (joint_max - joint_min) * min
             desired_max = joint_min + (joint_max - joint_min) * max
             env.sim.data.set_joint_qpos(
                 joint_name,
-                rng.uniform(desired_min, desired_max),
+                env.rng.uniform(desired_min, desired_max),
             )
 
     def get_reset_region_names(self):

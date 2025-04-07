@@ -74,8 +74,6 @@ class Fridge(Fixture):
         """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
-        rng = None or env.rng
-
         assert door_type in ["fridge", "freezer"]
         joint_info = (
             self._fridge_door_joint_info
@@ -89,7 +87,7 @@ class Fridge(Fixture):
             desired_max = joint_min + (joint_max - joint_min) * max
             env.sim.data.set_joint_qpos(
                 joint_name,
-                rng.uniform(desired_min, desired_max),
+                env.rng.uniform(desired_min, desired_max),
             )
 
     @property
