@@ -97,7 +97,8 @@ def read_model(
             if show_coll_geoms:
                 g.set("rgba", "1.0 0.0 0.0 0.5")
             else:
-                g.set("rgba", "1.0 0.0 0.0 0.0")
+                g.set("rgba", "1.0 0.0 0.0 0.5")
+                g.set("group", "4")
 
     if show_bbox:
         # reg_geoms = {}
@@ -110,7 +111,7 @@ def read_model(
 
             if name == "reg_main":
                 group = 3
-                geom.set("rgba", "0 1 0 1.0")
+                geom.set("rgba", "0 1 0 0.6")
             else:
                 group = 2
                 geom.set("rgba", "1 1 0 0.3")
@@ -132,7 +133,7 @@ def read_model(
 
             for point in points:
                 ext_bbox_site = ET.fromstring(
-                    """<geom type="sphere" pos="{pos}" size="0.002" rgba="{rgba}" group="{group}" />""".format(
+                    """<geom type="sphere" pos="{pos}" size="0.003" rgba="{rgba}" group="{group}" />""".format(
                         pos=a2s(point),
                         rgba="0 0 0 1",
                         group=group,
@@ -206,11 +207,11 @@ if __name__ == "__main__":
         action="store_true",
         help="save screenshot of model in same directory as filepath",
     )
-    parser.add_argument(
-        "--show_bbox",
-        action="store_true",
-        help="visualize exterior bounding box (based on ext_ sites)",
-    )
+    # parser.add_argument(
+    #     "--show_bbox",
+    #     action="store_true",
+    #     help="visualize exterior bounding box (based on ext_ sites)",
+    # )
     parser.add_argument(
         "--show_coll_geoms",
         action="store_true",
@@ -245,7 +246,7 @@ if __name__ == "__main__":
                     xml=None,
                     filepath=mjcf_path,
                     hide_sites=False,
-                    show_bbox=args.show_bbox,
+                    show_bbox=True,
                     show_coll_geoms=args.show_coll_geoms,
                 )
             except Exception as e:
