@@ -17,11 +17,11 @@ class Fridge(Fixture):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )
+        self._fridge_door_joint_info = dict()
+        self._freezer_door_joint_info = dict()
         joint_elems = find_elements(
             root=self.worldbody, tags="joint", return_first=False
         )
-        self._fridge_door_joint_info = dict()
-        self._freezer_door_joint_info = dict()
         for elem in joint_elems:
             elem_name = elem.get("name")
             if elem_name is None:
@@ -71,7 +71,6 @@ class Fridge(Fixture):
             min (float): minimum percentage of how open the door is
             max (float): maximum percentage of how open the door is
             env (MujocoEnv): environment
-            rng (np.random.Generator): random number generator
         """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
