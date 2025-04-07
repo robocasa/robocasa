@@ -39,7 +39,7 @@ class SpicyMarinade(Kitchen):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.cab.set_door_state(min=0.0, max=0.0, env=self, rng=self.rng)
+        self.cab.close_door(env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []

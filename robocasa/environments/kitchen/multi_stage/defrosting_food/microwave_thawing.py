@@ -40,7 +40,7 @@ class MicrowaveThawing(Kitchen):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.microwave.set_door_state(min=0, max=0, env=self, rng=self.rng)
+        self.microwave.close_door(env=self)
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

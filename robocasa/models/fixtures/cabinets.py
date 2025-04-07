@@ -254,7 +254,7 @@ class Cabinet(ProcGenFixture):
 
         self.set_regions(regions)
 
-    def set_door_state(self, min, max, env, rng):
+    def set_door_state(self, min, max, env):
         pass
 
     def get_door_state(self, env):
@@ -393,7 +393,7 @@ class SingleCabinet(Cabinet):
             }
         )
 
-    def set_door_state(self, min, max, env, rng):
+    def set_door_state(self, min, max, env):
         """
         Sets how open the door is. Chooses a random amount between min and max.
         Min and max are percentages of how open the door is
@@ -404,8 +404,6 @@ class SingleCabinet(Cabinet):
             max (float): maximum percentage of how open the door is
 
             env (MujocoEnv): environment
-
-            rng (np.random.Generator): random number generator
         """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
@@ -419,7 +417,7 @@ class SingleCabinet(Cabinet):
 
         env.sim.data.set_joint_qpos(
             "{}_doorhinge".format(self.name),
-            sign * rng.uniform(desired_min, desired_max),
+            sign * env.rng.uniform(desired_min, desired_max),
         )
 
     def get_door_state(self, env):
@@ -594,7 +592,7 @@ class HingeCabinet(Cabinet):
             state[name] = sim.data.qpos[addr]
         return state
 
-    def set_door_state(self, min, max, env, rng):
+    def set_door_state(self, min, max, env):
         """
         Sets how open the doors are. Chooses a random amount between min and max.
         Min and max are percentages of how open the doors are
@@ -605,8 +603,6 @@ class HingeCabinet(Cabinet):
             max (float): maximum percentage of how open the door is
 
             env (MujocoEnv): environment
-
-            rng (np.random.Generator): random number generator
         """
         assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
 
@@ -617,11 +613,13 @@ class HingeCabinet(Cabinet):
         desired_max = joint_min + (joint_max - joint_min) * max
 
         env.sim.data.set_joint_qpos(
-            "{}_rightdoorhinge".format(self.name), rng.uniform(desired_min, desired_max)
+            "{}_rightdoorhinge".format(self.name),
+            env.rng.uniform(desired_min, desired_max),
         )
 
         env.sim.data.set_joint_qpos(
-            "{}_leftdoorhinge".format(self.name), -rng.uniform(desired_min, desired_max)
+            "{}_leftdoorhinge".format(self.name),
+            -env.rng.uniform(desired_min, desired_max),
         )
 
     def get_door_state(self, env):
@@ -930,7 +928,7 @@ class Drawer(Cabinet):
             }
         )
 
-    def set_door_state(self, min, max, env, rng):
+    def set_door_state(self, min, max, env):
         """
         Sets how open the drawer is. Chooses a random amount between min and max.
         Min and max are percentages of how open the drawer is.
@@ -956,7 +954,7 @@ class Drawer(Cabinet):
 
         env.sim.data.set_joint_qpos(
             "{}_slidejoint".format(self.name),
-            sign * rng.uniform(desired_min, desired_max),
+            sign * env.rng.uniform(desired_min, desired_max),
         )
 
     def get_door_state(self, env):

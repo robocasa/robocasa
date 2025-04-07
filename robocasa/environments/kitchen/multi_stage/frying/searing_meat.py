@@ -52,7 +52,7 @@ class SearingMeat(Kitchen):
             self.knob = self.knob
 
         self.stove.set_knob_state(mode="off", knob=self.knob, env=self, rng=self.rng)
-        self.cab.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+        self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []

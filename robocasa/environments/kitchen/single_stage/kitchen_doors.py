@@ -58,9 +58,9 @@ class ManipulateDoor(Kitchen):
         This includes setting the door state based on the behavior.
         """
         if self.behavior == "open":
-            self.door_fxtr.set_door_state(min=0.0, max=0.0, env=self, rng=self.rng)
+            self.door_fxtr.close_door(env=self)
         elif self.behavior == "close":
-            self.door_fxtr.set_door_state(min=0.90, max=1.0, env=self, rng=self.rng)
+            self.door_fxtr.open_door(env=self)
         # set the door state then place the objects otherwise objects initialized in opened drawer will fall down before the drawer is opened
         super()._reset_internal()
 
