@@ -28,7 +28,7 @@ class SearingMeat(Kitchen):
         )
 
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.DOOR_TOP_HINGE_DOUBLE, ref=self.stove)
+            "cab", dict(id=FixtureType.CABINET_DOUBLE_DOOR, ref=self.stove)
         )
         self.init_robot_base_pos = self.cab
 

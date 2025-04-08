@@ -20,7 +20,7 @@ class SortingCleanup(Kitchen):
 
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.sink)
+            "cab", dict(id=FixtureType.CABINET, ref=self.sink)
         )
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.5, 0.5))

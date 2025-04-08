@@ -17,7 +17,7 @@ class PlaceFoodInBowls(Kitchen):
             picked.
     """
 
-    def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
+    def __init__(self, cab_id=FixtureType.CABINET_DOUBLE_DOOR, *args, **kwargs):
         # use double door cabinet as default to have space for two bowls
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

@@ -24,7 +24,7 @@ class PantryMishap(ManipulateDrawer):
         )
 
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.drawer)
+            "cab", dict(id=FixtureType.CABINET, ref=self.drawer)
         )
 
     def get_ep_meta(self):

@@ -21,8 +21,8 @@ class StockingBreakfastFoods(Kitchen):
 
     def __init__(
         self,
-        cab_id1=FixtureType.CABINET_TOP,
-        cab_id2=FixtureType.CABINET_TOP,
+        cab_id1=FixtureType.CABINET,
+        cab_id2=FixtureType.CABINET,
         *args,
         **kwargs,
     ):

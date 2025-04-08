@@ -24,7 +24,7 @@ class HeatMultipleWater(Kitchen):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
         self.ref_cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.stove)
+            "cab", dict(id=FixtureType.CABINET, ref=self.stove)
         )
         self.ref_counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.ref_cab, size=(0.2, 0.2))

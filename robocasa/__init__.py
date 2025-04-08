@@ -255,12 +255,18 @@ from robocasa.environments.kitchen.single_stage.kitchen_coffee import (
     CoffeeSetupMug,
 )
 from robocasa.environments.kitchen.single_stage.kitchen_doors import (
-    CloseDoor,
-    CloseDoubleDoor,
-    CloseSingleDoor,
     OpenDoor,
-    OpenDoubleDoor,
-    OpenSingleDoor,
+    CloseDoor,
+    OpenCabinet,
+    CloseCabinet,
+    OpenMicrowave,
+    CloseMicrowave,
+    OpenFridge,
+    CloseFridge,
+    OpenDishwasher,
+    CloseDishwasher,
+    OpenOven,
+    CloseOven,
 )
 from robocasa.environments.kitchen.single_stage.kitchen_drawer import (
     CloseDrawer,
