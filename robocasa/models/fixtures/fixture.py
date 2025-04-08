@@ -18,7 +18,7 @@ from robosuite.utils.mjcf_utils import (
 import robocasa
 import robocasa.macros as macros
 from robocasa.models.objects.objects import MujocoXMLObjectRobocasa
-from robocasa.utils.object_utils import get_pos_after_rel_offset
+import robocasa.utils.object_utils as OU
 
 
 def get_texture_name_from_file(file):
@@ -36,35 +36,30 @@ class FixtureType(IntEnum):
     Enum for fixture types in robosuite kitchen environments.
     """
 
-    COUNTER = 1
-    MICROWAVE = 2
-    STOVE = 3
+    MICROWAVE = 1
+    STOVE = 2
+    OVEN = 3
     SINK = 4
-    CABINET = 5
-    DRAWER = 6
-    SHELF = 7
-    COFFEE_MACHINE = 8
-    DOOR = 9
-    DOOR_HINGE = 10
-    DOOR_HINGE_SINGLE = 11
-    DOOR_HINGE_DOUBLE = 12
-    DOOR_TOP_HINGE = 13
-    DOOR_TOP_HINGE_SINGLE = 14
-    DOOR_TOP_HINGE_DOUBLE = 15
-    CABINET_TOP = 16
-    TOASTER = 17
-    DINING_COUNTER = 18
-    TOP_DRAWER = 19
-    STOOL = 20
-    ISLAND = 21
-    COUNTER_NON_CORNER = 22
-    FRIDGE = 23
-    DISHWASHER = 24
-    OVEN = 25
-    TOASTER_OVEN = 26
-    BLENDER = 27
-    STAND_MIXER = 28
-    ELECTRIC_KETTLE = 29
+    COFFEE_MACHINE = 5
+    TOASTER = 6
+    TOASTER_OVEN = 7
+    FRIDGE = 8
+    DISHWASHER = 9
+    BLENDER = 10
+    STAND_MIXER = 11
+    ELECTRIC_KETTLE = 12
+    STOOL = 13
+    COUNTER = 14
+    ISLAND = 15
+    COUNTER_NON_CORNER = 16
+    DINING_COUNTER = 17
+    CABINET = 18
+    CABINET_WITH_DOOR = 19
+    CABINET_SINGLE_DOOR = 20
+    CABINET_DOUBLE_DOOR = 21
+    SHELF = 22
+    DRAWER = 23
+    TOP_DRAWER = 24
 
 
 class Fixture(MujocoXMLObjectRobocasa):
@@ -194,6 +189,22 @@ class Fixture(MujocoXMLObjectRobocasa):
             self.rng = rng
         else:
             self.rng = np.random.default_rng()
+
+        # track information about all joints
+        self._joint_infos = dict()
+        joint_elems = find_elements(
+            root=self.worldbody, tags="joint", return_first=False
+        )
+        if joint_elems is not None:
+            for elem in joint_elems:
+                elem_name = elem.get("name")
+                if elem_name is None:
+                    continue
+                j_info = dict()
+                range = elem.get("range")
+                if range is not None:
+                    j_info["range"] = string_to_array(elem.get("range"))
+                self._joint_infos[elem_name] = j_info
 
     def get_reset_region_names(self):
         return ("int",)
@@ -430,7 +441,7 @@ class Fixture(MujocoXMLObjectRobocasa):
             ]
 
         if relative is False:
-            sites = [get_pos_after_rel_offset(self, offset) for offset in sites]
+            sites = [OU.get_pos_after_rel_offset(self, offset) for offset in sites]
 
         return sites
 
@@ -469,7 +480,7 @@ class Fixture(MujocoXMLObjectRobocasa):
                 ]
 
             if relative is False:
-                sites = [get_pos_after_rel_offset(self, offset) for offset in sites]
+                sites = [OU.get_pos_after_rel_offset(self, offset) for offset in sites]
 
             sites_dict[prefix] = sites
 
@@ -507,18 +518,6 @@ class Fixture(MujocoXMLObjectRobocasa):
         """
         raise NotImplementedError
 
-    def open_door(self, env, min=0.90, max=1.0, **kwargs):
-        """
-        helper function to open the door. calls set_door_state function
-        """
-        self.set_door_state(env=env, min=min, max=max, **kwargs)
-
-    def close_door(self, env, min=0.0, max=0.0, **kwargs):
-        """
-        helper function to close the door. calls set_door_state function
-        """
-        self.set_door_state(env=env, min=min, max=max, **kwargs)
-
     def _remove_element(self, elem):
         # # This method not currently working
         # parent_elem = find_parent(self._obj, elem)
@@ -529,6 +528,100 @@ class Fixture(MujocoXMLObjectRobocasa):
         elem.set("rgba", "0 0 0 0")
         elem.set("pos", "0 0 10")
         elem.set("size", "0.01 0.01 0.01")
+
+    def get_joint_state(self, env, joint_names):
+        """
+        Args:
+            env (MujocoEnv): environment
+
+        Returns:
+            dict: maps door names to a percentage of how open they are
+        """
+        joint_state = dict()
+
+        for j_name in joint_names:
+            joint_qpos = env.sim.data.qpos[env.sim.model.joint_name2id(j_name)]
+            joint_info = self._joint_infos.get(j_name, None)
+            assert joint_info is not None
+            joint_min, joint_max = joint_info["range"]
+            # convert to normalized joint value
+            norm_qpos = OU.normalize_joint_value(
+                joint_qpos,
+                joint_min=joint_min,
+                joint_max=joint_max,
+            )
+            if joint_min < 0:
+                norm_qpos = 1 - norm_qpos
+            joint_state[j_name] = norm_qpos
+
+        return joint_state
+
+    def set_joint_state(self, min, max, env, joint_names):
+        """
+        Sets how open the door is. Chooses a random amount between min and max.
+        Min and max are percentages of how open the door is
+        Args:
+            min (float): minimum percentage of how open the door is
+            max (float): maximum percentage of how open the door is
+            env (MujocoEnv): environment
+        """
+        assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
+
+        for j_name in joint_names:
+            info = self._joint_infos[j_name]
+            joint_min, joint_max = info["range"]
+            if joint_min >= 0:
+                desired_min = joint_min + (joint_max - joint_min) * min
+                desired_max = joint_min + (joint_max - joint_min) * max
+            else:
+                desired_min = joint_min + (joint_max - joint_min) * (1 - max)
+                desired_max = joint_min + (joint_max - joint_min) * (1 - min)
+            env.sim.data.set_joint_qpos(
+                j_name,
+                env.rng.uniform(desired_min, desired_max),
+            )
+
+    def is_open(self, env, joint_names=None, th=0.90):
+        if joint_names is None:
+            joint_names = self.door_joint_names
+        joint_state = self.get_joint_state(env, joint_names)
+        for j_name in joint_names:
+            assert j_name in joint_state
+            norm_qpos = joint_state[j_name]
+            if norm_qpos < th:
+                return False
+        return True
+
+    def is_closed(self, env, joint_names=None, th=0.005):
+        if joint_names is None:
+            joint_names = self.door_joint_names
+        joint_state = self.get_joint_state(env, joint_names)
+        for j_name in joint_names:
+            assert j_name in joint_state
+            norm_qpos = joint_state[j_name]
+            if norm_qpos > th:
+                return False
+        return True
+
+    def open_door(self, env, min=0.90, max=1.0):
+        """
+        helper function to open the door. calls set_door_state function
+        """
+        self.set_joint_state(
+            env=env, min=min, max=max, joint_names=self.door_joint_names
+        )
+
+    def close_door(self, env, min=0.0, max=0.0):
+        """
+        helper function to close the door. calls set_door_state function
+        """
+        self.set_joint_state(
+            env=env, min=min, max=max, joint_names=self.door_joint_names
+        )
+
+    @property
+    def door_joint_names(self):
+        return [j_name for j_name in self._joint_infos if "door" in j_name]
 
     @property
     def nat_lang(self):

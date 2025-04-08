@@ -13,11 +13,11 @@ class MeatTransfer(Kitchen):
 
     Args:
         cab_id: Enum which serves as a unique identifier for different cabinets.
-            Default to FixtureType.DOOR_TOP_HINGE_DOUBLE to have space for
+            Default to FixtureType.CABINET_DOUBLE_DOOR to have space for
             initializing bowl/pan
     """
 
-    def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
+    def __init__(self, cab_id=FixtureType.CABINET, *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)
 

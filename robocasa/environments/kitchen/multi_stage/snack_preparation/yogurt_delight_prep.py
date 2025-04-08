@@ -19,7 +19,7 @@ class YogurtDelightPrep(Kitchen):
 
         # want space for all the objects
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.DOOR_TOP_HINGE_DOUBLE)
+            "cab", dict(id=FixtureType.CABINET_DOUBLE_DOOR)
         )
 
         self.counter = self.register_fixture_ref(

@@ -9,24 +9,22 @@ class ManipulateDoor(Kitchen):
         behavior (str): "open" or "close". Used to define the desired
             door manipulation behavior for the task.
 
-        door_id (str): The door fixture id to manipulate.
+        fixture_id (str): The door fixture id to manipulate.
     """
 
-    def __init__(
-        self, behavior="open", door_id=FixtureType.DOOR_TOP_HINGE, *args, **kwargs
-    ):
-        self.door_id = door_id
+    def __init__(self, fixture_id, behavior="open", *args, **kwargs):
         assert behavior in ["open", "close"]
         self.behavior = behavior
         super().__init__(*args, **kwargs)
+        self.fixture_id = fixture_id
 
     def _setup_kitchen_references(self):
         """
         Setup the kitchen references for the door tasks.
         """
         super()._setup_kitchen_references()
-        self.door_fxtr = self.register_fixture_ref("door_fxtr", dict(id=self.door_id))
-        self.init_robot_base_pos = self.door_fxtr
+        self.fxtr = self.register_fixture_ref("fxtr", dict(id=self.fixture_id))
+        self.init_robot_base_pos = self.fxtr
 
     def get_ep_meta(self):
         """
@@ -37,19 +35,11 @@ class ManipulateDoor(Kitchen):
             dict: Episode metadata.
         """
         ep_meta = super().get_ep_meta()
-        if isinstance(self.door_fxtr, Microwave):
-            door_fxtr_name = "microwave"
-            door_name = "door"
-        elif isinstance(self.door_fxtr, SingleCabinet):
-            door_fxtr_name = "cabinet"
-            door_name = "door"
-        elif isinstance(self.door_fxtr, HingeCabinet):
-            door_fxtr_name = "cabinet"
+        if isinstance(self.fxtr, HingeCabinet):
             door_name = "doors"
-        elif isinstance(self.door_fxtr, Drawer):
-            door_fxtr_name = "drawer"
-            door_name = "doors"
-        ep_meta["lang"] = f"{self.behavior} the {door_fxtr_name} {door_name}"
+        else:
+            door_name = "door"
+        ep_meta["lang"] = f"{self.behavior} the {self.fxtr.nat_lang} {door_name}"
         return ep_meta
 
     def _reset_internal(self):
@@ -58,9 +48,9 @@ class ManipulateDoor(Kitchen):
         This includes setting the door state based on the behavior.
         """
         if self.behavior == "open":
-            self.door_fxtr.close_door(env=self)
+            self.fxtr.close_door(env=self)
         elif self.behavior == "close":
-            self.door_fxtr.open_door(env=self)
+            self.fxtr.open_door(env=self)
         # set the door state then place the objects otherwise objects initialized in opened drawer will fall down before the drawer is opened
         super()._reset_internal()
 
@@ -71,20 +61,10 @@ class ManipulateDoor(Kitchen):
         Returns:
             bool: True if the task is successful, False otherwise.
         """
-        door_state = self.door_fxtr.get_door_state(env=self)
-
-        success = True
-        for joint_p in door_state.values():
-            if self.behavior == "open":
-                if joint_p < 0.90:
-                    success = False
-                    break
-            elif self.behavior == "close":
-                if joint_p > 0.05:
-                    success = False
-                    break
-
-        return success
+        if self.behavior == "open":
+            return self.fxtr.is_open(env=self)
+        elif self.behavior == "close":
+            return self.fxtr.is_closed(env=self)
 
     def _get_obj_cfgs(self):
         """
@@ -98,9 +78,9 @@ class ManipulateDoor(Kitchen):
                 name="door_obj",
                 obj_groups="all",
                 graspable=True,
-                microwavable=(True if isinstance(self.door_fxtr, Microwave) else None),
+                microwavable=(True if isinstance(self.fxtr, Microwave) else None),
                 placement=dict(
-                    fixture=self.door_fxtr,
+                    fixture=self.fxtr,
                     size=(0.30, 0.30),
                     pos=(None, -1.0),
                 ),
@@ -115,11 +95,9 @@ class ManipulateDoor(Kitchen):
                     name=f"distr_counter_{i+1}",
                     obj_groups="all",
                     placement=dict(
-                        fixture=self.get_fixture(
-                            FixtureType.COUNTER, ref=self.door_fxtr
-                        ),
+                        fixture=self.get_fixture(FixtureType.COUNTER, ref=self.fxtr),
                         sample_region_kwargs=dict(
-                            ref=self.door_fxtr,
+                            ref=self.fxtr,
                         ),
                         size=(1.0, 0.50),
                         pos=(None, -1.0),
@@ -136,26 +114,60 @@ class OpenDoor(ManipulateDoor):
         super().__init__(behavior="open", *args, **kwargs)
 
 
-class OpenSingleDoor(OpenDoor):
-    def __init__(self, door_id=FixtureType.DOOR_TOP_HINGE_SINGLE, *args, **kwargs):
-        super().__init__(door_id=door_id, *args, **kwargs)
-
-
-class OpenDoubleDoor(OpenDoor):
-    def __init__(self, door_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
-        super().__init__(door_id=door_id, *args, **kwargs)
-
-
 class CloseDoor(ManipulateDoor):
-    def __init__(self, behavior=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(behavior="close", *args, **kwargs)
 
 
-class CloseSingleDoor(CloseDoor):
-    def __init__(self, door_id=FixtureType.DOOR_TOP_HINGE_SINGLE, *args, **kwargs):
-        super().__init__(door_id=door_id, *args, **kwargs)
+class OpenCabinet(OpenDoor):
+    def __init__(self, fixture_id=FixtureType.CABINET_WITH_DOOR, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
 
 
-class CloseDoubleDoor(CloseDoor):
-    def __init__(self, door_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
-        super().__init__(door_id=door_id, *args, **kwargs)
+class CloseCabinet(CloseDoor):
+    def __init__(self, fixture_id=FixtureType.CABINET_WITH_DOOR, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class OpenMicrowave(OpenDoor):
+    def __init__(self, fixture_id=FixtureType.MICROWAVE, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class CloseMicrowave(CloseDoor):
+    def __init__(self, fixture_id=FixtureType.MICROWAVE, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class OpenFridge(OpenDoor):
+    def __init__(self, fixture_id=FixtureType.FRIDGE, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class CloseFridge(CloseDoor):
+    def __init__(self, fixture_id=FixtureType.FRIDGE, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class OpenOven(OpenDoor):
+    EXCLUDE_LAYOUTS = [0, 2, 4, 5, 9]
+
+    def __init__(self, fixture_id=FixtureType.OVEN, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class CloseOven(CloseDoor):
+    EXCLUDE_LAYOUTS = [0, 2, 4, 5, 9]
+
+    def __init__(self, fixture_id=FixtureType.OVEN, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class OpenDishwasher(OpenDoor):
+    def __init__(self, fixture_id=FixtureType.DISHWASHER, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)
+
+
+class CloseDishwasher(CloseDoor):
+    def __init__(self, fixture_id=FixtureType.DISHWASHER, *args, **kwargs):
+        super().__init__(fixture_id=fixture_id, *args, **kwargs)

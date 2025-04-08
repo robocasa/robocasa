@@ -49,7 +49,14 @@ class KitchenEnvMeta(EnvMeta):
 
     def __new__(meta, name, bases, class_dict):
         cls = super().__new__(meta, name, bases, class_dict)
-        register_kitchen_env(cls)
+        if cls.__name__ not in [
+            "MG_Robocasa_Env",
+            "PnP",
+            "ManipulateDoor",
+            "OpenDoor",
+            "CloseDoor",
+        ]:
+            register_kitchen_env(cls)
         return cls
 
 

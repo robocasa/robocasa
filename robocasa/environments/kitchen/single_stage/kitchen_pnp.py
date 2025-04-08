@@ -31,9 +31,7 @@ class PnPCounterToCab(PnP):
         obj_groups (str): Object groups to sample the target object from.
     """
 
-    def __init__(
-        self, cab_id=FixtureType.CABINET_TOP, obj_groups="all", *args, **kwargs
-    ):
+    def __init__(self, cab_id=FixtureType.CABINET, obj_groups="all", *args, **kwargs):
 
         self.cab_id = cab_id
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
@@ -149,9 +147,7 @@ class PnPCabToCounter(PnP):
         obj_groups (str): Object groups to sample the target object from.
     """
 
-    def __init__(
-        self, cab_id=FixtureType.CABINET_TOP, obj_groups="all", *args, **kwargs
-    ):
+    def __init__(self, cab_id=FixtureType.CABINET, obj_groups="all", *args, **kwargs):
         self.cab_id = cab_id
         super().__init__(obj_groups=obj_groups, *args, **kwargs)
 
