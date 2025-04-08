@@ -171,6 +171,15 @@ def compute_robot_base_placement_pose(env, ref_fixture, ref_object=None, offset=
     for fxtr in ground_fixtures:
         # get bounds of fixture
         point = ref_fixture.pos
+        # if fxtr.name == "counter_corner_1_main_group_1":
+        #     print("point:", point)
+        #     p0, px, py, pz = fxtr.get_ext_sites(relative=False)
+        #     print("p0:", p0)
+        #     print("px:", px)
+        #     print("py:", py)
+        #     print("pz:", pz)
+        #     print()
+
         if not OU.point_in_fixture(point=point, fixture=fxtr, only_2d=True):
             continue
         ground_fixture = fxtr
@@ -593,6 +602,7 @@ def init_robot_base_pose(env):
     robot_model = env.robots[0].robot_model
     robot_model.set_base_xpos(robot_base_pos)
     robot_model.set_base_ori(robot_base_ori)
+    env.robot_geom_ids = None
 
 
 def find_object_cfg_by_name(env, name):

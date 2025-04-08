@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 from copy import deepcopy
-
+import contextlib
 import numpy as np
 import robosuite.utils.transform_utils as T
 from robosuite.environments.manipulation.manipulation_env import ManipulationEnv
@@ -231,6 +231,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
     ):
         self.init_robot_base_pos = init_robot_base_pos
 
+        self.robot_spawn_position_deviation_x = 0.05  # robot_spawn_position_deviation_x
+        self.robot_spawn_position_deviation_y = 0.25  # robot_spawn_position_deviation_y
+        self.robot_spawn_rotation_deviation = 0.0  # robot_spawn_rotation_deviation
+
         # object placement initializer
         self.placement_initializer = placement_initializer
         self.obj_registries = obj_registries
@@ -289,6 +293,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 controller_configs["composite_controller_specific_configs"][
                     "body_part_ordering"
                 ] = ["right", "right_gripper", "base", "torso"]
+
+        if not hasattr(self, "_reset_internal_end_callbacks"):
+            self._reset_internal_end_callbacks = []
+        self._reset_internal_end_callbacks.append(self.set_robot_state)
 
         super().__init__(
             robots=robots,
@@ -530,6 +538,196 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
             # # remove objects that didn't get created
             # self.object_cfgs = [cfg for cfg in self.object_cfgs if "model" in cfg]
+
+    @contextlib.contextmanager
+    def no_collision(self, sim):
+        """
+        A context manager that temporarily disables all collision interactions in the simulation.
+        Args:
+            sim (MjSim): The simulation object where collision interactions will be temporarily disabled.
+        Yields:
+            None: The function yields control back to the caller while collisions remain disabled.
+        Upon exiting the context, the original collision settings are restored.
+        """
+        original_contype = sim.model.geom_contype.copy()
+        original_conaffinity = sim.model.geom_conaffinity.copy()
+        sim.model.geom_contype[:] = 0
+        sim.model.geom_conaffinity[:] = 0
+        try:
+            yield
+        finally:
+            sim.model.geom_contype = original_contype
+            sim.model.geom_conaffinity = original_conaffinity
+
+    def get_robot_body_pose(self):
+        """
+        Retrieves the current position and orientation (pose) of the robot's base body in the simulation.
+        Returns:
+            tuple: A tuple containing:
+                - np.array: The 3D position vector of the robot's base body.
+                - np.array: The quaternion representing the orientation of the robot's base body in 'xyzw' format.
+        """
+        robot_body = find_elements(
+            root=self.robots[0].robot_model.root, tags="body", return_first=True
+        )
+        robot_body_id = self.sim.model.body_name2id(robot_body.get("name"))
+        xpos = self.sim.data.body_xpos[robot_body_id]
+        quat = T.convert_quat(self.sim.data.body_xquat[robot_body_id], to="xyzw")
+        return (xpos, quat)
+
+    def detect_robot_collision(self):
+        """
+        Checks if the robot has a collision with any placed fixtures/objects.
+        Returns:
+            bool: True if a collision is detected between the robot and any other fixtures/objects, False otherwise.
+        """
+        if self.robot_geom_ids is None:
+            self.robot_geom_ids = set()
+            robot_geoms = find_elements(
+                root=self.robots[0].robot_model.root, tags="geom", return_first=False
+            )
+            for robot_geom in robot_geoms:
+                self.robot_geom_ids.add(
+                    self.sim.model.geom_name2id(robot_geom.get("name"))
+                )
+        for i in range(self.sim.data.ncon):
+            geom1 = self.sim.data.contact[i].geom1
+            geom2 = self.sim.data.contact[i].geom2
+            if (geom1 in self.robot_geom_ids and geom2 not in self.robot_geom_ids) or (
+                geom2 in self.robot_geom_ids and geom1 not in self.robot_geom_ids
+            ):
+                return True
+        return False
+
+    def generate_random_pos_on_floor(self):
+        """
+        Generates a random position on the floor, where dx ∈ [-deviation_x, 0] and dy ∈ [-deviation_y, deviation_y] in the robot's local coordinates.
+        The generated position must lie within the union of all floors, with the probability allocated based on the intersected area.
+        Returns:
+            np.array: The final spawn position on the floor.
+        """
+        xpos, quat = self.get_robot_body_pose()
+        offsets = [
+            np.array([dx, dy, 0])
+            for dx in [-self.robot_spawn_position_deviation_x, 0]
+            for dy in [
+                -self.robot_spawn_position_deviation_y,
+                self.robot_spawn_position_deviation_y,
+            ]
+        ]
+        sample_corners = [
+            np.matmul(T.quat2mat(quat), offset) + xpos for offset in offsets
+        ]
+        # Compute the bounding box for the allowed sampling range in global coordinates
+        sample_min = np.min(sample_corners, axis=0)[:2]
+        sample_max = np.max(sample_corners, axis=0)[:2]
+
+        area_shapes = []
+        area_possibilities = []
+        for ref in self.fixtures.values():
+            if isinstance(ref, Wall) and ref.wall_side == "floor":
+                quat = T.convert_quat(
+                    np.array([float(num) for num in ref._obj.get("quat").split(" ")]),
+                    to="xyzw",
+                )
+                corner = np.abs(np.matmul(T.quat2mat(quat), ref.size))
+                # Compute the bounding box for each floor in global coordinates
+                floor_min = (np.array(ref.pos) - corner)[:2]
+                floor_max = (np.array(ref.pos) + corner)[:2]
+                # Compute the bounding box for the intersection area in global coordinates, if an intersection exists
+                intersection_min = np.maximum(floor_min, sample_min)
+                intersection_max = np.minimum(floor_max, sample_max)
+                if np.all(intersection_min <= intersection_max):
+                    area_shapes.append((intersection_min, intersection_max))
+                    area_possibilities.append(
+                        max(1e-8, intersection_max[0] - intersection_min[0])
+                        * max(1e-8, intersection_max[1] - intersection_min[1])
+                    )
+        # Ensure the probability is allocated based on the intersected area
+        area_sum = sum(area_possibilities)
+        assert area_sum != 0, "The robot's initial position is not on the floor."
+        area_possibilities = [p / area_sum for p in area_possibilities]
+        sampled_index = self.rng.choice(len(area_possibilities), p=area_possibilities)
+        spawn_pos = np.array(
+            [
+                self.rng.uniform(
+                    area_shapes[sampled_index][0][0], area_shapes[sampled_index][1][0]
+                ),
+                self.rng.uniform(
+                    area_shapes[sampled_index][0][1], area_shapes[sampled_index][1][1]
+                ),
+            ]
+        )
+        return spawn_pos
+
+    def move_robot_base(self, spawn_pos):
+        """
+        Moves the robot base by a specified spawning position vector, updating the position of all relevant components (bodies,
+        geometries, and sites) in the MuJoCo's data structure.
+        Args:
+            spawn_pos (np.array): A 3D vector representing the spawning position to be applied to the robot's base.
+        """
+        assert len(spawn_pos) == 2
+        xpos, quat = self.get_robot_body_pose()
+        # Convert from the global coordinate to the robot's local coordinate
+        global_movement = np.append(spawn_pos - xpos[:2], 0)
+        local_movement = np.matmul(T.matrix_inverse(T.quat2mat(quat)), global_movement)
+        with self.no_collision(self.sim):
+            self.sim.data.qpos[
+                self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_side")
+            ] += local_movement[0]
+            self.sim.data.qpos[
+                self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_forward")
+            ] += local_movement[1]
+            self.sim.forward()
+
+    def set_robot_state(self):
+        """
+        Sets the initial state of the robot by randomizing its position and orientation within defined deviation limits.
+        The deviation limits are provided by `self.robot_spawn_position_deviation_x`, `self.robot_spawn_position_deviation_y`,
+        and `self.robot_spawn_rotation_deviation`.
+        Raises:
+            RandomizationError: If the robot cannot be placed without collisions.
+        """
+        assert len(self.robots) == 1
+        # assert isinstance(self.robots[0].robot_model, PandaOmron) or isinstance(
+        #     self.robots[0].robot_model, GR1FloatingBody
+        # )
+
+        with self.no_collision(self.sim):
+            self.sim.data.qpos[
+                self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_yaw")
+            ] = self.rng.uniform(
+                -self.robot_spawn_rotation_deviation,
+                self.robot_spawn_rotation_deviation,
+            )
+            # l_elbow_pitch_id = self.sim.model.joint_name2id("robot0_l_elbow_pitch")
+            # l_elbow_pitch_range = self.sim.model.jnt_range[l_elbow_pitch_id]
+            # self.sim.data.qpos[
+            #     self.sim.model.get_joint_qpos_addr("robot0_l_elbow_pitch")
+            # ] = (l_elbow_pitch_range[0] * 0.6 + l_elbow_pitch_range[1] * 0.4)
+            self.sim.forward()
+
+        # Try to move for 20 times to resolve any collision
+        found_valid = False
+        import time
+
+        t1 = time.time()
+        for attempt_position in range(100):
+            state_copy = self.sim.get_state()
+            spawn_pos = self.generate_random_pos_on_floor()
+            self.move_robot_base(spawn_pos)
+            self.sim.forward()
+            if not self.detect_robot_collision():
+                found_valid = True
+                break
+            self.sim.set_state(state_copy)
+        print(time.time() - t1, attempt_position)
+        # if not found_valid:
+        #     raise RandomizationError(
+        #         "Cannot place the robot, please increase robot_spawn_position_deviation_x and "
+        #         "robot_spawn_position_deviation_y"
+        #     )
 
     def _setup_kitchen_references(self):
         """
