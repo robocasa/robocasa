@@ -138,6 +138,33 @@ class PnPCounterToCab(PnP):
         gripper_obj_far = OU.gripper_obj_far(self)
         return obj_inside_cab and gripper_obj_far
 
+    def _setup_observables(self):
+        """
+        Sets up observables to be used for this environment. Add door angle to the observables
+
+        Returns:
+            OrderedDict: Dictionary mapping observable names to its corresponding Observable object
+        """
+        observables = super()._setup_observables()
+
+        @sensor(modality="object")
+        def bottom_pos_quat(obs_cache):
+            # Return cabinet bottom surface position and orientation
+            bottom_geom_name = self.cab.visual_geoms[1]
+            bottom_pos = self.sim.data.get_geom_xpos(bottom_geom_name)
+            bottom_mat = self.sim.data.get_geom_xmat(bottom_geom_name)
+            bottom_quat = mat2quat(bottom_mat.reshape(3, 3))
+            return np.array(bottom_pos.tolist() + bottom_quat.tolist())
+
+        observables["bottom_pos_quat"] = Observable(
+            name="bottom_pos_quat",
+            sensor=bottom_pos_quat,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        return observables
+
 
 class PnPCabToCounter(PnP):
     """

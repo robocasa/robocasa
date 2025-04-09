@@ -1,5 +1,4 @@
 from robocasa.environments.kitchen.kitchen import *
-from robosuite.utils.transform_utils import mat2quat, convert_quat
 
 
 class ManipulateDoor(Kitchen):
@@ -93,9 +92,6 @@ class ManipulateDoor(Kitchen):
         """
         observables = super()._setup_observables()
 
-        # Import Rotation for quaternion handling
-        from scipy.spatial.transform import Rotation
-
         @sensor(modality="object")
         def cabinet_pos_quat(obs_cache):
             # Get cabinet position and orientation
@@ -112,21 +108,21 @@ class ManipulateDoor(Kitchen):
             active=True,
         )
 
-        @sensor(modality="object")
-        def door_pos_quat(obs_cache):
-            # Get door position and orientation
-            door_body = f"{self.door_fxtr.name}_{self.door_fxtr._bodies[1]}"
-            door_pos = self.sim.data.get_body_xpos(door_body)
-            door_quat = self.sim.data.get_body_xquat(door_body)
-            door_quat = convert_quat(door_quat)
-            return np.array(door_pos.tolist() + door_quat.tolist())
+        # @sensor(modality="object")
+        # def door_pos_quat(obs_cache):
+        #     # Get door position and orientation
+        #     door_body = f"{self.door_fxtr.name}_{self.door_fxtr._bodies[1]}"
+        #     door_pos = self.sim.data.get_body_xpos(door_body)
+        #     door_quat = self.sim.data.get_body_xquat(door_body)
+        #     door_quat = convert_quat(door_quat)
+        #     return np.array(door_pos.tolist() + door_quat.tolist())
 
-        observables["door_pos_quat"] = Observable(
-            name="door_pos_quat",
-            sensor=door_pos_quat,
-            sampling_rate=self.control_freq,
-            active=True,
-        )
+        # observables["door_pos_quat"] = Observable(
+        #     name="door_pos_quat",
+        #     sensor=door_pos_quat,
+        #     sampling_rate=self.control_freq,
+        #     active=True,
+        # )
 
         @sensor(modality="object")
         def handle_pos_quat(obs_cache):
@@ -152,58 +148,6 @@ class ManipulateDoor(Kitchen):
         observables["handle_pos_quat"] = Observable(
             name="handle_pos_quat",
             sensor=handle_pos_quat,
-            sampling_rate=self.control_freq,
-            active=True,
-        )
-
-        @sensor(modality="object")
-        def gripper_pos_quat(obs_cache):
-            # Return gripper position, orientation, and angle
-            eef_pos = self.sim.data.get_body_xpos(
-                self.robots[0].gripper["right"].bodies[1]
-            )
-            eef_quat = self.sim.data.get_body_xquat(
-                self.robots[0].gripper["right"].bodies[2]
-            )
-            # change quat order from wxyz to xyzw
-            eef_quat = convert_quat(eef_quat)
-            return np.array(eef_pos.tolist() + eef_quat.tolist())
-
-        observables["gripper_pos_quat"] = Observable(
-            name="gripper_pos_quat",
-            sensor=gripper_pos_quat,
-            sampling_rate=self.control_freq,
-            active=True,
-        )
-
-        @sensor(modality="object")
-        def left_finger_pos_quat(obs_cache):
-            # Return left finger position and orientation
-            finger_geom_id = self.robots[0].gripper["right"].contact_geoms[1]
-            finger_pos = self.sim.data.get_geom_xpos(finger_geom_id)
-            finger_mat = self.sim.data.get_geom_xmat(finger_geom_id)
-            finger_quat = mat2quat(finger_mat.reshape(3, 3))
-            return np.array(finger_pos.tolist() + finger_quat.tolist())
-
-        observables["left_finger_pos_quat"] = Observable(
-            name="left_finger_pos_quat",
-            sensor=left_finger_pos_quat,
-            sampling_rate=self.control_freq,
-            active=True,
-        )
-
-        @sensor(modality="object")
-        def right_finger_pos_quat(obs_cache):
-            # Return right finger position and orientation
-            finger_geom_id = self.robots[0].gripper["right"].contact_geoms[3]
-            finger_pos = self.sim.data.get_geom_xpos(finger_geom_id)
-            finger_mat = self.sim.data.get_geom_xmat(finger_geom_id)
-            finger_quat = mat2quat(finger_mat.reshape(3, 3))
-            return np.array(finger_pos.tolist() + finger_quat.tolist())
-
-        observables["right_finger_pos_quat"] = Observable(
-            name="right_finger_pos_quat",
-            sensor=right_finger_pos_quat,
             sampling_rate=self.control_freq,
             active=True,
         )

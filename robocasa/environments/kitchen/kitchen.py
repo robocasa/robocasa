@@ -5,6 +5,7 @@ from copy import deepcopy
 
 import numpy as np
 import robosuite.utils.transform_utils as T
+from robosuite.utils.transform_utils import mat2quat, convert_quat
 from robosuite.environments.manipulation.manipulation_env import ManipulationEnv
 from robosuite.models.tasks import ManipulationTask
 from robosuite.utils.errors import RandomizationError
@@ -1226,6 +1227,70 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 sampling_rate=self.control_freq,
                 active=active,
             )
+
+        @sensor(modality="object")
+        def gripper_pos_quat(obs_cache):
+            # Return gripper position, orientation, and angle
+            eef_pos = self.sim.data.get_body_xpos(self.robots[0].gripper["right"].bodies[1])
+            eef_quat = self.sim.data.get_body_xquat(self.robots[0].gripper["right"].bodies[2])
+            # change quat order from wxyz to xyzw
+            eef_quat = convert_quat(eef_quat)
+            return np.array(eef_pos.tolist() + eef_quat.tolist())
+
+        observables["gripper_pos_quat"] = Observable(
+            name="gripper_pos_quat",
+            sensor=gripper_pos_quat,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        @sensor(modality="object")
+        def left_finger_pos_quat(obs_cache):
+            # Return left finger position and orientation
+            finger_geom_name = self.robots[0].gripper["right"].contact_geoms[1]
+            finger_pos = self.sim.data.get_geom_xpos(finger_geom_name)
+            finger_mat = self.sim.data.get_geom_xmat(finger_geom_name)
+            finger_quat = mat2quat(finger_mat.reshape(3, 3))
+            return np.array(finger_pos.tolist() + finger_quat.tolist())
+
+        observables["left_finger_pos_quat"] = Observable(
+            name="left_finger_pos_quat",
+            sensor=left_finger_pos_quat,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        @sensor(modality="object")
+        def right_finger_pos_quat(obs_cache):
+            # Return right finger position and orientation
+            finger_geom_name = self.robots[0].gripper["right"].contact_geoms[3]
+            finger_pos = self.sim.data.get_geom_xpos(finger_geom_name)
+            finger_mat = self.sim.data.get_geom_xmat(finger_geom_name)
+            finger_quat = mat2quat(finger_mat.reshape(3, 3))
+            return np.array(finger_pos.tolist() + finger_quat.tolist())
+
+        observables["right_finger_pos_quat"] = Observable(
+            name="right_finger_pos_quat",
+            sensor=right_finger_pos_quat,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
+
+        @sensor(modality="object")
+        def right_finger_pos_quat(obs_cache):
+            # Return right finger position and orientation
+            finger_geom_id = self.robots[0].gripper["right"].contact_geoms[3]
+            finger_pos = self.sim.data.get_geom_xpos(finger_geom_id)
+            finger_mat = self.sim.data.get_geom_xmat(finger_geom_id)
+            finger_quat = mat2quat(finger_mat.reshape(3, 3))
+            return np.array(finger_pos.tolist() + finger_quat.tolist())
+
+        observables["right_finger_pos_quat"] = Observable(
+            name="right_finger_pos_quat",
+            sensor=right_finger_pos_quat,
+            sampling_rate=self.control_freq,
+            active=True,
+        )
 
         return observables
 
