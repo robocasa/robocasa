@@ -14,9 +14,9 @@ class ManipulateDoor(Kitchen):
 
     def __init__(self, fixture_id, behavior="open", *args, **kwargs):
         assert behavior in ["open", "close"]
+        self.fixture_id = fixture_id
         self.behavior = behavior
         super().__init__(*args, **kwargs)
-        self.fixture_id = fixture_id
 
     def _setup_kitchen_references(self):
         """

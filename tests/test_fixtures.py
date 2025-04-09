@@ -61,8 +61,8 @@ FIXTURE_TO_TEST_ENVS = dict(
     microwave=[
         dict(env_name="PnPCounterToMicrowave"),
         dict(env_name="PnPMicrowaveToCounter"),
-        dict(env_name="OpenSingleDoor", door_id=FixtureType.MICROWAVE),
-        dict(env_name="CloseSingleDoor", door_id=FixtureType.MICROWAVE),
+        dict(env_name="OpenMicrowave"),
+        dict(env_name="CloseMicrowave"),
         dict(env_name="TurnOnMicrowave"),
         dict(env_name="TurnOffMicrowave"),
     ],
@@ -91,19 +91,24 @@ FIXTURE_TO_TEST_ENVS = dict(
         dict(env_name="CoffeePressButton"),
     ],
     dishwasher=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.DISHWASHER),
+        dict(env_name="OpenDishwasher"),
+        # dict(env_name="CloseDishwasher"), # this task is not ready yet
     ],
     oven=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.OVEN),
+        dict(env_name="OpenOven"),
+        # dict(env_name="CloseOven"), # this task is not ready yet
     ],
     fridge_french_door=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+        dict(env_name="OpenFridge"),
+        dict(env_name="CloseFridge"),
     ],
     fridge_side_by_side=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+        dict(env_name="OpenFridge"),
+        dict(env_name="CloseFridge"),
     ],
     fridge_bottom_freezer=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+        dict(env_name="OpenFridge"),
+        dict(env_name="CloseFridge"),
     ],
     toaster=[
         dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER),
@@ -195,7 +200,7 @@ if __name__ == "__main__":
                         env,
                         num_rollouts=3,
                         num_steps=100,
-                        video_path=f"/tmp/robocasa_test_fixtures/{fixture_type}_{fixture_name}_{env_name}{env_i}.mp4",
+                        video_path=f"/tmp/robocasa_test_fixtures/{fixture_type}_{fixture_name}_{env_name}.mp4",
                     )
                 else:
                     # set up devices for interactive mode
