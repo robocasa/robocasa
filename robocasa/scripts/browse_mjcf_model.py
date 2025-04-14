@@ -14,7 +14,7 @@ import robosuite
 from PIL import Image
 from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
 from robosuite.utils.mjcf_utils import array_to_string as a2s
-from robosuite.utils.mjcf_utils import find_elements
+from robosuite.utils.mjcf_utils import find_elements, find_parent
 from robosuite.utils.mjcf_utils import string_to_array as s2a
 
 
@@ -131,6 +131,8 @@ def read_model(
                 pos + [size[0], size[1], size[2]],
             ]
 
+            parent_body = find_parent(worldbody, geom)
+
             for point in points:
                 ext_bbox_site = ET.fromstring(
                     """<geom type="sphere" pos="{pos}" size="0.003" rgba="{rgba}" group="{group}" />""".format(
@@ -139,7 +141,7 @@ def read_model(
                         group=group,
                     )
                 )
-                worldbody.append(ext_bbox_site)
+                parent_body.append(ext_bbox_site)
 
     sites = find_elements(root, tags="site", return_first=False)
     if sites is not None:
