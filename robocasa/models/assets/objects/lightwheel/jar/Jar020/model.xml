@@ -1,0 +1,109 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/Clear.obj" name="Clear_vis"/>
+    <mesh file="visual/Prop.obj" name="Prop_vis"/>
+    <texture file="visual/T_BC001.png" name="Clear_material" type="2d"/>
+    <material name="Clear_material" rgba="1 1 1 0.09142857789993286" texture="Clear_material" shininess="0.141421377658844" specular="1"/>
+    <texture file="visual/T_BC001.png" name="Prop_material" type="2d"/>
+    <material name="Prop_material" rgba="1 1 1 1.0" texture="Prop_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+    <mesh file="collision/Clear001.obj" name="Clear001_mesh"/>
+    <mesh file="collision/Clear023.obj" name="Clear023_mesh"/>
+    <mesh file="collision/Prop001.obj" name="Prop001_mesh"/>
+    <mesh file="collision/Clear028.obj" name="Clear028_mesh"/>
+    <mesh file="collision/Clear014.obj" name="Clear014_mesh"/>
+    <mesh file="collision/Clear035.obj" name="Clear035_mesh"/>
+    <mesh file="collision/Clear034.obj" name="Clear034_mesh"/>
+    <mesh file="collision/Clear010.obj" name="Clear010_mesh"/>
+    <mesh file="collision/Clear025.obj" name="Clear025_mesh"/>
+    <mesh file="collision/Clear026.obj" name="Clear026_mesh"/>
+    <mesh file="collision/Clear003.obj" name="Clear003_mesh"/>
+    <mesh file="collision/Clear021.obj" name="Clear021_mesh"/>
+    <mesh file="collision/Clear015.obj" name="Clear015_mesh"/>
+    <mesh file="collision/Clear009.obj" name="Clear009_mesh"/>
+    <mesh file="collision/Clear018.obj" name="Clear018_mesh"/>
+    <mesh file="collision/Clear007.obj" name="Clear007_mesh"/>
+    <mesh file="collision/Clear011.obj" name="Clear011_mesh"/>
+    <mesh file="collision/Clear004.obj" name="Clear004_mesh"/>
+    <mesh file="collision/Clear020.obj" name="Clear020_mesh"/>
+    <mesh file="collision/Clear008.obj" name="Clear008_mesh"/>
+    <mesh file="collision/Clear029.obj" name="Clear029_mesh"/>
+    <mesh file="collision/Clear024.obj" name="Clear024_mesh"/>
+    <mesh file="collision/Clear013.obj" name="Clear013_mesh"/>
+    <mesh file="collision/Clear005.obj" name="Clear005_mesh"/>
+    <mesh file="collision/Clear017.obj" name="Clear017_mesh"/>
+    <mesh file="collision/Clear031.obj" name="Clear031_mesh"/>
+    <mesh file="collision/Clear027.obj" name="Clear027_mesh"/>
+    <mesh file="collision/Clear006.obj" name="Clear006_mesh"/>
+    <mesh file="collision/Clear033.obj" name="Clear033_mesh"/>
+    <mesh file="collision/Clear032.obj" name="Clear032_mesh"/>
+    <mesh file="collision/Clear016.obj" name="Clear016_mesh"/>
+    <mesh file="collision/Clear012.obj" name="Clear012_mesh"/>
+    <mesh file="collision/Clear019.obj" name="Clear019_mesh"/>
+    <mesh file="collision/Clear022.obj" name="Clear022_mesh"/>
+    <mesh file="collision/Clear030.obj" name="Clear030_mesh"/>
+    <mesh file="collision/Clear002.obj" name="Clear002_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="Clear_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Clear_material"/>
+        <body name="Prop">
+          <geom mesh="Prop_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Prop_material"/>
+          <geom mesh="Prop001_mesh" type="mesh" class="collision"/>
+        </body>
+        <geom mesh="Clear001_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear023_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear028_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear014_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear035_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear034_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear010_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear025_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear026_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear003_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear021_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear015_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear009_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear018_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear007_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear011_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear004_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear020_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear008_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear029_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear024_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear013_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear005_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear017_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear031_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear027_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear006_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear033_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear032_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear016_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear012_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear019_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear022_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear030_mesh" type="mesh" class="collision"/>
+        <geom mesh="Clear002_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.08098392 0.08098392 -0.000572970000000006" name="horizontal_radius_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 0.11764024" name="top_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 -0.11878618" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

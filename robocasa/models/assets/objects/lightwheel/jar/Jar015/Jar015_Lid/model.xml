@@ -1,0 +1,79 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/.obj" name="vis"/>
+    <texture file="visual/T_BC001.png" name="material" type="2d"/>
+    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.5" specular="0.5"/>
+    <mesh file="collision/002.obj" name="002_mesh"/>
+    <mesh file="collision/010.obj" name="010_mesh"/>
+    <mesh file="collision/003.obj" name="003_mesh"/>
+    <mesh file="collision/022.obj" name="022_mesh"/>
+    <mesh file="collision/001.obj" name="001_mesh"/>
+    <mesh file="collision/018.obj" name="018_mesh"/>
+    <mesh file="collision/013.obj" name="013_mesh"/>
+    <mesh file="collision/008.obj" name="008_mesh"/>
+    <mesh file="collision/005.obj" name="005_mesh"/>
+    <mesh file="collision/014.obj" name="014_mesh"/>
+    <mesh file="collision/021.obj" name="021_mesh"/>
+    <mesh file="collision/011.obj" name="011_mesh"/>
+    <mesh file="collision/004.obj" name="004_mesh"/>
+    <mesh file="collision/019.obj" name="019_mesh"/>
+    <mesh file="collision/020.obj" name="020_mesh"/>
+    <mesh file="collision/015.obj" name="015_mesh"/>
+    <mesh file="collision/006.obj" name="006_mesh"/>
+    <mesh file="collision/016.obj" name="016_mesh"/>
+    <mesh file="collision/012.obj" name="012_mesh"/>
+    <mesh file="collision/009.obj" name="009_mesh"/>
+    <mesh file="collision/007.obj" name="007_mesh"/>
+    <mesh file="collision/024.obj" name="024_mesh"/>
+    <mesh file="collision/017.obj" name="017_mesh"/>
+    <mesh file="collision/023.obj" name="023_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="002_mesh" type="mesh" class="collision"/>
+        <geom mesh="010_mesh" type="mesh" class="collision"/>
+        <geom mesh="003_mesh" type="mesh" class="collision"/>
+        <geom mesh="022_mesh" type="mesh" class="collision"/>
+        <geom mesh="001_mesh" type="mesh" class="collision"/>
+        <geom mesh="018_mesh" type="mesh" class="collision"/>
+        <geom mesh="013_mesh" type="mesh" class="collision"/>
+        <geom mesh="008_mesh" type="mesh" class="collision"/>
+        <geom mesh="005_mesh" type="mesh" class="collision"/>
+        <geom mesh="014_mesh" type="mesh" class="collision"/>
+        <geom mesh="021_mesh" type="mesh" class="collision"/>
+        <geom mesh="011_mesh" type="mesh" class="collision"/>
+        <geom mesh="004_mesh" type="mesh" class="collision"/>
+        <geom mesh="019_mesh" type="mesh" class="collision"/>
+        <geom mesh="020_mesh" type="mesh" class="collision"/>
+        <geom mesh="015_mesh" type="mesh" class="collision"/>
+        <geom mesh="006_mesh" type="mesh" class="collision"/>
+        <geom mesh="016_mesh" type="mesh" class="collision"/>
+        <geom mesh="012_mesh" type="mesh" class="collision"/>
+        <geom mesh="009_mesh" type="mesh" class="collision"/>
+        <geom mesh="007_mesh" type="mesh" class="collision"/>
+        <geom mesh="024_mesh" type="mesh" class="collision"/>
+        <geom mesh="017_mesh" type="mesh" class="collision"/>
+        <geom mesh="023_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.06866742 0.06866742 1.8194999999999496e-05" name="horizontal_radius_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 0.01559561" name="top_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 -0.015559220000000002" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

@@ -1,0 +1,45 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/IceCube002.obj" name="vis"/>
+    <texture file="visual/T_BC001.png" name="material" type="2d"/>
+    <material name="material" rgba="1 1 1 0.21799999475479126" texture="material" shininess="0.2" specular="0.8"/>
+    <mesh file="collision/IceCube002001.obj" name="IceCube002001_mesh"/>
+    <mesh file="collision/IceCube002007.obj" name="IceCube002007_mesh"/>
+    <mesh file="collision/IceCube002006.obj" name="IceCube002006_mesh"/>
+    <mesh file="collision/IceCube002003.obj" name="IceCube002003_mesh"/>
+    <mesh file="collision/IceCube002005.obj" name="IceCube002005_mesh"/>
+    <mesh file="collision/IceCube002004.obj" name="IceCube002004_mesh"/>
+    <mesh file="collision/IceCube002002.obj" name="IceCube002002_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="IceCube002001_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube002007_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube002006_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube002003_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube002005_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube002004_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube002002_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.01882042 0.01986924 0.0011962250000000004" name="horizontal_radius_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="-0.0007491599999999987 -0.00030632499999999965 0.017654920000000004" name="top_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="-0.0007491599999999987 -0.00030632499999999965 -0.015262470000000002" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>
