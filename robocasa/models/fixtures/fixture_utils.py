@@ -34,10 +34,12 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Stool)
     elif fixture_type == FixtureType.ISLAND:
         return isinstance(fixture, Counter) and "island" in fixture.name
-    elif fixture_type == FixtureType.COUNTER_NON_CORNER:
+    # elif fixture_type == FixtureType.COUNTER_NON_CORNER:
+    #     return isinstance(fixture, Counter) and "corner" not in fixture.name
+    elif fixture_type in [FixtureType.COUNTER, FixtureType.COUNTER_NON_CORNER]:
+        # merged COUNTER into COUNTER_NON_CORNER
+        # TODO: decide whether we want to ever sample corner counters
         return isinstance(fixture, Counter) and "corner" not in fixture.name
-    elif fixture_type == FixtureType.COUNTER:
-        return isinstance(fixture, Counter)
     elif fixture_type == FixtureType.DINING_COUNTER:
         cls_check = any([isinstance(fixture, cls) for cls in [Counter]])
         if not cls_check:
