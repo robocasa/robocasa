@@ -8,7 +8,7 @@ class StockCans(Kitchen):
     Simulates the task of stocking dry goods in a cabinet.
 
     Steps:
-        Pick a can from the cabinet and place it on the counter.
+        Pick the can from the cabinet and place it on the counter.
         Then, pick the other can from the counter and place it in the cabinet.
     """
 
@@ -37,7 +37,7 @@ class StockCans(Kitchen):
         Resets simulation internal configurations.
         """
         super()._reset_internal()
-        self.cab.set_door_state(min=1.0, max=1.0, env=self, rng=self.rng)
+        self.cab.open_door(min=1.0, max=1.0, env=self)
 
     def _get_obj_cfgs(self):
         cfgs = []
@@ -59,13 +59,13 @@ class StockCans(Kitchen):
 
         cfgs.append(
             dict(
-                name="cab_obj",
+                name="obj_cab",
                 obj_groups="canned_food",
                 graspable=True,
                 placement=dict(
                     fixture=self.cab,
                     size=(0.2, 0.30),
-                    pos=(1, -0.3),
+                    pos=(0.5, 0.3),
                 ),
             )
         )
@@ -105,8 +105,8 @@ class StockCans(Kitchen):
     def _check_success(self):
         obj_counter_inside_cab = OU.obj_inside_of(self, "obj_counter", self.cab)
         obj_cab_on_counter = OU.check_obj_fixture_contact(self, "obj_cab", self.counter)
-        gripper_obj_far = (OU.gripper_obj_far(self, "obj1") 
-                           and OU.gripper_obj_far(self, "obj2")
+        gripper_obj_far = (OU.gripper_obj_far(self, "obj_counter") 
+                           and OU.gripper_obj_far(self, "obj_cab")
         )
 
         return obj_counter_inside_cab and obj_cab_on_counter and gripper_obj_far

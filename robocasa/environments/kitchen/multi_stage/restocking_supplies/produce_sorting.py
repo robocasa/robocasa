@@ -7,42 +7,40 @@ class ProduceSorting(Kitchen):
     Simulates the task of putting items into the proper place in the fridge.
     
     Steps:
-        Pick (fruit/veggie) from counter and place in corresponding shelf(2/1) in fridge.
+        Pick (fruit/veggie) from counter and place in corresponding shelf(1/2) in fridge.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.obj_types = ['fruit', 'vegetable']
-        self.obj_type_on_counter = round(np.random.rand())  # 0 for fruit, 1 for vegetable
+        self.produce = np.random.choice(['fruit', 'vegetable'])
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
 
         self.fridge = self.register_fixture_ref(
-            'fridge', dict(id='fridge')
+            'fridge', dict(id=FixtureType.FRIDGE, full_name_check=True)
         )
         self.counter = self.register_fixture_ref(
-            "counter", dict(id="counter", size=(0.5, 0.5), ref=self.fridge)
+            "counter", dict(id=FixtureType.COUNTER, ref=self.fridge)
         )
 
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_pos = self.fridge
 
     def get_ep_meta(self):
         meta = super().get_ep_meta()
         meta["lang"] = (
-            "Move the object on the counter (fruit/vegetable) to its correct location in the fridge."
+            f"Move the {self.produce} to its correct location in the fridge."
         )
         return meta
 
     def _reset_internal(self):
         super()._reset_internal()
-        
-        self.fridge.set_door_state(min=0.9, max=1.0, env=self)
-        self.obj_type_on_counter = round(np.random.rand())
+        self.fridge.open_door(env=self)
+        self.produce = np.random.choice(['fruit', 'vegetable'])
 
     def _get_obj_cfgs(self):
         cfgs = []
-
+        
         cfgs.append(
             dict(
                 name="fruit1",
@@ -50,9 +48,9 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(ref="fridge_shelf2"),
+                    sample_region_kwargs=dict(reset_region_idx=1),
                     size=(0.5, 0.4),
-                    pos=(0, 1.0), 
+                    pos=(0, 1.0),
                 ),
             )
         )
@@ -63,9 +61,9 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(ref="fridge_shelf2"),
+                    sample_region_kwargs=dict(reset_region_idx=1),
                     size=(0.5, 0.4),
-                    pos=(-1.0, 1.0), 
+                    pos=(0, 0.7), 
                 ),
             )
         )
@@ -77,7 +75,7 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(ref="fridge_shelf1"),
+                    sample_region_kwargs=dict(reset_region_idx=2),
                     size=(0.6, 0.4),
                     pos=(0, 1.0), 
                 ),
@@ -90,38 +88,38 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(ref="fridge_shelf1"),
+                    sample_region_kwargs=dict(reset_region_idx=2),
                     size=(0.6, 0.4),
                     pos=(-1.0, 1.0),
                 ),
             )
         )
 
-        obj_type_on_counter = self.obj_types[self.obj_type_on_counter] 
+        
         cfgs.append(
             dict(
-                name=f"{obj_type_on_counter}_on_counter",
-                obj_groups=obj_type_on_counter,
+                name='fruit',
+                obj_groups='fruit',
                 graspable=True,
                 placement=dict(
                     fixture=self.counter,
                     sample_region_kwargs=dict(ref="counter"),
                     size=(0.5, 0.40),
-                    pos=(0, 0, 0),  # Position for object on counter
+                    pos=(0.5, 0.5)
                 ),
             )
         )
 
         cfgs.append(
-            dict(
-                name="fridge",
-                obj_groups="fridge",
-                graspable=False,
+            dict (
+                name='vegetable',
+                obj_groups='vegetable',
+                graspable=True,
                 placement=dict(
-                    fixture=self.fridge,
-                    sample_region_kwargs=dict(ref="fridge"),
-                    size=(1.0, 1.0),
-                    pos=(0, 0, 0),
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(ref="counter"),
+                    size=(0.5, 0.40),
+                    pos=(1, 0.5)
                 ),
             )
         )
@@ -129,9 +127,14 @@ class ProduceSorting(Kitchen):
         return cfgs
 
     def _check_success(self):
-        
-        obj_on_counter_name = f"{self.obj_types[self.obj_type_on_counter]}_on_counter"
-        target_shelf = "fridge_shelf2" if self.obj_types[self.obj_type_on_counter] == "fruit" else "fridge_shelf1"
-    
-        success = OU.obj_inside_of(self, obj_on_counter_name, self.fridge, region=target_shelf) and OU.gripper_obj_far(self, obj_name=obj_on_counter_name)
-        return success
+        obj_name = self.objects[self.produce].name
+        similar_name =self.objects['vegetable1'].name if self.produce=='vegetable' else self.objects['fruit1'].name
+
+        obj_z = self.sim.data.body_xpos[self.obj_body_id[obj_name]][2]
+        similar_z = self.sim.data.body_xpos[self.obj_body_id[similar_name]][2]
+
+        same_shelf = abs(obj_z - similar_z)<0.02 
+        in_fridge = OU.obj_inside_of(self, self.produce, self.fridge) 
+        gripper_obj_far = OU.gripper_obj_far(self, obj_name=self.produce)
+
+        return same_shelf and in_fridge and gripper_obj_far

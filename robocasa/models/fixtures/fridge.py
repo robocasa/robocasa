@@ -27,15 +27,19 @@ class Fridge(Fixture):
             elif "door" in stripped_name and "freezer" in stripped_name:
                 self._freezer_door_joint_names.append(joint_name)
 
-    def get_reset_regions(self, env, reg_type="fridge"):
+    def get_reset_regions(self, env, reg_type="fridge", reset_region_idx = None):
         assert reg_type in ["fridge", "freezer"]
         reset_region_names = [
             reg_name
             for reg_name in self.get_reset_region_names()
             if reg_type in reg_name
         ]
+        if reset_region_idx is not None:
+            reset_region_names = [reset_region_names[reset_region_idx]]
+            
         reset_regions = {}
         for reg_name in reset_region_names:
+            
             reg_dict = self._regions.get(reg_name, None)
             if reg_dict is None:
                 continue
@@ -50,6 +54,7 @@ class Fridge(Fixture):
                 "offset": (np.mean((p0[0], px[0])), np.mean((p0[1], py[1])), p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
             }
+
         return reset_regions
 
     def is_open(self, env, entity="fridge", th=0.90):
