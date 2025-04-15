@@ -17,6 +17,8 @@ from robosuite.utils.mjcf_utils import array_to_string as a2s
 from robosuite.utils.mjcf_utils import find_elements, find_parent
 from robosuite.utils.mjcf_utils import string_to_array as s2a
 
+from multiprocessing import Process
+
 
 def edit_model_xml(xml_str):
     """
@@ -201,6 +203,40 @@ def render_model(
     mujoco.viewer.launch(sim.model._model, sim.data._data)
 
 
+def view_mjcf(mjcf_path, show_coll_geoms=False, screenshot=False):
+    sim = None
+    try:
+        sim, info = read_model(
+            xml=None,
+            filepath=mjcf_path,
+            hide_sites=False,
+            show_bbox=True,
+            show_coll_geoms=show_coll_geoms,
+        )
+    except Exception as e:
+        print("Exception!")
+        traceback.print_exc()
+
+    load_time = info["sim_load_time"]
+    print("sim load time:", load_time)
+    load_time_list.append(load_time)
+
+    if screenshot:
+        image = get_model_screenshot(
+            sim=sim,
+            cam_settings=cam_settings,
+        )
+        im = Image.fromarray(image)
+        im.save("screenshot.png")
+    else:
+        render_model(
+            sim=sim,
+            cam_settings=cam_settings,
+        )
+
+    del sim
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mjcf", type=str, required=True)
@@ -242,37 +278,12 @@ if __name__ == "__main__":
             if len(mjcf_path_list) > 1:
                 print(f"Reading: {mjcf_path}")
 
-            sim = None
-            try:
-                sim, info = read_model(
-                    xml=None,
-                    filepath=mjcf_path,
-                    hide_sites=False,
-                    show_bbox=True,
-                    show_coll_geoms=args.show_coll_geoms,
-                )
-            except Exception as e:
-                print("Exception!")
-                traceback.print_exc()
-
-            load_time = info["sim_load_time"]
-            print("sim load time:", load_time)
-            load_time_list.append(load_time)
-
-            if args.screenshot:
-                image = get_model_screenshot(
-                    sim=sim,
-                    cam_settings=cam_settings,
-                )
-                im = Image.fromarray(image)
-                im.save("screenshot.png")
-            else:
-                render_model(
-                    sim=sim,
-                    cam_settings=cam_settings,
-                )
-
-            del sim
+            p = Process(
+                target=view_mjcf,
+                args=(mjcf_path, args.show_coll_geoms, args.screenshot),
+            )
+            p.start()
+            p.join()  # this blocks until the process terminates
 
         if len(mjcf_path_list) > 1:
             mean = np.mean(load_time_list)
