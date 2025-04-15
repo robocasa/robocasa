@@ -1,0 +1,35 @@
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/.obj" name="vis"/>
+    <texture file="visual/T_BC001.png" name="material" type="2d"/>
+    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
+    <mesh file="collision/001.obj" name="001_mesh"/>
+    <mesh file="collision/002.obj" name="002_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="001_mesh" type="mesh" class="collision"/>
+        <geom mesh="002_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.06501761 0.06483146 0.0" name="horizontal_radius_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 0.01746546" name="top_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 -0.01746546" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

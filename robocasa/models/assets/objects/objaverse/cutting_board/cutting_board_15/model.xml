@@ -1,0 +1,22 @@
+<mujoco model="cutting_board_0">
+  <asset>
+    <mesh file="visual/model_normalized_0.obj" name="model_normalized_0_vis" scale="0.2500000000000001 0.2500000000000001 0.2500000000000001" refquat="1.0 0.0 0.0 0.0" />
+    <mesh file="visual/model_normalized_1.obj" name="model_normalized_1_vis" scale="0.2500000000000001 0.2500000000000001 0.2500000000000001" refquat="1.0 0.0 0.0 0.0" />
+    <texture type="2d" name="image0" file="visual/image0.png" />
+    <texture type="2d" name="image3" file="visual/image3.png" />
+    <material name="blinn1SG" texture="image0" specular="0.5" shininess="0.25" />
+    <material name="blinn2SG" texture="image3" specular="0.5" shininess="0.25" />
+  </asset>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_normalized_0_vis" conaffinity="0" contype="0" group="1" material="blinn2SG" />
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="mesh" mesh="model_normalized_1_vis" conaffinity="0" contype="0" group="1" material="blinn1SG" />
+        <geom solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" type="box" group="0" rgba="0.8 0.8 0.8 0.0" size="0.09374999000000005 0.12500000000000006 0.006250015000000002" pos="0.0 0.0007165199999999986 -2.500000000418834e-09" />
+        </body>
+      <site rgba="0 0 0 0" size="0.005" pos="0.0 0.0007165199999999986 -0.006250017500000002" name="bottom_site" />
+      <site rgba="0 0 0 0" size="0.005" pos="0.0 0.0007165199999999986 0.006250012500000002" name="top_site" />
+      <site rgba="0 0 0 0" size="0.005" pos="0.09374999000000005 0.12500000000000006 -2.4999999999851542e-09" name="horizontal_radius_site" />
+    </body>
+  </worldbody>
+</mujoco>

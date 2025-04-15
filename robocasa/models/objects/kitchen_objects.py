@@ -2073,6 +2073,9 @@ OBJ_CATEGORIES = dict(
         freezable=True,
         lightwheel=dict(
             scale=0.90,
+            exclude=[
+                "Jar017",
+            ],
         ),
     ),
     measuring_cup=dict(

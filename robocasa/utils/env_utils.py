@@ -110,6 +110,8 @@ def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
         for step_i in range(num_steps):
             # sample and execute random action
             action = np.random.uniform(low=env.action_spec[0], high=env.action_spec[1])
+            # hack for panda robot: TODO remove
+            action[-5:-1] = 0.0
             obs, _, _, _ = env.step(action)
 
             if video_writer is not None:

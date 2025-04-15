@@ -131,11 +131,12 @@ class Fixture(MujocoXMLObjectRobocasa):
                 continue
 
             rgba = string_to_array(geom.get("rgba"))
-            if macros.SHOW_SITES and g_name != "reg_main":
-                rgba[0:3] = np.random.uniform(0, 1, (3,))
-                rgba[-1] = 0.3
-            else:
-                rgba[-1] = 0.0
+            # if macros.SHOW_SITES and g_name != "reg_main":
+            #     rgba[0:3] = np.random.uniform(0, 1, (3,))
+            #     rgba[-1] = 0.3
+            # else:
+            #     rgba[-1] = 0.0
+            rgba[-1] = 0.0
             geom.set("rgba", array_to_string(rgba))
 
             reg_dict = dict()
