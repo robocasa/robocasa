@@ -313,6 +313,14 @@ class SingleCabinet(Cabinet):
             **kwargs,
         )
 
+        if self.orientation == "right":
+            joint_range = (0, 1.57)
+        else:
+            joint_range = (-1.57, 0)
+
+        door_joint_name = self.door_joint_names[0]
+        self._joint_infos[door_joint_name]["range"] = joint_range
+
     def _get_cab_components(self):
         """
         Finds and returns all geoms, bodies, and joints used for single cabinets
@@ -360,11 +368,12 @@ class SingleCabinet(Cabinet):
         # cabinet door bodies and joints
         bodies["hingedoor"].set("pos", a2s([0, 0, 0]))
         # set joint position
-        if self.orientation == "left":
-            joints["doorhinge"].set("pos", a2s([-x + th, -y, 0]))
-            joints["doorhinge"].set("range", a2s([-3.00, 0]))
-        else:
+        if self.orientation == "right":
             joints["doorhinge"].set("pos", a2s([x - th, -y, 0]))
+            joints["doorhinge"].set("range", a2s([0, 1.57]))
+        else:
+            joints["doorhinge"].set("pos", a2s([-x + th, -y, 0]))
+            joints["doorhinge"].set("range", a2s([-1.57, 0]))
 
         # create door
         door_pos = [0, -y + th, 0]
@@ -392,53 +401,6 @@ class SingleCabinet(Cabinet):
                 },
             }
         )
-
-    def set_door_state(self, min, max, env):
-        """
-        Sets how open the door is. Chooses a random amount between min and max.
-        Min and max are percentages of how open the door is
-
-        Args:
-            min (float): minimum percentage of how open the door is
-
-            max (float): maximum percentage of how open the door is
-
-            env (MujocoEnv): environment
-        """
-        assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
-
-        joint_min = 0
-        joint_max = np.pi / 2
-
-        desired_min = joint_min + (joint_max - joint_min) * min
-        desired_max = joint_min + (joint_max - joint_min) * max
-
-        sign = -1 if self.orientation == "left" else 1
-
-        env.sim.data.set_joint_qpos(
-            "{}_doorhinge".format(self.name),
-            sign * env.rng.uniform(desired_min, desired_max),
-        )
-
-    def get_door_state(self, env):
-        """
-        Args:
-            env (MujocoEnv): environment
-
-        Returns:
-            dict: maps door name to a percentage of how open the door is
-        """
-        sim = env.sim
-        hinge_qpos = sim.data.qpos[sim.model.joint_name2id(f"{self.name}_doorhinge")]
-        sign = -1 if self.orientation == "left" else 1
-        hinge_qpos = hinge_qpos * sign
-
-        # convert to percentages
-        door = OU.normalize_joint_value(hinge_qpos, joint_min=0, joint_max=np.pi / 2)
-
-        return {
-            "door": door,
-        }
 
     @property
     def handle_name(self):

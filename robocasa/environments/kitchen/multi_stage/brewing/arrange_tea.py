@@ -17,7 +17,7 @@ class ArrangeTea(Kitchen):
         super()._setup_kitchen_references()
         # use a double door cabinet so that area below is large enough to initialize all the objects
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.DOOR_TOP_HINGE_DOUBLE)
+            "cab", dict(id=FixtureType.CABINET_DOUBLE_DOOR)
         )
         # set the size argument to sample a large enough counter region
         self.counter = self.register_fixture_ref(

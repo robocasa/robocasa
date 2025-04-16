@@ -24,12 +24,12 @@ class BeverageSorting(Kitchen):
             self.counter = self.fixture_refs["counter"]
         else:
             while True:
-                self.cab1 = self.get_fixture(FixtureType.CABINET_TOP)
+                self.cab1 = self.get_fixture(FixtureType.CABINET)
 
                 valid_cab_config_found = False
                 for _ in range(20):  # 20 attempts
                     # sample until 2 different cabinets are selected
-                    self.cab2 = self.get_fixture(FixtureType.CABINET_TOP)
+                    self.cab2 = self.get_fixture(FixtureType.CABINET)
                     cab1_rot = self.cab1.rot % (2 * np.pi)
                     cab2_rot = self.cab2.rot % (2 * np.pi)
                     if self.cab2 != self.cab1 and np.abs(cab1_rot - cab2_rot) < 0.05:

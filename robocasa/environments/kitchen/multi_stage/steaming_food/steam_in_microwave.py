@@ -113,13 +113,7 @@ class SteamInMicrowave(Kitchen):
         vegetable_in_bowl = OU.check_obj_in_receptacle(self, "vegetable", "bowl")
         bowl_in_microwave = OU.obj_inside_of(self, "bowl", self.microwave)
 
-        door_state = self.microwave.get_door_state(env=self)
-        door_closed = True
-        for joint_p in door_state.values():
-            if joint_p > 0.05:
-                door_closed = False
-                break
-
+        door_closed = self.microwave.is_closed(env=self)
         button_pressed = self.microwave.get_state()["turned_on"]
 
         return (

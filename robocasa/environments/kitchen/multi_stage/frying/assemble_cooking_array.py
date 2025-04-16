@@ -22,7 +22,7 @@ class AssembleCookingArray(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.counter)
+            "cab", dict(id=FixtureType.CABINET, ref=self.counter)
         )
         self.init_robot_base_pos = self.stove
 

@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/SandwichBread005.obj" name="SandwichBread005_vis"/>
+    <texture file="visual/T_BC001.png" name="SandwichBread005_material" type="2d"/>
+    <material name="SandwichBread005_material" rgba="1 1 1 1.0" texture="SandwichBread005_material" shininess="0.1" specular="0.1"/>
+    <mesh file="collision/SandwichBread005005.obj" name="SandwichBread005005_mesh"/>
+    <mesh file="collision/SandwichBread005003.obj" name="SandwichBread005003_mesh"/>
+    <mesh file="collision/SandwichBread005002.obj" name="SandwichBread005002_mesh"/>
+    <mesh file="collision/SandwichBread005006.obj" name="SandwichBread005006_mesh"/>
+    <mesh file="collision/SandwichBread005004.obj" name="SandwichBread005004_mesh"/>
+    <mesh file="collision/SandwichBread005007.obj" name="SandwichBread005007_mesh"/>
+    <mesh file="collision/SandwichBread005001.obj" name="SandwichBread005001_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="SandwichBread005_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="SandwichBread005_material"/>
+        <geom mesh="SandwichBread005005_mesh" type="mesh" class="collision"/>
+        <geom mesh="SandwichBread005003_mesh" type="mesh" class="collision"/>
+        <geom mesh="SandwichBread005002_mesh" type="mesh" class="collision"/>
+        <geom mesh="SandwichBread005006_mesh" type="mesh" class="collision"/>
+        <geom mesh="SandwichBread005004_mesh" type="mesh" class="collision"/>
+        <geom mesh="SandwichBread005007_mesh" type="mesh" class="collision"/>
+        <geom mesh="SandwichBread005001_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.08510158000000001 0.013439359999999997 6.276499999999263e-05" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="0.00019673000000000352 -0.0002677100000000013 0.07863156999999998" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="0.00019673000000000352 -0.0002677100000000013 -0.07850604" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

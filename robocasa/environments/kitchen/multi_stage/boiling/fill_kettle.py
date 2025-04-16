@@ -18,7 +18,7 @@ class FillKettle(Kitchen):
         super()._setup_kitchen_references()
         self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.sink)
+            "cab", dict(id=FixtureType.CABINET, ref=self.sink)
         )
         self.init_robot_base_pos = self.cab
 

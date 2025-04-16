@@ -21,7 +21,7 @@ class HeatMug(Kitchen):
             "microwave", dict(id=FixtureType.MICROWAVE)
         )
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=self.microwave)
+            "cab", dict(id=FixtureType.CABINET, ref=self.microwave)
         )
         self.init_robot_base_pos = self.cab
 
@@ -73,7 +73,6 @@ class HeatMug(Kitchen):
     def _check_success(self):
         gripper_obj_far = OU.gripper_obj_far(self)
         obj_in_microwave = OU.obj_inside_of(self, "obj", self.microwave)
-        door_state = self.microwave.get_door_state(self)["door"]
-        door_closed = door_state <= 0.005
+        door_closed = self.microwave.is_closed(env=self)
 
         return obj_in_microwave and gripper_obj_far and door_closed

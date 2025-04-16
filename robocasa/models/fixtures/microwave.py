@@ -16,7 +16,7 @@ class Microwave(Fixture):
 
     def __init__(
         self,
-        xml="fixtures/microwaves/orig_microwave",
+        xml="fixtures/microwaves/standard",
         name="microwave",
         *args,
         **kwargs,
@@ -26,52 +26,17 @@ class Microwave(Fixture):
         )
         self._turned_on = False
 
-    def set_door_state(self, min, max, env):
+    def is_open(self, env, th=0.90):
         """
-        Sets how open the door is. Chooses a random amount between min and max.
-        Min and max are percentages of how open the door is
-
-        Args:
-            min (float): minimum percentage of how open the door is
-
-            max (float): maximum percentage of how open the door is
-
-            env (MujocoEnv): environment
-
+        checks whether the fixture is open
         """
-        assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
+        return super().is_open(env, self.door_joint_names, th=th)
 
-        joint_min = 0
-        joint_max = np.pi / 2
-
-        desired_min = joint_min + (joint_max - joint_min) * min
-        desired_max = joint_min + (joint_max - joint_min) * max
-
-        sign = -1
-
-        env.sim.data.set_joint_qpos(
-            "{}_microjoint".format(self.name),
-            sign * env.rng.uniform(desired_min, desired_max),
-        )
-
-    def get_door_state(self, env):
+    def is_closed(self, env, th=0.005):
         """
-        Args:
-            env (MujocoEnv): environment
-
-        Returns:
-            dict: maps door name to a percentage of how open the door is
+        checks whether the fixture is closed
         """
-        sim = env.sim
-        hinge_qpos = sim.data.qpos[sim.model.joint_name2id(f"{self.name}_microjoint")]
-        hinge_qpos = -hinge_qpos  # negate as micro joints are left door hinges
-
-        # convert to percentages
-        door = OU.normalize_joint_value(hinge_qpos, joint_min=0, joint_max=np.pi / 2)
-
-        return {
-            "door": door,
-        }
+        return super().is_closed(env, self.door_joint_names, th=th)
 
     def get_state(self):
         """
@@ -82,6 +47,10 @@ class Microwave(Fixture):
             turned_on=self._turned_on,
         )
         return state
+
+    @property
+    def door_joint_names(self):
+        return [f"{self.name}_microjoint"]
 
     @property
     def handle_name(self):
@@ -108,9 +77,7 @@ class Microwave(Fixture):
             env.robots[0].gripper["right"], "{}_stop_button".format(self.name)
         )
 
-        door_state = self.get_door_state(env)["door"]
-        door_open = door_state > 0.005
-
+        door_open = self.is_open(env)
         if door_open:
             self._turned_on = False
         else:

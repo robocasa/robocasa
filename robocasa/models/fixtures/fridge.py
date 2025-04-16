@@ -1,5 +1,6 @@
 import numpy as np
 from robocasa.models.fixtures import Fixture
+import robocasa.utils.object_utils as OU
 from robosuite.utils.mjcf_utils import (
     string_to_array,
     find_elements,
@@ -17,26 +18,22 @@ class Fridge(Fixture):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )
-        self._fridge_door_joint_info = dict()
-        self._freezer_door_joint_info = dict()
-        joint_elems = find_elements(
-            root=self.worldbody, tags="joint", return_first=False
-        )
-        for elem in joint_elems:
-            elem_name = elem.get("name")
-            if elem_name is None:
-                continue
-            # strip out name prefix
-            stripped_name = elem_name[len(self.name) + 1 :]
-            if "door" in stripped_name:
-                if "fridge" in stripped_name:
-                    self._fridge_door_joint_info[elem_name] = dict(
-                        range=string_to_array(elem.get("range")),
-                    )
-                elif "freezer" in stripped_name:
-                    self._freezer_door_joint_info[elem_name] = dict(
-                        range=string_to_array(elem.get("range")),
-                    )
+        self._fridge_door_joint_names = []
+        self._freezer_door_joint_names = []
+
+        for joint_name in self._joint_infos:
+            stripped_name = joint_name[len(self.name) + 1 :]
+            if "door" in stripped_name and "fridge" in stripped_name:
+                self._fridge_door_joint_names.append(joint_name)
+            elif "door" in stripped_name and "freezer" in stripped_name:
+                self._freezer_door_joint_names.append(joint_name)
+
+        self._fridge_reg_names = [
+            reg_name for reg_name in self._regions.keys() if "fridge" in reg_name
+        ]
+        self._freezer_reg_names = [
+            reg_name for reg_name in self._regions.keys() if "freezer" in reg_name
+        ]
 
     def get_reset_regions(self, env, reg_type="fridge"):
         assert reg_type in ["fridge", "freezer"]
@@ -63,32 +60,54 @@ class Fridge(Fixture):
             }
         return reset_regions
 
-    def set_door_state(self, min, max, env, door_type="fridge"):
+    def is_open(self, env, entity="fridge", th=0.90):
         """
-        Sets how open the door is. Chooses a random amount between min and max.
-        Min and max are percentages of how open the door is
-        Args:
-            min (float): minimum percentage of how open the door is
-            max (float): maximum percentage of how open the door is
-            env (MujocoEnv): environment
+        checks whether the fixture is open
         """
-        assert 0 <= min <= 1 and 0 <= max <= 1 and min <= max
+        joint_names = None
+        if entity == "fridge":
+            joint_names = self._fridge_door_joint_names
+        elif entity == "freezer":
+            joint_names = self._freezer_door_joint_names
 
-        assert door_type in ["fridge", "freezer"]
-        joint_info = (
-            self._fridge_door_joint_info
-            if door_type == "fridge"
-            else self._freezer_door_joint_info
-        )
+        return super().is_open(env, joint_names, th=th)
 
-        for joint_name, info in joint_info.items():
-            joint_min, joint_max = info["range"]
-            desired_min = joint_min + (joint_max - joint_min) * min
-            desired_max = joint_min + (joint_max - joint_min) * max
-            env.sim.data.set_joint_qpos(
-                joint_name,
-                env.rng.uniform(desired_min, desired_max),
-            )
+    def is_closed(self, env, entity="fridge", th=0.005):
+        """
+        checks whether the fixture is closed
+        """
+        joint_names = None
+        if entity == "fridge":
+            joint_names = self._fridge_door_joint_names
+        elif entity == "freezer":
+            joint_names = self._freezer_door_joint_names
+
+        return super().is_closed(env, joint_names, th=th)
+
+    def open_door(self, env, min=0.90, max=1.0, entity="fridge"):
+        """
+        helper function to open the door. calls set_door_state function
+        """
+        joint_names = None
+        if entity == "fridge":
+            joint_names = self._fridge_door_joint_names
+        elif entity == "freezer":
+            joint_names = self._freezer_door_joint_names
+        self.set_joint_state(env=env, min=min, max=max, joint_names=joint_names)
+
+    def close_door(self, env, min=0.0, max=0.0, entity="fridge"):
+        """
+        helper function to close the door. calls set_door_state function
+        """
+        joint_names = None
+        if entity == "fridge":
+            joint_names = self._fridge_door_joint_names
+        elif entity == "freezer":
+            joint_names = self._freezer_door_joint_names
+        self.set_joint_state(env=env, min=min, max=max, joint_names=joint_names)
+
+    def get_reset_region_names(self):
+        return self._fridge_reg_names + self._freezer_reg_names
 
     @property
     def nat_lang(self):
@@ -96,46 +115,15 @@ class Fridge(Fixture):
 
 
 class FridgeFrenchDoor(Fridge):
-    def __init__(self, xml="fixtures/fridges/Refrigerator033", *args, **kwargs):
+    def __init__(self, xml="fixtures/fridges/Refrigerator064", *args, **kwargs):
         super().__init__(xml=xml, *args, **kwargs)
-
-    def get_reset_region_names(self):
-        return (
-            "fridge_left_shelf0",
-            "fridge_left_shelf1",
-            "fridge_left_shelf2",
-            "fridge_right_shelf0",
-            "fridge_right_shelf1",
-            "fridge_right_shelf2",
-            "freezer_top",
-            "freezer_bottom",
-        )
 
 
 class FridgeSideBySide(Fridge):
     def __init__(self, xml="fixtures/fridges/Refrigerator031", *args, **kwargs):
         super().__init__(xml=xml, *args, **kwargs)
 
-    def get_reset_region_names(self):
-        return (
-            "freezer_shelf0",
-            "freezer_shelf1",
-            "freezer_shelf2",
-            "fridge_shelf0",
-            "fridge_shelf1",
-            "fridge_shelf2",
-        )
-
 
 class FridgeBottomFreezer(Fridge):
     def __init__(self, xml="fixtures/fridges/Refrigerator060", *args, **kwargs):
         super().__init__(xml=xml, *args, **kwargs)
-
-    def get_reset_region_names(self):
-        return (
-            "fridge_shelf0",
-            "fridge_shelf1",
-            "fridge_shelf2",
-            "freezer_top",
-            "freezer_bottom",
-        )

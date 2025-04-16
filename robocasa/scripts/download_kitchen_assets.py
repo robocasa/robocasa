@@ -27,7 +27,7 @@ DOWNLOAD_ASSET_REGISTRY = {
     ### fixtures ###
     "fixtures_v0.1": dict(
         message="Downloading RoboCasa v0.1 fixtures",
-        url="https://utexas.box.com/shared/static/pobhbsjyacahg2mx8x4rm5fkz3wlmyzp.zip",
+        url="https://utexas.box.com/shared/static/8bcoym4ll6soahb6x0s0eoxk2l0igexu.zip",
         folder=os.path.join(robocasa.__path__[0], "models/assets/fixtures"),
         check_folder_exists=False,
     ),
@@ -40,7 +40,7 @@ DOWNLOAD_ASSET_REGISTRY = {
     ### objects ###
     "objs_objaverse": dict(
         message="Downloading objaverse objects",
-        url="https://utexas.box.com/shared/static/ejt1kc2v5vhae1rl4k5697i4xvpbjcox.zip",
+        url="https://utexas.box.com/shared/static/d4ezf9k4ih2c2wv4g9s0dmhv1u399wsi.zip",
         folder=os.path.join(robocasa.__path__[0], "models/assets/objects/objaverse"),
         check_folder_exists=False,
     ),
@@ -52,7 +52,7 @@ DOWNLOAD_ASSET_REGISTRY = {
     ),
     "objs_lw": dict(
         message="Downloading lightwheel objects",
-        url="https://utexas.box.com/shared/static/xhbxldptvssy5ibbsxogv42xhnajcp8t.zip",
+        url="https://utexas.box.com/shared/static/mcgtbin4p8z3ser3wc0m1v369krxj1dw.zip",
         folder=os.path.join(robocasa.__path__[0], "models/assets/objects/lightwheel"),
         check_folder_exists=False,
     ),

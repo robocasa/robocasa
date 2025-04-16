@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/Reamer012.obj" name="Reamer012_vis"/>
+    <texture file="visual/T_BC001.png" name="Reamer012_material" type="2d"/>
+    <material name="Reamer012_material" rgba="1 1 1 1.0" texture="Reamer012_material" shininess="0.4472135901451111" specular="0.93333333333333337"/>
+    <mesh file="collision/Reamer012002.obj" name="Reamer012002_mesh"/>
+    <mesh file="collision/Reamer012001.obj" name="Reamer012001_mesh"/>
+    <mesh file="collision/Reamer012003.obj" name="Reamer012003_mesh"/>
+    <mesh file="collision/Reamer012005.obj" name="Reamer012005_mesh"/>
+    <mesh file="collision/Reamer012004.obj" name="Reamer012004_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="Reamer012_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Reamer012_material"/>
+        <geom mesh="Reamer012002_mesh" type="mesh" class="collision"/>
+        <geom mesh="Reamer012001_mesh" type="mesh" class="collision"/>
+        <geom mesh="Reamer012003_mesh" type="mesh" class="collision"/>
+        <geom mesh="Reamer012005_mesh" type="mesh" class="collision"/>
+        <geom mesh="Reamer012004_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.09116822 0.07726776000000002 -0.0008190649999999997" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="1.5933652549725123e-18 6.584500000000857e-05 0.05841257" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="1.5933652549725123e-18 6.584500000000857e-05 -0.0600507" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

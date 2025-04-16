@@ -49,7 +49,14 @@ class KitchenEnvMeta(EnvMeta):
 
     def __new__(meta, name, bases, class_dict):
         cls = super().__new__(meta, name, bases, class_dict)
-        register_kitchen_env(cls)
+        if cls.__name__ not in [
+            "MG_Robocasa_Env",
+            "PnP",
+            "ManipulateDoor",
+            "OpenDoor",
+            "CloseDoor",
+        ]:
+            register_kitchen_env(cls)
         return cls
 
 
@@ -366,7 +373,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.style_id = style_id
 
         if macros.VERBOSE:
-            print("layout: {}, style: {}".format(self.layout_id, self.style_id))
+            print(
+                "layout: {}, style: {}".format(
+                    self.layout_id,
+                    "custom" if isinstance(self.style_id, dict) else self.style_id,
+                )
+            )
 
         # to be set later inside edit_model_xml function
         self._curr_gen_fixtures = self._ep_meta.get("gen_textures")

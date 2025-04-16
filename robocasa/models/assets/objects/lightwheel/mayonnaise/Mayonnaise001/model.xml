@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/Mayonnaise001.obj" name="Mayonnaise001_vis"/>
+    <texture file="visual/T_BC001.png" name="Mayonnaise001_material" type="2d"/>
+    <material name="Mayonnaise001_material" rgba="1 1 1 1.0" texture="Mayonnaise001_material" shininess="0.0" specular="0.3103448502657381"/>
+    <mesh file="collision/Mayonnaise001005.obj" name="Mayonnaise001005_mesh"/>
+    <mesh file="collision/Mayonnaise001007.obj" name="Mayonnaise001007_mesh"/>
+    <mesh file="collision/Mayonnaise001010.obj" name="Mayonnaise001010_mesh"/>
+    <mesh file="collision/Mayonnaise001006.obj" name="Mayonnaise001006_mesh"/>
+    <mesh file="collision/Mayonnaise001002.obj" name="Mayonnaise001002_mesh"/>
+    <mesh file="collision/Mayonnaise001001.obj" name="Mayonnaise001001_mesh"/>
+    <mesh file="collision/Mayonnaise001009.obj" name="Mayonnaise001009_mesh"/>
+    <mesh file="collision/Mayonnaise001008.obj" name="Mayonnaise001008_mesh"/>
+    <mesh file="collision/Mayonnaise001004.obj" name="Mayonnaise001004_mesh"/>
+    <mesh file="collision/Mayonnaise001003.obj" name="Mayonnaise001003_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="Mayonnaise001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Mayonnaise001_material"/>
+        <geom mesh="Mayonnaise001005_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001007_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001010_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001006_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001002_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001001_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001009_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001008_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001004_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mayonnaise001003_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.03950311 0.03950304 -9.453499999999871e-05" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-2.2486225643128324e-18 -3.499999999628989e-08 0.05643953" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-2.2486225643128324e-18 -3.499999999628989e-08 -0.0566286" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

@@ -18,7 +18,7 @@ class PrepareToast(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.cab = self.register_fixture_ref(
-            "cab", dict(id=FixtureType.CABINET_TOP, ref=FixtureType.TOASTER)
+            "cab", dict(id=FixtureType.CABINET, ref=FixtureType.TOASTER)
         )
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)

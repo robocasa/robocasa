@@ -19,7 +19,7 @@ class SpicyMarinade(Kitchen):
         super()._setup_kitchen_references()
         # need to fit the bowl and condiment in the cab, so use double door hinge
         self.cab = self.register_fixture_ref(
-            "cabinet", dict(id=FixtureType.DOOR_TOP_HINGE_DOUBLE)
+            "cabinet", dict(id=FixtureType.CABINET_DOUBLE_DOOR)
         )
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)

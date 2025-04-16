@@ -17,7 +17,7 @@ class PrepMarinatingMeat(Kitchen):
             is picked.
     """
 
-    def __init__(self, cab_id=FixtureType.DOOR_TOP_HINGE_DOUBLE, *args, **kwargs):
+    def __init__(self, cab_id=FixtureType.CABINET_DOUBLE_DOOR, *args, **kwargs):
         # fixture type hingle double bc there will be a large counter space under the cabinet
         self.cab_id = cab_id
         super().__init__(*args, **kwargs)

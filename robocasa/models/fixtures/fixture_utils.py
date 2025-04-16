@@ -10,20 +10,7 @@ def fixture_is_type(fixture, fixture_type):
 
         fixture_type (FixtureType): The type to check against
     """
-    if fixture_type == FixtureType.COUNTER:
-        return isinstance(fixture, Counter)
-    elif fixture_type == FixtureType.DINING_COUNTER:
-        cls_check = any([isinstance(fixture, cls) for cls in [Counter]])
-        if not cls_check:
-            return False
-        # a hack to identify counters that start with name island
-        starts_with_island = fixture.name.startswith("island")
-        return starts_with_island or sum(fixture.base_opening) > 0
-    elif fixture_type == FixtureType.CABINET:
-        return isinstance(fixture, Cabinet)
-    elif fixture_type == FixtureType.DRAWER:
-        return isinstance(fixture, Drawer)
-    elif fixture_type == FixtureType.SINK:
+    if fixture_type == FixtureType.SINK:
         return isinstance(fixture, Sink)
     elif fixture_type == FixtureType.STOVE:
         return isinstance(fixture, Stove)
@@ -35,19 +22,54 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Dishwasher)
     elif fixture_type == FixtureType.COFFEE_MACHINE:
         return isinstance(fixture, CoffeeMachine)
-    elif fixture_type == FixtureType.CABINET_TOP:
-        cls_check = any(
-            [
-                isinstance(fixture, cls)
-                for cls in [SingleCabinet, HingeCabinet, OpenCabinet]
-            ]
-        )
+    elif fixture_type == FixtureType.TOASTER:
+        return isinstance(fixture, Toaster)
+    elif fixture_type == FixtureType.TOASTER_OVEN:
+        return isinstance(fixture, ToasterOven)
+    elif fixture_type == FixtureType.BLENDER:
+        return isinstance(fixture, Blender)
+    elif fixture_type == FixtureType.MICROWAVE:
+        return isinstance(fixture, Microwave)
+    elif fixture_type == FixtureType.STOOL:
+        return isinstance(fixture, Stool)
+    elif fixture_type == FixtureType.ISLAND:
+        return isinstance(fixture, Counter) and "island" in fixture.name
+    # elif fixture_type == FixtureType.COUNTER_NON_CORNER:
+    #     return isinstance(fixture, Counter) and "corner" not in fixture.name
+    elif fixture_type in [FixtureType.COUNTER, FixtureType.COUNTER_NON_CORNER]:
+        # merged COUNTER into COUNTER_NON_CORNER
+        # TODO: decide whether we want to ever sample corner counters
+        return isinstance(fixture, Counter) and "corner" not in fixture.name
+    elif fixture_type == FixtureType.DINING_COUNTER:
+        cls_check = any([isinstance(fixture, cls) for cls in [Counter]])
         if not cls_check:
             return False
+        # a hack to identify counters that start with name island
+        starts_with_island = fixture.name.startswith("island")
+        return starts_with_island or sum(fixture.base_opening) > 0
+    elif fixture_type in [
+        FixtureType.CABINET,
+        FixtureType.CABINET_WITH_DOOR,
+        FixtureType.CABINET_SINGLE_DOOR,
+        FixtureType.CABINET_DOUBLE_DOOR,
+    ]:
+        if fixture_type == FixtureType.CABINET:
+            valid_classes = [SingleCabinet, HingeCabinet, OpenCabinet]
+        elif fixture_type == FixtureType.CABINET_WITH_DOOR:
+            valid_classes = [SingleCabinet, HingeCabinet]
+        elif fixture_type == FixtureType.CABINET_SINGLE_DOOR:
+            valid_classes = [SingleCabinet]
+        elif fixture_type == FixtureType.CABINET_DOUBLE_DOOR:
+            valid_classes = [HingeCabinet]
+        cls_check = any([isinstance(fixture, cls) for cls in valid_classes])
+        if not cls_check:
+            return False
+
         if "stack" in fixture.name:  # wall stack cabinets not valid
             return False
         if fixture.is_corner_cab is True:  # ignore corner cabinets
             return False
+
         # check that there are valid reset regions
         reset_regions = fixture.get_reset_regions(
             z_range=(1.0, 1.50)
@@ -56,72 +78,11 @@ def fixture_is_type(fixture, fixture_type):
             return True
         else:
             return False
-    elif fixture_type == FixtureType.MICROWAVE:
-        return isinstance(fixture, Microwave)
-    elif fixture_type in [FixtureType.DOOR_HINGE, FixtureType.DOOR_TOP_HINGE]:
-        cls_check = any(
-            [
-                isinstance(fixture, cls)
-                for cls in [SingleCabinet, HingeCabinet, Microwave]
-            ]
-        )
-        if not cls_check:
-            return False
-        if fixture_type == FixtureType.DOOR_TOP_HINGE:
-            if "stack" in fixture.name:  # wall stack cabinets not valid
-                return False
-            fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
-            height_check = 1.0 <= fxtr_bottom_z <= 1.60
-            if not height_check:
-                return False
-        return True
-    elif fixture_type in [
-        FixtureType.DOOR_HINGE_SINGLE,
-        FixtureType.DOOR_TOP_HINGE_SINGLE,
-    ]:
-        cls_check = any(
-            [isinstance(fixture, cls) for cls in [SingleCabinet, Microwave]]
-        )
-        if not cls_check:
-            return False
-        if fixture_type == FixtureType.DOOR_TOP_HINGE_SINGLE:
-            if "stack" in fixture.name:  # wall stack cabinets not valid
-                return False
-            fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
-            height_check = 1.0 <= fxtr_bottom_z <= 1.60
-            if not height_check:
-                return False
-        return True
-    elif fixture_type in [
-        FixtureType.DOOR_HINGE_DOUBLE,
-        FixtureType.DOOR_TOP_HINGE_DOUBLE,
-    ]:
-        cls_check = any([isinstance(fixture, cls) for cls in [HingeCabinet]])
-        if not cls_check:
-            return False
-        if fixture_type == FixtureType.DOOR_TOP_HINGE_DOUBLE:
-            if "stack" in fixture.name:  # wall stack cabinets not valid
-                return False
-            fxtr_bottom_z = fixture.pos[2] + fixture.bottom_offset[2]
-            height_check = 1.0 <= fxtr_bottom_z <= 1.60
-            if not height_check:
-                return False
-        return True
-    elif fixture_type == FixtureType.TOASTER:
-        return isinstance(fixture, Toaster)
-    elif fixture_type == FixtureType.TOASTER_OVEN:
-        return isinstance(fixture, ToasterOven)
-    elif fixture_type == FixtureType.BLENDER:
-        return isinstance(fixture, Blender)
     elif fixture_type == FixtureType.TOP_DRAWER:
         height_check = 0.7 <= fixture.pos[2] <= 0.9
         return height_check and isinstance(fixture, Drawer)
-    elif fixture_type == FixtureType.STOOL:
-        return isinstance(fixture, Stool)
-    elif fixture_type == FixtureType.ISLAND:
-        return isinstance(fixture, Counter) and "island" in fixture.name
-    elif fixture_type == FixtureType.COUNTER_NON_CORNER:
-        return isinstance(fixture, Counter) and "corner" not in fixture.name
+    elif fixture_type == FixtureType.DRAWER:
+        return isinstance(fixture, Drawer)
     else:
         raise ValueError
 
