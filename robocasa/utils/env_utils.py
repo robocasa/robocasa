@@ -601,10 +601,8 @@ def init_robot_base_pose(env):
         ref_fixture=ref_fixture,
         ref_object=ref_object,
     )
-    robot_model = env.robots[0].robot_model
-    robot_model.set_base_xpos(robot_base_pos)
-    robot_model.set_base_ori(robot_base_ori)
-    env.robot_geom_ids = None
+
+    return robot_base_pos, robot_base_ori
 
 
 def find_object_cfg_by_name(env, name):
