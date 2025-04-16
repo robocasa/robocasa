@@ -1,9 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visual/Strainer005.obj" name="vis"/>
-    <texture file="visual/T_BC001.png" name="material" type="2d"/>
-    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.4472135901451111" specular="2"/>
+    <mesh file="visual/Strainer005.obj" name="Strainer005_vis"/>
+    <texture file="visual/T_BC001.png" name="Strainer005_material" type="2d"/>
+    <material name="Strainer005_material" rgba="1 1 1 1.0" texture="Strainer005_material" shininess="0.4472135901451111" specular="2"/>
     <mesh file="collision/Strainer005025.obj" name="Strainer005025_mesh"/>
     <mesh file="collision/Strainer005020.obj" name="Strainer005020_mesh"/>
     <mesh file="collision/Strainer005019.obj" name="Strainer005019_mesh"/>
@@ -14,14 +15,12 @@
     <mesh file="collision/Strainer005001.obj" name="Strainer005001_mesh"/>
     <mesh file="collision/Strainer005028.obj" name="Strainer005028_mesh"/>
     <mesh file="collision/Strainer005017.obj" name="Strainer005017_mesh"/>
-    <mesh file="collision/Strainer005038.obj" name="Strainer005038_mesh"/>
     <mesh file="collision/Strainer005003.obj" name="Strainer005003_mesh"/>
     <mesh file="collision/Strainer005014.obj" name="Strainer005014_mesh"/>
     <mesh file="collision/Strainer005010.obj" name="Strainer005010_mesh"/>
     <mesh file="collision/Strainer005018.obj" name="Strainer005018_mesh"/>
     <mesh file="collision/Strainer005009.obj" name="Strainer005009_mesh"/>
     <mesh file="collision/Strainer005012.obj" name="Strainer005012_mesh"/>
-    <mesh file="collision/Strainer005037.obj" name="Strainer005037_mesh"/>
     <mesh file="collision/Strainer005002.obj" name="Strainer005002_mesh"/>
     <mesh file="collision/Strainer005029.obj" name="Strainer005029_mesh"/>
     <mesh file="collision/Strainer005032.obj" name="Strainer005032_mesh"/>
@@ -29,17 +28,14 @@
     <mesh file="collision/Strainer005005.obj" name="Strainer005005_mesh"/>
     <mesh file="collision/Strainer005016.obj" name="Strainer005016_mesh"/>
     <mesh file="collision/Strainer005031.obj" name="Strainer005031_mesh"/>
-    <mesh file="collision/Strainer005035.obj" name="Strainer005035_mesh"/>
     <mesh file="collision/Strainer005004.obj" name="Strainer005004_mesh"/>
     <mesh file="collision/Strainer005026.obj" name="Strainer005026_mesh"/>
     <mesh file="collision/Strainer005034.obj" name="Strainer005034_mesh"/>
     <mesh file="collision/Strainer005027.obj" name="Strainer005027_mesh"/>
-    <mesh file="collision/Strainer005036.obj" name="Strainer005036_mesh"/>
     <mesh file="collision/Strainer005021.obj" name="Strainer005021_mesh"/>
     <mesh file="collision/Strainer005006.obj" name="Strainer005006_mesh"/>
     <mesh file="collision/Strainer005008.obj" name="Strainer005008_mesh"/>
     <mesh file="collision/Strainer005015.obj" name="Strainer005015_mesh"/>
-    <mesh file="collision/Strainer005039.obj" name="Strainer005039_mesh"/>
     <mesh file="collision/Strainer005033.obj" name="Strainer005033_mesh"/>
     <mesh file="collision/Strainer005022.obj" name="Strainer005022_mesh"/>
     <mesh file="collision/Strainer005011.obj" name="Strainer005011_mesh"/>
@@ -55,11 +51,14 @@
       <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
       <site group="0" rgba="1 1 1 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="Strainer005_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Strainer005_material"/>
         <geom mesh="Strainer005025_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005020_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005019_mesh" type="mesh" class="collision"/>
@@ -70,14 +69,12 @@
         <geom mesh="Strainer005001_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005028_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005017_mesh" type="mesh" class="collision"/>
-        <geom mesh="Strainer005038_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005003_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005014_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005010_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005018_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005009_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005012_mesh" type="mesh" class="collision"/>
-        <geom mesh="Strainer005037_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005002_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005029_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005032_mesh" type="mesh" class="collision"/>
@@ -85,24 +82,21 @@
         <geom mesh="Strainer005005_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005016_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005031_mesh" type="mesh" class="collision"/>
-        <geom mesh="Strainer005035_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005004_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005026_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005034_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005027_mesh" type="mesh" class="collision"/>
-        <geom mesh="Strainer005036_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005021_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005006_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005008_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005015_mesh" type="mesh" class="collision"/>
-        <geom mesh="Strainer005039_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005033_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005022_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer005011_mesh" type="mesh" class="collision"/>
       </body>
-      <site rgba="1 0 0 1" size="0.005" pos="0.057374709999999995 0.10892663 0.00025405499999999956" name="horizontal_radius_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="3.000000000155656e-08 -5.041500000000504e-05 0.02584761" name="top_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="3.000000000155656e-08 -5.041500000000504e-05 -0.0253395" name="bottom_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.05973602 0.1096841 -5.2820000000001585e-05" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-1.2052750087794866e-18 -8.700000000005428e-07 0.027642689999999998" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-1.2052750087794866e-18 -8.700000000005428e-07 -0.02774833" name="bottom_site"/>
     </body>
   </worldbody>
   <actuator/>

@@ -1,35 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visual/IceCube006.obj" name="vis"/>
-    <texture file="visual/T_BC001.png" name="material" type="2d"/>
-    <material name="material" rgba="1 1 1 0.24545451998710632" texture="material" shininess="0.2" specular="1"/>
-    <mesh file="collision/IceCube006006.obj" name="IceCube006006_mesh"/>
-    <mesh file="collision/IceCube006007.obj" name="IceCube006007_mesh"/>
-    <mesh file="collision/IceCube006026.obj" name="IceCube006026_mesh"/>
-    <mesh file="collision/IceCube006002.obj" name="IceCube006002_mesh"/>
-    <mesh file="collision/IceCube006015.obj" name="IceCube006015_mesh"/>
-    <mesh file="collision/IceCube006008.obj" name="IceCube006008_mesh"/>
-    <mesh file="collision/IceCube006009.obj" name="IceCube006009_mesh"/>
-    <mesh file="collision/IceCube006012.obj" name="IceCube006012_mesh"/>
-    <mesh file="collision/IceCube006023.obj" name="IceCube006023_mesh"/>
-    <mesh file="collision/IceCube006021.obj" name="IceCube006021_mesh"/>
-    <mesh file="collision/IceCube006025.obj" name="IceCube006025_mesh"/>
-    <mesh file="collision/IceCube006018.obj" name="IceCube006018_mesh"/>
-    <mesh file="collision/IceCube006019.obj" name="IceCube006019_mesh"/>
-    <mesh file="collision/IceCube006001.obj" name="IceCube006001_mesh"/>
-    <mesh file="collision/IceCube006003.obj" name="IceCube006003_mesh"/>
-    <mesh file="collision/IceCube006022.obj" name="IceCube006022_mesh"/>
-    <mesh file="collision/IceCube006004.obj" name="IceCube006004_mesh"/>
-    <mesh file="collision/IceCube006013.obj" name="IceCube006013_mesh"/>
-    <mesh file="collision/IceCube006005.obj" name="IceCube006005_mesh"/>
+    <mesh file="visual/IceCube006.obj" name="IceCube006_vis"/>
+    <texture file="visual/T_BC001.png" name="IceCube006_material" type="2d"/>
+    <material name="IceCube006_material" rgba="1 1 1 0.24545451998710632" texture="IceCube006_material" shininess="0.2" specular="1"/>
     <mesh file="collision/IceCube006010.obj" name="IceCube006010_mesh"/>
-    <mesh file="collision/IceCube006020.obj" name="IceCube006020_mesh"/>
-    <mesh file="collision/IceCube006024.obj" name="IceCube006024_mesh"/>
-    <mesh file="collision/IceCube006016.obj" name="IceCube006016_mesh"/>
-    <mesh file="collision/IceCube006017.obj" name="IceCube006017_mesh"/>
+    <mesh file="collision/IceCube006009.obj" name="IceCube006009_mesh"/>
+    <mesh file="collision/IceCube006001.obj" name="IceCube006001_mesh"/>
+    <mesh file="collision/IceCube006004.obj" name="IceCube006004_mesh"/>
+    <mesh file="collision/IceCube006002.obj" name="IceCube006002_mesh"/>
     <mesh file="collision/IceCube006014.obj" name="IceCube006014_mesh"/>
+    <mesh file="collision/IceCube006006.obj" name="IceCube006006_mesh"/>
+    <mesh file="collision/IceCube006005.obj" name="IceCube006005_mesh"/>
     <mesh file="collision/IceCube006011.obj" name="IceCube006011_mesh"/>
+    <mesh file="collision/IceCube006013.obj" name="IceCube006013_mesh"/>
+    <mesh file="collision/IceCube006015.obj" name="IceCube006015_mesh"/>
+    <mesh file="collision/IceCube006003.obj" name="IceCube006003_mesh"/>
+    <mesh file="collision/IceCube006017.obj" name="IceCube006017_mesh"/>
+    <mesh file="collision/IceCube006016.obj" name="IceCube006016_mesh"/>
+    <mesh file="collision/IceCube006008.obj" name="IceCube006008_mesh"/>
+    <mesh file="collision/IceCube006012.obj" name="IceCube006012_mesh"/>
+    <mesh file="collision/IceCube006007.obj" name="IceCube006007_mesh"/>
   </asset>
   <default>
     <default class="visual">
@@ -42,41 +34,35 @@
       <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
       <site group="0" rgba="1 1 1 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
-        <geom mesh="IceCube006006_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006007_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006026_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006002_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006015_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006008_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006009_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006012_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006023_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006021_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006025_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006018_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006019_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006001_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006003_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006022_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006004_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006013_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006005_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="IceCube006_material"/>
         <geom mesh="IceCube006010_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006020_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006024_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006016_mesh" type="mesh" class="collision"/>
-        <geom mesh="IceCube006017_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006009_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006001_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006004_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006002_mesh" type="mesh" class="collision"/>
         <geom mesh="IceCube006014_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006006_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006005_mesh" type="mesh" class="collision"/>
         <geom mesh="IceCube006011_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006013_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006015_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006003_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006017_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006016_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006008_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006012_mesh" type="mesh" class="collision"/>
+        <geom mesh="IceCube006007_mesh" type="mesh" class="collision"/>
       </body>
-      <site rgba="1 0 0 1" size="0.005" pos="0.01105031 0.01105786 -4.100000000001672e-07" name="horizontal_radius_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="-3.930000000000079e-06 -8.750000000000077e-07 0.011057710000000002" name="top_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="-3.930000000000079e-06 -8.750000000000077e-07 -0.01105853" name="bottom_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.011297479999999999 0.01129859 -1.500000000006422e-07" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="4.739999999999687e-06 7.6000000000058e-07 0.01129685" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="4.739999999999687e-06 7.6000000000058e-07 -0.011297150000000002" name="bottom_site"/>
     </body>
   </worldbody>
   <actuator/>

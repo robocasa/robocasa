@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/Clear.obj" name="Paprika009_Clear_vis"/>
+    <mesh file="visual/Prop.obj" name="Paprika009_Prop_vis"/>
+    <texture file="visual/T_BC001.png" name="Paprika009_Clear_material" type="2d"/>
+    <material name="Paprika009_Clear_material" rgba="1 1 1 1.0" texture="Paprika009_Clear_material" shininess="-35.000003814697266" specular="0.3103448502657381"/>
+    <texture file="visual/T_BC001.png" name="Paprika009_Prop_material" type="2d"/>
+    <material name="Paprika009_Prop_material" rgba="1 1 1 1.0" texture="Paprika009_Prop_material" shininess="0.0" specular="0.3103448502657381"/>
+    <mesh file="collision/Prop011.obj" name="Paprika009_Prop011_mesh"/>
+    <mesh file="collision/Clear002.obj" name="Paprika009_Clear002_mesh"/>
+    <mesh file="collision/Prop003.obj" name="Paprika009_Prop003_mesh"/>
+    <mesh file="collision/Prop002.obj" name="Paprika009_Prop002_mesh"/>
+    <mesh file="collision/Prop009.obj" name="Paprika009_Prop009_mesh"/>
+    <mesh file="collision/Prop001.obj" name="Paprika009_Prop001_mesh"/>
+    <mesh file="collision/Prop012.obj" name="Paprika009_Prop012_mesh"/>
+    <mesh file="collision/Prop005.obj" name="Paprika009_Prop005_mesh"/>
+    <mesh file="collision/Prop006.obj" name="Paprika009_Prop006_mesh"/>
+    <mesh file="collision/Prop008.obj" name="Paprika009_Prop008_mesh"/>
+    <mesh file="collision/Prop007.obj" name="Paprika009_Prop007_mesh"/>
+    <mesh file="collision/Clear001.obj" name="Paprika009_Clear001_mesh"/>
+    <mesh file="collision/Prop010.obj" name="Paprika009_Prop010_mesh"/>
+    <mesh file="collision/Prop004.obj" name="Paprika009_Prop004_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="Paprika009_Clear_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Paprika009_Clear_material"/>
+        <body name="Paprika009_Prop">
+          <geom mesh="Paprika009_Prop_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Paprika009_Prop_material"/>
+          <geom mesh="Paprika009_Prop011_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop003_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop002_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop009_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop001_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop012_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop005_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop006_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop008_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop007_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop010_mesh" type="mesh" class="collision"/>
+          <geom mesh="Paprika009_Prop004_mesh" type="mesh" class="collision"/>
+        </body>
+        <geom mesh="Paprika009_Clear002_mesh" type="mesh" class="collision"/>
+        <geom mesh="Paprika009_Clear001_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.030973309999999997 0.03993102 0.005647824999999998" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-3.149999999997619e-07 0.005027545000000001 0.08969567" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-3.149999999997619e-07 0.005027545000000001 -0.07840002000000001" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

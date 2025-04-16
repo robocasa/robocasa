@@ -1,9 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visual/SandwichBread012.obj" name="vis"/>
-    <texture file="visual/T_BC001.png" name="material" type="2d"/>
-    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.141421377658844" specular="0.1"/>
+    <mesh file="visual/SandwichBread012.obj" name="SandwichBread012_vis"/>
+    <texture file="visual/T_BC001.png" name="SandwichBread012_material" type="2d"/>
+    <material name="SandwichBread012_material" rgba="1 1 1 1.0" texture="SandwichBread012_material" shininess="0.141421377658844" specular="0.1"/>
     <mesh file="collision/SandwichBread012002.obj" name="SandwichBread012002_mesh"/>
     <mesh file="collision/SandwichBread012001.obj" name="SandwichBread012001_mesh"/>
   </asset>
@@ -18,17 +19,20 @@
       <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
       <site group="0" rgba="1 1 1 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="SandwichBread012_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="SandwichBread012_material"/>
         <geom mesh="SandwichBread012002_mesh" type="mesh" class="collision"/>
         <geom mesh="SandwichBread012001_mesh" type="mesh" class="collision"/>
       </body>
-      <site rgba="1 0 0 1" size="0.005" pos="0.07576056 0.01098848 -2.1000000000048757e-06" name="horizontal_radius_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="4.870000000004038e-06 7.250000000000312e-06 0.07536841" name="top_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="4.870000000004038e-06 7.250000000000312e-06 -0.07537261" name="bottom_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.07732973 0.01261457 -2.7255000000004373e-05" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-2.7705000000003283e-05 -1.5499999999999828e-05 0.07686486" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-2.7705000000003283e-05 -1.5499999999999828e-05 -0.07691937" name="bottom_site"/>
     </body>
   </worldbody>
   <actuator/>

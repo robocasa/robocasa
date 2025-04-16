@@ -1,11 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visual/.obj" name="vis"/>
-    <texture file="visual/T_BC001.png" name="material" type="2d"/>
-    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.5" specular="0.3103448502657381"/>
-    <mesh file="collision/002.obj" name="002_mesh"/>
-    <mesh file="collision/001.obj" name="001_mesh"/>
+    <mesh file="visual/Jar010_Lid.obj" name="Jar010_Lid_vis"/>
+    <texture file="visual/T_BC001.png" name="Jar010_Lid_material" type="2d"/>
+    <material name="Jar010_Lid_material" rgba="1 1 1 1.0" texture="Jar010_Lid_material" shininess="0.5" specular="0.3103448502657381"/>
+    <mesh file="collision/Jar010_Lid002.obj" name="Jar010_Lid002_mesh"/>
+    <mesh file="collision/Jar010_Lid001.obj" name="Jar010_Lid001_mesh"/>
   </asset>
   <default>
     <default class="visual">
@@ -18,17 +19,20 @@
       <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
       <site group="0" rgba="1 1 1 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
-        <geom mesh="002_mesh" type="mesh" class="collision"/>
-        <geom mesh="001_mesh" type="mesh" class="collision"/>
+        <geom mesh="Jar010_Lid_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Jar010_Lid_material"/>
+        <geom mesh="Jar010_Lid002_mesh" type="mesh" class="collision"/>
+        <geom mesh="Jar010_Lid001_mesh" type="mesh" class="collision"/>
       </body>
-      <site rgba="1 0 0 1" size="0.005" pos="0.07618217 0.07618217 0.0" name="horizontal_radius_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 0.01942915" name="top_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="0.0 0.0 -0.01942915" name="bottom_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.07618217 0.07618217 4.832438340966859e-20" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="7.731901345546974e-19 0.0 0.01942915" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="7.731901345546974e-19 0.0 -0.01942915" name="bottom_site"/>
     </body>
   </worldbody>
   <actuator/>

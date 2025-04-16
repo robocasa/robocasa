@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/DigitalScale002.obj" name="DigitalScale002_vis"/>
+    <texture file="visual/T_BC001.png" name="DigitalScale002_material" type="2d"/>
+    <material name="DigitalScale002_material" rgba="1 1 1 1.0" texture="DigitalScale002_material" shininess="0.5" specular="0.7"/>
+    <mesh file="collision/DigitalScale002001.obj" name="DigitalScale002001_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="DigitalScale002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="DigitalScale002_material"/>
+        <geom mesh="DigitalScale002001_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.06337138 0.07552638 1.250000000001014e-07" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-1.6863541636770297e-18 2.8105902727950496e-19 0.00893639" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-1.6863541636770297e-18 2.8105902727950496e-19 -0.00893614" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>
