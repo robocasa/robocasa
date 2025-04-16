@@ -228,7 +228,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         scene_split=None,  # unsued, for backwards compatibility
         generative_textures=None,
         obj_registries=(
-            # "objaverse",
+            "objaverse",
             "lightwheel",
         ),
         obj_instance_split=None,
