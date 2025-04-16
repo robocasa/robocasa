@@ -1,9 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visual/Strainer002.obj" name="vis"/>
-    <texture file="visual/T_BC001.png" name="material" type="2d"/>
-    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.141421377658844" specular="3"/>
+    <mesh file="visual/Strainer002.obj" name="Strainer002_vis"/>
+    <texture file="visual/T_BC001.png" name="Strainer002_material" type="2d"/>
+    <material name="Strainer002_material" rgba="1 1 1 1.0" texture="Strainer002_material" shininess="0.141421377658844" specular="3"/>
     <mesh file="collision/Strainer002019.obj" name="Strainer002019_mesh"/>
     <mesh file="collision/Strainer002016.obj" name="Strainer002016_mesh"/>
     <mesh file="collision/Strainer002026.obj" name="Strainer002026_mesh"/>
@@ -28,6 +29,7 @@
     <mesh file="collision/Strainer002031.obj" name="Strainer002031_mesh"/>
     <mesh file="collision/Strainer002023.obj" name="Strainer002023_mesh"/>
     <mesh file="collision/Strainer002008.obj" name="Strainer002008_mesh"/>
+    <mesh file="collision/Strainer002039.obj" name="Strainer002039_mesh"/>
     <mesh file="collision/Strainer002037.obj" name="Strainer002037_mesh"/>
     <mesh file="collision/Strainer002009.obj" name="Strainer002009_mesh"/>
     <mesh file="collision/Strainer002024.obj" name="Strainer002024_mesh"/>
@@ -54,11 +56,14 @@
       <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
       <site group="0" rgba="1 1 1 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="Strainer002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Strainer002_material"/>
         <geom mesh="Strainer002019_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002016_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002026_mesh" type="mesh" class="collision"/>
@@ -83,6 +88,7 @@
         <geom mesh="Strainer002031_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002023_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002008_mesh" type="mesh" class="collision"/>
+        <geom mesh="Strainer002039_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002037_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002009_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002024_mesh" type="mesh" class="collision"/>
@@ -98,9 +104,9 @@
         <geom mesh="Strainer002005_mesh" type="mesh" class="collision"/>
         <geom mesh="Strainer002012_mesh" type="mesh" class="collision"/>
       </body>
-      <site rgba="1 0 0 1" size="0.005" pos="0.06081178000000001 0.11044843999999998 0.0001475599999999997" name="horizontal_radius_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="1.4255000000001211e-05 9.69999999995974e-07 0.029090109999999995" name="top_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="1.4255000000001211e-05 9.69999999995974e-07 -0.02879499" name="bottom_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.06192541 0.11144453 -0.00015968999999999716" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-3.3249999999972005e-06 -2.040500000000024e-05 0.03068685" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-3.3249999999972005e-06 -2.040500000000024e-05 -0.031006229999999996" name="bottom_site"/>
     </body>
   </worldbody>
   <actuator/>

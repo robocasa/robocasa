@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/CreamCheese009.obj" name="CreamCheese009_vis"/>
+    <texture file="visual/T_BC001.png" name="CreamCheese009_material" type="2d"/>
+    <material name="CreamCheese009_material" rgba="1 1 1 1.0" texture="CreamCheese009_material" shininess="0.10000002384185791" specular="0.33333333333333337"/>
+    <mesh file="collision/CreamCheese009001.obj" name="CreamCheese009001_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="CreamCheese009_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="CreamCheese009_material"/>
+        <geom mesh="CreamCheese009001_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.026200430000000004 0.00704323 -0.00018082499999999977" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-2.0569999999997196e-05 -6.759999999999499e-06 0.00419165" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-2.0569999999997196e-05 -6.759999999999499e-06 -0.0045533" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

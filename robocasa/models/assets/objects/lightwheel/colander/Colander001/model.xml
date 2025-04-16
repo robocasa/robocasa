@@ -1,9 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
-    <mesh file="visual/Colander001.obj" name="vis"/>
-    <texture file="visual/T_BC001.png" name="material" type="2d"/>
-    <material name="material" rgba="1 1 1 1.0" texture="material" shininess="0.5" specular="0.3103448502657381"/>
+    <mesh file="visual/Colander001.obj" name="Colander001_vis"/>
+    <texture file="visual/T_BC001.png" name="Colander001_material" type="2d"/>
+    <material name="Colander001_material" rgba="1 1 1 1.0" texture="Colander001_material" shininess="0.5" specular="0.3103448502657381"/>
     <mesh file="collision/Colander001030.obj" name="Colander001030_mesh"/>
     <mesh file="collision/Colander001037.obj" name="Colander001037_mesh"/>
     <mesh file="collision/Colander001031.obj" name="Colander001031_mesh"/>
@@ -29,7 +30,6 @@
     <mesh file="collision/Colander001003.obj" name="Colander001003_mesh"/>
     <mesh file="collision/Colander001056.obj" name="Colander001056_mesh"/>
     <mesh file="collision/Colander001017.obj" name="Colander001017_mesh"/>
-    <mesh file="collision/Colander001064.obj" name="Colander001064_mesh"/>
     <mesh file="collision/Colander001024.obj" name="Colander001024_mesh"/>
     <mesh file="collision/Colander001018.obj" name="Colander001018_mesh"/>
     <mesh file="collision/Colander001041.obj" name="Colander001041_mesh"/>
@@ -59,7 +59,6 @@
     <mesh file="collision/Colander001061.obj" name="Colander001061_mesh"/>
     <mesh file="collision/Colander001059.obj" name="Colander001059_mesh"/>
     <mesh file="collision/Colander001029.obj" name="Colander001029_mesh"/>
-    <mesh file="collision/Colander001063.obj" name="Colander001063_mesh"/>
     <mesh file="collision/Colander001011.obj" name="Colander001011_mesh"/>
     <mesh file="collision/Colander001026.obj" name="Colander001026_mesh"/>
     <mesh file="collision/Colander001054.obj" name="Colander001054_mesh"/>
@@ -80,11 +79,14 @@
       <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
       <site group="0" rgba="1 1 1 0.5"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
       <body name="object">
-        <geom mesh="vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="material"/>
+        <geom mesh="Colander001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Colander001_material"/>
         <geom mesh="Colander001030_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001037_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001031_mesh" type="mesh" class="collision"/>
@@ -110,7 +112,6 @@
         <geom mesh="Colander001003_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001056_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001017_mesh" type="mesh" class="collision"/>
-        <geom mesh="Colander001064_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001024_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001018_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001041_mesh" type="mesh" class="collision"/>
@@ -140,7 +141,6 @@
         <geom mesh="Colander001061_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001059_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001029_mesh" type="mesh" class="collision"/>
-        <geom mesh="Colander001063_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001011_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001026_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001054_mesh" type="mesh" class="collision"/>
@@ -150,9 +150,9 @@
         <geom mesh="Colander001039_mesh" type="mesh" class="collision"/>
         <geom mesh="Colander001060_mesh" type="mesh" class="collision"/>
       </body>
-      <site rgba="1 0 0 1" size="0.005" pos="0.11758075 0.09446811 3.0399999999992933e-06" name="horizontal_radius_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="8.540000000001324e-06 1.629999999995524e-06 0.046925079999999994" name="top_site"/>
-      <site rgba="1 0 0 1" size="0.005" pos="8.540000000001324e-06 1.629999999995524e-06 -0.046919" name="bottom_site"/>
+      <site rgba="1 0 0 1" size="0.005" pos="0.11868961 0.09659659 4.8234999999993435e-05" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="3.381499999999602e-05 3.3499999999990116e-06 0.04821033999999999" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="3.381499999999602e-05 3.3499999999990116e-06 -0.04811387" name="bottom_site"/>
     </body>
   </worldbody>
   <actuator/>

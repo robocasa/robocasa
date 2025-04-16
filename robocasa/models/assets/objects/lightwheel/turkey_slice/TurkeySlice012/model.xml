@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/TurkeySlice012.obj" name="TurkeySlice012_vis"/>
+    <texture file="visual/T_BC001.png" name="TurkeySlice012_material" type="2d"/>
+    <material name="TurkeySlice012_material" rgba="1 1 1 1.0" texture="TurkeySlice012_material" shininess="0.17888545989990234" specular="0.3103448502657381"/>
+    <mesh file="collision/TurkeySlice012005.obj" name="TurkeySlice012005_mesh"/>
+    <mesh file="collision/TurkeySlice012004.obj" name="TurkeySlice012004_mesh"/>
+    <mesh file="collision/TurkeySlice012007.obj" name="TurkeySlice012007_mesh"/>
+    <mesh file="collision/TurkeySlice012002.obj" name="TurkeySlice012002_mesh"/>
+    <mesh file="collision/TurkeySlice012006.obj" name="TurkeySlice012006_mesh"/>
+    <mesh file="collision/TurkeySlice012001.obj" name="TurkeySlice012001_mesh"/>
+    <mesh file="collision/TurkeySlice012003.obj" name="TurkeySlice012003_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="TurkeySlice012_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="TurkeySlice012_material"/>
+        <geom mesh="TurkeySlice012005_mesh" type="mesh" class="collision"/>
+        <geom mesh="TurkeySlice012004_mesh" type="mesh" class="collision"/>
+        <geom mesh="TurkeySlice012007_mesh" type="mesh" class="collision"/>
+        <geom mesh="TurkeySlice012002_mesh" type="mesh" class="collision"/>
+        <geom mesh="TurkeySlice012006_mesh" type="mesh" class="collision"/>
+        <geom mesh="TurkeySlice012001_mesh" type="mesh" class="collision"/>
+        <geom mesh="TurkeySlice012003_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.04279 0.032573 -4.5560396548216613e-20" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-1.4579326895429316e-18 1.0934495171571987e-18 0.012342" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-1.4579326895429316e-18 1.0934495171571987e-18 -0.012342" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>
