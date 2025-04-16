@@ -64,8 +64,8 @@ class KettleBoiling(Kitchen):
         ] = "Pick the kettle from the counter and place it on a stove burner. Then turn the burner on."
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         for knob in valid_knobs:
             self.stove.set_knob_state(mode="off", knob=knob, env=self, rng=self.rng)

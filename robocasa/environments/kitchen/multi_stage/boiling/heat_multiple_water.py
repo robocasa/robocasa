@@ -78,8 +78,8 @@ class HeatMultipleWater(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.ref_cab.open_door(env=self)
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
 

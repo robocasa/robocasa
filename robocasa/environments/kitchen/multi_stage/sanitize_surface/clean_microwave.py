@@ -34,11 +34,11 @@ class CleanMicrowave(Kitchen):
         )
         self.init_robot_base_pos = self.microwave
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.microwave.close_door(env=self)
 
     def get_ep_meta(self):

@@ -29,8 +29,8 @@ class PreSoakPan(Kitchen):
         ] = "Pick the pan and sponge and place them into the sink. Then turn on the water."
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):

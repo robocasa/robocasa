@@ -31,8 +31,8 @@ class PanTransfer(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self._robot_touched_food = False
 
     def _get_obj_cfgs(self):

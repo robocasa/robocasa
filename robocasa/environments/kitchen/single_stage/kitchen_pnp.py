@@ -60,11 +60,11 @@ class PnPCounterToCab(PnP):
         ] = f"pick the {obj_lang} from the counter and place it in the cabinet"
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
@@ -179,11 +179,11 @@ class PnPCabToCounter(PnP):
         ] = f"pick the {obj_lang} from the cabinet and place it on the counter"
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
@@ -508,11 +508,11 @@ class PnPCounterToMicrowave(PnP):
         )
         self.init_robot_base_pos = self.microwave
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.microwave.open_door(env=self)
 
     def get_ep_meta(self):
@@ -634,11 +634,11 @@ class PnPMicrowaveToCounter(PnP):
         )
         self.init_robot_base_pos = self.microwave
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.microwave.open_door(env=self)
 
     def get_ep_meta(self):

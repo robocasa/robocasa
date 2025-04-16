@@ -33,11 +33,11 @@ class PrepareToast(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):

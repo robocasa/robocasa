@@ -54,11 +54,11 @@ class BeverageSorting(Kitchen):
         ] = "Sort all alcoholic drinks to one cabinet, and non-alcoholic drinks to the other."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab1.set_door_state(min=0.85, max=0.9, env=self)
         self.cab2.set_door_state(min=0.85, max=0.9, env=self)
 

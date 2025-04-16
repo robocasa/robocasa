@@ -35,11 +35,11 @@ class SetupJuicing(Kitchen):
         ] = f"Open the cabinet, pick all {self.num_fruits} fruits from the cabinet and place them on the counter."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.close_door(env=self)
 
     def _get_obj_cfgs(self):

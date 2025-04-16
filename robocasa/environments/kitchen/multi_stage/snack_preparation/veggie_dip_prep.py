@@ -30,11 +30,11 @@ class VeggieDipPrep(Kitchen):
         ] = "Place the two vegetables and bowl onto the tray for setting up a vegetable dip station."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

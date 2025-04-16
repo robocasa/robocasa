@@ -36,10 +36,10 @@ class ClearClutter(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         self.food_washed = False
         self.washed_time = 0
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

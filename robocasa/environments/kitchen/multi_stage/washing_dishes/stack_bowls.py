@@ -27,11 +27,11 @@ class StackBowlsInSink(Kitchen):
         ep_meta["lang"] = f"Stack the bowls in the sink."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):

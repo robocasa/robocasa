@@ -25,8 +25,8 @@ class ArrangeTea(Kitchen):
         )
         self.init_robot_base_pos = self.cab
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def get_ep_meta(self):

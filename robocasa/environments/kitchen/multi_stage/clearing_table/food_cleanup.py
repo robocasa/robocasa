@@ -46,11 +46,11 @@ class FoodCleanup(Kitchen):
         ] = f"Pick the {items} from the counter and place {'them' if self.num_food > 1 else 'it'} in the cabinet. Then close the cabinet."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):

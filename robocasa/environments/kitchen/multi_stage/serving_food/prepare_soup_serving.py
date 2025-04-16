@@ -38,8 +38,8 @@ class PrepareSoupServing(Kitchen):
         ] = "Open the cabinet and move the ladle to the pot. Then close the cabinet."
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cabinet.close_door(env=self)
 
     def _get_obj_cfgs(self):

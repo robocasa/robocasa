@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 from copy import deepcopy
-import contextlib
+
 import numpy as np
 import robosuite.utils.transform_utils as T
 from robosuite.environments.manipulation.manipulation_env import ManipulationEnv
@@ -235,12 +235,15 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         use_distractors=False,
         translucent_robot=False,
         randomize_cameras=False,
+        robot_spawn_deviation_pos_x=0.25,
+        robot_spawn_deviation_pos_y=0.05,
+        robot_spawn_deviation_rot=0.0,
     ):
         self.init_robot_base_pos = init_robot_base_pos
 
-        self.robot_spawn_position_deviation_x = 0.30  # robot_spawn_position_deviation_x
-        self.robot_spawn_position_deviation_y = 0.10  # robot_spawn_position_deviation_y
-        self.robot_spawn_rotation_deviation = 0.0  # robot_spawn_rotation_deviation
+        self.robot_spawn_deviation_pos_x = robot_spawn_deviation_pos_x
+        self.robot_spawn_deviation_pos_y = robot_spawn_deviation_pos_y
+        self.robot_spawn_deviation_rot = robot_spawn_deviation_rot
 
         # object placement initializer
         self.placement_initializer = placement_initializer
@@ -301,9 +304,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     "body_part_ordering"
                 ] = ["right", "right_gripper", "base", "torso"]
 
-        if not hasattr(self, "_reset_internal_end_callbacks"):
-            self._reset_internal_end_callbacks = []
-        self._reset_internal_end_callbacks.append(self.set_robot_state)
+        # if not hasattr(self, "_reset_internal_end_callbacks"):
+        #     self._reset_internal_end_callbacks = []
+        # self._reset_internal_end_callbacks.append(lambda: EnvUtils.set_robot_state(self))
 
         super().__init__(
             robots=robots,
@@ -488,10 +491,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         robot_model = self.robots[0].robot_model
         # set the robot way out of the scene at the start, it will be placed correctly later
-        robot_model.set_base_xpos(
-            [10.0, 10.0, self.init_robot_base_pos_anchor[2]]
-        )  # TODO: set to 10.0, 10.0 later
-        # robot_model.set_base_xpos(self.init_robot_base_pos_anchor)
+        robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
         robot_model.set_base_ori(self.init_robot_base_ori_anchor)
 
         self.robot_geom_ids = None
@@ -564,142 +564,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             # # remove objects that didn't get created
             # self.object_cfgs = [cfg for cfg in self.object_cfgs if "model" in cfg]
 
-    @contextlib.contextmanager
-    def no_collision(self, sim):
-        """
-        A context manager that temporarily disables all collision interactions in the simulation.
-        Args:
-            sim (MjSim): The simulation object where collision interactions will be temporarily disabled.
-        Yields:
-            None: The function yields control back to the caller while collisions remain disabled.
-        Upon exiting the context, the original collision settings are restored.
-        """
-        original_contype = sim.model.geom_contype.copy()
-        original_conaffinity = sim.model.geom_conaffinity.copy()
-        sim.model.geom_contype[:] = 0
-        sim.model.geom_conaffinity[:] = 0
-        try:
-            yield
-        finally:
-            sim.model.geom_contype = original_contype
-            sim.model.geom_conaffinity = original_conaffinity
-
-    def detect_robot_collision(self):
-        """
-        Checks if the robot has a collision with any placed fixtures/objects.
-        Returns:
-            bool: True if a collision is detected between the robot and any other fixtures/objects, False otherwise.
-        """
-        if self.robot_geom_ids is None:
-            self.robot_geom_ids = set()
-            robot_geoms = find_elements(
-                root=self.robots[0].robot_model.root, tags="geom", return_first=False
-            )
-            for robot_geom in robot_geoms:
-                self.robot_geom_ids.add(
-                    self.sim.model.geom_name2id(robot_geom.get("name"))
-                )
-        for i in range(self.sim.data.ncon):
-            geom1 = self.sim.data.contact[i].geom1
-            geom2 = self.sim.data.contact[i].geom2
-            if (geom1 in self.robot_geom_ids and geom2 not in self.robot_geom_ids) or (
-                geom2 in self.robot_geom_ids and geom1 not in self.robot_geom_ids
-            ):
-                return True
-        return False
-
-    def generate_random_robot_pos(self, anchor_pos, anchor_ori):
-        self.robot_spawn_position_deviation_x
-        self.robot_spawn_position_deviation_y
-        local_deviation = np.random.uniform(
-            low=(
-                -self.robot_spawn_position_deviation_x,
-                -self.robot_spawn_position_deviation_y,
-            ),
-            high=(
-                self.robot_spawn_position_deviation_x,
-                self.robot_spawn_position_deviation_y,
-            ),
-        )
-        local_deviation = np.concatenate((local_deviation, [0.0]))
-        global_deviation = np.matmul(
-            T.euler2mat(anchor_ori + [0, 0, np.pi / 2]), -local_deviation
-        )
-        return anchor_pos + global_deviation
-
-    def set_robot_to_position(self, global_pos):
-        local_pos = np.matmul(
-            T.matrix_inverse(T.euler2mat(self.init_robot_base_ori_anchor)), global_pos
-        )
-        undo_pos = np.matmul(
-            T.matrix_inverse(T.euler2mat(self.init_robot_base_ori_anchor)),
-            [-10.0, -10.0, 0.0],
-        )
-        with self.no_collision(self.sim):
-            self.sim.data.qpos[
-                self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_side")
-            ] = (undo_pos[0] + local_pos[0])
-            self.sim.data.qpos[
-                self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_forward")
-            ] = (undo_pos[1] + local_pos[1])
-
-            self.sim.forward()
-
-    def set_robot_state(self):
-        """
-        Sets the initial state of the robot by randomizing its position and orientation within defined deviation limits.
-        The deviation limits are provided by `self.robot_spawn_position_deviation_x`, `self.robot_spawn_position_deviation_y`,
-        and `self.robot_spawn_rotation_deviation`.
-        Raises:
-            RandomizationError: If the robot cannot be placed without collisions.
-        """
-        assert len(self.robots) == 1
-        # assert isinstance(self.robots[0].robot_model, PandaOmron) or isinstance(
-        #     self.robots[0].robot_model, GR1FloatingBody
-        # )
-
-        with self.no_collision(self.sim):
-            self.sim.data.qpos[
-                self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_yaw")
-            ] = self.rng.uniform(
-                -self.robot_spawn_rotation_deviation,
-                self.robot_spawn_rotation_deviation,
-            )
-            # l_elbow_pitch_id = self.sim.model.joint_name2id("robot0_l_elbow_pitch")
-            # l_elbow_pitch_range = self.sim.model.jnt_range[l_elbow_pitch_id]
-            # self.sim.data.qpos[
-            #     self.sim.model.get_joint_qpos_addr("robot0_l_elbow_pitch")
-            # ] = (l_elbow_pitch_range[0] * 0.6 + l_elbow_pitch_range[1] * 0.4)
-            self.sim.forward()
-
-        initial_state_copy = self.sim.get_state()
-
-        # Try to move for 100 times to resolve any collision
-        found_valid = False
-        import time
-
-        t1 = time.time()
-        max_attempts = 100
-        for attempt_position in range(max_attempts):
-            robot_pos = self.generate_random_robot_pos(
-                anchor_pos=self.init_robot_base_pos_anchor,
-                anchor_ori=self.init_robot_base_ori_anchor,
-            )
-            self.set_robot_to_position(robot_pos)
-            self.sim.forward()
-            if not self.detect_robot_collision():
-                found_valid = True
-                break
-
-            if attempt_position < max_attempts - 1:
-                self.sim.set_state(initial_state_copy)
-        # print(time.time() - t1, attempt_position)
-        # if not found_valid:
-        #     raise RandomizationError(
-        #         "Cannot place the robot, please increase robot_spawn_position_deviation_x and "
-        #         "robot_spawn_position_deviation_y"
-        #     )
-
     def _setup_kitchen_references(self):
         """
         setup fixtures (and their references). this function is called within load_model function for kitchens
@@ -720,6 +584,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         super()._reset_internal()
 
+        # set up the scene (fixtures, variables, etc)
+        self._setup_scene()
+
         # Reset all object positions using initializer sampler if we're not directly loading from an xml
         if not self.deterministic_reset and self.placement_initializer is not None:
             # use pre-computed object placements
@@ -731,6 +598,16 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     obj.joints[0],
                     np.concatenate([np.array(obj_pos), np.array(obj_quat)]),
                 )
+
+        # set the robot here
+        EnvUtils.set_robot_base(
+            env=self,
+            anchor_pos=self.init_robot_base_pos_anchor,
+            anchor_ori=self.init_robot_base_ori_anchor,
+            rot_dev=self.robot_spawn_deviation_rot,
+            pos_dev_x=self.robot_spawn_deviation_pos_x,
+            pos_dev_y=self.robot_spawn_deviation_pos_y,
+        )
 
         # step through a few timesteps to settle objects
         action = np.zeros(self.action_spec[0].shape)  # apply empty action
@@ -748,6 +625,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self._pre_action(action, policy_step)
             self.sim.step2()
             policy_step = False
+
+    def _setup_scene(self):
+        pass
 
     def _get_obj_cfgs(self):
         """

@@ -73,7 +73,7 @@ class ManipulateDrawer(Kitchen):
         robot_model.set_base_xpos(robot_base_pos)
         robot_model.set_base_ori(robot_base_ori)
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Reset the environment internal state for the drawer tasks.
         This includes setting the drawer state based on the behavior
@@ -83,7 +83,7 @@ class ManipulateDrawer(Kitchen):
         elif self.behavior == "close":
             self.drawer.open_door(env=self)
         # set the door state then place the objects otherwise objects initialized in opened drawer will fall down before the drawer is opened
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _setup_kitchen_references(self):
         """
