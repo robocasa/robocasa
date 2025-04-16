@@ -36,8 +36,8 @@ class CupcakeCleanup(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

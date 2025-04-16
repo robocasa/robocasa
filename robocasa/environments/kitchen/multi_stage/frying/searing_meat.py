@@ -41,8 +41,8 @@ class SearingMeat(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
 
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         if self.knob_id == "random":

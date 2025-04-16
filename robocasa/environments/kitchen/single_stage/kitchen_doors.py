@@ -42,7 +42,7 @@ class ManipulateDoor(Kitchen):
         ep_meta["lang"] = f"{self.behavior} the {self.fxtr.nat_lang} {door_name}"
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Reset the environment internal state for the door tasks.
         This includes setting the door state based on the behavior.
@@ -52,7 +52,7 @@ class ManipulateDoor(Kitchen):
         elif self.behavior == "close":
             self.fxtr.open_door(env=self)
         # set the door state then place the objects otherwise objects initialized in opened drawer will fall down before the drawer is opened
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _check_success(self):
         """

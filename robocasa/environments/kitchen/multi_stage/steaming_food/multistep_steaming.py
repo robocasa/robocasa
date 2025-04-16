@@ -46,8 +46,8 @@ class MultistepSteaming(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
 
         valid_knobs = self.stove.get_knobs_state(env=self).keys()

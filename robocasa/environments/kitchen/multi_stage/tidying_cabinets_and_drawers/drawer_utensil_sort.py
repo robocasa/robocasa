@@ -34,11 +34,11 @@ class DrawerUtensilSort(ManipulateDrawer):
         ep_meta["lang"] = ep_meta["lang"][0].capitalize() + ep_meta["lang"][1:]
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

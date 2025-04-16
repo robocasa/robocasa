@@ -28,11 +28,11 @@ class ColorfulSalsa(Kitchen):
         ] = "Place the avocado, onion, tomato and bell pepper on the cutting board."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

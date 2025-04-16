@@ -68,8 +68,8 @@ class PrepareCoffee(Kitchen):
 
         return cfgs
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _check_success(self):

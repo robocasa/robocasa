@@ -235,8 +235,15 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         use_distractors=False,
         translucent_robot=False,
         randomize_cameras=False,
+        robot_spawn_deviation_pos_x=0.25,
+        robot_spawn_deviation_pos_y=0.05,
+        robot_spawn_deviation_rot=0.0,
     ):
         self.init_robot_base_pos = init_robot_base_pos
+
+        self.robot_spawn_deviation_pos_x = robot_spawn_deviation_pos_x
+        self.robot_spawn_deviation_pos_y = robot_spawn_deviation_pos_y
+        self.robot_spawn_deviation_rot = robot_spawn_deviation_rot
 
         # object placement initializer
         self.placement_initializer = placement_initializer
@@ -296,6 +303,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 controller_configs["composite_controller_specific_configs"][
                     "body_part_ordering"
                 ] = ["right", "right_gripper", "base", "torso"]
+
+        # if not hasattr(self, "_reset_internal_end_callbacks"):
+        #     self._reset_internal_end_callbacks = []
+        # self._reset_internal_end_callbacks.append(lambda: EnvUtils.set_robot_state(self))
 
         super().__init__(
             robots=robots,
@@ -473,7 +484,17 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             return
         self.object_placements = object_placements
 
-        EnvUtils.init_robot_base_pose(self)
+        (
+            self.init_robot_base_pos_anchor,
+            self.init_robot_base_ori_anchor,
+        ) = EnvUtils.init_robot_base_pose(self)
+
+        robot_model = self.robots[0].robot_model
+        # set the robot way out of the scene at the start, it will be placed correctly later
+        robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
+        robot_model.set_base_ori(self.init_robot_base_ori_anchor)
+
+        self.robot_geom_ids = None
 
     def _create_objects(self):
         """
@@ -563,6 +584,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         super()._reset_internal()
 
+        # set up the scene (fixtures, variables, etc)
+        self._setup_scene()
+
         # Reset all object positions using initializer sampler if we're not directly loading from an xml
         if not self.deterministic_reset and self.placement_initializer is not None:
             # use pre-computed object placements
@@ -574,6 +598,16 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     obj.joints[0],
                     np.concatenate([np.array(obj_pos), np.array(obj_quat)]),
                 )
+
+        # set the robot here
+        EnvUtils.set_robot_base(
+            env=self,
+            anchor_pos=self.init_robot_base_pos_anchor,
+            anchor_ori=self.init_robot_base_ori_anchor,
+            rot_dev=self.robot_spawn_deviation_rot,
+            pos_dev_x=self.robot_spawn_deviation_pos_x,
+            pos_dev_y=self.robot_spawn_deviation_pos_y,
+        )
 
         # step through a few timesteps to settle objects
         action = np.zeros(self.action_spec[0].shape)  # apply empty action
@@ -591,6 +625,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self._pre_action(action, policy_step)
             self.sim.step2()
             policy_step = False
+
+    def _setup_scene(self):
+        pass
 
     def _get_obj_cfgs(self):
         """

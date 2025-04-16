@@ -18,6 +18,7 @@ import robosuite
 import robocasa
 import imageio
 import numpy as np
+import contextlib
 from tqdm import tqdm
 from termcolor import colored
 from copy import deepcopy
@@ -173,6 +174,15 @@ def compute_robot_base_placement_pose(env, ref_fixture, ref_object=None, offset=
     for fxtr in ground_fixtures:
         # get bounds of fixture
         point = ref_fixture.pos
+        # if fxtr.name == "counter_corner_1_main_group_1":
+        #     print("point:", point)
+        #     p0, px, py, pz = fxtr.get_ext_sites(relative=False)
+        #     print("p0:", p0)
+        #     print("px:", px)
+        #     print("py:", py)
+        #     print("pz:", pz)
+        #     print()
+
         if not OU.point_in_fixture(point=point, fixture=fxtr, only_2d=True):
             continue
         ground_fixture = fxtr
@@ -592,9 +602,8 @@ def init_robot_base_pose(env):
         ref_fixture=ref_fixture,
         ref_object=ref_object,
     )
-    robot_model = env.robots[0].robot_model
-    robot_model.set_base_xpos(robot_base_pos)
-    robot_model.set_base_ori(robot_base_ori)
+
+    return robot_base_pos, robot_base_ori
 
 
 def find_object_cfg_by_name(env, name):
@@ -652,6 +661,144 @@ def create_obj(env, cfg):
     object = MJCFObject(name=cfg["name"], **object_kwargs)
 
     return object, info
+
+
+@contextlib.contextmanager
+def no_collision(sim):
+    """
+    A context manager that temporarily disables all collision interactions in the simulation.
+    Args:
+        sim (MjSim): The simulation object where collision interactions will be temporarily disabled.
+    Yields:
+        None: The function yields control back to the caller while collisions remain disabled.
+    Upon exiting the context, the original collision settings are restored.
+    """
+    original_contype = sim.model.geom_contype.copy()
+    original_conaffinity = sim.model.geom_conaffinity.copy()
+    sim.model.geom_contype[:] = 0
+    sim.model.geom_conaffinity[:] = 0
+    try:
+        yield
+    finally:
+        sim.model.geom_contype = original_contype
+        sim.model.geom_conaffinity = original_conaffinity
+
+
+def detect_robot_collision(env):
+    """
+    Checks if the robot has a collision with any placed fixtures/objects.
+    Returns:
+        bool: True if a collision is detected between the robot and any other fixtures/objects, False otherwise.
+    """
+    if env.robot_geom_ids is None:
+        env.robot_geom_ids = set()
+        robot_geoms = find_elements(
+            root=env.robots[0].robot_model.root, tags="geom", return_first=False
+        )
+        for robot_geom in robot_geoms:
+            env.robot_geom_ids.add(env.sim.model.geom_name2id(robot_geom.get("name")))
+    for i in range(env.sim.data.ncon):
+        geom1 = env.sim.data.contact[i].geom1
+        geom2 = env.sim.data.contact[i].geom2
+        if (geom1 in env.robot_geom_ids and geom2 not in env.robot_geom_ids) or (
+            geom2 in env.robot_geom_ids and geom1 not in env.robot_geom_ids
+        ):
+            return True
+    return False
+
+
+def generate_random_robot_pos(anchor_pos, anchor_ori, pos_dev_x, pos_dev_y):
+    local_deviation = np.random.uniform(
+        low=(-pos_dev_x, -pos_dev_y),
+        high=(pos_dev_x, pos_dev_y),
+    )
+    local_deviation = np.concatenate((local_deviation, [0.0]))
+    global_deviation = np.matmul(
+        T.euler2mat(anchor_ori + [0, 0, np.pi / 2]), -local_deviation
+    )
+    return anchor_pos + global_deviation
+
+
+def set_robot_to_position(env, global_pos):
+    local_pos = np.matmul(
+        T.matrix_inverse(T.euler2mat(env.init_robot_base_ori_anchor)), global_pos
+    )
+    undo_pos = np.matmul(
+        T.matrix_inverse(T.euler2mat(env.init_robot_base_ori_anchor)),
+        [-10.0, -10.0, 0.0],
+    )
+    with no_collision(env.sim):
+        env.sim.data.qpos[
+            env.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_side")
+        ] = (undo_pos[0] + local_pos[0])
+        env.sim.data.qpos[
+            env.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_forward")
+        ] = (undo_pos[1] + local_pos[1])
+
+        env.sim.forward()
+
+
+def set_robot_base(
+    env,
+    anchor_pos,
+    anchor_ori,
+    rot_dev,
+    pos_dev_x,
+    pos_dev_y,
+):
+    """
+    Sets the initial state of the robot by randomizing its position and orientation within defined deviation limits.
+    The deviation limits are provided by `self.robot_spawn_position_deviation_x`, `self.robot_spawn_position_deviation_y`,
+    and `self.robot_spawn_rotation_deviation`.
+    Raises:
+        RandomizationError: If the robot cannot be placed without collisions.
+    """
+    assert len(env.robots) == 1
+    # assert isinstance(self.robots[0].robot_model, PandaOmron) or isinstance(
+    #     self.robots[0].robot_model, GR1FloatingBody
+    # )
+
+    with no_collision(env.sim):
+        env.sim.data.qpos[
+            env.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_yaw")
+        ] = env.rng.uniform(-rot_dev, rot_dev)
+        # l_elbow_pitch_id = self.sim.model.joint_name2id("robot0_l_elbow_pitch")
+        # l_elbow_pitch_range = self.sim.model.jnt_range[l_elbow_pitch_id]
+        # self.sim.data.qpos[
+        #     self.sim.model.get_joint_qpos_addr("robot0_l_elbow_pitch")
+        # ] = (l_elbow_pitch_range[0] * 0.6 + l_elbow_pitch_range[1] * 0.4)
+        env.sim.forward()
+
+    initial_state_copy = env.sim.get_state()
+
+    # Try to move for 100 times to resolve any collision
+    found_valid = False
+    import time
+
+    # t1 = time.time()
+    cur_dev_pos_x = pos_dev_x
+    cur_dev_pos_y = pos_dev_y
+    while found_valid is not True:
+        # try up to 50 times
+        for attempt_position in range(50):
+            robot_pos = generate_random_robot_pos(
+                anchor_pos=anchor_pos,
+                anchor_ori=anchor_ori,
+                pos_dev_x=cur_dev_pos_x,
+                pos_dev_y=cur_dev_pos_y,
+            )
+            set_robot_to_position(env, robot_pos)
+            env.sim.forward()
+            if not detect_robot_collision(env):
+                found_valid = True
+                break
+            env.sim.set_state(initial_state_copy)
+
+        # print(time.time() - t1, attempt_position)
+
+        # if valid position not found, increase range by 10 cm for x and 5 cm for y
+        cur_dev_pos_x += 0.10
+        cur_dev_pos_y += 0.05
 
 
 if __name__ == "__main__":

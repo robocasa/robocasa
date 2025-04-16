@@ -59,12 +59,12 @@ class ManipulateStoveKnob(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Reset the environment internal state for the stove knob tasks.
         This includes setting the stove knob state based on the behavior.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
         if self.behavior == "turn_on":
             self.stove.set_knob_state(

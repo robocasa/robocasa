@@ -44,11 +44,11 @@ class BeverageOrganization(Kitchen):
         ep_meta["lang"] = f"Move the drinks to the dining counter."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []
