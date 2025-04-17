@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visuals/knob_center.obj" name="knob_center_vis"/>
+    <mesh file="visuals/knob_front_left.obj" name="knob_front_left_vis"/>
+    <mesh file="visuals/knob_front_right.obj" name="knob_front_right_vis"/>
+    <mesh file="visuals/knob_rear_left.obj" name="knob_rear_left_vis"/>
+    <mesh file="visuals/knob_rear_right.obj" name="knob_rear_right_vis"/>
+    <mesh file="visuals/Body001.obj" name="Body001_vis"/>
+    <texture file="visuals/T_BC001.png" name="Body001_material" type="2d"/>
+    <material name="Body001_material" rgba="1 1 1 1.0" texture="Body001_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="knob_center_material" type="2d"/>
+    <material name="knob_center_material" rgba="1 1 1 1.0" texture="knob_center_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="knob_front_left_material" type="2d"/>
+    <material name="knob_front_left_material" rgba="1 1 1 1.0" texture="knob_front_left_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="knob_front_right_material" type="2d"/>
+    <material name="knob_front_right_material" rgba="1 1 1 1.0" texture="knob_front_right_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="knob_rear_left_material" type="2d"/>
+    <material name="knob_rear_left_material" rgba="1 1 1 1.0" texture="knob_rear_left_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="knob_rear_right_material" type="2d"/>
+    <material name="knob_rear_right_material" rgba="1 1 1 1.0" texture="knob_rear_right_material" shininess="0.141421377658844" specular="0.3103448502657381"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <site type="cylinder" rgba="0.5 0 0 0.5" size="0.12154461443424225 4.999999873689376e-05" pos="-0.329071968793869 0.17598247528076172 -0.003934890031814575" name="burner_on_rear_left"/>
+        <site type="cylinder" rgba="0.5 0 0 0.5" size="0.09961447864770889 4.999999873689376e-05" pos="-0.3287195563316345 -0.12007641047239304 -0.003934890031814575" name="burner_on_front_left"/>
+        <site type="cylinder" rgba="0.5 0 0 0.5" size="0.14796540141105652 4.999999873689376e-05" pos="0.0007528284331783652 0.010319823399186134 -0.003934890031814575" name="burner_on_center"/>
+        <site type="cylinder" rgba="0.5 0 0 0.5" size="0.08277277648448944 4.999999873689376e-05" pos="0.32859426736831665 0.17622607946395874 -0.003934890031814575" name="burner_on_rear_right"/>
+        <site type="cylinder" rgba="0.5 0 0 0.5" size="0.06251507997512817 4.999999873689376e-05" pos="0.3286627531051636 -0.1199866384267807 -0.003934890031814575" name="burner_on_front_right"/>
+        <geom mesh="Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Body001_material"/>
+        <geom class="collision" type="box" pos="0.00045677696471102536 4.103407263755798e-06 -0.016129208728671074" size="0.5035309791564941 0.3431375324726105 0.012199479155242443" quat="1.0 0.0 0.0 0.0"/>
+        <body name="knob_center">
+          <joint axis="0.0 0.0 1.0" pos="0.0007578452932648361 -0.2764698565006256 0.006885664537549019" limited="true" name="knob_center_joint" range="0.0 3.141592653589793" type="hinge" damping="0.05" armature="0.001"/>
+          <geom mesh="knob_center_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="knob_center_material"/>
+          <geom class="collision" type="box" pos="0.0006744212005287409 -0.27661871910095215 0.014908572658896446" size="0.014874361455440521 0.026102233678102493 0.013480888679623604" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="0.0009648771956562996 -0.2764875590801239 -0.0005518938414752483" size="0.02549481950700283 0.002379579236730933" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+        <body name="knob_front_left">
+          <joint axis="0.0 0.0 1.0" pos="-0.21243718266487122 -0.2764698565006256 0.011849625036120415" limited="true" name="knob_front_left_joint" range="0.0 3.141592653589793" type="hinge" damping="0.05" armature="0.001"/>
+          <geom mesh="knob_front_left_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="knob_front_left_material"/>
+          <geom class="collision" type="box" pos="-0.2119937241077423 -0.27661871910095215 0.014908572658896446" size="0.014874360524117947 0.026102233678102493 0.013480888679623604" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="-0.21255439519882202 -0.2764875590801239 -0.0005518938414752483" size="0.02549481950700283 0.002379579236730933" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+        <body name="knob_front_right">
+          <joint axis="0.0 0.0 1.0" pos="0.21546348929405212 -0.2764698565006256 0.011849625036120415" limited="true" name="knob_front_right_joint" range="0.0 3.141592653589793" type="hinge" damping="0.05" armature="0.001"/>
+          <geom mesh="knob_front_right_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="knob_front_right_material"/>
+          <geom class="collision" type="box" pos="0.21526867151260376 -0.27661871910095215 0.01510857418179512" size="0.014874360524117947 0.026102233678102493 0.01328088715672493" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="0.21547925472259521 -0.2764875590801239 -0.0005518938414752483" size="0.02549481764435768 0.002379579236730933" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+        <body name="knob_rear_left">
+          <joint axis="0.0 0.0 1.0" pos="-0.1070111021399498 -0.2764698565006256 0.011849625036120415" limited="true" name="knob_rear_left_joint" range="0.0 3.141592653589793" type="hinge" damping="0.05" armature="0.001"/>
+          <geom mesh="knob_rear_left_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="knob_rear_left_material"/>
+          <geom class="collision" type="box" pos="-0.10674522817134857 -0.27661871910095215 0.014908572658896446" size="0.01487436331808567 0.026102233678102493 0.013480888679623604" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="-0.10709507018327713 -0.2764875590801239 -0.0005518938414752483" size="0.02549481950700283 0.002379579236730933" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+        <body name="knob_rear_right">
+          <joint axis="0.0 0.0 1.0" pos="0.10765177011489868 -0.2764698565006256 0.011849625036120415" limited="true" name="knob_rear_right_joint" range="0.0 3.141592653589793" type="hinge" damping="0.05" armature="0.001"/>
+          <geom mesh="knob_rear_right_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="knob_rear_right_material"/>
+          <geom class="collision" type="box" pos="0.10764611512422562 -0.27661871910095215 0.014908572658896446" size="0.01487436331808567 0.026102233678102493 0.013480888679623604" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="cylinder" pos="0.10777219384908676 -0.2764875590801239 -0.0005518938414752483" size="0.02549481764435768 0.002379579236730933" quat="1.0 0.0 0.0 0.0"/>
+        </body>
+        <geom class="region" name="reg_main" type="box" pos="0.0 0.0 -0.016224391758441925" size="0.5037387609481812 0.34314581751823425 0.0120613444596529"/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="knob_center_joint_actuator" joint="knob_center_joint" gear="10"/>
+    <motor name="knob_front_left_joint_actuator" joint="knob_front_left_joint" gear="10"/>
+    <motor name="knob_front_right_joint_actuator" joint="knob_front_right_joint" gear="10"/>
+    <motor name="knob_rear_left_joint_actuator" joint="knob_rear_left_joint" gear="10"/>
+    <motor name="knob_rear_right_joint_actuator" joint="knob_rear_right_joint" gear="10"/>
+  </actuator>
+</mujoco>
