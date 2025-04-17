@@ -10,6 +10,7 @@ import cv2
 import mujoco
 import mujoco.viewer
 import numpy as np
+import sys
 import robosuite
 from PIL import Image
 from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
@@ -203,7 +204,7 @@ def render_model(
     mujoco.viewer.launch(sim.model._model, sim.data._data)
 
 
-def view_mjcf(mjcf_path, show_coll_geoms=False, screenshot=False):
+def view_mjcf(mjcf_path, show_coll_geoms=False, screenshot=False, cam_settings=None):
     sim = None
     try:
         sim, info = read_model(
@@ -219,7 +220,7 @@ def view_mjcf(mjcf_path, show_coll_geoms=False, screenshot=False):
 
     load_time = info["sim_load_time"]
     print("sim load time:", load_time)
-    load_time_list.append(load_time)
+    # load_time_list.append(load_time)
 
     if screenshot:
         image = get_model_screenshot(
@@ -272,7 +273,7 @@ if __name__ == "__main__":
     else:
         mjcf_path_list = [args.mjcf]
 
-    load_time_list = []
+    # load_time_list = []
     while True:
         for mjcf_path in mjcf_path_list:
             if len(mjcf_path_list) > 1:
@@ -280,15 +281,15 @@ if __name__ == "__main__":
 
             p = Process(
                 target=view_mjcf,
-                args=(mjcf_path, args.show_coll_geoms, args.screenshot),
+                args=(mjcf_path, args.show_coll_geoms, args.screenshot, cam_settings),
             )
             p.start()
             p.join()  # this blocks until the process terminates
 
         if len(mjcf_path_list) > 1:
-            mean = np.mean(load_time_list)
-            median = np.median(load_time_list)
-            print()
-            print("Mean loading time: {:.4f} s".format(mean))
-            print("Median loading time: {:.4f} s".format(median))
-            exit()
+            # mean = np.mean(load_time_list)
+            # median = np.median(load_time_list)
+            # print()
+            # print("Mean loading time: {:.4f} s".format(mean))
+            # print("Median loading time: {:.4f} s".format(median))
+            sys.exit(0)
