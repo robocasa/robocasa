@@ -52,7 +52,7 @@ DOWNLOAD_ASSET_REGISTRY = {
     ),
     "objs_lw": dict(
         message="Downloading lightwheel objects",
-        url="https://utexas.box.com/shared/static/mcgtbin4p8z3ser3wc0m1v369krxj1dw.zip",
+        url="https://utexas.box.com/shared/static/5f24ywlhgnfvepqv7a8s3tp3rmocsxv9.zip",
         folder=os.path.join(robocasa.__path__[0], "models/assets/objects/lightwheel"),
         check_folder_exists=False,
     ),
