@@ -35,7 +35,7 @@ class Fridge(Fixture):
             reg_name for reg_name in self._regions.keys() if "freezer" in reg_name
         ]
 
-    def get_reset_regions(self, env, reg_type="fridge"):
+    def get_reset_regions(self, env, reg_type="fridge", z_range=(0.50, 1.50)):
         assert reg_type in ["fridge", "freezer"]
         reset_region_names = [
             reg_name
@@ -51,9 +51,17 @@ class Fridge(Fixture):
             px = reg_dict["px"]
             py = reg_dict["py"]
             pz = reg_dict["pz"]
-            height = pz[2] - pz[0]
+            height = pz[2] - p0[2]
             if height < 0.20:
+                # region is too small, skip
                 continue
+
+            if z_range is not None:
+                reg_abs_z = self.pos[2] + p0[2]
+                if reg_abs_z < z_range[0] or reg_abs_z > z_range[1]:
+                    # region hard to reach, skip
+                    continue
+
             reset_regions[reg_name] = {
                 "offset": (np.mean((p0[0], px[0])), np.mean((p0[1], py[1])), p0[2]),
                 "size": (px[0] - p0[0], py[1] - p0[1]),
