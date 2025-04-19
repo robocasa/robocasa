@@ -857,7 +857,11 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.3,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "mug_0",  # too dark
+            ],
+        ),
     ),
     mushroom=dict(
         types=("vegetable"),
