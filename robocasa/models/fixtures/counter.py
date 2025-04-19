@@ -233,12 +233,14 @@ class Counter(ProcGenFixture):
 
         x_percent, y_percent = self.obj_x_percent, self.obj_y_percent
 
+        depth_padding = self.overhang + 0.015  # also add the thickness of cabinet doors
+
         # remove overhang from consideration for placement
         top_size = [
             self.size[0],
-            self.size[1] - self.overhang,
+            self.size[1] - depth_padding,
             self.size[2],
-        ]  # remove the overhang
+        ]  # remove the depth_padding
 
         # respect boundaires: limit range of x_percent and y_percent so interior object doesn't overflow
         gap = 0.02
@@ -250,7 +252,7 @@ class Counter(ProcGenFixture):
         # calculate and set the position of sink
         interior_origin = [
             self.pos[0] + (x_percent - 0.50) * top_size[0],
-            self.pos[1] + self.overhang / 2 + (y_percent - 0.50) * top_size[1],
+            self.pos[1] + depth_padding / 2 + (y_percent - 0.50) * top_size[1],
             self.pos[2] + top_size[2] / 2 - self.interior_obj.height / 2,
         ]
 
@@ -260,8 +262,8 @@ class Counter(ProcGenFixture):
         left_pad = x_percent * top_size[0] - self.interior_obj.width / 2
         right_pad = (1 - x_percent) * top_size[0] - self.interior_obj.width / 2
         front_pad = (
-            y_percent * top_size[1] - self.interior_obj.depth / 2 + self.overhang
-        )  # add the overhang to the front
+            y_percent * top_size[1] - self.interior_obj.depth / 2 + depth_padding
+        )  # add the depth_padding to the front
         back_pad = (1 - y_percent) * top_size[1] - self.interior_obj.depth / 2
 
         return [left_pad, right_pad, front_pad, back_pad]
