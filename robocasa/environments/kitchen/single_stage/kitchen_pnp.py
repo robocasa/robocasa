@@ -87,7 +87,7 @@ class PnPCounterToCab(PnP):
                         ref=self.cab,
                     ),
                     size=(0.60, 0.30),
-                    pos=(0.0, -1.0),
+                    pos=("ref", -1.0),
                     offset=(0.0, 0.10),
                 ),
             )
@@ -104,8 +104,8 @@ class PnPCounterToCab(PnP):
                         ref=self.cab,
                     ),
                     size=(1.0, 0.30),
-                    pos=(0.0, 1.0),
-                    offset=(0.0, -0.05),
+                    pos=("ref", -1.0),
+                    offset=(0.0, 0.30),
                 ),
             )
         )
@@ -116,7 +116,7 @@ class PnPCounterToCab(PnP):
                 placement=dict(
                     fixture=self.cab,
                     size=(1.0, 0.20),
-                    pos=(0.0, 1.0),
+                    pos=(None, 1.0),
                     offset=(0.0, 0.0),
                 ),
             )
