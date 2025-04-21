@@ -14,6 +14,7 @@ import os
 import time
 from glob import glob
 import sys
+import hid
 
 import h5py
 import imageio
@@ -371,7 +372,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device",
         type=str,
-        default="spacemouse",
+        default=None,
         choices=["keyboard", "spacemouse"],
     )
     parser.add_argument(
@@ -498,7 +499,21 @@ if __name__ == "__main__":
         env = DataCollectionWrapper(env, all_eps_directory)
 
     # initialize device
-    if args.device == "keyboard":
+    device = args.device
+    if device is None:
+        # check if spacemouse is available
+        spacemouse_found = False
+        for device in hid.enumerate():
+            vendor_id, product_id = device["vendor_id"], device["product_id"]
+            if (
+                vendor_id == macros.SPACEMOUSE_VENDOR_ID
+                and product_id == macros.SPACEMOUSE_PRODUCT_ID
+            ):
+                spacemouse_found = True
+                break
+        device = "spacemouse" if spacemouse_found else "keyboard"
+
+    if device == "keyboard":
         from robosuite.devices import Keyboard
 
         device = Keyboard(
@@ -506,7 +521,7 @@ if __name__ == "__main__":
             pos_sensitivity=args.pos_sensitivity,
             rot_sensitivity=args.rot_sensitivity,
         )
-    elif args.device == "spacemouse":
+    elif device == "spacemouse":
         from robosuite.devices import SpaceMouse
 
         device = SpaceMouse(
