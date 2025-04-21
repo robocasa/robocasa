@@ -10,6 +10,22 @@ from robocasa.models.scenes.scene_builder import (
 )
 
 
+def enable_fixtures_in_config(config, names):
+    # scan config and enable as needed #
+    for key, value in config.items():
+        inner_dicts = []
+        if isinstance(value, dict):
+            inner_dicts.append(value)
+        elif isinstance(value, list):
+            for elem in value:
+                if isinstance(elem, dict):
+                    inner_dicts.append(elem)
+        for d in inner_dicts:
+            if "name" in d and d["name"] in names:
+                d["enable"] = True
+            enable_fixtures_in_config(d, names)
+
+
 # base class for kitchens
 class KitchenArena(Arena):
     """
@@ -22,9 +38,11 @@ class KitchenArena(Arena):
 
         rng (np.random.Generator): random number generator used for initializing
             fixture state in the KitchenArena
+
+        enable_fixtures (list of str): any fixtures to enable (some are disabled by default)
     """
 
-    def __init__(self, layout_id, style_id, rng=None):
+    def __init__(self, layout_id, style_id, rng=None, enable_fixtures=None):
         super().__init__(
             xml_path_completion(
                 "arenas/empty_kitchen_arena.xml", root=robocasa.models.assets_root
@@ -38,6 +56,9 @@ class KitchenArena(Arena):
             layout_path = get_layout_path(layout_id=layout_id)
             with open(layout_path, "r") as f:
                 layout_config = yaml.safe_load(f)
+
+        if enable_fixtures is not None:
+            enable_fixtures_in_config(layout_config, enable_fixtures)
 
         # load style config
         if isinstance(style_id, dict):

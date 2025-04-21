@@ -170,6 +170,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             -2 specifies layouts not involving islands/wall stacks, -3 specifies layouts involving islands/wall stacks,
             -4 specifies layouts with dining areas.
 
+        enable_fixtures (list of str): a list of fixtures to enable in the scene (some fixtures are disabled by default)
+
         style_ids ((list of) StyleType or int or dict): style id(s) to use for the kitchen. -1 and None specify all styles.
 
         generative_textures (str): if set to "100p", will use AI generated textures
@@ -226,6 +228,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         layout_ids=None,
         style_ids=None,
         scene_split=None,  # unsued, for backwards compatibility
+        enable_fixtures=None,
         generative_textures=None,
         obj_registries=(
             "objaverse",
@@ -267,6 +270,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             if l not in self.EXCLUDE_LAYOUTS
         ]
 
+        self.enable_fixtures = enable_fixtures
         assert generative_textures in [None, False, "100p"]
         self.generative_textures = generative_textures
 
@@ -391,6 +395,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             layout_id=self.layout_id,
             style_id=self.style_id,
             rng=self.rng,
+            enable_fixtures=self.enable_fixtures,
         )
         # Arena always gets set to zero origin
         self.mujoco_arena.set_origin([0, 0, 0])

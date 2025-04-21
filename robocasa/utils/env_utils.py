@@ -372,6 +372,10 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
         fixture_id = placement.get("fixture", None)
         reference_object = None
 
+        rotation = placement.get("rotation", np.array([-np.pi / 4, np.pi / 4]))
+        if hasattr(mj_obj, "mirror_placement") and mj_obj.mirror_placement:
+            rotation = [-rotation[1], -rotation[0]]
+
         # set up placement sampler kwargs
         sampler_kwargs = dict(
             name="{}_Sampler".format(cfg["name"]),
@@ -382,7 +386,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
             ),
             ensure_valid_placement=placement.get("ensure_valid_placement", True),
             rotation_axis=placement.get("rotation_axis", "z"),
-            rotation=placement.get("rotation", np.array([-np.pi / 4, np.pi / 4])),
+            rotation=rotation,
         )
 
         # infer and fill in rest of configs now
@@ -572,6 +576,7 @@ def init_robot_base_pose(env):
         valid_ref_fixture_classes = [
             "CoffeeMachine",
             "Toaster",
+            "ToasterOven",
             "Stove",
             "Stovetop",
             "SingleCabinet",

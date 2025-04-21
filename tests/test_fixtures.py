@@ -1,4 +1,5 @@
 import os
+import hid
 import numpy as np
 import tqdm
 import traceback
@@ -14,7 +15,11 @@ from robocasa.models.fixtures.fixture import FixtureType
 
 from robocasa.utils.env_utils import create_env, run_random_rollouts
 from robocasa.scripts.collect_demos import collect_human_trajectory
-from robocasa.models.scenes.scene_registry import get_layout_path, get_style_path
+from robocasa.models.scenes.scene_registry import (
+    get_layout_path,
+    get_style_path,
+    LAYOUT_GROUPS_TO_IDS,
+)
 
 
 def get_all_style_configs():
@@ -44,9 +49,12 @@ def get_all_dict_items(dictionary):
     return items
 
 
-def get_layout_ids(filter_by=None):
+def get_valid_layout_ids(all_layout_ids=-1, filter_by=None):
     layout_id_list = []
-    for i in range(10):
+    if isinstance(all_layout_ids, int) and all_layout_ids in LAYOUT_GROUPS_TO_IDS:
+        # convert to list of layout ids
+        all_layout_ids = LAYOUT_GROUPS_TO_IDS[all_layout_ids]
+    for i in all_layout_ids:
         layout_path = get_layout_path(layout_id=i)
         if filter_by is not None:
             with open(layout_path, "r") as f:
@@ -112,19 +120,39 @@ FIXTURE_TO_TEST_ENVS = dict(
         dict(env_name="CloseFridge"),
     ],
     toaster=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_pos=FixtureType.TOASTER,
+            enable_fixtures=["toaster"],
+        ),
     ],
     toaster_oven=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER_OVEN),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_pos=FixtureType.TOASTER_OVEN,
+            enable_fixtures=["toaster_oven"],
+        ),
     ],
     blender=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.BLENDER),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_pos=FixtureType.BLENDER,
+            enable_fixtures=["blender"],
+        ),
     ],
     stand_mixer=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.STAND_MIXER),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_pos=FixtureType.STAND_MIXER,
+            enable_fixtures=["stand_mixer"],
+        ),
     ],
     electric_kettle=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.ELECTRIC_KETTLE),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_pos=FixtureType.ELECTRIC_KETTLE,
+            enable_fixtures=["electric_kettle"],
+        ),
     ],
 )
 
@@ -135,6 +163,7 @@ if __name__ == "__main__":
     for fixture_type in fixture_type_list:
         parser.add_argument(f"--{fixture_type}", type=str, nargs="+")
 
+    parser.add_argument("--layout", type=int, nargs="+", default=-1)
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument(
         "--device",
@@ -189,11 +218,26 @@ if __name__ == "__main__":
     if not os.path.exists(base_log_dir):
         os.makedirs(base_log_dir)
 
+    if args.device is None:
+        # check if spacemouse is available
+        spacemouse_found = False
+        for device in hid.enumerate():
+            vendor_id, product_id = device["vendor_id"], device["product_id"]
+            if (
+                vendor_id == macros.SPACEMOUSE_VENDOR_ID
+                and product_id == macros.SPACEMOUSE_PRODUCT_ID
+            ):
+                spacemouse_found = True
+                break
+        args.device = "spacemouse" if spacemouse_found else "keyboard"
+
     for fixture_type in all_fixtures_dict.keys():
         error_dict[fixture_type] = dict()
         env_kwargs_list = FIXTURE_TO_TEST_ENVS[fixture_type]
         # get valid layouts for this fixture type
-        layout_ids = get_layout_ids(filter_by=("type", fixture_type))
+        layout_ids = get_valid_layout_ids(
+            all_layout_ids=args.layout, filter_by=("type", fixture_type)
+        )
         fixture_list = all_fixtures_dict[fixture_type]
         device = None
         for fixture_name in fixture_list:
@@ -236,6 +280,7 @@ if __name__ == "__main__":
                         )
                     else:
                         # set up devices for interactive mode
+                        # initialize device
                         if device is None:
                             if args.device == "keyboard":
                                 from robosuite.devices import Keyboard
