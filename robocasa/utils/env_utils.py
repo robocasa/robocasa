@@ -301,6 +301,7 @@ def _check_cfg_is_valid(cfg):
             "placement",
             "info",
             "init_robot_here",
+            "reset_region",
         }
     )
 
