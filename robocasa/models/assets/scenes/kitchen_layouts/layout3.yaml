@@ -322,14 +322,6 @@ left_group:
       align_to: counter_1_left
       side: right
 
-    - name: island
-      type: counter
-      default_config_name: island
-      base_opening: [true, false]
-
-      size: [2.45, 1.6, 0.92]
-      pos: [0.9, -2.95, 0.46]
-
   wall_stack:
     - name: bottom
       type: stack
@@ -453,11 +445,26 @@ left_group:
         # rotation: [-1.57, -1.57]
         rotation: [0, 0]
 
+# island group
+island_group:
+  group_origin: [0, 0]
+  group_pos: [5.75, -2.30]
+  group_z_rot: -1.5708
+
+  bottom_row:
+    - name: island
+      type: counter
+      default_config_name: island
+      base_opening: [false, true]
+      size: [2.45, 1.6, 0.92]
+      pos: [0.92, -2.85, 0.46]
+
+  counter_accessories:
     - name: plant
       type: plant
 
       placement:
-        fixture: island_left_group
+        fixture: island_island_group
         size: [1.0, 0.25]
         pos: [null, null]
         rotation: [0, 0]
@@ -467,32 +474,26 @@ left_group:
       enable: false
 
       placement:
-        fixture: island_left_group
+        fixture: island_island_group
         size: [0.40, 0.25]
-        pos: [0.50, 1.0]
+        pos: [0.50, -0.90]
         rotation: [-1.57, -1.57]
-        offset: [0, -0.01]
+        offset: [0, 0.01]
 
 stool_group:
   group_origin: [0, 0]
-  group_z_rot: -1.5708
   group_pos: [2.95, -3.25]
+  group_z_rot: -1.5708
 
   stools:
     - name: stool_1
       type: stool
-
-      # place flush to ground
       pos: [-0.65, 0.7, 0.5]
 
     - name: stool_2
       type: stool
-
-      # place flush to ground
       pos: [0.0, 0.7, 0.5]
 
     - name: stool_3
       type: stool
-
-      # place flush to ground
       pos: [0.65, 0.7, 0.5]
