@@ -160,7 +160,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         renderer_config (dict): dictionary for the renderer configurations
 
-        init_robot_base_pos (str): name of the fixture to place the near. If None, will randomly select a fixture.
+        init_robot_base_ref (str): name of the fixture to place the near. If None, will randomly select a fixture.
 
         seed (int): environment seed. Default is None, where environment is unseeded, ie. random
 
@@ -222,7 +222,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         camera_depths=False,
         renderer="mjviewer",
         renderer_config=None,
-        init_robot_base_pos=None,
+        init_robot_base_ref=None,
         seed=None,
         layout_and_style_ids=None,
         layout_ids=None,
@@ -238,11 +238,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         use_distractors=False,
         translucent_robot=False,
         randomize_cameras=False,
-        robot_spawn_deviation_pos_x=0.25,
+        robot_spawn_deviation_pos_x=0.15,
         robot_spawn_deviation_pos_y=0.05,
         robot_spawn_deviation_rot=0.0,
     ):
-        self.init_robot_base_pos = init_robot_base_pos
+        self.init_robot_base_ref = init_robot_base_ref
 
         self.robot_spawn_deviation_pos_x = robot_spawn_deviation_pos_x
         self.robot_spawn_deviation_pos_y = robot_spawn_deviation_pos_y
@@ -427,9 +427,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         self._setup_model()
 
-        if self.init_robot_base_pos is not None:
+        if self.init_robot_base_ref is not None:
             for i in range(50):  # keep searching for valid environment
-                init_fixture = self.get_fixture(self.init_robot_base_pos)
+                init_fixture = self.get_fixture(self.init_robot_base_ref)
                 if init_fixture is not None:
                     break
                 self._setup_model()
@@ -605,14 +605,22 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 )
 
         # set the robot here
-        EnvUtils.set_robot_base(
-            env=self,
-            anchor_pos=self.init_robot_base_pos_anchor,
-            anchor_ori=self.init_robot_base_ori_anchor,
-            rot_dev=self.robot_spawn_deviation_rot,
-            pos_dev_x=self.robot_spawn_deviation_pos_x,
-            pos_dev_y=self.robot_spawn_deviation_pos_y,
-        )
+        if "init_robot_base_pos" in self._ep_meta:
+            self.init_robot_base_pos = self._ep_meta["init_robot_base_pos"]
+            self.init_robot_base_ori = self._ep_meta["init_robot_base_ori"]
+            EnvUtils.set_robot_to_position(self, self.init_robot_base_pos)
+            self.sim.forward()
+        else:
+            robot_pos = EnvUtils.set_robot_base(
+                env=self,
+                anchor_pos=self.init_robot_base_pos_anchor,
+                anchor_ori=self.init_robot_base_ori_anchor,
+                rot_dev=self.robot_spawn_deviation_rot,
+                pos_dev_x=self.robot_spawn_deviation_pos_x,
+                pos_dev_y=self.robot_spawn_deviation_pos_y,
+            )
+            self.init_robot_base_pos = robot_pos
+            self.init_robot_base_ori = self.init_robot_base_ori_anchor
 
         # step through a few timesteps to settle objects
         action = np.zeros(self.action_spec[0].shape)  # apply empty action
@@ -687,6 +695,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             {k: v.name for (k, v) in self.fixture_refs.items()}
         )
         ep_meta["cam_configs"] = deepcopy(self._cam_configs)
+        ep_meta["init_robot_base_pos"] = list(self.init_robot_base_pos)
+        ep_meta["init_robot_base_ori"] = list(self.init_robot_base_ori)
 
         return ep_meta
 

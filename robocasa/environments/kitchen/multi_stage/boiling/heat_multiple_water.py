@@ -13,12 +13,12 @@ class HeatMultipleWater(Kitchen):
         Turn both burners on.
 
     Args:
-        init_robot_base_pos (str): Specifies a fixture to initialize the robot
+        init_robot_base_ref (str): Specifies a fixture to initialize the robot
             in front of. Default is "stove".
     """
 
-    def __init__(self, init_robot_base_pos="stove", *args, **kwargs):
-        super().__init__(init_robot_base_pos=init_robot_base_pos, *args, **kwargs)
+    def __init__(self, init_robot_base_ref="stove", *args, **kwargs):
+        super().__init__(init_robot_base_ref=init_robot_base_ref, *args, **kwargs)
 
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
@@ -30,7 +30,7 @@ class HeatMultipleWater(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.ref_cab, size=(0.2, 0.2))
         )
 
-        self.init_robot_base_pos = self.ref_cab
+        self.init_robot_base_ref = self.ref_cab
 
     def _get_obj_cfgs(self):
         cfgs = []

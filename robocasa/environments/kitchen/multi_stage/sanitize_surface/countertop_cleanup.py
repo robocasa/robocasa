@@ -27,7 +27,7 @@ class CountertopCleanup(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
 
-        self.init_robot_base_pos = self.drawer
+        self.init_robot_base_ref = self.drawer
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

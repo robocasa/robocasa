@@ -33,7 +33,7 @@ class MicrowaveThawing(Kitchen):
                 ref=self.microwave,
             ),
         )
-        self.init_robot_base_pos = self.microwave
+        self.init_robot_base_ref = self.microwave
 
     def _setup_scene(self):
         """

@@ -26,7 +26,7 @@ class SortingCleanup(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.5, 0.5))
         )
 
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

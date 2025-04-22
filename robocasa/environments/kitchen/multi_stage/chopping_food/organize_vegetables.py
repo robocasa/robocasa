@@ -21,7 +21,7 @@ class OrganizeVegetables(Kitchen):
         )
 
         # self.counter = self.get_fixture(FixtureType.DINING_COUNTER, ref=self.sink)
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

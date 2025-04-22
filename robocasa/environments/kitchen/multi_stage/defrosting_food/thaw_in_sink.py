@@ -26,7 +26,7 @@ class ThawInSink(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.4, 0.4))
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def _setup_scene(self):
 

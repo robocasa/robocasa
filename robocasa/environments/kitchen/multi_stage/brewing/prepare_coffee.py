@@ -30,7 +30,7 @@ class PrepareCoffee(Kitchen):
         self.cab = self.register_fixture_ref(
             "cab", dict(id=self.cab_id, ref=self.coffee_machine)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

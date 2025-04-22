@@ -42,7 +42,7 @@ class ManipulateStoveKnob(Kitchen):
                 if self.rng.uniform() <= 0.50
                 else self.rng.choice(valid_knobs)
             )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         """

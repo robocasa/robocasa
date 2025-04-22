@@ -27,7 +27,7 @@ class FoodCleanup(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
         if "object_cfgs" in self._ep_meta:
             object_cfgs = self._ep_meta["object_cfgs"]
             self.num_food = len(

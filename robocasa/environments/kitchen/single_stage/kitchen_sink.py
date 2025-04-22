@@ -22,7 +22,7 @@ class ManipulateSinkFaucet(Kitchen):
         """
         super()._setup_kitchen_references()
         self.sink = self.get_fixture(FixtureType.SINK)
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         """
@@ -141,7 +141,7 @@ class TurnSinkSpout(Kitchen):
         else:
             self.behavior = self.rng.choice(["left", "right"])
             self.init_sink_mode = self.rng.choice(["on", "off"])
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         """

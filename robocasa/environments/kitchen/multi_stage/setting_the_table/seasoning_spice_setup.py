@@ -35,7 +35,7 @@ class SeasoningSpiceSetup(Kitchen):
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),
         )
 
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

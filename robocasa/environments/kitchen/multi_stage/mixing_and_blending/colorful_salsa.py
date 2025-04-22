@@ -19,7 +19,7 @@ class ColorfulSalsa(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER_NON_CORNER, size=(1.0, 0.4))
         )
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

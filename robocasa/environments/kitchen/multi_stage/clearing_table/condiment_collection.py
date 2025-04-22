@@ -27,7 +27,7 @@ class CondimentCollection(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

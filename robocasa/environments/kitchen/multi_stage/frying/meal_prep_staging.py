@@ -23,7 +23,7 @@ class MealPrepStaging(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=(0.3, 0.2))
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

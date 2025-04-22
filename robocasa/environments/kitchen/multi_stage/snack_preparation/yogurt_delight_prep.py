@@ -25,7 +25,7 @@ class YogurtDelightPrep(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def _setup_scene(self):
         """

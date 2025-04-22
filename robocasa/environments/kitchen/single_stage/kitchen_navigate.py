@@ -92,7 +92,7 @@ class NavigateKitchen(Kitchen):
             self, self.target_fixture
         )
 
-        self.init_robot_base_pos = self.src_fixture
+        self.init_robot_base_ref = self.src_fixture
 
     def get_ep_meta(self):
         """

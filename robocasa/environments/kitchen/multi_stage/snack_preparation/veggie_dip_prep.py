@@ -21,7 +21,7 @@ class VeggieDipPrep(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, size=(1, 0.6))
         )
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

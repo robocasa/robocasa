@@ -25,7 +25,7 @@ class SizeSorting(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, size=(1, 0.4))
         )
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
         if "object_cfgs" in self._ep_meta:
             object_cfgs = self._ep_meta["object_cfgs"]
             self.num_objs = len(

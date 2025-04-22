@@ -122,35 +122,35 @@ FIXTURE_TO_TEST_ENVS = dict(
     toaster=[
         dict(
             env_name="Kitchen",
-            init_robot_base_pos=FixtureType.TOASTER,
+            init_robot_base_ref=FixtureType.TOASTER,
             enable_fixtures=["toaster"],
         ),
     ],
     toaster_oven=[
         dict(
             env_name="Kitchen",
-            init_robot_base_pos=FixtureType.TOASTER_OVEN,
+            init_robot_base_ref=FixtureType.TOASTER_OVEN,
             enable_fixtures=["toaster_oven"],
         ),
     ],
     blender=[
         dict(
             env_name="Kitchen",
-            init_robot_base_pos=FixtureType.BLENDER,
+            init_robot_base_ref=FixtureType.BLENDER,
             enable_fixtures=["blender"],
         ),
     ],
     stand_mixer=[
         dict(
             env_name="Kitchen",
-            init_robot_base_pos=FixtureType.STAND_MIXER,
+            init_robot_base_ref=FixtureType.STAND_MIXER,
             enable_fixtures=["stand_mixer"],
         ),
     ],
     electric_kettle=[
         dict(
             env_name="Kitchen",
-            init_robot_base_pos=FixtureType.ELECTRIC_KETTLE,
+            init_robot_base_ref=FixtureType.ELECTRIC_KETTLE,
             enable_fixtures=["electric_kettle"],
         ),
     ],

@@ -32,7 +32,7 @@ class CleanMicrowave(Kitchen):
             "distr_counter",
             dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
-        self.init_robot_base_pos = self.microwave
+        self.init_robot_base_ref = self.microwave
 
     def _setup_scene(self):
         """

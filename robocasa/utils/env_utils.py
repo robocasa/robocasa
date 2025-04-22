@@ -569,8 +569,8 @@ def init_robot_base_pose(env):
     helper function to initialize robot base pose
     """
     # set robot position
-    if env.init_robot_base_pos is not None:
-        ref_fixture = env.get_fixture(env.init_robot_base_pos)
+    if env.init_robot_base_ref is not None:
+        ref_fixture = env.get_fixture(env.init_robot_base_ref)
     else:
         fixtures = list(env.fixtures.values())
         valid_ref_fixture_classes = [
@@ -805,6 +805,8 @@ def set_robot_base(
         # if valid position not found, increase range by 10 cm for x and 5 cm for y
         cur_dev_pos_x += 0.10
         cur_dev_pos_y += 0.05
+
+    return robot_pos
 
 
 if __name__ == "__main__":

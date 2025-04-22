@@ -26,7 +26,7 @@ class SimmeringSauce(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=(0.5, 0.4))
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
         if "refs" in self._ep_meta:
             self.knob = self._ep_meta["refs"]["knob"]

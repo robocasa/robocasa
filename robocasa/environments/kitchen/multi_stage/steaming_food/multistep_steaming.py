@@ -33,7 +33,7 @@ class MultistepSteaming(Kitchen):
         self.stove_counter = self.register_fixture_ref(
             "stove_counter", dict(id=FixtureType.COUNTER, ref=self.stove)
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

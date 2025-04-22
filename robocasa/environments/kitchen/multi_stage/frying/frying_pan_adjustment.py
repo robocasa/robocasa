@@ -19,7 +19,7 @@ class FryingPanAdjustment(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def _setup_scene(self):
         """

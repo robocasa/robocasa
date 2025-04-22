@@ -23,7 +23,7 @@ class MicrowavePressButton(Kitchen):
         self.microwave = self.get_fixture(FixtureType.MICROWAVE)
         if self.behavior == "turn_off":
             self.microwave._turned_on = True
-        self.init_robot_base_pos = self.microwave
+        self.init_robot_base_ref = self.microwave
 
     def get_ep_meta(self):
         """

@@ -23,7 +23,7 @@ class HeatMug(Kitchen):
         self.cab = self.register_fixture_ref(
             "cab", dict(id=FixtureType.CABINET, ref=self.microwave)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

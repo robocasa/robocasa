@@ -24,7 +24,7 @@ class ManipulateDoor(Kitchen):
         """
         super()._setup_kitchen_references()
         self.fxtr = self.register_fixture_ref("fxtr", dict(id=self.fixture_id))
-        self.init_robot_base_pos = self.fxtr
+        self.init_robot_base_ref = self.fxtr
 
     def get_ep_meta(self):
         """

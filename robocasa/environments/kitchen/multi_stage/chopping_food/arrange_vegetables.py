@@ -21,7 +21,7 @@ class ArrangeVegetables(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.45, 0.55))
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -138,7 +138,7 @@ class ArrangeVegetablesSimple(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.45, 0.55))
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -247,7 +247,7 @@ class ArrangeVegetablesSimpleV2(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.45, 0.55))
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
