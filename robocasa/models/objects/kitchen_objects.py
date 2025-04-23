@@ -32,6 +32,9 @@ OBJ_CATEGORIES = dict(
         ),
         objaverse=dict(
             scale=0.90,
+            exclude=[
+                "avocado_0",  # slow loading time
+            ],
         ),
     ),
     bagel=dict(
@@ -47,6 +50,8 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "bagel_8",
+                "bagel_1",
+                "bagel_2",  # slow loading time
             ],
         ),
     ),
@@ -94,6 +99,9 @@ OBJ_CATEGORIES = dict(
         ),
         objaverse=dict(
             scale=0.95,
+            exclude=[
+                "banana_13",  # loading time too slow
+            ],
         ),
     ),
     bar=dict(
@@ -181,6 +189,7 @@ OBJ_CATEGORIES = dict(
             exclude=[
                 "bottled_water_0",  # minor hole at top
                 "bottled_water_5",  # causing error. eigenvalues of mesh inertia violate A + B >= C
+                "bottled_water_7",  # slow loading time
             ],
         ),
     ),
@@ -198,6 +207,8 @@ OBJ_CATEGORIES = dict(
             scale=2.0,
             exclude=[
                 "bowl_21",  # can see through from bottom of bowl
+                "bowl_4",
+                "bowl_17",  # slow load times
             ],
         ),
     ),
@@ -253,7 +264,8 @@ OBJ_CATEGORIES = dict(
         ),
         objaverse=dict(
             scale=[0.70, 0.70, 1.0],
-            exclude=["bread_22"] + [f"bread_{i}" for i in [3, 9, 13, 18]],
+            exclude=["bread_22", "bread_6", "bread_10", "bread_16"]
+            + [f"bread_{i}" for i in [3, 9, 13, 18]],
         ),  # hole on bottom
     ),
     bread_flat=dict(
@@ -302,6 +314,9 @@ OBJ_CATEGORIES = dict(
         ),
         objaverse=dict(
             scale=0.8,
+            exclude=[
+                "cake_2",  # slow loading time
+            ],
         ),
     ),
     can=dict(
@@ -410,6 +425,7 @@ OBJ_CATEGORIES = dict(
             exclude=[
                 "chips_12",  # minor hole at bottom of bag
                 # "chips_2", # a weird texture at top/bottom but keeping this
+                "chips_4",  # slow loading time
             ]
         ),
     ),
@@ -427,6 +443,7 @@ OBJ_CATEGORIES = dict(
             scale=[0.80, 0.80, 1.20],
             exclude=[
                 # "chocolate_2", # self turning due to single collision geom
+                "chocolate_7",  # slow loading time
             ],
         ),
     ),
@@ -474,7 +491,12 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.5,
         ),
-        objaverse=dict(scale=1.05),
+        objaverse=dict(
+            scale=1.05,
+            exclude=[
+                # "corn_1",  # slow loading time but include bc there are few items in this category
+            ],
+        ),
     ),
     croissant=dict(
         types=("pastry"),
@@ -564,6 +586,9 @@ OBJ_CATEGORIES = dict(
         ),
         objaverse=dict(
             scale=1.15,
+            exclude=[
+                "donut_13",  # slow loading time
+            ],
         ),
     ),
     egg=dict(
@@ -590,7 +615,12 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.30,
         ),
-        objaverse=dict(scale=0.95),
+        objaverse=dict(
+            scale=0.95,
+            exclude=[
+                # "eggplant_1",  # slow loading time but include bc few items in this category
+            ],
+        ),
     ),
     fish=dict(
         types=("meat"),
@@ -616,7 +646,11 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.75,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "fork_2",  # slow loading time
+            ]
+        ),
     ),
     garlic=dict(
         types=("vegetable"),
@@ -628,7 +662,13 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.3,
         ),
-        objaverse=dict(scale=1.10, exclude=["garlic_3"]),  # has hole on side
+        objaverse=dict(
+            scale=1.10,
+            exclude=[
+                "garlic_3",  # has hole on side
+                # "garlic_1",  # slow loading time but will keep due to too few instances of garlics
+            ],
+        ),
     ),
     hot_dog=dict(
         types=("cooked_food"),
@@ -696,7 +736,8 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             scale=1.35,
             model_folders=["objaverse/kettle"],
-            exclude=[
+            exclude=["kettle_27"]
+            + [
                 f"kettle_{i}"
                 for i in range(29)
                 if i not in [0, 7, 9, 12, 13, 17, 24, 25, 26, 27]
@@ -718,7 +759,8 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             scale=1.35,
             model_folders=["objaverse/kettle"],
-            exclude=[
+            exclude=["kettle_27"]
+            + [
                 f"kettle_{i}"
                 for i in range(29)
                 if i in [0, 7, 9, 12, 13, 17, 24, 25, 26, 27]
@@ -742,6 +784,10 @@ OBJ_CATEGORIES = dict(
         ),
         objaverse=dict(
             scale=0.90,
+            exclude=[
+                "kiwi_4",  # slow loading time
+                # "kiwi_6",  # slow loading time but will keep due to too few instances
+            ],
         ),
     ),
     knife=dict(
@@ -812,6 +858,9 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             model_folders=["objaverse/alcohol"],
             scale=1.35,
+            exclude=[
+                "alcohol_12",  # slow loading time
+            ],
         ),
     ),
     mango=dict(
@@ -828,6 +877,7 @@ OBJ_CATEGORIES = dict(
             scale=0.85,
             exclude=[
                 "mango_3",  # one half is pitch dark
+                "mango_19",  # slow load time
             ],
         ),
     ),
@@ -877,6 +927,8 @@ OBJ_CATEGORIES = dict(
             scale=1.20,
             exclude=[
                 # "mushroom_16", # very very small holes. keeping anyway
+                "mushroom_7",
+                "mushroom_13",  # slow loading time
             ],
         ),
     ),
@@ -890,7 +942,11 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.1,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "onion_4",  # slow loading time
+            ]
+        ),
     ),
     orange=dict(
         types=("fruit"),
@@ -905,6 +961,7 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 # "orange_11", # bottom half is dark. keeping anyway
+                "orange_9",  # slow loading time
             ]
         ),
     ),
@@ -971,6 +1028,10 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "pear_4",  # has big hole. excluding
+                "pear_0",
+                "pear_3",
+                "pear_5",
+                "pear_10",  # slow loading time
             ]
         ),
     ),
@@ -988,6 +1049,7 @@ OBJ_CATEGORIES = dict(
             scale=1.35,
             exclude=[
                 "plate_6",  # causing error: faces of mesh have inconsistent orientation.
+                "plate_11",  # slow load times
             ],
         ),
     ),
@@ -1001,7 +1063,11 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.10,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "potato_0",  # slow loading time
+            ]
+        ),
     ),
     rolling_pin=dict(
         types=("tool"),
@@ -1060,6 +1126,7 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 # "soap_dispenser_4", # can see thru body but that's fine if this is glass
+                # "soap_dispenser_2",  # slow loading time but there are few examples of this category so keep
             ]
         ),
     ),
@@ -1104,7 +1171,11 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.5,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "spoon_16",  # slow loading time
+            ]
+        ),
     ),
     spray=dict(
         types=("cleaner"),
@@ -1133,6 +1204,7 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "squash_10",  # hole at bottom
+                "squash_8",  # slow loading time
             ],
         ),
     ),
@@ -1202,7 +1274,11 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.25,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                # "tomato_6",  # slow loading time but include bc few items in category
+            ]
+        ),
     ),
     tray=dict(
         types=("receptacle"),
@@ -1214,6 +1290,9 @@ OBJ_CATEGORIES = dict(
         aigen=dict(scale=2.0),
         objaverse=dict(
             scale=1.80,
+            exclude=[
+                "tray_1",  # slow loading time
+            ],
         ),
     ),
     waffle=dict(
@@ -1229,6 +1308,7 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "waffle_2",  # bottom completely messed up
+                # "waffle_1",  # slow loading time but include because few items in this category
             ]
         ),
     ),
@@ -1246,6 +1326,7 @@ OBJ_CATEGORIES = dict(
             scale=1.5,
             exclude=[
                 "water_bottle_11",  # sides and bottom see thru, but ok if glass. keeping anyway
+                "water_bottle_9",  # slow loading time
             ],
         ),
     ),
