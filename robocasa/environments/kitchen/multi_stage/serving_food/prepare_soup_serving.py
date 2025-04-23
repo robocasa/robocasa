@@ -29,7 +29,7 @@ class PrepareSoupServing(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove)
         )
-        self.init_robot_base_pos = self.cabinet
+        self.init_robot_base_ref = self.cabinet
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -38,8 +38,8 @@ class PrepareSoupServing(Kitchen):
         ] = "Open the cabinet and move the ladle to the pot. Then close the cabinet."
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cabinet.close_door(env=self)
 
     def _get_obj_cfgs(self):

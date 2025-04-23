@@ -48,7 +48,7 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(reset_region_idx=1),
+                    sample_region_kwargs=dict(rack_index=0),
                     size=(0.5, 0.4),
                     pos=(0, 1.0),
                 ),
@@ -61,7 +61,7 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(reset_region_idx=1),
+                    sample_region_kwargs=dict(rack_index=0),
                     size=(0.5, 0.4),
                     pos=(0, 0.7), 
                 ),
@@ -75,7 +75,7 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(reset_region_idx=2),
+                    sample_region_kwargs=dict(rack_index=-1),
                     size=(0.6, 0.4),
                     pos=(0, 1.0), 
                 ),
@@ -88,7 +88,7 @@ class ProduceSorting(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
-                    sample_region_kwargs=dict(reset_region_idx=2),
+                    sample_region_kwargs=dict(rack_index=-1),
                     size=(0.6, 0.4),
                     pos=(-1.0, 1.0),
                 ),

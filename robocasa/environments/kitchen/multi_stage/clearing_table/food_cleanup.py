@@ -27,7 +27,7 @@ class FoodCleanup(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
         if "object_cfgs" in self._ep_meta:
             object_cfgs = self._ep_meta["object_cfgs"]
             self.num_food = len(
@@ -46,11 +46,11 @@ class FoodCleanup(Kitchen):
         ] = f"Pick the {items} from the counter and place {'them' if self.num_food > 1 else 'it'} in the cabinet. Then close the cabinet."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):

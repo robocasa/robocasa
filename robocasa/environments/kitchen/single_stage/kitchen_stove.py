@@ -42,7 +42,7 @@ class ManipulateStoveKnob(Kitchen):
                 if self.rng.uniform() <= 0.50
                 else self.rng.choice(valid_knobs)
             )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         """
@@ -59,12 +59,12 @@ class ManipulateStoveKnob(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Reset the environment internal state for the stove knob tasks.
         This includes setting the stove knob state based on the behavior.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
         if self.behavior == "turn_on":
             self.stove.set_knob_state(

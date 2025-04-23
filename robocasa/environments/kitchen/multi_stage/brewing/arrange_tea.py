@@ -23,10 +23,10 @@ class ArrangeTea(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab, size=(0.6, 0.4))
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def get_ep_meta(self):

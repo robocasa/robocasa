@@ -26,7 +26,7 @@ class ClearingCleaningReceptacles(Kitchen):
             "dining_table",
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),
         )
-        self.init_robot_base_pos = self.dining_table
+        self.init_robot_base_ref = self.dining_table
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -37,8 +37,8 @@ class ClearingCleaningReceptacles(Kitchen):
         ] = f"Pick the {obj_name_1} and {obj_name_2} and place them in the sink. Then turn on the water."
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):

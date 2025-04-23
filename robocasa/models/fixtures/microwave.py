@@ -16,7 +16,7 @@ class Microwave(Fixture):
 
     def __init__(
         self,
-        xml="fixtures/microwaves/orig_microwave",
+        xml="fixtures/microwaves/standard",
         name="microwave",
         *args,
         **kwargs,

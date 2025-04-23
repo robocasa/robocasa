@@ -31,7 +31,7 @@ class VeggieBoil(Kitchen):
         self.counter_stove = self.register_fixture_ref(
             "counter_stove", dict(id=FixtureType.COUNTER, ref=self.stove)
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -44,11 +44,11 @@ class VeggieBoil(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         self.pot_filled = False
         self.filled_time = 0
         self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

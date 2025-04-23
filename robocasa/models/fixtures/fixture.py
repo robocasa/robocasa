@@ -88,6 +88,7 @@ class Fixture(MujocoXMLObjectRobocasa):
         pos=None,
         scale=1,
         size=None,
+        max_size=None,
         placement=None,
         rng=None,
     ):
@@ -131,11 +132,12 @@ class Fixture(MujocoXMLObjectRobocasa):
                 continue
 
             rgba = string_to_array(geom.get("rgba"))
-            if macros.SHOW_SITES and g_name != "reg_main":
-                rgba[0:3] = np.random.uniform(0, 1, (3,))
-                rgba[-1] = 0.3
-            else:
-                rgba[-1] = 0.0
+            # if macros.SHOW_SITES and g_name != "reg_main":
+            #     rgba[0:3] = np.random.uniform(0, 1, (3,))
+            #     rgba[-1] = 0.3
+            # else:
+            #     rgba[-1] = 0.0
+            rgba[-1] = 0.0
             geom.set("rgba", array_to_string(rgba))
 
             reg_dict = dict()
@@ -156,7 +158,7 @@ class Fixture(MujocoXMLObjectRobocasa):
 
         # scale based on specified max dimension
         if size is not None:
-            self.set_scale_from_size(size)
+            self.set_scale_from_size(size, max_size)
 
         # based on exterior points, overwritten by subclasses (e.g. Counter) that do not have such sites
         self.size = np.array([self.width, self.depth, self.height])
@@ -226,13 +228,14 @@ class Fixture(MujocoXMLObjectRobocasa):
         pos = origin + np.dot(fixture_mat, -self.origin_offset)
         self.set_pos(pos)
 
-    def set_scale_from_size(self, size):
+    def set_scale_from_size(self, size, max_size=None):
         """
         Set the scale of the fixture based on the desired size. If any of the dimensions are None,
         the scaling factor will be the same as one of the other two dimensions
 
         Args:
             size (3-tuple): (width, depth, height) of the fixture
+            max_size (3-tuple): maximum allowable size (width, depth, height) of the fixture
         """
         # check that the argument is valid
         assert len(size) == 3
@@ -240,6 +243,7 @@ class Fixture(MujocoXMLObjectRobocasa):
         # calculate and set scale according to specification
         scale = [None, None, None]
         cur_size = [self.width, self.depth, self.height]
+
         for (i, t) in enumerate(size):
             if t is not None:
                 scale[i] = t / cur_size[i]
@@ -247,6 +251,19 @@ class Fixture(MujocoXMLObjectRobocasa):
         scale[0] = scale[0] or scale[2] or scale[1]
         scale[1] = scale[1] or scale[0] or scale[2]
         scale[2] = scale[2] or scale[0] or scale[1]
+        scale = np.array(scale)
+
+        if max_size is not None:
+            # recompute the scaling as needed
+            scaling_adjustment = 1.0
+            for i in range(3):
+                if max_size[i] is None:
+                    continue
+                scaling_adjustment = min(
+                    scaling_adjustment, max_size[i] / (cur_size[i] * scale[i])
+                )
+            scale *= scaling_adjustment
+
         self.set_scale(scale)
 
         for (reg_name, reg_dict) in self._regions.items():

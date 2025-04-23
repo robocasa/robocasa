@@ -110,7 +110,7 @@ main_group:
       pos: [1.5, -0.325, 0.46]
       
       obj_x_percent: 0.40
-      obj_y_percent: 0.50
+      obj_y_percent: 0.01
 
     - name: stove
       type: stove
@@ -233,6 +233,10 @@ main_group:
       align_to: stack_1
       side: right
 
+      configs:
+        hinge_cabinet:
+          open_top: true
+
     - name: dishwasher
       type: dishwasher
 
@@ -286,13 +290,23 @@ main_group:
         pos: [null, 1.0]
         rotation: [0, 0]
 
-    - name: knife_block
-      type: knife_block
+    - name: toaster_oven
+      type: toaster_oven
+      enable: false
 
       placement:
         fixture: counter_main_main_group
         sample_region_kwargs:
           ref: cab_main
+        size: [0.55, 0.45]
+        pos: [0.70, 1.0]
+        rotation: [0, 0]
+
+    - name: knife_block
+      type: knife_block
+
+      placement:
+        fixture: counter_right_main_group
         size: [1.0, obj]
         pos: [null, 1.0]
         rotation: [0, 0]
@@ -307,3 +321,41 @@ main_group:
         size: [1.0, 0.25]
         pos: [null, 1.0]
         rotation: [0, 0]
+
+    - name: electric_kettle
+      type: electric_kettle
+      enable: false
+
+      placement:
+        fixture: counter_main_main_group
+        sample_region_kwargs:
+          ref: sink
+          loc: right
+        size: [0.30, 0.30]
+        pos: ["ref", -0.25]
+        rotation: [-1.0, 0.1]
+
+    - name: stand_mixer
+      type: stand_mixer
+      enable: false
+
+      placement:
+        fixture: counter_main_main_group
+        sample_region_kwargs:
+          ref: sink
+          loc: right
+        size: [0.40, 0.25]
+        pos: ["ref", -1.0]
+        rotation: [-1.57, -1.57]
+        offset: [0, 0.01]
+        
+    - name: blender
+      type: blender
+      enable: false
+
+      placement:
+        fixture: counter_main_main_group
+        size: [1.0, 0.25]
+        pos: [null, -1]
+        rotation: [0, 0]
+        margin: 0.03

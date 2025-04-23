@@ -1,6 +1,6 @@
 from robocasa.models.fixtures import Fixture
 import numpy as np
-from robosuite.utils.mjcf_utils import string_to_array
+from robosuite.utils.mjcf_utils import string_to_array, find_elements
 
 
 class CoffeeMachine(Fixture):
@@ -28,6 +28,22 @@ class CoffeeMachine(Fixture):
             site = self.worldbody.find("./body/body/site[@name='{}']".format(name))
             if site is not None:
                 self._coffee_liquid_site_names.append(name)
+
+        # start button names
+        self._start_button_names = []
+        geom_list = find_elements(
+            self.worldbody,
+            tags="geom",
+            return_first=False,
+        )
+        for g in geom_list:
+            g_name = g.get("name")
+            if g_name is None:
+                continue
+            stripped_name = g_name[len(self.naming_prefix) :]
+            if "start_button" in stripped_name:
+                self._start_button_names.append(stripped_name)
+        assert len(self._start_button_names) >= 1
 
     def get_reset_regions(self, *args, **kwargs):
         """
@@ -57,8 +73,13 @@ class CoffeeMachine(Fixture):
         Args:
             env (MujocoEnv): The environment to check the state of the coffee machine in
         """
-        start_button_pressed = env.check_contact(
-            env.robots[0].gripper["right"], "{}_start_button".format(self.name)
+        start_button_pressed = any(
+            [
+                env.check_contact(
+                    env.robots[0].gripper["right"], f"{self.naming_prefix}{button_name}"
+                )
+                for button_name in self._start_button_names
+            ]
         )
 
         if self._turned_on is False and start_button_pressed:
@@ -105,15 +126,18 @@ class CoffeeMachine(Fixture):
         Returns:
             bool: True if gripper is far from the button, False otherwise
         """
-        button_id = env.sim.model.geom_name2id(
-            "{}{}".format(self.naming_prefix, "start_button")
-        )
-        button_pos = env.sim.data.geom_xpos[button_id]
-        gripper_site_pos = env.sim.data.site_xpos[env.robots[0].eef_site_id["right"]]
+        for button_name in self._start_button_names:
+            button_id = env.sim.model.geom_name2id(f"{self.naming_prefix}{button_name}")
+            button_pos = env.sim.data.geom_xpos[button_id]
+            gripper_site_pos = env.sim.data.site_xpos[
+                env.robots[0].eef_site_id["right"]
+            ]
 
-        gripper_button_far = np.linalg.norm(gripper_site_pos - button_pos) > th
+            gripper_button_far = np.linalg.norm(gripper_site_pos - button_pos) > th
+            if not gripper_button_far:
+                return False
 
-        return gripper_button_far
+        return True
 
     @property
     def nat_lang(self):

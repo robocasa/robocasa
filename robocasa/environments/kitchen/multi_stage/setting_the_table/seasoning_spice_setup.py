@@ -35,7 +35,7 @@ class SeasoningSpiceSetup(Kitchen):
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),
         )
 
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -46,11 +46,11 @@ class SeasoningSpiceSetup(Kitchen):
         ] = f"Move the {condiment1_name} and {condiment2_name} from the cabinet to the dining counter."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.close_door(env=self)
 
     def _get_obj_cfgs(self):

@@ -144,11 +144,17 @@ room:
 main_group:
   # Bottom row (counters and stoves)
   bottom_row:
+    - name: counter_corner_1
+      type: counter
+
+      size: [0.75, 0.65, 0.92]
+      pos: [0.075, -0.325, 0.46]
+    
     - name: counter_main
       type: counter
 
-      size: [3, 0.65, 0.92]
-      pos: [1.2, -0.325, 0.46]
+      size: [2.25, 0.65, 0.92]
+      pos: [1.575, -0.325, 0.46]
 
     - name: stove
       type: stove
@@ -314,9 +320,42 @@ main_group:
         fixture: counter_main_main_group
         sample_region_kwargs:
           ref: cab_main_main_group
-        size: [1.0, 0.40]
-        pos: [null, 1.0]
+        size: [0.30, 0.40]
+        pos: [-0.45, 1.0]
         rotation: [0, 0]
+
+    - name: toaster_oven
+      type: toaster_oven
+      enable: false
+
+      placement:
+        fixture: counter_main_main_group
+        sample_region_kwargs:
+          ref: cab_main_main_group
+        size: [0.55, 0.45]
+        pos: [0.35, 1.0]
+        rotation: [0, 0]
+
+    - name: electric_kettle
+      type: electric_kettle
+      enable: false
+
+      placement:
+        fixture: counter_main_main_group
+        size: [0.30, 0.30]
+        pos: [0.50, -0.25]
+        rotation: [-1.0, 0.1]
+
+    - name: blender
+      type: blender
+      enable: false
+
+      placement:
+        fixture: counter_main_main_group
+        size: [1.0, 0.25]
+        pos: [null, -1]
+        rotation: [0, 0]
+        margin: 0.03
 
 # fixtures on the left wall
 left_group:
@@ -441,7 +480,7 @@ right_group:
       size: [1.99, 0.65, 0.92]
       pos: [3.255, -0.325, 0.46]
       obj_x_percent: 0.75
-      obj_y_percent: 0.15
+      obj_y_percent: 0.01
 
     - name: counter_corner
       type: counter
@@ -461,6 +500,10 @@ right_group:
 
       size: [1, 0.6, 0.84]
       pos: [3.75, -0.3, 0.47]
+
+      configs:
+        hinge_cabinet:
+          open_top: true
 
     - name: dishwasher
       type: dishwasher
@@ -530,11 +573,17 @@ front_group:
 
   # Bottom row (counters and stoves)
   bottom_row:
+    - name: counter_corner_1
+      type: counter
+
+      size: [0.7875, 0.65, 0.92]
+      pos: [-0.09375, -0.325, 0.46]
+
     - name: counter_1
       type: counter
 
-      size: [1.575, 0.65, 0.92]
-      pos: [-0.4875, -0.325, 0.46]
+      size: [0.7875, 0.65, 0.92]
+      pos: [-0.88125, -0.325, 0.46]
  
   # Cabinets built into counters
   bottom_row_cabinets:
@@ -626,6 +675,18 @@ island_group:
 
       size: [2.25, 1, 0.92]
       pos: [-0.8, 0.65, 0.46]
+  
+  counter_accessories:
+    - name: stand_mixer
+      type: stand_mixer
+      enable: false
+
+      placement:
+        fixture: island_island_group
+        size: [0.40, 0.25]
+        pos: [0.70, -1.0]
+        rotation: [-1.57, -1.57]
+        offset: [0, 0.10]
 
 stool_group:
   group_origin: [0, 0]

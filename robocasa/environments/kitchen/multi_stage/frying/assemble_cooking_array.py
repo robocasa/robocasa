@@ -24,7 +24,7 @@ class AssembleCookingArray(Kitchen):
         self.cab = self.register_fixture_ref(
             "cab", dict(id=FixtureType.CABINET, ref=self.counter)
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -37,8 +37,8 @@ class AssembleCookingArray(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):

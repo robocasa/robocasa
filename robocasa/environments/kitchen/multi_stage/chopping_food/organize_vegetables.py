@@ -21,7 +21,7 @@ class OrganizeVegetables(Kitchen):
         )
 
         # self.counter = self.get_fixture(FixtureType.DINING_COUNTER, ref=self.sink)
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -35,11 +35,11 @@ class OrganizeVegetables(Kitchen):
 
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

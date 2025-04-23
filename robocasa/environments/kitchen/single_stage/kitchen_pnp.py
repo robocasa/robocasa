@@ -46,7 +46,7 @@ class PnPCounterToCab(PnP):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         """
@@ -60,11 +60,11 @@ class PnPCounterToCab(PnP):
         ] = f"pick the {obj_lang} from the counter and place it in the cabinet"
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
@@ -87,7 +87,7 @@ class PnPCounterToCab(PnP):
                         ref=self.cab,
                     ),
                     size=(0.60, 0.30),
-                    pos=(0.0, -1.0),
+                    pos=("ref", -1.0),
                     offset=(0.0, 0.10),
                 ),
             )
@@ -104,8 +104,8 @@ class PnPCounterToCab(PnP):
                         ref=self.cab,
                     ),
                     size=(1.0, 0.30),
-                    pos=(0.0, 1.0),
-                    offset=(0.0, -0.05),
+                    pos=("ref", -1.0),
+                    offset=(0.0, 0.30),
                 ),
             )
         )
@@ -116,7 +116,7 @@ class PnPCounterToCab(PnP):
                 placement=dict(
                     fixture=self.cab,
                     size=(1.0, 0.20),
-                    pos=(0.0, 1.0),
+                    pos=(None, 1.0),
                     offset=(0.0, 0.0),
                 ),
             )
@@ -165,7 +165,7 @@ class PnPCabToCounter(PnP):
             "counter",
             dict(id=FixtureType.COUNTER, ref=self.cab),
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         """
@@ -179,11 +179,11 @@ class PnPCabToCounter(PnP):
         ] = f"pick the {obj_lang} from the cabinet and place it on the counter"
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):
@@ -277,7 +277,7 @@ class PnPCounterToSink(PnP):
             "counter",
             dict(id=FixtureType.COUNTER, ref=self.sink),
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         """
@@ -388,7 +388,7 @@ class PnPSinkToCounter(PnP):
             "counter",
             dict(id=FixtureType.COUNTER, ref=self.sink),
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         """
@@ -506,13 +506,13 @@ class PnPCounterToMicrowave(PnP):
             "distr_counter",
             dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
-        self.init_robot_base_pos = self.microwave
+        self.init_robot_base_ref = self.microwave
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.microwave.open_door(env=self)
 
     def get_ep_meta(self):
@@ -632,13 +632,13 @@ class PnPMicrowaveToCounter(PnP):
             "distr_counter",
             dict(id=FixtureType.COUNTER, ref=self.microwave),
         )
-        self.init_robot_base_pos = self.microwave
+        self.init_robot_base_ref = self.microwave
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.microwave.open_door(env=self)
 
     def get_ep_meta(self):
@@ -743,7 +743,7 @@ class PnPCounterToStove(PnP):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         """
@@ -831,7 +831,7 @@ class PnPStoveToCounter(PnP):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         """

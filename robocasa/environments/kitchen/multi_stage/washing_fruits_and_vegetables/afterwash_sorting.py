@@ -25,7 +25,7 @@ class AfterwashSorting(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink)
         )
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -37,11 +37,11 @@ class AfterwashSorting(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.sink.set_handle_state(mode="on", env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):

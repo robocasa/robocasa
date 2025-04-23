@@ -29,7 +29,7 @@ class SetupFrying(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
         )
 
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -39,8 +39,8 @@ class SetupFrying(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.cab.close_door(env=self)
 
     def _get_obj_cfgs(self):

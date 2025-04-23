@@ -19,7 +19,7 @@ class BreadSetupSlicing(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, size=(1.0, 0.4))
         )
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -28,11 +28,11 @@ class BreadSetupSlicing(Kitchen):
 
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

@@ -19,7 +19,7 @@ class TurnOnToaster(Kitchen):
         """
         super()._setup_kitchen_references()
         self.toaster = self.get_fixture(FixtureType.TOASTER)
-        self.init_robot_base_pos = self.toaster
+        self.init_robot_base_ref = self.toaster
 
     def get_ep_meta(self):
         """

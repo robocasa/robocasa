@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/DigitalScale011.obj" name="DigitalScale011_vis"/>
+    <texture file="visual/T_BC001.png" name="DigitalScale011_material" type="2d"/>
+    <material name="DigitalScale011_material" rgba="1 1 1 1.0" texture="DigitalScale011_material" shininess="0.17888545989990234" specular="0.3103448502657381"/>
+    <mesh file="collision/DigitalScale011001.obj" name="DigitalScale011001_mesh"/>
+    <mesh file="collision/DigitalScale011006.obj" name="DigitalScale011006_mesh"/>
+    <mesh file="collision/DigitalScale011004.obj" name="DigitalScale011004_mesh"/>
+    <mesh file="collision/DigitalScale011008.obj" name="DigitalScale011008_mesh"/>
+    <mesh file="collision/DigitalScale011005.obj" name="DigitalScale011005_mesh"/>
+    <mesh file="collision/DigitalScale011007.obj" name="DigitalScale011007_mesh"/>
+    <mesh file="collision/DigitalScale011009.obj" name="DigitalScale011009_mesh"/>
+    <mesh file="collision/DigitalScale011003.obj" name="DigitalScale011003_mesh"/>
+    <mesh file="collision/DigitalScale011002.obj" name="DigitalScale011002_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="DigitalScale011_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="DigitalScale011_material"/>
+        <geom mesh="DigitalScale011001_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011006_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011004_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011008_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011005_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011007_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011009_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011003_mesh" type="mesh" class="collision"/>
+        <geom mesh="DigitalScale011002_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.06646176000000001 0.08431983999999998 1.693208252919304e-19" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="-1.0999999999948015e-07 -0.00012369500000000637 0.02910956" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="-1.0999999999948015e-07 -0.00012369500000000637 -0.02910956" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

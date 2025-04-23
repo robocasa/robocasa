@@ -26,7 +26,7 @@ class BowlAndCup(Kitchen):
             dict(id=FixtureType.DINING_COUNTER, ref=self.stool, size=(0.50, 0.35)),
         )
 
-        self.init_robot_base_pos = self.dining_table
+        self.init_robot_base_ref = self.dining_table
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

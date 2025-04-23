@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
@@ -6,7 +7,7 @@
     <mesh file="visuals/Knob001.obj" name="Knob001_vis"/>
     <mesh file="visuals/Lever001.obj" name="Lever001_vis"/>
     <texture file="visuals/T_BC001.png" name="Body001_material" type="2d"/>
-    <material name="Body001_material" rgba="1 1 1 1.0" texture="Body001_material" shininess="0.4472135901451111" specular="1"/>
+    <material name="Body001_material" rgba="1 1 1 1.0" texture="Body001_material" shininess="0.4472135901451111" specular="0.5"/>
     <texture file="visuals/T_BC001.png" name="Button001_material" type="2d"/>
     <material name="Button001_material" rgba="1 1 1 1.0" texture="Button001_material" shininess="0.4472135901451111" specular="0.3103448502657381"/>
     <texture file="visuals/T_BC001.png" name="Knob001_material" type="2d"/>
@@ -43,20 +44,21 @@
         <body name="Button001">
           <joint axis="0.0 1.0 0.0" pos="-0.043550 -0.136294 -0.073495" limited="true" name="Button001_joint" range="0.0 0.002" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
           <geom mesh="Button001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Button001_material"/>
-          <geom class="collision" type="box" pos="-0.043382 -0.137546 -0.073394" size="0.007137426175177097 0.0005323893274180591 0.003805312095209956" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="box" pos="-0.043382 -0.137546 -0.073394" size="0.008162576705217361 0.0005323893274180591 0.004351870156824589" quat="1.0 0.0 0.0 0.0"/>
         </body>
         <body name="Knob001">
           <joint axis="0.0 1.0 0.0" pos="-0.000002 -0.146509 -0.053308" limited="true" name="Knob001_joint" range="0.0 5.497787143782138" type="hinge" damping="0.05" armature="0.001"/>
           <geom mesh="Knob001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Knob001_material"/>
           <geom class="collision" type="cylinder" pos="0.000000 -0.143179 -0.053367" size="0.02036231756210327 0.006477284710854292" quat="0.7071068286895752 0.7071067690849304 0.0 0.0"/>
+          <geom class="collision" type="box" pos="0.000142 -0.155131 -0.053197" size="0.004485250450670719 0.005791298113763332 0.01846270263195038" quat="1.0 0.0 0.0 0.0"/>
         </body>
         <body name="Lever001">
-          <joint axis="0.0 0.0 -1.0" pos="0.000000 -0.151261 0.074479" limited="true" name="Lever001_joint" range="0.0 0.08" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="1" springref="-2"/>
+          <joint axis="0.0 0.0 -1.0" pos="0.000000 -0.151261 0.074479" limited="true" name="Lever001_joint" range="0.0 0.08" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="1" springref="-1.73"/>
           <geom mesh="Lever001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lever001_material"/>
           <geom class="collision" type="box" pos="0.000052 -0.154219 0.074518" size="0.014131924137473106 0.011563438922166824 0.007472217548638582" quat="1.0 0.0 0.0 0.0" name="lever_knob"/>
           <geom class="collision" type="box" pos="-0.000011 -0.132665 0.074534" size="0.001985369948670268 0.009772082790732384 0.003962809219956398" quat="1.0 0.0 0.0 0.0"/>
-          <geom class="collision" type="box" pos="-0.028298 0.019480 0.084691" size="0.01536607276648283 0.07378319650888443 0.0035157562233507633" quat="1.0 0.0 0.0 0.0" name="slot_left_floor"/>
-          <geom class="collision" type="box" pos="0.028420 0.019480 0.084691" size="0.015313372947275639 0.07378319650888443 0.003515758318826556" quat="1.0 0.0 0.0 0.0" name="slot_right_floor"/>
+          <geom class="collision" type="box" pos="-0.028298 0.019480 0.084691" size="0.01536607276648283 0.07378319650888443 0.0035157562233507633" quat="1.0 0.0 0.0 0.0" name="slotL_floor"/>
+          <geom class="collision" type="box" pos="0.028420 0.019480 0.084691" size="0.015313372947275639 0.07378319650888443 0.003515758318826556" quat="1.0 0.0 0.0 0.0" name="slotR_floor"/>
         </body>
         <geom class="region" name="reg_main" type="box" pos="0.0 0.012333499999999997 0.0" size="0.088365 0.1535735 0.103642"/>
       </body>

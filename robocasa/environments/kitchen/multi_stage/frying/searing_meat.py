@@ -30,7 +30,7 @@ class SearingMeat(Kitchen):
         self.cab = self.register_fixture_ref(
             "cab", dict(id=FixtureType.CABINET_DOUBLE_DOOR, ref=self.stove)
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -41,8 +41,8 @@ class SearingMeat(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
 
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         if self.knob_id == "random":

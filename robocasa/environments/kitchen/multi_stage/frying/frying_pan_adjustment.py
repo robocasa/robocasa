@@ -19,16 +19,16 @@ class FryingPanAdjustment(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
 
         # First call super reset so that the pan is placed on the stove
         # then determine where it is placed and turn on the corresponding burner and update the start_loc
-        super()._reset_internal()
+        super()._setup_scene()
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         pan_loc = self._check_obj_location_on_stove("obj")
 

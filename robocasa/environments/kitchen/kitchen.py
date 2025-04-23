@@ -160,7 +160,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         renderer_config (dict): dictionary for the renderer configurations
 
-        init_robot_base_pos (str): name of the fixture to place the near. If None, will randomly select a fixture.
+        init_robot_base_ref (str): name of the fixture to place the near. If None, will randomly select a fixture.
 
         seed (int): environment seed. Default is None, where environment is unseeded, ie. random
 
@@ -169,6 +169,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         layout_ids ((list of) LayoutType or int or dict):  layout id(s) to use for the kitchen. -1 and None specify all layouts
             -2 specifies layouts not involving islands/wall stacks, -3 specifies layouts involving islands/wall stacks,
             -4 specifies layouts with dining areas.
+
+        enable_fixtures (list of str): a list of fixtures to enable in the scene (some fixtures are disabled by default)
 
         style_ids ((list of) StyleType or int or dict): style id(s) to use for the kitchen. -1 and None specify all styles.
 
@@ -220,12 +222,13 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         camera_depths=False,
         renderer="mjviewer",
         renderer_config=None,
-        init_robot_base_pos=None,
+        init_robot_base_ref=None,
         seed=None,
         layout_and_style_ids=None,
         layout_ids=None,
         style_ids=None,
         scene_split=None,  # unsued, for backwards compatibility
+        enable_fixtures=None,
         generative_textures=None,
         obj_registries=(
             "objaverse",
@@ -235,8 +238,15 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         use_distractors=False,
         translucent_robot=False,
         randomize_cameras=False,
+        robot_spawn_deviation_pos_x=0.15,
+        robot_spawn_deviation_pos_y=0.05,
+        robot_spawn_deviation_rot=0.0,
     ):
-        self.init_robot_base_pos = init_robot_base_pos
+        self.init_robot_base_ref = init_robot_base_ref
+
+        self.robot_spawn_deviation_pos_x = robot_spawn_deviation_pos_x
+        self.robot_spawn_deviation_pos_y = robot_spawn_deviation_pos_y
+        self.robot_spawn_deviation_rot = robot_spawn_deviation_rot
 
         # object placement initializer
         self.placement_initializer = placement_initializer
@@ -260,6 +270,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             if l not in self.EXCLUDE_LAYOUTS
         ]
 
+        self.enable_fixtures = enable_fixtures
         assert generative_textures in [None, False, "100p"]
         self.generative_textures = generative_textures
 
@@ -297,6 +308,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     "body_part_ordering"
                 ] = ["right", "right_gripper", "base", "torso"]
 
+        # if not hasattr(self, "_reset_internal_end_callbacks"):
+        #     self._reset_internal_end_callbacks = []
+        # self._reset_internal_end_callbacks.append(lambda: EnvUtils.set_robot_state(self))
+
         super().__init__(
             robots=robots,
             env_configuration=env_configuration,
@@ -316,6 +331,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             horizon=horizon,
             ignore_done=ignore_done,
             hard_reset=hard_reset,
+            #load_model_on_init=False,
             camera_names=camera_names,
             camera_heights=camera_heights,
             camera_widths=camera_widths,
@@ -365,7 +381,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.style_id = style_id
 
         if macros.VERBOSE:
-            print("layout: {}, style: {}".format(self.layout_id, self.style_id))
+            print(
+                "layout: {}, style: {}".format(
+                    self.layout_id,
+                    "custom" if isinstance(self.style_id, dict) else self.style_id,
+                )
+            )
 
         # to be set later inside edit_model_xml function
         self._curr_gen_fixtures = self._ep_meta.get("gen_textures")
@@ -375,6 +396,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             layout_id=self.layout_id,
             style_id=self.style_id,
             rng=self.rng,
+            enable_fixtures=self.enable_fixtures,
         )
         # Arena always gets set to zero origin
         self.mujoco_arena.set_origin([0, 0, 0])
@@ -406,9 +428,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         self._setup_model()
 
-        if self.init_robot_base_pos is not None:
+        if self.init_robot_base_ref is not None:
             for i in range(50):  # keep searching for valid environment
-                init_fixture = self.get_fixture(self.init_robot_base_pos)
+                init_fixture = self.get_fixture(self.init_robot_base_ref)
                 if init_fixture is not None:
                     break
                 self._setup_model()
@@ -468,7 +490,17 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             return
         self.object_placements = object_placements
 
-        EnvUtils.init_robot_base_pose(self)
+        (
+            self.init_robot_base_pos_anchor,
+            self.init_robot_base_ori_anchor,
+        ) = EnvUtils.init_robot_base_pose(self)
+
+        robot_model = self.robots[0].robot_model
+        # set the robot way out of the scene at the start, it will be placed correctly later
+        robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
+        robot_model.set_base_ori(self.init_robot_base_ori_anchor)
+
+        self.robot_geom_ids = None
 
     def _create_objects(self):
         """
@@ -558,6 +590,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         super()._reset_internal()
 
+        # set up the scene (fixtures, variables, etc)
+        self._setup_scene()
+
         # Reset all object positions using initializer sampler if we're not directly loading from an xml
         if not self.deterministic_reset and self.placement_initializer is not None:
             # use pre-computed object placements
@@ -569,6 +604,24 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     obj.joints[0],
                     np.concatenate([np.array(obj_pos), np.array(obj_quat)]),
                 )
+
+        # set the robot here
+        if "init_robot_base_pos" in self._ep_meta:
+            self.init_robot_base_pos = self._ep_meta["init_robot_base_pos"]
+            self.init_robot_base_ori = self._ep_meta["init_robot_base_ori"]
+            EnvUtils.set_robot_to_position(self, self.init_robot_base_pos)
+            self.sim.forward()
+        else:
+            robot_pos = EnvUtils.set_robot_base(
+                env=self,
+                anchor_pos=self.init_robot_base_pos_anchor,
+                anchor_ori=self.init_robot_base_ori_anchor,
+                rot_dev=self.robot_spawn_deviation_rot,
+                pos_dev_x=self.robot_spawn_deviation_pos_x,
+                pos_dev_y=self.robot_spawn_deviation_pos_y,
+            )
+            self.init_robot_base_pos = robot_pos
+            self.init_robot_base_ori = self.init_robot_base_ori_anchor
 
         # step through a few timesteps to settle objects
         action = np.zeros(self.action_spec[0].shape)  # apply empty action
@@ -586,6 +639,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self._pre_action(action, policy_step)
             self.sim.step2()
             policy_step = False
+
+    def _setup_scene(self):
+        pass
 
     def _get_obj_cfgs(self):
         """
@@ -640,6 +696,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             {k: v.name for (k, v) in self.fixture_refs.items()}
         )
         ep_meta["cam_configs"] = deepcopy(self._cam_configs)
+        ep_meta["init_robot_base_pos"] = list(self.init_robot_base_pos)
+        ep_meta["init_robot_base_ori"] = list(self.init_robot_base_ori)
 
         return ep_meta
 

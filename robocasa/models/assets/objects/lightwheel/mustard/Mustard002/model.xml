@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/Mustard002.obj" name="Mustard002_vis"/>
+    <texture file="visual/T_BC001.png" name="Mustard002_material" type="2d"/>
+    <material name="Mustard002_material" rgba="1 1 1 1.0" texture="Mustard002_material" shininess="0" specular="0.2"/>
+    <mesh file="collision/Mustard002002.obj" name="Mustard002002_mesh"/>
+    <mesh file="collision/Mustard002001.obj" name="Mustard002001_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="Mustard002_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Mustard002_material"/>
+        <geom mesh="Mustard002002_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mustard002001_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.027165090000000003 0.02714126 -0.0007246600000000022" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="2.105586181580784e-18 0.0 0.07458978" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="2.105586181580784e-18 0.0 -0.0760391" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

@@ -23,7 +23,7 @@ class PnPCoffee(Kitchen):
         super()._setup_kitchen_references()
         self.coffee_machine = self.get_fixture(FixtureType.COFFEE_MACHINE)
         self.counter = self.get_fixture(FixtureType.COUNTER, ref=self.coffee_machine)
-        self.init_robot_base_pos = self.coffee_machine
+        self.init_robot_base_ref = self.coffee_machine
 
     def get_ep_meta(self):
         """
@@ -139,7 +139,7 @@ class CoffeePressButton(Kitchen):
         super()._setup_kitchen_references()
         self.coffee_machine = self.get_fixture(FixtureType.COFFEE_MACHINE)
         self.counter = self.get_fixture(FixtureType.COUNTER, ref=self.coffee_machine)
-        self.init_robot_base_pos = self.coffee_machine
+        self.init_robot_base_ref = self.coffee_machine
 
     def get_ep_meta(self):
         """

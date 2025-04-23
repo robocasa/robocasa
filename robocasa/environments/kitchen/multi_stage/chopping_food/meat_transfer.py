@@ -29,7 +29,7 @@ class MeatTransfer(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab, size=(0.5, 0.5))
         )
 
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -40,11 +40,11 @@ class MeatTransfer(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

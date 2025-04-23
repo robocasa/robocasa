@@ -18,7 +18,7 @@ class PanTransfer(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=[0.30, 0.40])
         )
@@ -31,8 +31,8 @@ class PanTransfer(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self._robot_touched_food = False
 
     def _get_obj_cfgs(self):

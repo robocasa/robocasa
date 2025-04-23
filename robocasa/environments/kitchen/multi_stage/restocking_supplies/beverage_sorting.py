@@ -45,7 +45,7 @@ class BeverageSorting(Kitchen):
                 "counter", dict(id=FixtureType.COUNTER, size=(0.5, 0.5), ref=self.cab1)
             )
 
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -54,11 +54,11 @@ class BeverageSorting(Kitchen):
         ] = "Sort all alcoholic drinks to one cabinet, and non-alcoholic drinks to the other."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab1.set_door_state(min=0.85, max=0.9, env=self)
         self.cab2.set_door_state(min=0.85, max=0.9, env=self)
 

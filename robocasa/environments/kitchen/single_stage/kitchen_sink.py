@@ -22,7 +22,7 @@ class ManipulateSinkFaucet(Kitchen):
         """
         super()._setup_kitchen_references()
         self.sink = self.get_fixture(FixtureType.SINK)
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         """
@@ -33,12 +33,12 @@ class ManipulateSinkFaucet(Kitchen):
         ep_meta["lang"] = f"{self.behavior.replace('_', ' ')} the sink faucet"
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Reset the environment internal state for the sink faucet tasks.
         This includes setting the sink faucet state based on the behavior
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
         if self.behavior == "turn_on":
             self.sink.set_handle_state(mode="off", env=self, rng=self.rng)
@@ -141,7 +141,7 @@ class TurnSinkSpout(Kitchen):
         else:
             self.behavior = self.rng.choice(["left", "right"])
             self.init_sink_mode = self.rng.choice(["on", "off"])
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         """
@@ -156,12 +156,12 @@ class TurnSinkSpout(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Reset the environment internal state for the sink spout tasks.
         This includes setting the sink spout state based on the behavior
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.sink.set_handle_state(mode=self.init_sink_mode, env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):

@@ -23,7 +23,7 @@ class DrinkwareConsolidation(Kitchen):
             "cab",
             dict(id=FixtureType.CABINET, ref=self.island),
         )
-        self.init_robot_base_pos = self.island
+        self.init_robot_base_ref = self.island
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()

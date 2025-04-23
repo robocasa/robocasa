@@ -15,7 +15,7 @@ class KettleBoiling(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=(0.2, 0.2))
         )
@@ -64,8 +64,8 @@ class KettleBoiling(Kitchen):
         ] = "Pick the kettle from the counter and place it on a stove burner. Then turn the burner on."
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         valid_knobs = self.stove.get_knobs_state(env=self).keys()
         for knob in valid_knobs:
             self.stove.set_knob_state(mode="off", knob=knob, env=self, rng=self.rng)

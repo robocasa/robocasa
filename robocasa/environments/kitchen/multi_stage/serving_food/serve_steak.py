@@ -23,7 +23,7 @@ class ServeSteak(Kitchen):
     def _setup_kitchen_references(self):
         super()._setup_kitchen_references()
         self.stove = self.register_fixture_ref("stove", dict(id=FixtureType.STOVE))
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
         self.dining_table = self.register_fixture_ref(
             "dining_table",
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),
@@ -37,8 +37,8 @@ class ServeSteak(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

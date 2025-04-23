@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mujoco model="model">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh file="visual/Mustard007.obj" name="Mustard007_vis"/>
+    <texture file="visual/T_BC001.png" name="Mustard007_material" type="2d"/>
+    <material name="Mustard007_material" rgba="1 1 1 1.0" texture="Mustard007_material" shininess="0.4472135901451111" specular="0.103448502657381"/>
+    <mesh file="collision/Mustard007003.obj" name="Mustard007003_mesh"/>
+    <mesh file="collision/Mustard007001.obj" name="Mustard007001_mesh"/>
+    <mesh file="collision/Mustard007004.obj" name="Mustard007004_mesh"/>
+    <mesh file="collision/Mustard007002.obj" name="Mustard007002_mesh"/>
+  </asset>
+  <default>
+    <default class="visual">
+      <geom conaffinity="0" contype="0" group="1" type="mesh"/>
+    </default>
+    <default class="collision">
+      <geom group="0" rgba="0.5 0 0 0.5"/>
+    </default>
+    <default class="spawn">
+      <geom group="0" rgba="1 1 1 0.5" contype="0" conaffinity="0"/>
+      <site group="0" rgba="1 1 1 0.5"/>
+    </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom mesh="Mustard007_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Mustard007_material"/>
+        <geom mesh="Mustard007003_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mustard007001_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mustard007004_mesh" type="mesh" class="collision"/>
+        <geom mesh="Mustard007002_mesh" type="mesh" class="collision"/>
+      </body>
+      <site rgba="1 0 0 1" size="0.005" pos="0.03061186 0.022085400000000005 0.0" name="horizontal_radius_site"/>
+      <site rgba="0 1 0 1" size="0.005" pos="1.9999999999938233e-08 1.0000000002355e-08 0.06127701" name="top_site"/>
+      <site rgba="0 0 1 1" size="0.005" pos="1.9999999999938233e-08 1.0000000002355e-08 -0.06127701" name="bottom_site"/>
+    </body>
+  </worldbody>
+  <actuator/>
+</mujoco>

@@ -27,7 +27,7 @@ class RestockBowls(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.cab, size=(0.6, 0.4))
         )
-        self.init_robot_base_pos = self.cab
+        self.init_robot_base_ref = self.cab
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -43,11 +43,11 @@ class RestockBowls(Kitchen):
 
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.close_door(env=self)
 
     def _get_obj_cfgs(self):

@@ -1,9 +1,12 @@
 import os
+import hid
 import numpy as np
 import tqdm
 import traceback
 import argparse
 import yaml
+from datetime import datetime
+from termcolor import colored
 
 import robocasa
 from robocasa.scripts.browse_mjcf_model import read_model
@@ -12,8 +15,11 @@ from robocasa.models.fixtures.fixture import FixtureType
 
 from robocasa.utils.env_utils import create_env, run_random_rollouts
 from robocasa.scripts.collect_demos import collect_human_trajectory
-from robocasa.models.scenes.scene_registry import get_layout_path, get_style_path
-import yaml
+from robocasa.models.scenes.scene_registry import (
+    get_layout_path,
+    get_style_path,
+    LAYOUT_GROUPS_TO_IDS,
+)
 
 
 def get_all_style_configs():
@@ -43,9 +49,12 @@ def get_all_dict_items(dictionary):
     return items
 
 
-def get_layout_ids(filter_by=None):
+def get_valid_layout_ids(all_layout_ids=-1, filter_by=None):
     layout_id_list = []
-    for i in range(10):
+    if isinstance(all_layout_ids, int) and all_layout_ids in LAYOUT_GROUPS_TO_IDS:
+        # convert to list of layout ids
+        all_layout_ids = LAYOUT_GROUPS_TO_IDS[all_layout_ids]
+    for i in all_layout_ids:
         layout_path = get_layout_path(layout_id=i)
         if filter_by is not None:
             with open(layout_path, "r") as f:
@@ -61,8 +70,8 @@ FIXTURE_TO_TEST_ENVS = dict(
     microwave=[
         dict(env_name="PnPCounterToMicrowave"),
         dict(env_name="PnPMicrowaveToCounter"),
-        dict(env_name="OpenSingleDoor", door_id=FixtureType.MICROWAVE),
-        dict(env_name="CloseSingleDoor", door_id=FixtureType.MICROWAVE),
+        dict(env_name="OpenMicrowave"),
+        dict(env_name="CloseMicrowave"),
         dict(env_name="TurnOnMicrowave"),
         dict(env_name="TurnOffMicrowave"),
     ],
@@ -91,34 +100,59 @@ FIXTURE_TO_TEST_ENVS = dict(
         dict(env_name="CoffeePressButton"),
     ],
     dishwasher=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.DISHWASHER),
+        dict(env_name="OpenDishwasher"),
+        # dict(env_name="CloseDishwasher"), # this task is not ready yet
     ],
     oven=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.OVEN),
+        dict(env_name="OpenOven"),
+        # dict(env_name="CloseOven"), # this task is not ready yet
     ],
     fridge_french_door=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+        dict(env_name="OpenFridge"),
+        dict(env_name="CloseFridge"),
     ],
     fridge_side_by_side=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+        dict(env_name="OpenFridge"),
+        dict(env_name="CloseFridge"),
     ],
     fridge_bottom_freezer=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.FRIDGE),
+        dict(env_name="OpenFridge"),
+        dict(env_name="CloseFridge"),
     ],
     toaster=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_ref=FixtureType.TOASTER,
+            enable_fixtures=["toaster"],
+        ),
     ],
     toaster_oven=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.TOASTER_OVEN),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_ref=FixtureType.TOASTER_OVEN,
+            enable_fixtures=["toaster_oven"],
+        ),
     ],
     blender=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.BLENDER),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_ref=FixtureType.BLENDER,
+            enable_fixtures=["blender"],
+        ),
     ],
     stand_mixer=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.STAND_MIXER),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_ref=FixtureType.STAND_MIXER,
+            enable_fixtures=["stand_mixer"],
+        ),
     ],
     electric_kettle=[
-        dict(env_name="Kitchen", init_robot_base_pos=FixtureType.ELECTRIC_KETTLE),
+        dict(
+            env_name="Kitchen",
+            init_robot_base_ref=FixtureType.ELECTRIC_KETTLE,
+            enable_fixtures=["electric_kettle"],
+        ),
     ],
 )
 
@@ -129,6 +163,7 @@ if __name__ == "__main__":
     for fixture_type in fixture_type_list:
         parser.add_argument(f"--{fixture_type}", type=str, nargs="+")
 
+    parser.add_argument("--layout", type=int, nargs="+", default=-1)
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument(
         "--device",
@@ -151,6 +186,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    now = datetime.now()
+    current_date_time = now.strftime("%Y-%m-%d-%H-%M-%S")
+    error_dict = {}
+
+    num_total_tests = 0
+    all_fixtures_dict = dict()
     for fixture_type in fixture_type_list:
         fixture_list = eval(f"args.{fixture_type}")
 
@@ -167,61 +208,101 @@ if __name__ == "__main__":
                 fixture_registry = yaml.safe_load(yaml_f)
             fixture_list = list(fixture_registry.keys())
 
+        all_fixtures_dict[fixture_type] = fixture_list
         env_kwargs_list = FIXTURE_TO_TEST_ENVS[fixture_type]
+        num_total_tests += len(fixture_list) * len(env_kwargs_list)
 
-        device = None
+    num_tests_completed = 0
+    num_failures = 0
+    base_log_dir = f"/tmp/robocasa_test_fixtures/{current_date_time}"
+    if not os.path.exists(base_log_dir):
+        os.makedirs(base_log_dir)
 
+    if args.device is None:
+        # check if spacemouse is available
+        spacemouse_found = False
+        for device in hid.enumerate():
+            vendor_id, product_id = device["vendor_id"], device["product_id"]
+            if (
+                vendor_id == macros.SPACEMOUSE_VENDOR_ID
+                and product_id == macros.SPACEMOUSE_PRODUCT_ID
+            ):
+                spacemouse_found = True
+                break
+        args.device = "spacemouse" if spacemouse_found else "keyboard"
+
+    for fixture_type in all_fixtures_dict.keys():
+        error_dict[fixture_type] = dict()
+        env_kwargs_list = FIXTURE_TO_TEST_ENVS[fixture_type]
         # get valid layouts for this fixture type
-        layout_ids = get_layout_ids(filter_by=("type", fixture_type))
-
+        layout_ids = get_valid_layout_ids(
+            all_layout_ids=args.layout, filter_by=("type", fixture_type)
+        )
+        fixture_list = all_fixtures_dict[fixture_type]
+        device = None
         for fixture_name in fixture_list:
+            error_dict[fixture_type][fixture_name] = dict()
             style_configs = get_all_style_configs()
             for cfg in style_configs:
                 cfg[fixture_type] = fixture_name
 
+            fxtr_log_folder = f"/tmp/robocasa_test_fixtures/{current_date_time}/{fixture_type}/{fixture_name}"
+            if not os.path.exists(fxtr_log_folder):
+                os.makedirs(fxtr_log_folder)
+
             for env_i, env_kwargs in enumerate(env_kwargs_list):
-                env = create_env(
-                    render_onscreen=args.interactive,
-                    seed=0,  # set seed=None to run unseeded
-                    style_ids=style_configs,
-                    layout_ids=layout_ids,
-                    translucent_robot=True,
-                    **env_kwargs,
+                env_name = env_kwargs["env_name"]
+                print(
+                    colored(
+                        f"[{num_tests_completed + 1}/{num_total_tests}] Type={fixture_type}, Model={fixture_name}, Env={env_name}",
+                        color="yellow",
+                    )
                 )
 
-                if args.interactive is False:
-                    env_name = env_kwargs["env_name"]
-                    info = run_random_rollouts(
-                        env,
-                        num_rollouts=3,
-                        num_steps=100,
-                        video_path=f"/tmp/robocasa_test_fixtures/{fixture_type}_{fixture_name}_{env_name}{env_i}.mp4",
+                env = None
+
+                try:
+                    env = create_env(
+                        render_onscreen=args.interactive,
+                        seed=0,  # set seed=None to run unseeded
+                        style_ids=style_configs,
+                        layout_ids=layout_ids,
+                        translucent_robot=True,
+                        **env_kwargs,
                     )
-                else:
-                    # set up devices for interactive mode
-                    if device is None:
-                        if args.device == "keyboard":
-                            from robosuite.devices import Keyboard
 
-                            device = Keyboard(
-                                env=env,
-                                pos_sensitivity=args.pos_sensitivity,
-                                rot_sensitivity=args.rot_sensitivity,
-                            )
-                        elif args.device == "spacemouse":
-                            from robosuite.devices import SpaceMouse
+                    if args.interactive is False:
+                        info = run_random_rollouts(
+                            env,
+                            num_rollouts=3,
+                            num_steps=50,
+                            video_path=f"{fxtr_log_folder}/{env_name}.mp4",
+                        )
+                    else:
+                        # set up devices for interactive mode
+                        # initialize device
+                        if device is None:
+                            if args.device == "keyboard":
+                                from robosuite.devices import Keyboard
 
-                            device = SpaceMouse(
-                                env=env,
-                                pos_sensitivity=args.pos_sensitivity,
-                                rot_sensitivity=args.rot_sensitivity,
-                                vendor_id=macros.SPACEMOUSE_VENDOR_ID,
-                                product_id=macros.SPACEMOUSE_PRODUCT_ID,
-                            )
-                        else:
-                            raise ValueError
+                                device = Keyboard(
+                                    env=env,
+                                    pos_sensitivity=args.pos_sensitivity,
+                                    rot_sensitivity=args.rot_sensitivity,
+                                )
+                            elif args.device == "spacemouse":
+                                from robosuite.devices import SpaceMouse
 
-                    try:
+                                device = SpaceMouse(
+                                    env=env,
+                                    pos_sensitivity=args.pos_sensitivity,
+                                    rot_sensitivity=args.rot_sensitivity,
+                                    vendor_id=macros.SPACEMOUSE_VENDOR_ID,
+                                    product_id=macros.SPACEMOUSE_PRODUCT_ID,
+                                )
+                            else:
+                                raise ValueError
+
                         while True:
                             collect_human_trajectory(
                                 env,
@@ -232,7 +313,35 @@ if __name__ == "__main__":
                                 render=False,
                                 max_fr=30,
                             )
-                    except KeyboardInterrupt:
-                        print("\n\nMoving onto next configuration...")
+                except KeyboardInterrupt:
+                    print("\n\nMoving onto next configuration...")
+                except Exception:
+                    error = traceback.format_exc()
+                    error_message = f"Test {fixture_type}/{fixture_name}/{env_name} Failed:\n{error}\n"
+                    error_dict[fixture_type][fixture_name][env_name] = error
+                    print(colored(error_message, "red"))
+                    with open(f"{fxtr_log_folder}/{env_name}_error.txt", "w") as f:
+                        f.write(error)
+                    with open(
+                        f"{base_log_dir}/error_summary.txt", "a"
+                    ) as log_summary_file:
+                        log_summary_file.write(error_message)
+                    num_failures += 1
 
-                env.close()
+                if env is not None:
+                    env.close()
+                    print()
+
+                num_tests_completed += 1
+
+    print("\n\n")
+    if num_failures == 0:
+        print(colored(f"{num_failures} exceptions encountered.", "green"))
+    elif num_failures > 0:
+        print(colored(f"{num_failures} exceptions encountered:\n", "red"))
+        for fixture_type in error_dict:
+            for fixture_name in error_dict[fixture_type]:
+                for env_name in error_dict[fixture_type][fixture_name]:
+                    error = error_dict[fixture_type][fixture_name][env_name]
+                    error_message = f"Test {fixture_type}/{fixture_name}/{env_name} Failed:\n{error}\n"
+                    print(colored(error_message, "red"))

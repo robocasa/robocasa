@@ -42,6 +42,7 @@ FIXTURES = dict(
     blender=Blender,
     stand_mixer=StandMixer,
     utensil_rack=WallAccessory,
+    electric_kettle=ElectricKettle,
     wall_accessory=WallAccessory,
     window=Window,
     framed_window=FramedWindow,
@@ -166,6 +167,12 @@ def create_fixtures(layout_config, style_config, rng=None):
     # initialize each fixture in the arena by processing config
     for fixture_config in arena:
         check_syntax(fixture_config)
+
+        enable = fixture_config.get("enable", True)
+        if not enable:
+            # skip including the fixture in the scene if enable=False
+            continue
+
         fixture_name = fixture_config["name"]
 
         # stack of fixtures, handled separately

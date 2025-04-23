@@ -34,7 +34,7 @@ class QuickThaw(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=FixtureType.STOVE)
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -45,8 +45,8 @@ class QuickThaw(Kitchen):
         ep_meta["knob"] = self.knob
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         self.stove.set_knob_state(mode="off", knob=self.knob, env=self, rng=self.rng)
 
     def _get_obj_cfgs(self):

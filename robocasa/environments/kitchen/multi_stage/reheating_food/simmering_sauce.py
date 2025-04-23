@@ -26,7 +26,7 @@ class SimmeringSauce(Kitchen):
         self.counter = self.register_fixture_ref(
             "counter", dict(id=FixtureType.COUNTER, ref=self.stove, size=(0.5, 0.4))
         )
-        self.init_robot_base_pos = self.stove
+        self.init_robot_base_ref = self.stove
 
         if "refs" in self._ep_meta:
             self.knob = self._ep_meta["refs"]["knob"]
@@ -48,8 +48,8 @@ class SimmeringSauce(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

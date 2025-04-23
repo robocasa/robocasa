@@ -20,8 +20,12 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Fridge)
     elif fixture_type == FixtureType.DISHWASHER:
         return isinstance(fixture, Dishwasher)
+    elif fixture_type == FixtureType.ELECTRIC_KETTLE:
+        return isinstance(fixture, ElectricKettle)
     elif fixture_type == FixtureType.COFFEE_MACHINE:
         return isinstance(fixture, CoffeeMachine)
+    elif fixture_type == FixtureType.STAND_MIXER:
+        return isinstance(fixture, StandMixer)
     elif fixture_type == FixtureType.TOASTER:
         return isinstance(fixture, Toaster)
     elif fixture_type == FixtureType.TOASTER_OVEN:
@@ -34,10 +38,12 @@ def fixture_is_type(fixture, fixture_type):
         return isinstance(fixture, Stool)
     elif fixture_type == FixtureType.ISLAND:
         return isinstance(fixture, Counter) and "island" in fixture.name
-    elif fixture_type == FixtureType.COUNTER_NON_CORNER:
+    # elif fixture_type == FixtureType.COUNTER_NON_CORNER:
+    #     return isinstance(fixture, Counter) and "corner" not in fixture.name
+    elif fixture_type in [FixtureType.COUNTER, FixtureType.COUNTER_NON_CORNER]:
+        # merged COUNTER into COUNTER_NON_CORNER
+        # TODO: decide whether we want to ever sample corner counters
         return isinstance(fixture, Counter) and "corner" not in fixture.name
-    elif fixture_type == FixtureType.COUNTER:
-        return isinstance(fixture, Counter)
     elif fixture_type == FixtureType.DINING_COUNTER:
         cls_check = any([isinstance(fixture, cls) for cls in [Counter]])
         if not cls_check:

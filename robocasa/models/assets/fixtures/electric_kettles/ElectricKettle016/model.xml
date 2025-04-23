@@ -1,18 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <mujoco model="model">
   <compiler angle="radian"/>
   <asset>
     <mesh file="visuals/Body001.obj" name="Body001_vis"/>
+    <mesh file="visuals/Button001.obj" name="Button001_vis"/>
     <mesh file="visuals/Handle001.obj" name="Handle001_vis"/>
-    <mesh file="visuals/Knob001.obj" name="Knob001_vis"/>
+    <mesh file="visuals/Lever001.obj" name="Lever001_vis"/>
     <mesh file="visuals/Lid001.obj" name="Lid001_vis"/>
     <texture file="visuals/T_BC001.png" name="Body001_material" type="2d"/>
     <material name="Body001_material" rgba="1 1 1 1.0" texture="Body001_material" shininess="0.5" specular="0.3103448502657381"/>
     <texture file="visuals/T_BC001.png" name="Handle001_material" type="2d"/>
     <material name="Handle001_material" rgba="1 1 1 1.0" texture="Handle001_material" shininess="0.5" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Button001_material" type="2d"/>
+    <material name="Button001_material" rgba="1 1 1 1.0" texture="Button001_material" shininess="0.5" specular="0.3103448502657381"/>
     <texture file="visuals/T_BC001.png" name="Lid001_material" type="2d"/>
     <material name="Lid001_material" rgba="1 1 1 1.0" texture="Lid001_material" shininess="0.5" specular="0.3103448502657381"/>
-    <texture file="visuals/T_BC001.png" name="Knob001_material" type="2d"/>
-    <material name="Knob001_material" rgba="1 1 1 1.0" texture="Knob001_material" shininess="0.5" specular="0.3103448502657381"/>
+    <texture file="visuals/T_BC001.png" name="Lever001_material" type="2d"/>
+    <material name="Lever001_material" rgba="1 1 1 1.0" texture="Lever001_material" shininess="0.5" specular="0.3103448502657381"/>
   </asset>
   <default>
     <default class="visual">
@@ -33,42 +37,48 @@
     <body>
       <body name="object">
         <geom mesh="Body001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Body001_material"/>
-        <geom class="collision" type="cylinder" pos="-0.014147 0.008023 -0.142006" size="0.07333151251077652 0.030249718576669693" quat="1.0 0.0 0.0 0.0"/>
+        <geom class="collision" type="cylinder" pos="-0.014147056266665459 -0.0014596912078559399 -0.1420055478811264" size="0.07333151251077652 0.030249718576669693" quat="1.0 0.0 0.0 0.0"/>
         <body name="Handle001">
-          <joint axis="0.0 0.0 1.0" pos="0.000000 0.002435 0.026301" limited="true" name="Handle001_joint" range="0.0 0.1" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+          <joint axis="0.0 0.0 1.0" pos="1.1175870895385742e-08 0.0030100685544312 0.0263005793094635" limited="true" name="Handle001_joint" range="0.0 0.1" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
           <geom mesh="Handle001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Handle001_material"/>
-          <geom class="collision" type="box" pos="-0.014660 -0.062529 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="1.0 0.0 0.0 0.0"/>
-          <geom class="collision" type="box" pos="-0.057347 -0.046220 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.9361118674278259 0.0 -0.0 -0.35170239210128784"/>
-          <geom class="collision" type="box" pos="-0.078546 -0.007191 0.026376" size="0.023964187130331993 0.004526099655777216 0.13681364059448242" quat="0.7594932913780212 0.0 -0.0 -0.6505151391029358"/>
-          <geom class="collision" type="box" pos="-0.069781 0.036229 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.49221616983413696 0.0 -0.0 -0.8704730272293091"/>
-          <geom class="collision" type="box" pos="-0.036907 0.063338 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.17952615022659302 0.0 -0.0 -0.9837532043457031"/>
-          <geom class="collision" type="box" pos="0.006459 0.063993 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.159153014421463 0.0 0.0 0.9872539043426514"/>
-          <geom class="collision" type="box" pos="0.041214 0.036180 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.4877575635910034 0.0 0.0 0.8729791045188904"/>
-          <geom class="collision" type="box" pos="0.050294 -0.004504 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.742050051689148 0.0 0.0 0.6703444719314575"/>
-          <geom class="collision" type="box" pos="0.028763 -0.046208 0.026376" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.9340918660163879 0.0 0.0 0.35703274607658386"/>
-          <geom class="collision" type="box" pos="0.067752 0.002025 0.136032" size="0.02626792900264263 0.015525727532804012 0.01201306190341711" quat="0.9185426235198975 0.0 0.39532193541526794 0.0"/>
-          <geom class="collision" type="box" pos="0.087393 0.002025 0.097298" size="0.02626792900264263 0.015525727532804012 0.01201306190341711" quat="0.7575722336769104 0.0 0.6527513861656189 0.0"/>
-          <geom class="collision" type="box" pos="0.090077 0.002025 0.036594" size="0.03920470550656319 0.015525727532804012 0.01201306190341711" quat="0.6807309985160828 0.0 0.7325335144996643 0.0"/>
-          <geom class="collision" type="box" pos="-0.084037 0.001133 0.109295" size="0.053924139589071274 0.024153606966137886 0.00934384111315012" quat="0.7575722336769104 0.0 0.6527513861656189 0.0"/>
-          <geom class="collision" type="cylinder" pos="-0.013486 0.002884 -0.106586" size="0.0687592625617981 0.00413012970238924" quat="1.0 0.0 0.0 0.0"/>
+          <geom class="collision" type="box" pos="-0.014659987762570381 -0.0649634450674057 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="7.549790126404332e-08 0.0 0.0 1.0"/>
+          <geom class="collision" type="box" pos="-0.05734682083129883 -0.048654280602931976 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.351702481508255 0.0 0.0 0.9361118674278259"/>
+          <geom class="collision" type="box" pos="-0.07854617387056351 -0.009625241160392761 0.02637583017349243" size="0.023964187130331993 0.004526099655777216 0.13681364059448242" quat="0.6505151391029358 0.0 0.0 0.7594932913780212"/>
+          <geom class="collision" type="box" pos="-0.06978107988834381 0.03379485756158829 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.8704730272293091 0.0 0.0 0.4922161400318146"/>
+          <geom class="collision" type="box" pos="-0.036906998604536057 0.060903653502464294 0.02637583017349243" size="0.023964183405041695 0.004526098724454641 0.13681364059448242" quat="0.9837532043457031 0.0 0.0 0.17952613532543182"/>
+          <geom class="collision" type="box" pos="0.006459015421569347 0.06155899167060852 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.9872539043426514 0.0 0.0 -0.1591530293226242"/>
+          <geom class="collision" type="box" pos="0.04121389985084534 0.03374524414539337 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.8729791641235352 0.0 0.0 -0.48775753378868103"/>
+          <geom class="collision" type="box" pos="0.050294194370508194 -0.006938675884157419 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.6703444719314575 0.0 0.0 -0.742050051689148"/>
+          <geom class="collision" type="box" pos="0.028762949630618095 -0.04864233359694481 0.02637583017349243" size="0.023964185267686844 0.004526099190115929 0.13681364059448242" quat="0.35703277587890625 0.0 0.0 -0.9340918660163879"/>
+          <geom class="collision" type="box" pos="0.06422605365514755 -0.00040946900844573975 0.13655079901218414" size="0.026267927139997482 0.015525726601481438 0.007936660200357437" quat="0.8977532386779785 -2.6406252739974434e-09 0.4404987394809723 6.135578711763401e-09"/>
+          <geom class="collision" type="box" pos="0.0873926654458046 -0.00040946900844573975 0.09729832410812378" size="0.02626792900264263 0.015525727532804012 0.01201306190341711" quat="0.7575722336769104 0.0 0.6527513861656189 0.0"/>
+          <geom class="collision" type="box" pos="0.09007710963487625 -0.00040946900844573975 0.03659379482269287" size="0.03920470178127289 0.015525727532804012 0.012013060972094536" quat="0.6807309985160828 0.0 0.7325335144996643 0.0"/>
+          <geom class="collision" type="box" pos="-0.08403682708740234 -0.0013011693954467773 0.10929455608129501" size="0.053924139589071274 0.024153606966137886 0.00934384111315012" quat="0.7575722336769104 0.0 0.6527513861656189 0.0"/>
+          <geom class="collision" type="cylinder" pos="-0.013485543429851532 0.00044968375004827976 -0.10658633708953857" size="0.0687592625617981 0.00413012970238924" quat="1.0 0.0 0.0 0.0"/>
+          <body name="Button001">
+            <joint axis="-0.8191520571708679 0.0 -0.5735763907432556" pos="0.07819374650716782 0.002444388810545206 0.14140471816062927" limited="true" name="Button001_joint" range="0.0 0.0015" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="0.05" springref="-0.8"/>
+            <geom mesh="Button001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Button001_material"/>
+            <geom class="collision" type="cylinder" pos="0.07893180102109909 -0.0005655116401612759 0.1419215202331543" size="0.007331433705985546 0.0012985486537218094" quat="0.8870108723640442 5.408680603814341e-15 0.46174854040145874 6.20400086859263e-08"/>
+          </body>
           <body name="Lid001">
-            <joint axis="0.0 1.0 0.0" pos="0.053193 0.002734 0.164284" limited="true" name="Lid001_joint" range="0.0 1.5707963267948966" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
+            <joint axis="0.0 1.0 0.0" pos="0.053192514926195145 0.003309068037196994 0.16428445279598236" limited="true" name="Lid001_joint" range="0.0 1.5707963267948966" type="hinge" damping="1" frictionloss="1" armature=".01" stiffness="0.05"/>
             <geom mesh="Lid001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lid001_material"/>
-            <geom class="collision" type="cylinder" pos="-0.014223 0.002659 0.168492" size="0.06849019229412079 0.003672220977023244" quat="1.0 0.0 0.0 0.0"/>
+            <geom class="collision" type="cylinder" pos="-0.014223458245396614 0.0002246946096420288 0.16849210858345032" size="0.06849019229412079 0.003672220977023244" quat="1.0 0.0 0.0 0.0"/>
           </body>
         </body>
-        <body name="Knob001">
-          <joint axis="0.0 -0.9877716898918152 0.15590694546699524" pos="-0.014382 -0.071066 -0.140484" limited="true" name="Knob001_joint" range="0.0 6.283185307179586" type="hinge" damping="0.05" armature="0.001"/>
-          <geom mesh="Knob001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Knob001_material"/>
-          <geom class="collision" type="cylinder" pos="-0.014379 -0.074011 -0.140156" size="0.026562701910734177 0.0038775817956775427" quat="0.7594651579856873 0.650547981262207 0.0 0.0"/>
+        <body name="Lever001">
+          <joint axis="0.0 0.0 -1.0" pos="0.06762874871492386 -0.00011673750850604847 -0.12179967015981674" limited="true" name="Lever001_joint" range="0.0 0.005" type="slide" damping="1" frictionloss="1" armature=".01" stiffness="1" springref="-0.4"/>
+          <geom mesh="Lever001_vis" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" class="visual" material="Lever001_material"/>
+          <geom class="collision" type="box" pos="0.07290944457054138 -0.0031266361474990845 -0.12179967015981674" size="0.011787566356360912 0.010041411966085434 0.002512487815693021" quat="1.0 0.0 0.0 0.0"/>
         </body>
-        <geom class="region" name="reg_main" type="box" pos="0.0 -0.0005754999999999996 0.0" size="0.1021 0.0817775 0.171434"/>
+        <geom class="region" name="reg_main" type="box" pos="0.0 0.0 0.0" size="0.10209974646568298 0.07876776903867722 0.17143425345420837"/>
       </body>
     </body>
   </worldbody>
   <actuator>
     <motor name="Handle001_joint_actuator" joint="Handle001_joint" gear="10"/>
-    <motor name="Knob001_joint_actuator" joint="Knob001_joint" gear="10"/>
-    <motor name="Lid001_joint_actuator" joint="Lid001_joint" gear="10"/>
+    <motor name="Lever001_joint_actuator" joint="Lever001_joint" gear="10"/>
+    <motor name="Button001_joint_actuator" joint="Button001_joint" gear="0.5"/>
+    <motor name="Lid001_joint_actuator" joint="Lid001_joint" gear="0.5"/>
   </actuator>
 </mujoco>

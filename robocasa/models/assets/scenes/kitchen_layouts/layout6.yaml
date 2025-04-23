@@ -293,6 +293,18 @@ main_group:
         size: [1.0, 0.40]
         pos: [-1.0, 1.0]
         rotation: [0, 0]
+
+    - name: electric_kettle
+      type: electric_kettle
+      enable: false
+
+      placement:
+        fixture: counter_1_main_group
+        sample_region_kwargs:
+          ref: stove
+        size: [0.40, 0.30]
+        pos: ["ref", -0.25]
+        rotation: [-1.0, 0.1]
     
     - name: utensil_holder
       type: utensil_holder
@@ -334,6 +346,10 @@ island_group:
 
       size: [1, 0.60, 0.84]
       pos: [0, -0.425, 0.47]
+
+      configs:
+        hinge_cabinet:
+          open_top: true
 
     - name: dishwasher
       type: dishwasher
@@ -395,6 +411,20 @@ island_group:
         fixture: island_island_group
         size: [0.4, 0.4]
         rotation: [0, 0]
+
+    - name: stand_mixer
+      type: stand_mixer
+      enable: false
+
+      placement:
+        fixture: island_island_group
+        sample_region_kwargs:
+          ref: sink
+          loc: left_right
+        size: [0.40, 0.25]
+        pos: ["ref", -1.0]
+        rotation: [-1.57, -1.57]
+        offset: [0, 0.01]
 
   stools:
     - name: stool_1
@@ -531,6 +561,17 @@ left_group:
       size: [0.5, 0.4, 0.92]
       align_to: shelves
       side: right
+
+  counter_accessories:
+    - name: toaster_oven
+      type: toaster_oven
+      enable: false
+
+      placement:
+        fixture: counter_1_left_group
+        size: [0.80, 0.55]
+        pos: [null, 1.0]
+        rotation: [0, 0]
     
 
 # fixtures on the right wall
@@ -649,5 +690,16 @@ right_group:
         size: [1.0, 0.40]
         pos: [1.0, 0]
         rotation: [0, 0]
+
+    - name: blender
+      type: blender
+      enable: false
+
+      placement:
+        fixture: counter_1_right_group
+        size: [1.0, 0.25]
+        pos: [null, -1]
+        rotation: [0, 0]
+        margin: 0.03
       
 

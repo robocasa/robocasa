@@ -15,6 +15,7 @@ from robocasa.models.fixtures.fridge import (
     FridgeBottomFreezer,
 )
 from robocasa.models.fixtures.dishwasher import Dishwasher
+from robocasa.models.fixtures.electric_kettle import ElectricKettle
 from robocasa.models.fixtures.coffee_machine import CoffeeMachine
 from robocasa.models.fixtures.toaster import Toaster
 from robocasa.models.fixtures.toaster_oven import ToasterOven

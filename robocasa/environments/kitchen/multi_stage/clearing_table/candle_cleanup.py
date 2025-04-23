@@ -30,7 +30,7 @@ class CandleCleanup(Kitchen):
             "dining_table",
             dict(id=FixtureType.COUNTER, ref=FixtureType.STOOL, size=(0.75, 0.2)),
         )
-        self.init_robot_base_pos = self.dining_table
+        self.init_robot_base_ref = self.dining_table
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -41,11 +41,11 @@ class CandleCleanup(Kitchen):
         ] = f"Pick the {obj_name_1} and {obj_name_2} from the dining table and place them in the open cabinet."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab.open_door(env=self)
 
     def _get_obj_cfgs(self):

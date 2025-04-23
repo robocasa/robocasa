@@ -26,7 +26,7 @@ class SortingCleanup(Kitchen):
             "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.5, 0.5))
         )
 
-        self.init_robot_base_pos = self.sink
+        self.init_robot_base_ref = self.sink
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -36,8 +36,8 @@ class SortingCleanup(Kitchen):
         )
         return ep_meta
 
-    def _reset_internal(self):
-        super()._reset_internal()
+    def _setup_scene(self):
+        super()._setup_scene()
         # not fully open since it may come in contact with eef
         self.cab.set_door_state(min=0.5, max=0.6, env=self)
 

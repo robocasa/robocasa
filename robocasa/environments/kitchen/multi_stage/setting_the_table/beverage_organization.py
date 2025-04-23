@@ -37,18 +37,18 @@ class BeverageOrganization(Kitchen):
                 self.counter = self.get_fixture(FixtureType.COUNTER)
             self.fixture_refs["counter"] = self.counter
 
-        self.init_robot_base_pos = self.counter
+        self.init_robot_base_ref = self.counter
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
         ep_meta["lang"] = f"Move the drinks to the dining counter."
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
 
     def _get_obj_cfgs(self):
         cfgs = []

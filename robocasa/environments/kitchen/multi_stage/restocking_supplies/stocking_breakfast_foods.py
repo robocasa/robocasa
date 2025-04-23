@@ -63,7 +63,7 @@ class StockingBreakfastFoods(Kitchen):
             self.counter2 = self.register_fixture_ref(
                 "counter2", dict(id=FixtureType.COUNTER, ref=self.cab2)
             )
-        self.init_robot_base_pos = self.cab1
+        self.init_robot_base_ref = self.cab1
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -78,11 +78,11 @@ class StockingBreakfastFoods(Kitchen):
 
         return ep_meta
 
-    def _reset_internal(self):
+    def _setup_scene(self):
         """
         Resets simulation internal configurations.
         """
-        super()._reset_internal()
+        super()._setup_scene()
         self.cab1.open_door(env=self)
         self.cab2.open_door(env=self)
 
