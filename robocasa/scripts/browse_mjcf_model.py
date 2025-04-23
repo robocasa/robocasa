@@ -138,7 +138,7 @@ def read_model(
 
             for point in points:
                 ext_bbox_site = ET.fromstring(
-                    """<geom type="sphere" pos="{pos}" size="0.003" rgba="{rgba}" group="{group}" />""".format(
+                    """<site type="sphere" pos="{pos}" size="0.003" rgba="{rgba}" group="{group}" />""".format(
                         pos=a2s(point),
                         rgba="0 0 0 1",
                         group=group,
