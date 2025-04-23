@@ -47,7 +47,7 @@ We provide a script for running evaluations on existing model checkpoints:
 ```
 python robomimic/scripts/config_gen/eval_ckpt.py --ckpt <ckpt-path> --name <experiment-name>
 ```
-This will generate a command which you can subsequrently run. 
+This will generate a command which you can subsequently run. 
 
 <div class="admonition note">
 <p class="admonition-title">Debugging</p>
