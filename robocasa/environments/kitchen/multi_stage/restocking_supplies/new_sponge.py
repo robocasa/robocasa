@@ -17,16 +17,17 @@ class NewSponge(Kitchen):
     def _setup_kitchen_references(self):
 
         super()._setup_kitchen_references()
-        self.cab = self.register_fixture_ref('cab', dict(id=FixtureType.CABINET))
-        self.drawer = self.register_fixture_ref(
-            "drawer", dict(id=FixtureType.TOP_DRAWER, ref=self.cab)
-        )
-        self.counter = self.register_fixture_ref(
-            "counter", dict(id=FixtureType.COUNTER, ref=self.cab)
-        )
 
-        self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK, ref=self.cab))
-        self.init_robot_base_pos = self.drawer
+        self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
+
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.sink)
+        )
+        self.drawer = self.register_fixture_ref(
+            "drawer", dict(id=FixtureType.TOP_DRAWER, ref=self.counter)
+        )
+        
+        self.init_robot_base_ref = self.drawer
 
     def get_ep_meta(self):
         ep_meta = super().get_ep_meta()
@@ -65,12 +66,14 @@ class NewSponge(Kitchen):
                 obj_groups="all",
                 placement=dict(
                     fixture=self.counter,
-                    sample_region_kwargs=dict(ref=self.cab),
+                    sample_region_kwargs=dict(ref=self.sink),
                     size=(1.0, 0.30),
                     pos=(0.0, 1.0),
                 ),
             )
         )
+
+        
 
         return cfgs  
     
@@ -91,4 +94,4 @@ class NewSponge(Kitchen):
         obj_name = self.objects['sponge'].name
         obj_sink_close = self._obj_sink_dist(obj_name) < 0.35
 
-        return gripper_obj_far and obj_sink_close and obj_on_counter
+        return gripper_obj_far and obj_on_counter and obj_sink_close

@@ -7,7 +7,7 @@ class ProduceSorting(Kitchen):
     Simulates the task of putting items into the proper place in the fridge.
     
     Steps:
-        Pick (fruit/veggie) from counter and place in corresponding shelf(1/2) in fridge.
+        Pick (fruit/veggie) from counter and place in corresponding shelf(low/high) in fridge.
     """
 
     def __init__(self, *args, **kwargs):
@@ -29,7 +29,7 @@ class ProduceSorting(Kitchen):
     def get_ep_meta(self):
         meta = super().get_ep_meta()
         meta["lang"] = (
-            f"Move the {self.produce} to its correct location in the fridge."
+            f"Move the {self.produce} to the shelf in the fridge with other {self.produce}s."
         )
         return meta
 
