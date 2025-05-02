@@ -135,6 +135,18 @@ from robocasa.environments.kitchen.multi_stage.restocking_supplies.restock_pantr
 from robocasa.environments.kitchen.multi_stage.restocking_supplies.stocking_breakfast_foods import (
     StockingBreakfastFoods,
 )
+from robocasa.environments.kitchen.multi_stage.restocking_supplies.stock_cans import (
+    StockCans,
+)
+from robocasa.environments.kitchen.multi_stage.restocking_supplies.new_sponge import (
+    NewSponge,
+)
+from robocasa.environments.kitchen.multi_stage.restocking_supplies.refill_condiments import (
+    RefillCondiments
+)
+from robocasa.environments.kitchen.multi_stage.restocking_supplies.produce_sorting import (
+    ProduceSorting
+)
 from robocasa.environments.kitchen.multi_stage.sanitize_surface.clean_microwave import (
     CleanMicrowave,
 )
