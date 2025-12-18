@@ -79,7 +79,13 @@ Note: If using spacemouse: you may need to modify the product ID to your appropr
 -------
 ## Tasks, datasets, policy learning, and additional use cases
 Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for information about tasks and assets, downloading datasets, policy learning, API docs, and more.
- 
+
+-------
+## License
+Code: [MIT License](https://opensource.org/license/mit)
+
+Assets and Datasets: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)
+
 -------
 ## Citation
 ```bibtex
