@@ -1384,6 +1384,18 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             float: Reward for the task
         """
         reward = 0
+
+        # sparse completion reward
+        if self._check_success():
+            reward = 1.0
+
+        # use a shaping reward
+        if self.reward_shaping:
+            pass
+
+        if self.reward_scale is not None:
+            reward *= self.reward_scale
+
         return reward
 
     def _check_success(self):
