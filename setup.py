@@ -33,6 +33,9 @@ setup(
         "hidapi",
         "tianshou==0.4.10",
     ],
+    package_data={
+        "robocasa": ["models/assets/*", "scripts/download_kitchen_assets.py"]
+    },
     eager_resources=["*"],
     include_package_data=True,
     python_requires=">=3",
