@@ -1,0 +1,155 @@
+from robocasa.environments.kitchen.kitchen import *
+
+
+class ClearClutter(Kitchen):
+    """
+    Clear Clutter: composite task for Washing Fruits And Vegetables activity.
+
+    Simulates the task of washing fruits and vegetables.
+
+    Steps:
+        Pick up the fruits and vegetables and place them in the sink turn on the
+        sink to wash them. Then, turn the sink off, put them in the tray.
+    """
+
+    def __init__(self, *args, **kwargs):
+        # internal state variables to keep track of task progress
+        self.food_washed = False
+        self.washed_time = 0
+        super().__init__(*args, **kwargs)
+
+    def _setup_kitchen_references(self):
+        super()._setup_kitchen_references()
+
+        self.sink = self.register_fixture_ref("sink", dict(id=FixtureType.SINK))
+        # sample large enough region to place the food items
+        self.counter = self.register_fixture_ref(
+            "counter", dict(id=FixtureType.COUNTER, ref=self.sink, size=(0.6, 0.6))
+        )
+        self.init_robot_base_ref = self.sink
+        if "refs" in self._ep_meta:
+            self.num_food = self._ep_meta["refs"]["num_food"]
+            self.num_unwashable = self._ep_meta["refs"]["num_unwashable"]
+        else:
+            self.num_food = int(self.rng.choice([1, 2]))
+            self.num_unwashable = int(self.rng.choice([1, 2]))
+
+    def get_ep_meta(self):
+        ep_meta = super().get_ep_meta()
+        ep_meta["lang"] = (
+            "Pick up all produce items and place them in the sink. "
+            "Turn on the sink faucet to wash them. Then turn the sink off and put them in the tray."
+        )
+        ep_meta["refs"] = ep_meta.get("refs", {})
+        ep_meta["refs"]["num_food"] = self.num_food
+        ep_meta["refs"]["num_unwashable"] = self.num_unwashable
+        return ep_meta
+
+    def _setup_scene(self):
+        self.food_washed = False
+        self.washed_time = 0
+        super()._setup_scene()
+
+    def _get_obj_cfgs(self):
+        cfgs = []
+
+        for i in range(self.num_food):
+            cfgs.append(
+                dict(
+                    name=f"obj_{i}",
+                    obj_groups=["vegetable", "fruit"],
+                    graspable=True,
+                    washable=True,
+                    placement=dict(
+                        fixture=self.counter,
+                        sample_region_kwargs=dict(
+                            ref=self.sink,
+                            loc="left_right",
+                        ),
+                        size=(0.40, 0.30),
+                        pos=("ref", -1.0),
+                    ),
+                )
+            )
+
+        for i in range(self.num_unwashable):
+            cfgs.append(
+                dict(
+                    name=f"unwashable_obj_{i}",
+                    obj_groups="all",
+                    # make the object not washable and make sure there aren't 2 trays
+                    exclude_obj_groups=["food", "tray"],
+                    washable=False,
+                    placement=dict(
+                        fixture=self.counter,
+                        sample_region_kwargs=dict(
+                            ref=self.sink,
+                            loc="left_right",
+                        ),
+                        size=(0.40, 0.30),
+                        pos=("ref", -1.0),
+                    ),
+                )
+            )
+
+        cfgs.append(
+            dict(
+                name="receptacle",
+                obj_groups="tray",
+                placement=dict(
+                    fixture=self.counter,
+                    sample_region_kwargs=dict(
+                        ref=self.sink, loc="left_right", top_size=(0.6, 0.6)
+                    ),
+                    size=(0.55, 0.4),
+                    pos=("ref", -1.0),
+                    rotation=(-np.pi / 2, -np.pi / 2),
+                    offset=(0, 0.10),
+                ),
+            )
+        )
+
+        return cfgs
+
+    def _check_success(self):
+        food_in_sink = all(
+            [
+                OU.obj_inside_of(self, f"obj_{i}", self.sink)
+                for i in range(self.num_food)
+            ]
+        )
+        unwashables_not_in_sink = all(
+            [
+                not OU.obj_inside_of(self, f"unwashable_obj_{i}", self.sink)
+                for i in range(self.num_unwashable)
+            ]
+        )
+        water_on = self.sink.get_handle_state(env=self)["water_on"]
+        # make sure the food has been washed for suffient time (10 steps)
+        if food_in_sink and unwashables_not_in_sink and water_on:
+            self.washed_time += 1
+            self.food_washed = self.washed_time > 10
+        else:
+            self.washed_time = 0
+
+        food_in_tray = all(
+            [
+                OU.check_obj_in_receptacle(self, f"obj_{i}", "receptacle")
+                for i in range(self.num_food)
+            ]
+        )
+        unwashables_not_in_tray = all(
+            [
+                not OU.check_obj_in_receptacle(
+                    self, f"unwashable_obj_{i}", "receptacle"
+                )
+                for i in range(self.num_unwashable)
+            ]
+        )
+
+        return (
+            self.food_washed
+            and food_in_tray
+            and unwashables_not_in_tray
+            and not water_on
+        )

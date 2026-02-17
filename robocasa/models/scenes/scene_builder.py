@@ -2,6 +2,8 @@ import numpy as np
 import yaml
 from robosuite.utils.mjcf_utils import array_to_string as a2s
 from robosuite.utils.mjcf_utils import string_to_array as s2a
+from copy import deepcopy
+
 
 from robocasa.models.scenes.scene_registry import get_layout_path, get_style_path
 from robocasa.models.scenes.scene_utils import *
@@ -17,34 +19,65 @@ FIXTURES = dict(
     drawer=Drawer,
     counter=Counter,
     stove=Stove,
+    stove_wide=Stove,
     stovetop=Stovetop,
     oven=Oven,
     microwave=Microwave,
     hood=Hood,
     sink=Sink,
-    fridge=Fridge,
+    fridge_french_door=FridgeFrenchDoor,
+    fridge_side_by_side=FridgeSideBySide,
+    fridge_bottom_freezer=FridgeBottomFreezer,
     dishwasher=Dishwasher,
     wall=Wall,
     floor=Floor,
     box=Box,
     accessory=Accessory,
     paper_towel=Accessory,
+    candle=Accessory,
+    turmeric=Accessory,
+    cinnamon=Accessory,
+    paprika=Accessory,
+    flower_vase=Accessory,
+    utensil_set=Accessory,
     plant=Accessory,
     knife_block=Accessory,
+    soap_dispenser=Accessory,
+    fruit_bowl=Accessory,
+    oil_bottle=Accessory,
+    vinegar_bottle=Accessory,
+    salt_shaker=Accessory,
+    pepper_shaker=Accessory,
+    tiered_basket=Accessory,
+    digital_scale=Accessory,
+    glass_cup=Accessory,
+    jar=Accessory,
+    jar_lid=Accessory,
+    dish_rack=DishRack,
     stool=Stool,
     utensil_holder=Accessory,
     coffee_machine=CoffeeMachine,
     toaster=Toaster,
+    toaster_oven=ToasterOven,
+    blender=Blender,
+    blender_lid=BlenderLid,
+    stand_mixer=StandMixer,
     utensil_rack=WallAccessory,
+    electric_kettle=ElectricKettle,
     wall_accessory=WallAccessory,
     window=Window,
-    framed_window=FramedWindow,
+    window_proc=WindowProc,
     # needs some additional work
     # slide_cabinet=SlideCabinet,
 )
 # fixtures that are attached to other fixtures, disables positioning system in this script
 FIXTURES_INTERIOR = dict(
-    sink=Sink, stovetop=Stovetop, accessory=Accessory, wall_accessory=WallAccessory
+    sink=Sink,
+    stovetop=Stovetop,
+    accessory=Accessory,
+    wall_accessory=WallAccessory,
+    window=Window,
+    stool=Stool,
 )
 
 ALL_SIDES = ["left", "right", "front", "back", "bottom", "top"]
@@ -93,39 +126,28 @@ def check_syntax(fixture):
             )
 
 
-def create_fixtures(layout_id, style_id, rng=None):
+def create_fixtures(layout_config, style_config, rng=None):
     """
     Initializes fixtures based on the given layout yaml file and style type
 
     Args:
-        layout_id (int or LayoutType): layout of the kitchen to load
+        layout_config (dict): layout of the kitchen to load
 
-        style_id (int or StyleType): style of the kitchen to load
+        style_config (dict): style of the kitchen to load
 
         rng (np.random.Generator): random number generator used for initializing fixture state
     """
-    try:
-        style = int(style)
-    except:
-        pass
-
-    layout_path = get_layout_path(layout_id=layout_id)
-    style_path = get_style_path(style_id=style_id)
-
-    # load style
-    with open(style_path, "r") as f:
-        style = yaml.safe_load(f)
-
-    # load arena
-    with open(layout_path, "r") as f:
-        arena_config = yaml.safe_load(f)
 
     # contains all fixtures with updated configs
     arena = list()
 
+    # maps instances of base fixture names to auxiliary fixture names
+    # e.g. {"bleneder_main_group": "blender_main_group_auxiliary"}
+    base_to_auxiliary_instance_map = {}
+
     # Update each fixture config. First iterate through groups: subparts of the arena that can be
     # rotated and displaced together. example: island group, right group, room group, etc
-    for group_name, group_config in arena_config.items():
+    for group_name, group_config in layout_config.items():
         group_fixtures = list()
         # each group is further divded into similar subcollections of fixtures
         # ex: main group counter accessories, main group top cabinets, etc
@@ -149,6 +171,58 @@ def create_fixtures(layout_id, style_id, rng=None):
                         else:
                             if isinstance(fxtr_config[k], str):
                                 fxtr_config[k] += "_" + group_name
+
+                if fxtr_config[
+                    "type"
+                ] in Fixture.BASE_TO_AUXILIARY_FIXTURES and fxtr_config.get(
+                    "enable", True
+                ):
+                    auxiliary_fxtr_cfg = fxtr_config.pop("aux_fixture_config", None)
+                    if auxiliary_fxtr_cfg is None or not auxiliary_fxtr_cfg.get(
+                        "enable", True
+                    ):
+                        continue
+
+                    auxiliary_fxtr_cfg["name"] = fxtr_config["name"] + "_auxiliary"
+                    auxiliary_fxtr_cfg["type"] = Fixture.BASE_TO_AUXILIARY_FIXTURES[
+                        fxtr_config["type"]
+                    ]
+                    # add to the base to auxiliary instance map
+                    base_to_auxiliary_instance_map[fxtr_config["name"]] = (
+                        auxiliary_fxtr_cfg["name"] + "_" + group_name
+                    )
+                    if auxiliary_fxtr_cfg["placement"] == "parent_region":
+                        # place the aux object in the same region as the main (parent) object's region
+                        auxiliary_fxtr_cfg["placement"] = deepcopy(
+                            fxtr_config["placement"]
+                        )
+                        auxiliary_fxtr_cfg["placement"]["sample_region_kwargs"] = dict(
+                            ref=fxtr_config["name"]
+                        )
+                        # auxiliary_fxtr_cfg["placement"]["pos"][0] = "ref"
+                        auxiliary_fxtr_cfg["placement"][
+                            "reuse_region_from"
+                        ] = fxtr_config["name"]
+                        # flag that is set to make sure the auxiliary object is placed without intersecting the main object
+                        auxiliary_fxtr_cfg["placement"][
+                            "ensure_valid_auxiliary_placement"
+                        ] = True
+                    elif auxiliary_fxtr_cfg["placement"] == "anchor":
+                        # place the aux object at the anchor site of the main (parent) object
+                        auxiliary_fxtr_cfg["placement"] = dict(
+                            anchor_to=fxtr_config["name"],
+                        )
+                    else:
+                        raise ValueError(
+                            'Invalid value for auxiliary fixture placement: "{}".'.format(
+                                auxiliary_fxtr_cfg["placement"]
+                            )
+                        )
+                    auxiliary_placement_args = auxiliary_fxtr_cfg.pop(
+                        "auxiliary_placement_args", {}
+                    )
+                    auxiliary_fxtr_cfg["placement"].update(auxiliary_placement_args)
+                    fixture_list.append(auxiliary_fxtr_cfg)
 
             group_fixtures.extend(fixture_list)
 
@@ -175,6 +249,12 @@ def create_fixtures(layout_id, style_id, rng=None):
     # initialize each fixture in the arena by processing config
     for fixture_config in arena:
         check_syntax(fixture_config)
+
+        enable = fixture_config.get("enable", True)
+        if not enable:
+            # skip including the fixture in the scene if enable=False
+            continue
+
         fixture_name = fixture_config["name"]
 
         # stack of fixtures, handled separately
@@ -183,7 +263,7 @@ def create_fixtures(layout_id, style_id, rng=None):
                 fixture_config,
                 fixtures,
                 configs,
-                style,
+                style_config,
                 default_texture=None,
                 rng=rng,
             )
@@ -193,7 +273,7 @@ def create_fixtures(layout_id, style_id, rng=None):
             continue
 
         # load style information and update config to include it
-        default_config = load_style_config(style, fixture_config)
+        default_config = load_style_config(style_config, fixture_config)
         if default_config is not None:
             for k, v in fixture_config.items():
                 default_config[k] = v
@@ -289,5 +369,28 @@ def create_fixtures(layout_id, style_id, rng=None):
 
             fixture._obj.set("pos", a2s(pos_new))
             fixture._obj.set("euler", a2s(rot_new))
+
+    # apply individual z_rot to fixtures that have it specified
+    for name, fixture in fixtures.items():
+        config = configs[name]
+        if "z_rot" in config and type(fixture) not in [Wall, Floor]:
+            z_rot = config["z_rot"]
+            # Get current euler rotation
+            rot_prev = fixture._obj.get("euler")
+            if rot_prev is not None:
+                rot_new = s2a(rot_prev)
+                rot_new[2] += z_rot
+            else:
+                rot_new = [0, 0, z_rot]
+            fixture._obj.set("euler", a2s(rot_new))
+
+    # add auxiliary fixture references to the main fixture
+    for base_name, auxiliary_name in base_to_auxiliary_instance_map.items():
+        assert base_name in fixtures, f"Base fixture {base_name} not found"
+        assert (
+            auxiliary_name in fixtures
+        ), f"Auxiliary fixture {auxiliary_name} not found"
+        if hasattr(fixtures[base_name], "add_auxiliary_fixture"):
+            fixtures[base_name].add_auxiliary_fixture(fixtures[auxiliary_name])
 
     return fixtures

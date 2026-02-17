@@ -1,7 +1,6 @@
 from robocasa.utils.dataset_registry import (
-    get_ds_path,
-    SINGLE_STAGE_TASK_DATASETS,
-    MULTI_STAGE_TASK_DATASETS,
+    ATOMIC_TASK_DATASETS,
+    COMPOSITE_TASK_DATASETS,
 )
 from robocasa.scripts.playback_dataset import get_env_metadata_from_dataset
 from robosuite import load_controller_config
@@ -95,7 +94,7 @@ def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
 if __name__ == "__main__":
     # select random task to run rollouts for
     env_name = np.random.choice(
-        list(SINGLE_STAGE_TASK_DATASETS) + list(MULTI_STAGE_TASK_DATASETS)
+        list(ATOMIC_TASK_DATASETS) + list(COMPOSITE_TASK_DATASETS)
     )
     env = create_eval_env(env_name=env_name)
     info = run_random_rollouts(

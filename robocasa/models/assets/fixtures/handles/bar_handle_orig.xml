@@ -1,0 +1,21 @@
+<mujoco model="bar_handle">
+  <compiler angle="radian"/>
+  <asset>
+    <texture file="../handles/visuals/brass_ambra.png" type="cube" name="tex"/>
+    <material name="mat" reflectance="0.8" shininess="0.8" texrepeat="1 1" texture="tex"/>
+  </asset>
+  <default>
+    <default class="cab">
+      <geom group="0" density="10"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom pos="0 -0.039 0" size="0.017 0.18" type="cylinder" material="mat" class="cab" name="handle"/>
+        <geom pos="0 0 0.13" size="0.01 0.03" quat="0.707 0.707 0 0" type="cylinder" material="mat" class="cab" name="handle_connector_top"/>
+        <geom pos="0 0 -0.13" size="0.01 0.03" quat="0.707 0.707 0 0" type="cylinder" material="mat" class="cab" name="handle_connector_bottom"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

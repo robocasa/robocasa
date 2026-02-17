@@ -5,17 +5,21 @@ import argparse
 import os
 import time
 import xml.etree.ElementTree as ET
-
+import traceback
 import cv2
 import mujoco
 import mujoco.viewer
 import numpy as np
+import sys
 import robosuite
+import robocasa
 from PIL import Image
 from robosuite.utils.binding_utils import MjRenderContextOffscreen, MjSim
 from robosuite.utils.mjcf_utils import array_to_string as a2s
-from robosuite.utils.mjcf_utils import find_elements
+from robosuite.utils.mjcf_utils import find_elements, find_parent
 from robosuite.utils.mjcf_utils import string_to_array as s2a
+
+from multiprocessing import Process
 
 
 def edit_model_xml(xml_str):
@@ -97,53 +101,56 @@ def read_model(
             if show_coll_geoms:
                 g.set("rgba", "1.0 0.0 0.0 0.5")
             else:
-                g.set("rgba", "1.0 0.0 0.0 0.0")
+                g.set("rgba", "1.0 0.0 0.0 0.5")
+                g.set("group", "4")
 
     if show_bbox:
-        sites = {}
-        for site in find_elements(root, tags="site", return_first=False):
-            name = site.get("name", None)
-            if name is not None:
-                sites[name] = s2a(site.get("pos"))
+        # reg_geoms = {}
+        for geom in find_elements(root, tags="geom", return_first=False):
+            name = geom.get("name", None)
+            if name == "handle_main":
+                geom.set("rgba", "0 0 1 0.6")
 
-        ext_bbox_center = None
-        ext_bbox_size = None
-        if "ext_p0" in sites:
-            ext_bbox_center = np.array(
-                [
-                    np.mean([sites["ext_p0"][0], sites["ext_px"][0]]),
-                    np.mean([sites["ext_p0"][1], sites["ext_py"][1]]),
-                    np.mean([sites["ext_p0"][2], sites["ext_pz"][2]]),
-                ]
-            )
-            ext_bbox_size = np.array(
-                [
-                    sites["ext_px"][0] - sites["ext_p0"][0],
-                    sites["ext_py"][1] - sites["ext_p0"][1],
-                    sites["ext_pz"][2] - sites["ext_p0"][2],
-                ]
-            )
-        elif "bottom_site" in sites:
-            ext_bbox_center = np.mean([sites["top_site"], sites["bottom_site"]], axis=0)
-            ext_bbox_size = (
-                np.array(
-                    [
-                        sites["horizontal_radius_site"][0],
-                        sites["horizontal_radius_site"][1],
-                        sites["top_site"][2] - ext_bbox_center[2],
-                    ]
-                )
-                * 2
-            )
+            if name is None:
+                continue
+            if not name.startswith("reg_"):
+                continue
 
-        if (ext_bbox_center is not None) and (ext_bbox_size is not None):
-            ext_bbox_site = ET.fromstring(
-                """<site type="box" pos="{pos}" size="{hsize}" rgba="0 1 0 0.2"/>""".format(
-                    pos=a2s(ext_bbox_center),
-                    hsize=a2s(ext_bbox_size / 2),
+            if name == "reg_main" or name == "reg_bbox":
+                group = 3
+                geom.set("rgba", "0 1 0 0.6")
+            else:
+                group = 2
+                geom.set("rgba", "1 1 0 0.3")
+
+            geom.set("group", str(group))
+
+            if geom.get("type") != "box":
+                continue
+            pos = s2a(geom.get("pos"))
+            size = s2a(geom.get("size"))
+            points = [
+                pos + [-size[0], -size[1], -size[2]],
+                pos + [-size[0], -size[1], size[2]],
+                pos + [-size[0], size[1], -size[2]],
+                pos + [-size[0], size[1], size[2]],
+                pos + [size[0], -size[1], -size[2]],
+                pos + [size[0], -size[1], size[2]],
+                pos + [size[0], size[1], -size[2]],
+                pos + [size[0], size[1], size[2]],
+            ]
+
+            parent_body = find_parent(worldbody, geom)
+
+            for point in points:
+                ext_bbox_site = ET.fromstring(
+                    """<site type="sphere" pos="{pos}" size="0.003" rgba="{rgba}" group="{group}" />""".format(
+                        pos=a2s(point),
+                        rgba="0 0 0 1",
+                        group=group,
+                    )
                 )
-            )
-            worldbody.append(ext_bbox_site)
+                parent_body.append(ext_bbox_site)
 
     sites = find_elements(root, tags="site", return_first=False)
     if sites is not None:
@@ -203,6 +210,40 @@ def render_model(
     mujoco.viewer.launch(sim.model._model, sim.data._data)
 
 
+def view_mjcf(mjcf_path, show_coll_geoms=False, screenshot=False, cam_settings=None):
+    sim = None
+    try:
+        sim, info = read_model(
+            xml=None,
+            filepath=mjcf_path,
+            hide_sites=False,
+            show_bbox=True,
+            show_coll_geoms=show_coll_geoms,
+        )
+    except Exception as e:
+        print("Exception!")
+        traceback.print_exc()
+
+    load_time = info["sim_load_time"]
+    print("sim load time:", load_time)
+    # load_time_list.append(load_time)
+
+    if screenshot:
+        image = get_model_screenshot(
+            sim=sim,
+            cam_settings=cam_settings,
+        )
+        im = Image.fromarray(image)
+        im.save("screenshot.png")
+    else:
+        render_model(
+            sim=sim,
+            cam_settings=cam_settings,
+        )
+
+    del sim
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mjcf", type=str, required=True)
@@ -211,11 +252,11 @@ if __name__ == "__main__":
         action="store_true",
         help="save screenshot of model in same directory as filepath",
     )
-    parser.add_argument(
-        "--show_bbox",
-        action="store_true",
-        help="visualize exterior bounding box (based on ext_ sites)",
-    )
+    # parser.add_argument(
+    #     "--show_bbox",
+    #     action="store_true",
+    #     help="visualize exterior bounding box (based on ext_ sites)",
+    # )
     parser.add_argument(
         "--show_coll_geoms",
         action="store_true",
@@ -227,30 +268,38 @@ if __name__ == "__main__":
     #     "distance": 0.3,
     #     "elevation": -30,
     # }
+    cam_settings = None
+
+    # if not os.path.isabs(args.mjcf):
+    #     # if path is not absolute, assume that it is starting from the assets folder of RoboCaas
+    #     args.mjcf = os.path.join(robocasa.__path__[0], "models/assets", args.mjcf)
+
+    if os.path.isdir(args.mjcf):
+        mjcf_path_list = []
+        for root, dirs, files in os.walk(args.mjcf):
+            for file in files:
+                if file.endswith(".xml"):
+                    mjcf_path_list.append(os.path.join(root, file))
+    else:
+        mjcf_path_list = [args.mjcf]
+
+    # load_time_list = []
     while True:
-        cam_settings = None
+        for mjcf_path in mjcf_path_list:
+            if len(mjcf_path_list) > 1:
+                print(f"Reading: {mjcf_path}")
 
-        sim, info = read_model(
-            xml=None,
-            filepath=args.mjcf,
-            hide_sites=False,
-            show_bbox=args.show_bbox,
-            show_coll_geoms=args.show_coll_geoms,
-        )
-        print("sim load time:", info["sim_load_time"])
-
-        if args.screenshot:
-            image = get_model_screenshot(
-                sim=sim,
-                cam_settings=cam_settings,
+            p = Process(
+                target=view_mjcf,
+                args=(mjcf_path, args.show_coll_geoms, args.screenshot, cam_settings),
             )
-            im = Image.fromarray(image)
-            im.save("screenshot.png")
-        else:
-            render_model(
-                sim=sim,
-                cam_settings=cam_settings,
-            )
+            p.start()
+            p.join()  # this blocks until the process terminates
 
-    # cv2.imshow('image', image[:,:,::-1])
-    # cv2.waitKey(0)
+        if len(mjcf_path_list) > 1:
+            # mean = np.mean(load_time_list)
+            # median = np.median(load_time_list)
+            # print()
+            # print("Mean loading time: {:.4f} s".format(mean))
+            # print("Median loading time: {:.4f} s".format(median))
+            sys.exit(0)

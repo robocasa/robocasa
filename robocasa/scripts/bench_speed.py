@@ -51,6 +51,8 @@ def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
     for _ in range(num_steps):
         # Get the newest action
         action = np.random.normal(size=ac_dim)
+        # set base actions to 0
+        action[-5:] = 0.0
 
         # Run environment step
         obs, _, _, _ = env.step(action)
@@ -67,7 +69,7 @@ def run_rollout(env, arm, env_configuration, num_steps=200, render=False):
     steps_per_sec = num_steps / (t_end - t_start)
 
     # # cleanup for end of data collection episodes
-    # env.close()
+    env.close()
 
     return reset_time, steps_per_sec
 
@@ -76,13 +78,129 @@ def log_info(message, color="yellow"):
     print(colored(message, color))
 
 
-if __name__ == "__main__":
-    # Arguments
+def run_bench(
+    env_name,
+    robots="PandaOmron",
+    camera=None,
+    seed=0,
+    layout=-1,
+    style=-1,
+    no_render=False,
+    n_envs=1,
+    n_trials=30,
+    onscreen=False,
+):
+    def create_env():
+        # Get controller config
+        # controller_config = load_controller_config(default_controller=args.controller)
+        controller_config = load_composite_controller_config(
+            controller=None,
+            robot=robots,
+        )
+
+        # Create argument configuration
+        config = dict(
+            controller_configs=controller_config,
+            env_name=env_name,
+            ignore_done=True,
+            reward_shaping=True,
+            control_freq=20,
+            camera_heights=84,
+            camera_widths=84,
+            translucent_robot=True,
+        )
+
+        if onscreen:
+            assert no_render is False
+            config.update(
+                has_renderer=True,
+                has_offscreen_renderer=False,
+                render_camera=camera,
+                use_camera_obs=False,
+            )
+        else:
+            config.update(
+                has_renderer=False,
+                has_offscreen_renderer=(not no_render),
+                use_camera_obs=(not no_render),
+                render_camera=camera,
+            )
+
+        if env_name in ALL_KITCHEN_ENVIRONMENTS:
+            config["camera_names"] = [
+                "robot0_agentview_left",
+                "robot0_agentview_right",
+                "robot0_eye_in_hand",
+            ]
+            config["layout_ids"] = layout
+            config["style_ids"] = style
+            config["seed"] = seed
+
+            config["robots"] = robots or "PandaOmron"
+        else:
+            config["robots"] = robots or "Panda"
+
+        env = suite.make(**config)
+        return env
+
+    if n_envs > 1:
+        env_fns = [lambda env_i=i: create_env() for i in range(n_envs)]
+        env = SubprocVectorEnv(env_fns)
+    else:
+        env = create_env()
+
+    print(f"Task: {env_name}")
+
+    # collect demonstrations
+    steps_per_sec_list = []
+    reset_time_list = []
+    for ep in range(n_trials):
+        try:
+            reset_time, steps_per_sec = run_rollout(
+                env, "right", "single-arm-opposed", render=False, num_steps=100
+            )
+            print("ep #{}".format(ep + 1))
+            print("   {:.2f}s reset time".format(reset_time))
+            print("   {:.2f} fps".format(steps_per_sec))
+            print()
+            reset_time_list.append(reset_time)
+            steps_per_sec_list.append(steps_per_sec)
+
+            print(
+                colored(
+                    "AVG reset time: {:.2f}s".format(np.mean(reset_time_list)), "yellow"
+                )
+            )
+            print(
+                colored("AVG fps: {:.2f}".format(np.mean(steps_per_sec_list)), "yellow")
+            )
+            print()
+        except Exception as e:
+            print("EXCEPTION!")
+            print(e)
+
+    print("reset time: {:.2f}s".format(np.mean(reset_time_list)))
+    print("fps: {:.2f}".format(np.mean(steps_per_sec_list)))
+
+    env.close()
+    del env
+
+    info = dict(
+        reset_time_list=reset_time_list,
+        steps_per_sec_list=steps_per_sec_list,
+    )
+    return info
+
+
+def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mjcf_path", type=str, help="path to object MJCF")
     parser.add_argument("--env", type=str, default="Lift")
-    parser.add_argument("--num_envs", type=int, default=1)
+    parser.add_argument("--n_envs", type=int, default=1)
+    parser.add_argument("--n_trials", type=int, default=30)
     parser.add_argument("--n_objs", type=int, default=None)
+    parser.add_argument("--layout", type=int, nargs="+", default=-1)
+    parser.add_argument("--style", type=int, nargs="+", default=-1)
     parser.add_argument(
         "--robots",
         nargs="+",
@@ -90,18 +208,18 @@ if __name__ == "__main__":
         default="PandaOmron",
         help="Which robot(s) to use in the env",
     )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="single-arm-opposed",
-        help="Specified environment configuration if necessary",
-    )
-    parser.add_argument(
-        "--arm",
-        type=str,
-        default="right",
-        help="Which arm to control (eg bimanual) 'right' or 'left'",
-    )
+    # parser.add_argument(
+    #     "--config",
+    #     type=str,
+    #     default="single-arm-opposed",
+    #     help="Specified environment configuration if necessary",
+    # )
+    # parser.add_argument(
+    #     "--arm",
+    #     type=str,
+    #     default="right",
+    #     help="Which arm to control (eg bimanual) 'right' or 'left'",
+    # )
     parser.add_argument(
         "--camera",
         type=str,
@@ -120,74 +238,24 @@ if __name__ == "__main__":
         default=None,
         help="Choice of controller. Can be, eg. 'NONE' or 'WHOLE_BODY_IK', etc. Or path to controller json file",
     )
-
+    parser.add_argument("--onscreen", action="store_true")
     parser.add_argument("--no_render", action="store_true")
     args = parser.parse_args()
+    return args
 
-    def create_env():
-        # Get controller config
-        # controller_config = load_controller_config(default_controller=args.controller)
-        controller_config = load_composite_controller_config(
-            controller=args.controller,
-            robot=args.robots,
-        )
 
-        # Create argument configuration
-        config = dict(
-            controller_configs=controller_config,
-            env_name=args.env,
-            has_renderer=False,
-            has_offscreen_renderer=(not args.no_render),
-            use_camera_obs=(not args.no_render),
-            render_camera=args.camera,
-            ignore_done=True,
-            reward_shaping=True,
-            control_freq=20,
-            camera_heights=84,
-            camera_widths=84,
-        )
-
-        if args.env in ALL_KITCHEN_ENVIRONMENTS:
-            config["camera_names"] = [
-                "robot0_agentview_left",
-                "robot0_agentview_right",
-                "robot0_eye_in_hand",
-            ]
-            config["layout_ids"] = 0
-            config["style_ids"] = 0
-            config["seed"] = args.seed
-
-            if args.env == "KitchenDemo" and args.n_objs is not None:
-                config["num_objs"] = args.n_objs
-
-            config["robots"] = args.robots or "PandaOmron"
-        else:
-            config["robots"] = args.robots or "Panda"
-
-        env = suite.make(**config)
-        return env
-
-    if args.num_envs > 1:
-        env_fns = [lambda env_i=i: create_env() for i in range(args.num_envs)]
-        env = SubprocVectorEnv(env_fns)
-    else:
-        env = create_env()
-
-    # collect demonstrations
-    steps_per_sec_list = []
-    reset_time_list = []
-    for ep in range(10):
-        reset_time, steps_per_sec = run_rollout(
-            env, args.arm, args.config, render=False, num_steps=100
-        )
-        print("ep #{}".format(ep + 1))
-        print("   {:.2f}s reset time".format(reset_time))
-        print("   {:.2f} fps".format(steps_per_sec))
-        print()
-        reset_time_list.append(reset_time)
-        steps_per_sec_list.append(steps_per_sec)
-
-    print("reset time: {:.2f}s".format(np.mean(reset_time_list)))
-    print("fps: {:.2f}".format(np.mean(steps_per_sec_list)))
-
-    env.close()
+if __name__ == "__main__":
+    # Arguments
+    args = get_args()
+    run_bench(
+        env_name=args.env,
+        robots=args.robots,
+        camera=args.camera,
+        seed=args.seed,
+        n_trials=args.n_trials,
+        n_envs=args.n_envs,
+        layout=args.layout,
+        style=args.style,
+        onscreen=args.onscreen,
+        no_render=args.onscreen,
+    )

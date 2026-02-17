@@ -22,7 +22,7 @@ import robocasa
 from robocasa.models.objects.kitchen_object_utils import sample_kitchen_object
 from robocasa.scripts.download_kitchen_assets import (
     DOWNLOAD_ASSET_REGISTRY,
-    download_and_extract_zip,
+    download_and_extract_from_hf,
 )
 
 
@@ -148,12 +148,13 @@ def read_model(
             )
             worldbody.append(ext_bbox_site)
 
+    sites_list = find_elements(root, tags="site", return_first=False) or []
     if hide_sites:
         # hide all sites
-        for site in find_elements(root, tags="site", return_first=False):
+        for site in sites_list:
             site.set("rgba", "0 0 0 0")
     else:
-        for site in find_elements(root, tags="site", return_first=False):
+        for site in sites_list:
             rgba = s2a(site.get("rgba"))
             # rgba[-1] = 1.0
             site.set("rgba", a2s(rgba))
@@ -287,39 +288,19 @@ if __name__ == "__main__":
         "--obj_types",
         type=str,
         nargs="+",
-        default=["objaverse"],
-        help="(optional) object types. choose among [objaverse, aigen]",
+        default=["objaverse", "lightwheel"],
+        help="(optional) object types. choose among [objaverse, aigen, lightwheel]",
     )
     args = parser.parse_args()
 
     cam_settings = {
-        "distance": 0.3,
-        "elevation": -30,
+        "distance": 0.6,
+        "elevation": -45,
     }
 
     device = DemoKeyboard()
 
     obj_registries = args.obj_types
-
-    if "aigen" in obj_registries:
-
-        aigen_objs_path = os.path.join(
-            robocasa.__path__[0], "models/assets/objects/aigen_objs"
-        )
-        if os.path.exists(aigen_objs_path) is False:
-            download_config = DOWNLOAD_ASSET_REGISTRY["aigen_objs"]
-            download_config[
-                "message"
-            ] = "Unable to find AI-generated objects locally. Downloading files."
-            download_config["prompt_before_download"] = True
-            download_and_extract_zip(**download_config)
-            print(
-                colored(
-                    f"Ending script. Rerun script to use new AI-generated objects",
-                    "yellow",
-                )
-            )
-            exit()
 
     while True:
         if args.mjcf is not None:
@@ -334,7 +315,6 @@ if __name__ == "__main__":
             aigen = "aigen_objs" in filepath
             print()
             print(colored(f"Category: {cat}", "green"))
-            print(colored(f"AI-Generated? {aigen}", "green"))
             print(colored(f"Model path: {filepath}", "green"))
 
         sim, info = read_model(

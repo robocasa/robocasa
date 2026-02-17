@@ -1,0 +1,751 @@
+/* Composite Tasks dropdown styling */
+
+/* Ensure native form controls (e.g., <select>) match the active theme.
+   This affects the OS-rendered dropdown UI (not just the closed control). */
+html[data-theme="light"] body.rc-composite-tasks {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] body.rc-composite-tasks {
+  color-scheme: dark;
+}
+
+.rc-activity-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.75rem 0 1.25rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.5rem;
+  background: var(--pst-color-surface, #ffffff);
+  flex-wrap: wrap;
+}
+
+.rc-activity-selector label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.rc-activity-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+  min-width: 340px;
+}
+
+.rc-activity-group select {
+  flex: 1 1 auto;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-task-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+  min-width: 340px;
+}
+
+.rc-show-all {
+  flex-basis: 100%;
+  margin-top: 0.25rem;
+}
+
+.rc-show-all-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+.rc-show-all-label input[type="checkbox"] {
+  margin: 0;
+}
+
+.rc-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 0;
+  justify-content: flex-start;
+  min-width: 360px;
+  flex-basis: 100%;
+  padding-top: 0.25rem;
+}
+
+.rc-sort-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-basis: 100%;
+  margin-top: 0.35rem;
+}
+
+.rc-sort-row label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.rc-sort-row select {
+  padding: 0.3rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-task-count {
+  margin-left: 0.5rem;
+  color: var(--pst-color-text-muted, #555);
+  font-weight: 500;
+}
+
+.rc-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rc-filter-length {
+  position: relative;
+}
+
+.rc-length-dropdown-btn {
+  padding: 0.22rem 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  font-weight: 600;
+  font-size: 0.92em;
+  min-width: 130px;
+  text-align: left;
+}
+
+.rc-length-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1200;
+  min-width: 100%;
+  width: max-content;
+  max-width: 90vw;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 0.15rem 0.2rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+}
+
+.rc-length-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pst-color-on-background, #fff);
+  padding: 0.25rem 0.25rem;
+  border-bottom: 1px solid var(--pst-color-border, #e0e0e0);
+  margin-bottom: 0.25rem;
+}
+
+.rc-length-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.92em;
+  user-select: none;
+}
+
+.rc-length-all input[type="checkbox"] {
+  margin: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+.rc-length-item {
+  display: grid;
+  grid-template-columns: 1.15rem 1fr max-content;
+  align-items: center;
+  column-gap: 0.45rem;
+  padding: 0.28rem 0.3rem;
+  border-radius: 0.45rem;
+  user-select: none;
+  cursor: pointer;
+  font-size: 0.92em;
+}
+
+.rc-length-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-length-item input[type="checkbox"] {
+  margin: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+.rc-length-item-count {
+  color: var(--pst-color-text-muted, #555);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rc-filter-subtasks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.rc-subtasks-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rc-filter select,
+.rc-filter input {
+  padding: 0.3rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-reset-filters-btn {
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  /* Match Fixtures page "Clear" button color (keep sizing unchanged) */
+  background: #3498db;
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.rc-reset-filters-btn:hover {
+  background: #2980b9;
+}
+
+.rc-filter input {
+  width: 4.2rem;
+}
+
+/* Subtasks min/max: make the two number inputs more compact */
+.rc-filter-subtasks input#rc-filter-sub-min,
+.rc-filter-subtasks input#rc-filter-sub-max {
+  width: 3.2rem;
+  padding: 0.22rem 0.35rem;
+}
+
+.rc-filter-range-sep {
+  color: var(--pst-color-text-muted, #555);
+  padding: 0 0.15rem;
+}
+
+.rc-filter-note {
+  flex-basis: 100%;
+  font-size: 0.92em;
+  color: var(--pst-color-text-muted, #555);
+  margin-top: 0.1rem;
+}
+
+.rc-subtasks-note {
+  flex-basis: auto;
+  margin-top: 0;
+  font-size: 0.78em;
+  color: #b42318;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+.rc-filter-categories {
+  flex-basis: 100%;
+  position: relative;
+  margin-top: 0.1rem;
+}
+
+.rc-category-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  /* Match Horizon button sizing */
+  padding: 0.22rem 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  font-weight: 600;
+  font-size: 0.92em;
+  min-width: 130px;
+  text-align: left;
+}
+
+.rc-category-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1200;
+  width: max-content;
+  min-width: 0;
+  max-width: 90vw;
+  padding: 0.15rem 0.22rem 0.15rem 0.55rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  text-align: left;
+}
+
+.rc-category-item {
+  display: grid;
+  grid-template-columns: 1.35rem max-content;
+  align-items: center;
+  column-gap: 0.35rem;
+  padding: 0.32rem 0.12rem 0.32rem 0.18rem;
+  border-radius: 0.45rem;
+  user-select: none;
+}
+
+.rc-category-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-category-item input[type="checkbox"] {
+  margin: 0;
+  flex: 0 0 auto;
+  justify-self: start;
+  opacity: 1;
+  position: static;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.rc-category-item span {
+  justify-self: start;
+}
+
+/* Slightly larger tags inside the dropdown */
+.rc-category-tag {
+  font-size: 0.95em;
+  padding: 0.18rem 0.55rem;
+}
+
+.rc-invalid {
+  border-color: #b42318 !important;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.15);
+}
+
+.rc-task-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.rc-task-search input[type="search"] {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-task-suggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.5rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.rc-task-suggest-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rc-task-suggest-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-task-suggest-item.rc-active {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-task-suggest-name {
+  font-weight: 700;
+}
+
+.rc-task-suggest-meta {
+  color: var(--pst-color-text-muted, #555);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+/* Brief row highlight on jump */
+@keyframes rc-flash {
+  0% { background-color: rgba(255, 235, 59, 0.65); }
+  100% { background-color: transparent; }
+}
+
+tr.rc-task-highlight td {
+  animation: rc-flash 1.8s ease-out;
+}
+
+/* Slightly more vertical breathing room in task rows */
+.rc-activity-body table.docutils tbody td {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+  line-height: 1.35;
+}
+
+/* Column width tuning (Composite Tasks tables only)
+   Task reduced to make room for Horizon column */
+body.rc-composite-tasks .rc-activity-body table.docutils {
+  width: 100%;
+  table-layout: fixed;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(1),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(1) {
+  width: 24%;
+  overflow-wrap: anywhere;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(2),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(2) {
+  width: 48.5%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(3),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(3) {
+  width: 9.5%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(4),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(4) {
+  width: 8.25%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(5),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(5) {
+  width: 7%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(6),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(6) {
+  width: 4.75%;
+}
+
+details.rc-activity {
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  margin: 0.6rem 0;
+  overflow: hidden;
+  background: var(--pst-color-surface, #ffffff);
+}
+
+details.rc-activity > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-weight: 700;
+}
+
+.rc-activity-summary-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.rc-activity-meta {
+  display: inline-flex;
+  width: fit-content;
+  font-weight: 600;
+  font-size: 0.82em;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: #1f2937;
+  text-transform: none;
+}
+
+/* Distinct meta-category colors */
+.rc-activity-meta[data-meta="food prep"] {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+}
+.rc-activity-meta[data-meta="cooking"] {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+.rc-activity-meta[data-meta="beverage preparation"] {
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+.rc-activity-meta[data-meta="organizing and storage"] {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+.rc-activity-meta[data-meta="serving"] {
+  background: #fce7f3;
+  border-color: #f9a8d4;
+}
+.rc-activity-meta[data-meta="cleaning and sanitizing"] {
+  background: #fef9c3;
+  border-color: #fde047;
+}
+
+/* Task link color matches meta-category */
+body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a code {
+  color: #6d28d9;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a code {
+  color: #1d4ed8;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a code {
+  color: #c2410c;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a code {
+  color: #15803d;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a code {
+  color: #be185d;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a code {
+  color: #a16207;
+}
+
+body.rc-composite-tasks details.rc-activity .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+body.rc-composite-tasks details.rc-activity .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code {
+  text-decoration-thickness: 2px;
+}
+
+/* iMessage-style video popup */
+.rc-video-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+body.rc-modal-open {
+  overflow: hidden;
+}
+
+.rc-video-modal {
+  position: relative;
+  width: min(1077px, 95.76vw);
+  background: var(--pst-color-on-background, #fff);
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  padding: 0.75rem;
+}
+
+.rc-video-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.rc-video-modal-download {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--pst-color-text-base, #111);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.rc-video-modal-download:hover {
+  background: rgba(255, 255, 255, 1);
+  text-decoration: none;
+}
+
+.rc-video-modal-player {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  background: #000;
+  max-height: 80vh;
+}
+
+.rc-video-modal-instruction {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: var(--pst-color-text-base, #111);
+}
+
+.rc-video-modal-instruction-text {
+  font-weight: 500;
+}
+
+.rc-video-modal-error {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(180, 35, 24, 0.35);
+  background: rgba(180, 35, 24, 0.06);
+  color: #7a271a;
+  font-weight: 600;
+}
+
+.rc-video-modal-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.rc-video-modal-close:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.rc-video-modal-title {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 800;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+details.rc-activity > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.rc-activity > summary:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-activity-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rc-activity-badge {
+  font-weight: 600;
+  font-size: 0.85em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: var(--pst-color-text-muted, #555);
+  white-space: nowrap;
+}
+
+.rc-activity-body {
+  padding: 0.75rem 0.9rem 0.95rem 0.9rem;
+}
+
+/* Slightly tighten table spacing inside accordions */
+.rc-activity-body table.docutils {
+  margin-top: 0.35rem;
+}
+
+/* Attribute columns */
+.rc-activity-body td.rc-mobile,
+.rc-activity-body td.rc-subtasks {
+  white-space: nowrap;
+}
+
+.rc-activity-body td.rc-episode-length {
+  white-space: nowrap;
+}
+
+.rc-activity-body td.rc-video {
+  white-space: nowrap;
+}
+
+/* Composite Tasks only: compact Watch button */
+body.rc-composite-tasks .rc-activity-body .rc-atomic-video-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  /* atomic baseline: radius 0.55, padding 0.32x0.62, font 0.85
+     composite target: 10% smaller than atomic baseline */
+  border-radius: 0.495rem !important;
+  padding: 0.288rem 0.558rem !important;
+  font-size: 0.765rem !important;
+  line-height: 1.1 !important;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+body.rc-composite-tasks .rc-activity-body .rc-atomic-video-btn:hover {
+  filter: brightness(0.98);
+}
+
+/* Hide the right-side "Contents" (secondary TOC) on Composite Tasks page */
+body.rc-composite-tasks .bd-sidebar-secondary,
+body.rc-composite-tasks .sidebar-toggle.secondary-toggle,
+body.rc-composite-tasks label.overlay.overlay-secondary,
+body.rc-composite-tasks #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+
+/* Use the freed space (no secondary sidebar) */
+body.rc-composite-tasks .bd-main .bd-content .bd-article-container {
+  max-width: 95em;
+}
+

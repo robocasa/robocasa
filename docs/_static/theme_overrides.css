@@ -1,0 +1,157 @@
+/* Global doc overrides */
+
+/* Nicer link underlines: sit below descenders (g, y, p, etc.) so the line
+   doesn't cut through letters. text-underline-offset moves the line down. */
+.bd-content a[href],
+.bd-article-content a[href],
+.content a[href],
+div.body a[href],
+article a[href] {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+
+/* Reduce whitespace above the Citation section on overview */
+section#citation > h2,
+section#citation > h3,
+h2#citation,
+h3#citation {
+  margin-top: 0.75rem !important;
+}
+
+/* Tighter spacing between sections: less gap above h2/h3 so sections sit closer to content above */
+.bd-content h2:not(.fixture-card-title),
+.bd-article-content h2:not(.fixture-card-title),
+.bd-content h3,
+.bd-article-content h3,
+.content h2:not(.fixture-card-title),
+.content h3,
+div.body h2:not(.fixture-card-title),
+div.body h3 {
+  margin-top: 1.25rem !important;
+}
+
+/* Overview page: hide contents (secondary) sidebar and use full width.
+   :has() ensures hide from first paint (no flash); .rc-overview-page is set by JS as backup. */
+body:has(section#overview) .bd-sidebar-secondary,
+body:has(section#overview) .sidebar-toggle.secondary-toggle,
+body:has(section#overview) label.overlay.overlay-secondary,
+body:has(section#overview) #pst-secondary-sidebar-checkbox,
+body.rc-overview-page .bd-sidebar-secondary,
+body.rc-overview-page .sidebar-toggle.secondary-toggle,
+body.rc-overview-page label.overlay.overlay-secondary,
+body.rc-overview-page #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+body:has(section#overview) .bd-main .bd-content .bd-article-container,
+body.rc-overview-page .bd-main .bd-content .bd-article-container {
+  max-width: none;
+}
+
+/* Installation page: use full width (same as overview) */
+body.rc-installation-page .bd-sidebar-secondary,
+body.rc-installation-page .sidebar-toggle.secondary-toggle,
+body.rc-installation-page label.overlay.overlay-secondary,
+body.rc-installation-page #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+body.rc-installation-page .bd-main .bd-content .bd-article-container {
+  max-width: none;
+}
+
+/* Multi-Task Learning page: hide right "Contents" sidebar and use full width */
+body.rc-multitask-learning .bd-sidebar-secondary,
+body.rc-multitask-learning .sidebar-toggle.secondary-toggle,
+body.rc-multitask-learning label.overlay.overlay-secondary,
+body.rc-multitask-learning #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+body.rc-multitask-learning .bd-main .bd-content .bd-article-container {
+  max-width: none;
+}
+
+/* Multi-Task Learning benchmark table: equal width for DP, π₀, GR00T N1.5 columns */
+body.rc-multitask-learning table.rc-benchmark-table {
+  table-layout: fixed;
+}
+body.rc-multitask-learning table.rc-benchmark-table th:nth-child(2),
+body.rc-multitask-learning table.rc-benchmark-table th:nth-child(3),
+body.rc-multitask-learning table.rc-benchmark-table th:nth-child(4),
+body.rc-multitask-learning table.rc-benchmark-table td:nth-child(2),
+body.rc-multitask-learning table.rc-benchmark-table td:nth-child(3),
+body.rc-multitask-learning table.rc-benchmark-table td:nth-child(4) {
+  width: 25%;
+}
+
+/* Citation copy button (overview page) – line-art icon, transparent background */
+.rc-citation-copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.rc-citation-copy-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+.rc-citation-copy-btn.rc-copied {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+.rc-citation-copy-btn .rc-citation-copy-icon {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+}
+html[data-theme="dark"] .rc-citation-copy-btn {
+  background: transparent;
+  color: #e0e0e0;
+}
+html[data-theme="dark"] .rc-citation-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+html[data-theme="dark"] .rc-citation-copy-btn.rc-copied {
+  background: rgba(46, 125, 50, 0.2);
+  color: #81c784;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .rc-citation-copy-btn {
+    background: transparent;
+    color: #e0e0e0;
+  }
+  html:not([data-theme="light"]) .rc-citation-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  html:not([data-theme="light"]) .rc-citation-copy-btn.rc-copied {
+    background: rgba(46, 125, 50, 0.2);
+    color: #81c784;
+  }
+}
+
+/* Overview banner: prevent theme from darkening image in dark mode (same as fixture images) */
+@media (prefers-color-scheme: dark) {
+  .overview-banner-image {
+    filter: none;
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+}
+html[data-theme="dark"] .overview-banner-image {
+  filter: none !important;
+  opacity: 1 !important;
+  background-color: rgba(255, 255, 255, 0.06);
+}

@@ -1,7 +1,6 @@
 from copy import deepcopy
-
 import numpy as np
-
+from robocasa.environments.kitchen.kitchen import *
 from robocasa.models.fixtures import Fixture
 
 STOVE_LOCATIONS = [
@@ -12,6 +11,8 @@ STOVE_LOCATIONS = [
     "front_center",
     "front_right",
     "center",
+    "left",
+    "right",
 ]
 
 
@@ -25,8 +26,20 @@ class Stove(Fixture):
         name (str): name of the object
     """
 
-    def __init__(self, xml="fixtures/stoves/stove_orig", name="stove", *args, **kwargs):
+    STOVE_LOW_MIN = 0.35
+    STOVE_HIGH_MIN = np.deg2rad(80)
 
+    def __init__(
+        self,
+        xml="fixtures/stoves/basic_sleek_induc",
+        name="stove",
+        stove_type="standard",
+        *args,
+        **kwargs
+    ):
+
+        assert stove_type in ["standard", "wide"]
+        self.stove_type = stove_type
         self._knob_joints = None
         self._burner_sites = None
 
@@ -92,7 +105,7 @@ class Stove(Fixture):
             if joint is None:
                 env.sim.model.site_rgba[site_id][3] = 0.0
                 continue
-            joint_id = env.sim.model.joint_name2id(
+            joint_id = env.sim.model.get_joint_qpos_addr(
                 "{}knob_{}_joint".format(self.naming_prefix, location)
             )
 
@@ -119,14 +132,18 @@ class Stove(Fixture):
 
             mode (str): "on" or "off"
         """
-        assert mode in ["on", "off"]
+        assert mode in ["on", "off", "high", "low"]
+        _, joint_max = self._joint_infos[
+            "{}knob_{}_joint".format(self.naming_prefix, knob)
+        ]["range"]
         if mode == "off":
             joint_val = 0.0
+        elif mode == "low":
+            joint_val = rng.uniform(0.35, self.STOVE_HIGH_MIN - 0.00001)
+        elif mode == "high":
+            joint_val = rng.uniform(self.STOVE_HIGH_MIN, joint_max)
         else:
-            if self.rng.uniform() < 0.5:
-                joint_val = rng.uniform(0.50, np.pi / 2)
-            else:
-                joint_val = rng.uniform(2 * np.pi - np.pi / 2, 2 * np.pi - 0.50)
+            joint_val = rng.uniform(0.50, joint_max)
 
         env.sim.data.set_joint_qpos(
             "{}knob_{}_joint".format(self.naming_prefix, knob), joint_val
@@ -151,17 +168,150 @@ class Stove(Fixture):
             if site is None:
                 continue
 
-            joint_id = env.sim.model.joint_name2id(
+            joint_id = env.sim.model.get_joint_qpos_addr(
                 "{}knob_{}_joint".format(self.naming_prefix, location)
             )
 
             joint_qpos = deepcopy(env.sim.data.qpos[joint_id])
+
+            # normalize between 0 and 2pi
             joint_qpos = joint_qpos % (2 * np.pi)
             if joint_qpos < 0:
                 joint_qpos += 2 * np.pi
 
             knobs_state[location] = joint_qpos
         return knobs_state
+
+    def is_burner_on(self, env, burner_loc, th=0.35):
+        """
+        checks if a specified burner is on or off
+        """
+        knobs_state = self.get_knobs_state(env=env)
+        knob_value = knobs_state[burner_loc]
+        knob_on = th <= np.abs(knob_value) <= 2 * np.pi - 0.35
+        return knob_on
+
+    def check_obj_location_on_stove(self, env, obj_name, threshold=0.08):
+        """
+        Check if the object is on the stove and close to a burner and the knob is on.
+        Returns the location of the burner if the object is on the stove, close to a burner, and the burner is on.
+        None otherwise.
+        """
+
+        knobs_state = self.get_knobs_state(env=env)
+
+        obj = env.objects[obj_name]
+        obj_pos = np.array(env.sim.data.body_xpos[env.obj_body_id[obj.name]])[0:2]
+
+        obj_on_stove = OU.check_obj_fixture_contact(env, obj_name, self)
+
+        if obj_on_stove:
+            for location, site in self.burner_sites.items():
+                if site is not None:
+                    burner_pos = np.array(env.sim.data.get_site_xpos(site.get("name")))[
+                        0:2
+                    ]
+                    dist = np.linalg.norm(burner_pos - obj_pos)
+
+                    obj_on_site = dist < threshold
+                    if location in knobs_state:
+                        knob_angle = np.abs(knobs_state[location])
+                        knob_on = 0.35 <= knob_angle <= (2 * np.pi - 0.35)
+                    else:
+                        knob_on = False
+
+                    if obj_on_site and knob_on:
+                        return location
+
+        return None
+
+    def get_obj_location_on_stove(self, env, obj_name, threshold=0.08):
+        """
+        Check if the object (e.g., pan) is correctly placed on the stove and aligned with a burner.
+        Args:
+            obj_name (str): The name of the object to check.
+            threshold (float): Maximum allowed distance from the burner to consider it aligned.
+        Returns:
+            str or None: The closest burner if the object is within the threshold, else None.
+        """
+
+        obj = env.objects[obj_name]
+        obj_pos = np.array(env.sim.data.body_xpos[env.obj_body_id[obj.name]])[0:2]
+
+        obj_on_stove = OU.check_obj_fixture_contact(env, obj_name, self)
+        if not obj_on_stove:
+            return None
+
+        closest_burner = None
+        closest_distance = float("inf")
+
+        for burner_name, site in self.burner_sites.items():
+            if site is None:
+                continue
+
+            burner_pos = np.array(env.sim.data.get_site_xpos(site.get("name")))[0:2]
+            distance = np.linalg.norm(burner_pos - obj_pos)
+
+            if distance < closest_distance:
+                closest_burner = burner_name
+                closest_distance = distance
+
+        return closest_burner
+
+    def obj_fully_inside_receptacle(self, env, obj_name, receptacle_id, tol=0.01):
+        """
+        Checks if an object is fully inside a receptacle (mostly for pans/pots),
+        with a tolerance margin applied only to the height (z-axis).
+
+        Args:
+            env (MujocoEnv): The simulation environment.
+            obj_name (str): Name of the object.
+            receptacle_id (str): Identifier of the pot/pan.
+            tol (float): Tolerance margin to relax the check on the z-axis (default: 0.02).
+
+        Returns:
+            bool: True if the object is considered fully inside the receptacle, False otherwise.
+        """
+        obj = env.objects[obj_name]
+        receptacle = env.objects[receptacle_id]
+
+        obj_pos = np.array(env.sim.data.body_xpos[env.obj_body_id[obj_name]])
+        obj_quat = T.convert_quat(
+            env.sim.data.body_xquat[env.obj_body_id[obj_name]], to="xyzw"
+        )
+
+        receptacle_pos = np.array(
+            env.sim.data.body_xpos[env.obj_body_id[receptacle_id]]
+        )
+        receptacle_quat = T.convert_quat(
+            env.sim.data.body_xquat[env.obj_body_id[receptacle_id]], to="xyzw"
+        )
+
+        obj_points = obj.get_bbox_points(trans=obj_pos, rot=obj_quat)
+        recep_points = receptacle.get_bbox_points(
+            trans=receptacle_pos, rot=receptacle_quat
+        )
+
+        recep_min = np.min(recep_points, axis=0)
+        recep_max = np.max(recep_points, axis=0)
+        rx_min, ry_min, rz_min = recep_min
+        rx_max, ry_max, rz_max = recep_max
+
+        rz_min_relaxed = rz_min - tol
+        rz_max_relaxed = rz_max + tol
+
+        fully_inside = True
+        for point in obj_points:
+            x, y, z = point
+            if not (
+                rx_min <= x <= rx_max
+                and ry_min <= y <= ry_max
+                and rz_min_relaxed <= z <= rz_max_relaxed
+            ):
+                fully_inside = False
+                break
+
+        return fully_inside
 
     @property
     def knob_joints(self):
@@ -212,25 +362,7 @@ class Stovetop(Stove):
         name (str): name of the object
     """
 
-    def __init__(self, xml="fixtures/stoves/stove_orig", name="stove", *args, **kwargs):
+    def __init__(
+        self, xml="fixtures/stoves/sleek_silver_top_gas", name="stove", *args, **kwargs
+    ):
         super().__init__(xml=xml, name=name, *args, **kwargs)
-
-
-class Oven(Fixture):
-    """
-    Oven fixture class
-
-    Args:
-        xml (str): path to mjcf xml file
-
-        name (str): name of the object
-    """
-
-    def __init__(self, xml="fixtures/ovens/samsung", name="oven", *args, **kwargs):
-        super().__init__(
-            xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
-        )
-
-    @property
-    def nat_lang(self):
-        return "oven"

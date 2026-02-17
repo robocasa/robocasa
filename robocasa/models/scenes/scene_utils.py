@@ -23,6 +23,7 @@ IGNORE_ARGS = [
     "group_z_rot",
     "stack_height",
     "stack_fixtures",
+    "z_rot",
 ]
 
 # arguments used to point to other fixtures
@@ -43,6 +44,10 @@ def initialize_fixture(config, cur_fixtures, rng=None):
 
     config = deepcopy(config)
     name, class_type = config["name"], config["type"]
+    if "enable" in config:
+        # remove the "enable" key from the config when initializing fixture
+        assert config["enable"] is True
+        del config["enable"]
 
     # set size if stack_height is specified:
     if config.get("stack_height", None) is not None:

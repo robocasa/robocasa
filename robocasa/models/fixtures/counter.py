@@ -17,6 +17,7 @@ from robocasa.utils.object_utils import (
     get_fixture_to_point_rel_offset,
     get_pos_after_rel_offset,
     get_rel_transform,
+    project_point_to_segment,
 )
 
 SIDES = ["left", "right", "front", "back"]
@@ -75,26 +76,33 @@ class Counter(ProcGenFixture):
         interior_obj=None,
         obj_y_percent=0.5,
         obj_x_percent=0.5,
+        # island_only flag to override dining counter classification
+        island_only=False,
         *args,
         **kwargs,
     ):
         self.has_opening = interior_obj is not None
         if self.has_opening:
-            xml = "fixtures/counters/counter_with_opening"
+            xml = "fixtures/counters/counter_with_opening/model.xml"
         else:
-            xml = "fixtures/counters/counter"
+            xml = "fixtures/counters/counter/model.xml"
         self.interior_obj = None
 
         self.size = size
         self.th = top_thickness
         self.overhang = overhang
         self.half_top = half_top
+        self.island_only = island_only
+
+        # Remove island_only from kwargs to avoid passing it to parent class
+        kwargs_copy = kwargs.copy()
+        kwargs_copy.pop("island_only", None)
 
         super().__init__(
             xml=xml,
             name=name,
             *args,
-            **kwargs,
+            **kwargs_copy,
         )
 
         assert len(hollow) == 2
@@ -124,13 +132,17 @@ class Counter(ProcGenFixture):
 
         # set sites
         x, y, z = np.array(self.size) / 2
-        self.set_bounds_sites(
+
+        main_p0 = np.array([-x, -y + self.overhang, -z])
+        main_p1 = np.array([x, y, z])
+        self.update_regions(
             {
-                "ext_p0": [-x, -y + self.overhang, -z],
-                "ext_px": [x, -y + self.overhang, -z],
-                "ext_py": [-x, y, -z],
-                "ext_pz": [-x, -y + self.overhang, z],
-            }
+                "main": {
+                    "pos": (main_p0 + main_p1) / 2,
+                    "halfsize": (main_p1 - main_p0) / 2,
+                }
+            },
+            update_elem=True,
         )
 
     def _set_texture(self, top_texture, base_texture, base_color):
@@ -230,12 +242,14 @@ class Counter(ProcGenFixture):
 
         x_percent, y_percent = self.obj_x_percent, self.obj_y_percent
 
+        depth_padding = self.overhang + 0.015  # also add the thickness of cabinet doors
+
         # remove overhang from consideration for placement
         top_size = [
             self.size[0],
-            self.size[1] - self.overhang,
+            self.size[1] - depth_padding,
             self.size[2],
-        ]  # remove the overhang
+        ]  # remove the depth_padding
 
         # respect boundaires: limit range of x_percent and y_percent so interior object doesn't overflow
         gap = 0.02
@@ -247,7 +261,7 @@ class Counter(ProcGenFixture):
         # calculate and set the position of sink
         interior_origin = [
             self.pos[0] + (x_percent - 0.50) * top_size[0],
-            self.pos[1] + self.overhang / 2 + (y_percent - 0.50) * top_size[1],
+            self.pos[1] + depth_padding / 2 + (y_percent - 0.50) * top_size[1],
             self.pos[2] + top_size[2] / 2 - self.interior_obj.height / 2,
         ]
 
@@ -257,8 +271,8 @@ class Counter(ProcGenFixture):
         left_pad = x_percent * top_size[0] - self.interior_obj.width / 2
         right_pad = (1 - x_percent) * top_size[0] - self.interior_obj.width / 2
         front_pad = (
-            y_percent * top_size[1] - self.interior_obj.depth / 2 + self.overhang
-        )  # add the overhang to the front
+            y_percent * top_size[1] - self.interior_obj.depth / 2 + depth_padding
+        )  # add the depth_padding to the front
         back_pad = (1 - y_percent) * top_size[1] - self.interior_obj.depth / 2
 
         return [left_pad, right_pad, front_pad, back_pad]
@@ -352,6 +366,7 @@ class Counter(ProcGenFixture):
 
         # break the top width into chunks
         chunk_positions, chunk_sizes = self._get_chunks(pos, size, chunk_size=0.5)
+        rgba = a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
         for i in range(len(chunk_sizes)):
             g = new_geom(
                 name=geom_name + "_{}".format(i),
@@ -360,7 +375,7 @@ class Counter(ProcGenFixture):
                 pos=chunk_positions[i],
                 group=0,
                 density=10,
-                rgba="0.5 0 0 1",
+                rgba=rgba,
             )
             self._obj.append(g)
             # manually update contact geoms registry
@@ -456,6 +471,7 @@ class Counter(ProcGenFixture):
                 )
                 geoms[geom_name].append(g)
 
+        rgba = a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
         for side in SIDES:
             # convert coordinate of bottom-left corner to coordinate of center
             # the origin is now the center of the entire fixture
@@ -518,7 +534,7 @@ class Counter(ProcGenFixture):
                     pos=chunk_positions[i],
                     group=0,
                     density=10,
-                    rgba="0.5 0 0 1",
+                    rgba=rgba,
                 )
                 self._obj.append(g)
                 self._contact_geoms.append("top_{}_{}".format(side, i))
@@ -576,7 +592,15 @@ class Counter(ProcGenFixture):
         if self.interior_obj is not None:
             self._place_interior_obj()
 
-    def get_reset_regions(self, env, ref=None, loc="nn", top_size=(0.4, 0.4)):
+    def get_reset_regions(
+        self,
+        env,
+        ref=None,
+        loc="nn",
+        top_size=(0.40, 0.25),
+        ref_rot_flag=False,
+        full_depth_region=False,
+    ):
         """
         returns dictionary of reset regions, each region defined as offsets and size
 
@@ -594,6 +618,11 @@ class Counter(ProcGenFixture):
 
             top_size (tuple): minimum size of the top region to return
 
+            ref_rot_flag (bool): if True, the counter's fixture is rotated by the reference fixture's rotation
+
+            full_depth_region (bool): if True, the island counter will sample regions with full depth accessibility,
+                (ie. excliuding stove/sink strip regions), for accessibility
+
 
         Returns:
             dict: dictionary of reset regions
@@ -610,6 +639,17 @@ class Counter(ProcGenFixture):
             if this_top_size[0] >= top_size[0] and this_top_size[1] >= top_size[1]:
                 all_geoms.append(geom)
 
+        is_island_group = hasattr(self, "name") and "island_group" in self.name
+        if full_depth_region and is_island_group and len(all_geoms) > 1:
+            region_sizes = [s2a(g.get("size")) * 2 for g in all_geoms]
+            areas = [sz[0] * sz[1] for sz in region_sizes]
+            sorted_indices = sorted(range(len(areas)), key=lambda i: areas[i])
+            min_area = areas[sorted_indices[0]]
+            next_min_area = areas[sorted_indices[1]] if len(areas) > 1 else min_area
+            if min_area < 0.8 * next_min_area:
+                all_geoms = [
+                    g for i, g in enumerate(all_geoms) if i != sorted_indices[0]
+                ]
         reset_regions = {}
 
         if ref is None:
@@ -625,51 +665,220 @@ class Counter(ProcGenFixture):
             ref_fixture = env.get_fixture(ref)
 
             ### find an appropriate geom to sample ###
-            fixture_to_geom_offsets = []
+            counter_top_geom_info = {}
             for g in all_geoms:
+                g_info = {}
+
+                # get global coordinates of geom center and four corners
+                g_pos_in_counter_frame = s2a(g.get("pos"))
+                g_halfsize = s2a(g.get("size"))
+
+                # use a slightly smaller bounding box
+                SC = 0.99
                 g_pos = get_pos_after_rel_offset(self, s2a(g.get("pos")))
+                g_pos_c1 = get_pos_after_rel_offset(
+                    self,
+                    g_pos_in_counter_frame
+                    + [-SC * g_halfsize[0], -SC * g_halfsize[1], 0],
+                )
+                g_pos_c2 = get_pos_after_rel_offset(
+                    self,
+                    g_pos_in_counter_frame
+                    + [-SC * g_halfsize[0], SC * g_halfsize[1], 0],
+                )
+                g_pos_c3 = get_pos_after_rel_offset(
+                    self,
+                    g_pos_in_counter_frame
+                    + [SC * g_halfsize[0], -SC * g_halfsize[1], 0],
+                )
+                g_pos_c4 = get_pos_after_rel_offset(
+                    self,
+                    g_pos_in_counter_frame
+                    + [SC * g_halfsize[0], SC * g_halfsize[1], 0],
+                )
+
+                g_info["pos"] = g_pos
+                g_info["pos_c1"] = g_pos_c1
+                g_info["pos_c2"] = g_pos_c2
+                g_info["pos_c3"] = g_pos_c3
+                g_info["pos_c4"] = g_pos_c4
+                g_info["halfsize"] = g_halfsize
+
+                ref_fixture_pos = ref_fixture.pos
+
+                x_min = np.min([g_pos_c1[0], g_pos_c2[0], g_pos_c3[0], g_pos_c4[0]])
+                x_max = np.max([g_pos_c1[0], g_pos_c2[0], g_pos_c3[0], g_pos_c4[0]])
+                y_min = np.min([g_pos_c1[1], g_pos_c2[1], g_pos_c3[1], g_pos_c4[1]])
+                y_max = np.max([g_pos_c1[1], g_pos_c2[1], g_pos_c3[1], g_pos_c4[1]])
+
+                fixture_in_2d_bounds = (
+                    ref_fixture_pos[0] >= x_min
+                    and ref_fixture_pos[0] <= x_max
+                    and ref_fixture_pos[1] >= y_min
+                    and ref_fixture_pos[1] <= y_max
+                )
+                g_info["fixture_in_2d_bounds"] = fixture_in_2d_bounds
+
+                if fixture_in_2d_bounds:
+                    g_info["dist_to_fixture"] = 0.0
+                else:
+                    g_info["dist_to_fixture"] = np.min(
+                        [
+                            project_point_to_segment(
+                                ref_fixture_pos, g_pos_c1, g_pos_c2
+                            )[1],
+                            project_point_to_segment(
+                                ref_fixture_pos, g_pos_c2, g_pos_c4
+                            )[1],
+                            project_point_to_segment(
+                                ref_fixture_pos, g_pos_c3, g_pos_c4
+                            )[1],
+                            project_point_to_segment(
+                                ref_fixture_pos, g_pos_c1, g_pos_c3
+                            )[1],
+                        ]
+                    )
+
                 rel_offset = get_fixture_to_point_rel_offset(ref_fixture, g_pos)
-                fixture_to_geom_offsets.append(rel_offset)
+                g_info["fixture_to_geom_rel_offset"] = rel_offset
+
+                counter_top_geom_info[g] = g_info
 
             valid_geoms = []
 
-            if loc == "nn":
-                dists = [np.linalg.norm(offset) for offset in fixture_to_geom_offsets]
-                chosen_top = all_geoms[np.argmin(dists)]
-                valid_geoms.append(chosen_top)
-            elif loc == "right":
-                for offset, g in zip(fixture_to_geom_offsets, all_geoms):
-                    if offset[0] > 0.30:
-                        valid_geoms.append(g)
-            elif loc == "left":
-                for offset, g in zip(fixture_to_geom_offsets, all_geoms):
-                    if offset[0] < -0.30:
-                        valid_geoms.append(g)
-            elif loc == "left_right":
-                for offset, g in zip(fixture_to_geom_offsets, all_geoms):
-                    if np.abs(offset[0]) > 0.30:
-                        valid_geoms.append(g)
-            elif loc == "any":
+            geom_containing_fixture = None
+            for g, g_info in counter_top_geom_info.items():
+                fixture_in_2d_bounds = g_info["fixture_in_2d_bounds"]
+                if fixture_in_2d_bounds:
+                    geom_containing_fixture = g
+                    break
+
+            if loc == "any":
                 valid_geoms = all_geoms
+            elif loc == "nn":
+                min_dist = None
+                chosen_top = None
+                for g, g_info in counter_top_geom_info.items():
+                    g_dist = g_info["dist_to_fixture"]
+                    if min_dist is None or g_dist < min_dist:
+                        chosen_top = g
+                        min_dist = g_dist
+                valid_geoms.append(chosen_top)
+            elif loc in ["left_right", "right", "left"]:
+                if geom_containing_fixture is not None:
+                    valid_geoms.append(g)
+                else:
+                    # add all regions to the left
+                    if loc in ["left_right", "left"]:
+                        min_dist = None
+                        chosen_top = None
+                        for g, g_info in counter_top_geom_info.items():
+                            offset = g_info["fixture_to_geom_rel_offset"]
+                            fixture_in_2d_bounds = g_info["fixture_in_2d_bounds"]
+                            g_dist = g_info["dist_to_fixture"]
+                            if fixture_in_2d_bounds:
+                                valid_geoms.append(g)
+                            elif offset[0] < -0.30 and (
+                                min_dist is None or g_dist < min_dist
+                            ):
+                                chosen_top = g
+                                min_dist = g_dist
+                        if chosen_top is not None:
+                            valid_geoms.append(chosen_top)
+
+                    # add all regions to the right
+                    if loc in ["left_right", "right"]:
+                        min_dist = None
+                        chosen_top = None
+                        for g, g_info in counter_top_geom_info.items():
+                            offset = g_info["fixture_to_geom_rel_offset"]
+                            fixture_in_2d_bounds = g_info["fixture_in_2d_bounds"]
+                            g_dist = g_info["dist_to_fixture"]
+                            if fixture_in_2d_bounds:
+                                valid_geoms.append(g)
+                            elif offset[0] > 0.30 and (
+                                min_dist is None or g_dist < min_dist
+                            ):
+                                chosen_top = g
+                                min_dist = g_dist
+                        if chosen_top is not None:
+                            valid_geoms.append(chosen_top)
             else:
                 raise ValueError
 
             geom_i = 0
+
+            if len(valid_geoms) > 0:
+                # remove duplicates as needed
+                valid_geoms = list(set(valid_geoms))
+
             for g in valid_geoms:
                 top_pos = s2a(g.get("pos"))
                 top_half_size = s2a(g.get("size"))
                 offset = [top_pos[0], top_pos[1], self.size[2] / 2]
                 size = [top_half_size[0] * 2, top_half_size[1] * 2]
 
-                min_x = top_pos[0] - top_half_size[0]
-                max_x = top_pos[0] + top_half_size[0]
+                if (
+                    loc in ["left", "right", "left_right"]
+                    and geom_containing_fixture is not None
+                ):
+                    # set size and offset appropriately
+                    fixture_size = ref_fixture.size
 
-                ref_pos, _ = get_rel_transform(self, ref_fixture)
-                if min_x <= ref_pos[0] <= max_x:
-                    # restrict sample region to be below fixture
-                    offset[0] = ref_pos[0]
-                    size[0] = min(ref_pos[0] - min_x, max_x - ref_pos[0]) * 2
+                    g_pos_c1 = counter_top_geom_info[g]["pos_c1"]
+                    g_pos_c3 = counter_top_geom_info[g]["pos_c3"]
 
-                reset_regions[f"geom_{geom_i}"] = dict(size=size, offset=offset)
-                geom_i += 1
+                    point_to_fixture = get_fixture_to_point_rel_offset(
+                        ref_fixture, g_pos_c1, rot=self.rot
+                    )
+                    fixture_x = np.abs(point_to_fixture[0])
+
+                    if loc in ["left", "left_right"]:
+                        x1 = top_pos[0] - top_half_size[0]
+                        x2 = (
+                            top_pos[0]
+                            - top_half_size[0]
+                            + fixture_x
+                            - fixture_size[0] / 2
+                        )
+                        this_offset = [np.mean((x1, x2)), offset[1], offset[2]]
+                        this_size = [x2 - x1, size[1]]
+                        if this_size[0] > 0.20:
+                            reset_regions[f"geom_{geom_i}"] = dict(
+                                size=this_size, offset=this_offset
+                            )
+                            geom_i += 1
+
+                    if loc in ["right", "left_right"]:
+                        x1 = (
+                            top_pos[0]
+                            - top_half_size[0]
+                            + fixture_x
+                            + fixture_size[0] / 2
+                        )
+                        x2 = top_pos[0] + top_half_size[0]
+                        this_offset = [np.mean((x1, x2)), offset[1], offset[2]]
+                        this_size = [x2 - x1, size[1]]
+                        if this_size[0] > 0.20:
+                            reset_regions[f"geom_{geom_i}"] = dict(
+                                size=this_size, offset=this_offset
+                            )
+                            geom_i += 1
+                else:
+                    min_x = top_pos[0] - top_half_size[0]
+                    max_x = top_pos[0] + top_half_size[0]
+
+                    ref_pos, _ = get_rel_transform(self, ref_fixture)
+                    if ref_rot_flag is False:
+                        if min_x <= ref_pos[0] <= max_x:
+                            new_size = min(ref_pos[0] - min_x, max_x - ref_pos[0]) * 2
+                            # ensure that new size is not too small
+                            if new_size >= 0.20:
+                                # TODO: recompute so that region is adjcent to ref fixture
+                                offset[0] = ref_pos[0]
+                                size[0] = new_size
+
+                    reset_regions[f"geom_{geom_i}"] = dict(size=size, offset=offset)
+                    geom_i += 1
+
         return reset_regions

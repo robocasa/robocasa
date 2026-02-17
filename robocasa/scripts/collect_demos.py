@@ -13,6 +13,8 @@ import json
 import os
 import time
 from glob import glob
+import sys
+import hid
 
 import h5py
 import imageio
@@ -160,12 +162,12 @@ def collect_human_trajectory(
         if task_completion_hold_count == 0:
             break
 
-        # state machine to check for having a success for 10 consecutive timesteps
+        # state machine to check for having a success for 15 consecutive timesteps
         if env._check_success():
             if task_completion_hold_count > 0:
                 task_completion_hold_count -= 1  # latched state, decrement count
             else:
-                task_completion_hold_count = 10  # reset count on first success timestep
+                task_completion_hold_count = 15  # reset count on first success timestep
         else:
             task_completion_hold_count = -1  # null the counter if there's no success
 
@@ -191,7 +193,14 @@ def collect_human_trajectory(
     return ep_directory, discard_traj
 
 
-def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episodes=None):
+def gather_demonstrations_as_hdf5(
+    directory,
+    out_dir,
+    env_info,
+    successful_episodes=None,
+    verbose=False,
+    out_name="demo.hdf5",
+):
     """
     Gathers the demonstrations saved in @directory into a
     single hdf5 file.
@@ -214,8 +223,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
             including controller and robot info
     """
 
-    hdf5_path = os.path.join(out_dir, "demo.hdf5")
-    print("Saving hdf5 to", hdf5_path)
+    hdf5_path = os.path.join(out_dir, out_name)
+    if verbose:
+        print("Saving hdf5 to", hdf5_path)
     f = h5py.File(hdf5_path, "w")
 
     # store some metadata in the attributes of one group
@@ -226,7 +236,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
 
     for ep_directory in os.listdir(directory):
         # print("Processing {} ...".format(ep_directory))
-        if (excluded_episodes is not None) and (ep_directory in excluded_episodes):
+        if (successful_episodes is not None) and (
+            ep_directory not in successful_episodes
+        ):
             # print("\tExcluding this episode!")
             continue
 
@@ -287,7 +299,8 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, excluded_episode
         #     pass
         #     # print("Demonstration is unsuccessful and has NOT been saved")
 
-    print("{} successful demos so far".format(num_eps))
+    if verbose:
+        print("{} successful demos so far".format(num_eps))
 
     if num_eps == 0:
         f.close()
@@ -359,8 +372,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device",
         type=str,
-        default="spacemouse",
-        choices=["keyboard", "keyboardmobile", "spacemouse", "dummy"],
+        default=None,
+        choices=["keyboard", "spacemouse"],
     )
     parser.add_argument(
         "--pos-sensitivity",
@@ -383,10 +396,11 @@ if __name__ == "__main__":
         "--max_fr", default=30, type=int, help="If specified, limit the frame rate"
     )
 
-    parser.add_argument("--layout", type=int, nargs="+", default=-1)
     parser.add_argument(
-        "--style", type=int, nargs="+", default=[0, 1, 2, 3, 4, 5, 6, 7, 8, 11]
+        "--split", type=str, default="pretrain", choices=["pretrain", "target", "all"]
     )
+    parser.add_argument("--layout", type=int, nargs="+", default=None)
+    parser.add_argument("--style", type=int, nargs="+", default=None)
     parser.add_argument("--generative_textures", action="store_true")
     args = parser.parse_args()
 
@@ -420,36 +434,44 @@ if __name__ == "__main__":
         config["env_configuration"] = args.config
 
     # Mirror actions if using a kitchen environment
-    if env_name in ["Lift"]:  # add other non-kitchen tasks here
-        if args.obj_groups is not None:
-            print(
-                "Specifying 'obj_groups' in non-kitchen environment does not have an effect."
-            )
-        mirror_actions = False
-        if args.camera is None:
-            args.camera = "agentview"
-        # special logic: "free" camera corresponds to Null camera
-        elif args.camera == "free":
-            args.camera = None
+    layout_and_style_ids = None
+    if args.split == "target":
+        if args.layout is None and args.style is None:
+            layout_and_style_ids = list(zip(range(1, 11), range(1, 11)))
+        else:
+            layout_ids = args.layout or -1
+            style_ids = args.style or -1
+        obj_instance_split = "target"
+        config["clutter_mode"] = 1
+    elif args.split == "pretrain":
+        layout_ids = args.layout or -2
+        style_ids = args.style or -2
+        obj_instance_split = "pretrain"
+    elif args.split == "all":
+        layout_ids = args.layout or -3
+        style_ids = args.style or -3
+        obj_instance_split = None
     else:
-        mirror_actions = True
-        config["layout_ids"] = args.layout
-        config["style_ids"] = args.style
-        ### update config for kitchen envs ###
-        if args.obj_groups is not None:
-            config.update({"obj_groups": args.obj_groups})
-        if args.camera is None:
-            args.camera = "robot0_frontview"
-        # special logic: "free" camera corresponds to Null camera
-        elif args.camera == "free":
-            args.camera = None
+        raise ValueError
 
-        config["translucent_robot"] = True
+    if layout_and_style_ids is not None:
+        config["layout_and_style_ids"] = layout_and_style_ids
+    else:
+        config["layout_ids"] = layout_ids
+        config["style_ids"] = style_ids
+    config["obj_instance_split"] = obj_instance_split
+    ### update config for kitchen envs ###
+    if args.obj_groups is not None:
+        config.update({"obj_groups": args.obj_groups})
 
-        # by default use obj instance split A
-        config["obj_instance_split"] = "A"
-        # config["obj_instance_split"] = None
-        # config["obj_registries"] = ("aigen",)
+    if args.camera is None:
+        args.camera = "robot0_frontview"
+    # special logic: "free" camera corresponds to Null camera
+    elif args.camera == "free":
+        args.camera = None
+
+    config["translucent_robot"] = True
+    mirror_actions = True
 
     # Create environment
     env = robosuite.make(
@@ -471,14 +493,34 @@ if __name__ == "__main__":
 
     t_now = time.time()
     time_str = datetime.datetime.fromtimestamp(t_now).strftime("%Y-%m-%d-%H-%M-%S")
+    time_str = f"{time_str}_{env_name}"
+
+    if not args.debug:
+        # make a new timestamped directory
+        demo_dir = os.path.join(args.directory, time_str)
+        os.makedirs(demo_dir)
 
     if not args.debug:
         # wrap the environment with data collection wrapper
-        tmp_directory = "/tmp/{}".format(time_str)
-        env = DataCollectionWrapper(env, tmp_directory)
+        all_eps_directory = os.path.join(demo_dir, "episodes")
+        env = DataCollectionWrapper(env, all_eps_directory, use_env_xml_for_reset=True)
 
     # initialize device
-    if args.device == "keyboard":
+    device = args.device
+    if device is None:
+        # check if spacemouse is available
+        spacemouse_found = False
+        for device in hid.enumerate():
+            vendor_id, product_id = device["vendor_id"], device["product_id"]
+            if (
+                vendor_id == macros.SPACEMOUSE_VENDOR_ID
+                and product_id == macros.SPACEMOUSE_PRODUCT_ID
+            ):
+                spacemouse_found = True
+                break
+        device = "spacemouse" if spacemouse_found else "keyboard"
+
+    if device == "keyboard":
         from robosuite.devices import Keyboard
 
         device = Keyboard(
@@ -486,7 +528,7 @@ if __name__ == "__main__":
             pos_sensitivity=args.pos_sensitivity,
             rot_sensitivity=args.rot_sensitivity,
         )
-    elif args.device == "spacemouse":
+    elif device == "spacemouse":
         from robosuite.devices import SpaceMouse
 
         device = SpaceMouse(
@@ -499,31 +541,63 @@ if __name__ == "__main__":
     else:
         raise ValueError
 
-    # make a new timestamped directory
-    new_dir = os.path.join(args.directory, time_str)
-    os.makedirs(new_dir)
-
-    excluded_eps = []
+    successful_episodes = []
 
     # collect demonstrations
-    while True:
-        print()
-        ep_directory, discard_traj = collect_human_trajectory(
-            env,
-            device,
-            args.arm,
-            args.config,
-            mirror_actions,
-            render=(args.renderer != "mjviewer"),
-            max_fr=args.max_fr,
-        )
-
-        print("Keep traj?", not discard_traj)
-
-        if not args.debug:
-            if discard_traj and ep_directory is not None:
-                excluded_eps.append(ep_directory.split("/")[-1])
-            hdf5_path = gather_demonstrations_as_hdf5(
-                tmp_directory, new_dir, env_info, excluded_episodes=excluded_eps
+    try:
+        while True:
+            print()
+            ep_directory, discard_traj = collect_human_trajectory(
+                env,
+                device,
+                args.arm,
+                args.config,
+                mirror_actions,
+                render=(args.renderer != "mjviewer"),
+                max_fr=args.max_fr,
             )
-            convert_to_robomimic_format(hdf5_path)
+            if ep_directory is not None:
+                # save whether the episode is successful or not
+                with open(os.path.join(ep_directory, "ep_stats.json"), "w") as file:
+                    json.dump({"success": not discard_traj}, file)
+
+                with open(os.path.join(ep_directory, "env_info.json"), "w") as file:
+                    json.dump(env_info, file)
+
+                if not discard_traj:
+                    successful_episodes.append(ep_directory.split("/")[-1])
+
+                gather_demonstrations_as_hdf5(
+                    all_eps_directory,
+                    ep_directory,
+                    env_info,
+                    successful_episodes=[ep_directory.split("/")[-1]],
+                    out_name="ep_demo.hdf5",
+                )
+
+            print("Episode success:", not discard_traj)
+
+            if not args.debug:
+                hdf5_path = gather_demonstrations_as_hdf5(
+                    all_eps_directory,
+                    demo_dir,
+                    env_info,
+                    successful_episodes=successful_episodes,
+                    verbose=True,
+                )
+                if hdf5_path is not None:
+                    convert_to_robomimic_format(hdf5_path)
+    except KeyboardInterrupt:
+        print("\nKeyboard interrupt detected. Performing cleanup...")
+        if not args.debug:
+            hdf5_path = gather_demonstrations_as_hdf5(
+                all_eps_directory,
+                demo_dir,
+                env_info,
+                successful_episodes=successful_episodes,
+                verbose=True,
+            )
+            if hdf5_path is not None:
+                convert_to_robomimic_format(hdf5_path)
+                print(colored(f"\nDataset saved: {hdf5_path}", "green"))
+        sys.exit(0)

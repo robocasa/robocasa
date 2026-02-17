@@ -1,17 +1,17 @@
 import numpy as np
 
-from robosuite.environments.manipulation.single_arm_env import SingleArmEnv
+from robosuite.environments.manipulation.manipulation_env import ManipulationEnv
 from robosuite.models.arenas import TableArena
 from robosuite.models.tasks import ManipulationTask
 from robosuite.utils.placement_samplers import UniformRandomSampler
 
-from robocasa.utils.model_zoo.mjcf_obj import MJCFObject
+from robocasa.models.objects.objects import MJCFObject
 from robosuite.models.objects import BoxObject
 
 import robosuite.utils.transform_utils as T
 
 
-class ObjectPlayEnv(SingleArmEnv):
+class ObjectPlayEnv(ManipulationEnv):
     def __init__(
         self,
         robots,
@@ -83,7 +83,6 @@ class ObjectPlayEnv(SingleArmEnv):
             robots=robots,
             env_configuration=env_configuration,
             controller_configs=controller_configs,
-            mount_types="default",
             gripper_types=gripper_types,
             initialization_noise=initialization_noise,
             use_camera_obs=use_camera_obs,

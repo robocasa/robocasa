@@ -6,28 +6,13 @@ BASE_ASSET_ZOO_PATH = os.path.join(robocasa.models.assets_root, "objects")
 
 # Constant that contains information about each object category. These will be used to generate the ObjCat classes for each category
 OBJ_CATEGORIES = dict(
-    liquor=dict(
-        types=("drink", "alcohol"),
-        graspable=True,
-        washable=False,
-        microwavable=False,
-        cookable=False,
-        freezable=False,
-        aigen=dict(
-            model_folders=["aigen_objs/alcohol"],
-            scale=1.50,
-        ),
-        objaverse=dict(
-            model_folders=["objaverse/alcohol"],
-            scale=1.35,
-        ),
-    ),
     apple=dict(
         types=("fruit"),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.0,
@@ -42,12 +27,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=0.90,
         ),
         objaverse=dict(
             scale=0.90,
+            exclude=[
+                "avocado_0",  # slow loading time
+            ],
         ),
     ),
     bagel=dict(
@@ -56,6 +45,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.2,
@@ -63,6 +53,8 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "bagel_8",
+                "bagel_1",
+                "bagel_2",  # slow loading time
             ],
         ),
     ),
@@ -72,6 +64,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.1,
@@ -88,6 +81,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.35,
@@ -104,12 +98,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.10,
         ),
         objaverse=dict(
             scale=0.95,
+            exclude=[
+                "banana_13",  # loading time too slow
+            ],
         ),
     ),
     bar=dict(
@@ -118,6 +116,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=[1.25, 1.25, 1.75],
@@ -135,6 +134,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=[1.25, 1.25, 1.40],
@@ -150,11 +150,15 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.30,
         ),
-        objaverse=dict(scale=1.15),
+        objaverse=dict(
+            scale=1.15,
+            exclude=["beer_3"],
+        ),
     ),
     bell_pepper=dict(
         types=("vegetable"),
@@ -162,6 +166,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.0,
@@ -176,6 +181,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.25,
@@ -188,6 +194,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.30,
@@ -197,6 +204,7 @@ OBJ_CATEGORIES = dict(
             exclude=[
                 "bottled_water_0",  # minor hole at top
                 "bottled_water_5",  # causing error. eigenvalues of mesh inertia violate A + B >= C
+                "bottled_water_7",  # slow loading time
             ],
         ),
     ),
@@ -206,7 +214,9 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=1.75,
         ),
@@ -214,6 +224,8 @@ OBJ_CATEGORIES = dict(
             scale=2.0,
             exclude=[
                 "bowl_21",  # can see through from bottom of bowl
+                "bowl_4",
+                "bowl_17",  # slow load times
             ],
         ),
     ),
@@ -223,6 +235,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.1,
@@ -242,6 +255,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.25,
@@ -263,11 +277,34 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=[0.80, 0.80, 1.0],
         ),
-        objaverse=dict(scale=[0.70, 0.70, 1.0], exclude=["bread_22"]),  # hole on bottom
+        objaverse=dict(
+            scale=[0.70, 0.70, 1.0],
+            exclude=["bread_22", "bread_6", "bread_10", "bread_16"]
+            + [f"bread_{i}" for i in [3, 9, 13, 18]],
+        ),  # hole on bottom
+    ),
+    bread_flat=dict(
+        types=("bread_food"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=True,
+        aigen=dict(
+            scale=[0.80, 0.80, 1.0],
+            model_folders=["aigen_objs/bread"],
+        ),
+        objaverse=dict(
+            scale=[0.70, 0.70, 1.0],
+            model_folders=["objaverse/bread"],
+            exclude=[f"bread_{i}" for i in range(23) if i not in [3, 9, 13, 18]],
+        ),
     ),
     broccoli=dict(
         types=("vegetable"),
@@ -275,12 +312,13 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.35,
         ),
         objaverse=dict(
-            scale=1.25,
+            scale=1.15,
             exclude=[
                 "broccoli_2",  # holes on one part
             ],
@@ -292,12 +330,16 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=0.8,
         ),
         objaverse=dict(
             scale=0.8,
+            exclude=[
+                "cake_2",  # slow loading time
+            ],
         ),
     ),
     can=dict(
@@ -306,6 +348,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(),
         objaverse=dict(
@@ -321,6 +364,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.5,
@@ -339,6 +383,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.15,
@@ -356,6 +401,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.25,
@@ -368,6 +414,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.15,
@@ -384,6 +431,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.0,
@@ -398,6 +446,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.5,
@@ -406,6 +455,7 @@ OBJ_CATEGORIES = dict(
             exclude=[
                 "chips_12",  # minor hole at bottom of bag
                 # "chips_2", # a weird texture at top/bottom but keeping this
+                "chips_4",  # slow loading time
             ]
         ),
     ),
@@ -415,6 +465,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=[1.0, 1.0, 1.35],
@@ -423,6 +474,7 @@ OBJ_CATEGORIES = dict(
             scale=[0.80, 0.80, 1.20],
             exclude=[
                 # "chocolate_2", # self turning due to single collision geom
+                "chocolate_7",  # slow loading time
             ],
         ),
     ),
@@ -432,6 +484,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.35,
@@ -450,6 +503,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.35,
@@ -466,11 +520,17 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.5,
         ),
-        objaverse=dict(scale=1.05),
+        objaverse=dict(
+            scale=1.05,
+            exclude=[
+                # "corn_1",  # slow loading time but include bc there are few items in this category
+            ],
+        ),
     ),
     croissant=dict(
         types=("pastry"),
@@ -478,6 +538,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=0.90,
@@ -492,6 +553,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.1,
@@ -504,6 +566,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.35,
@@ -516,6 +579,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=0.90,
@@ -534,6 +598,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=2.0,
@@ -554,12 +619,16 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.5,
         ),
         objaverse=dict(
             scale=1.15,
+            exclude=[
+                "donut_13",  # slow loading time
+            ],
         ),
     ),
     egg=dict(
@@ -568,7 +637,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
-        freezable=True,
+        fridgable=True,
+        freezable=False,
         aigen=dict(
             scale=1.15,
         ),
@@ -582,11 +652,17 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.30,
         ),
-        objaverse=dict(scale=0.95),
+        objaverse=dict(
+            scale=0.95,
+            exclude=[
+                # "eggplant_1",  # slow loading time but include bc few items in this category
+            ],
+        ),
     ),
     fish=dict(
         types=("meat"),
@@ -594,6 +670,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=[1.35, 1.35, 2.0],
@@ -608,11 +685,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.75,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "fork_2",  # slow loading time
+            ]
+        ),
     ),
     garlic=dict(
         types=("vegetable"),
@@ -620,19 +702,27 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.3,
         ),
-        objaverse=dict(scale=1.10, exclude=["garlic_3"]),  # has hole on side
+        objaverse=dict(
+            scale=1.10,
+            exclude=[
+                "garlic_3",  # has hole on side
+                # "garlic_1",  # slow loading time but will keep due to too few instances of garlics
+            ],
+        ),
     ),
     hot_dog=dict(
         types=("cooked_food"),
         graspable=True,
         washable=False,
         microwavable=True,
-        cookable=False,
-        freezable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=False,
         aigen=dict(
             scale=1.4,
         ),
@@ -644,7 +734,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=True,
+        fridgable=True,
+        freezable=False,
         aigen=dict(
             scale=1.05,
         ),
@@ -658,6 +749,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.5,
@@ -666,12 +758,32 @@ OBJ_CATEGORIES = dict(
             scale=1.5,
         ),
     ),
+    jug_wide_opening=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        objaverse=dict(
+            model_folders=["objaverse/jug"],
+            scale=1.5,
+            exclude=[
+                "jug_2",
+                "jug_7",
+                "jug_5",
+                "jug_0",
+            ],
+        ),
+    ),
     ketchup=dict(
         types=("condiment"),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.35,
@@ -682,39 +794,19 @@ OBJ_CATEGORIES = dict(
             ]
         ),
     ),
-    kettle_electric=dict(
-        types=("receptacle"),
-        graspable=True,
-        washable=False,
-        microwavable=False,
-        cookable=False,
-        freezable=False,
-        objaverse=dict(
-            scale=1.35,
-            model_folders=["objaverse/kettle"],
-            exclude=[
-                f"kettle_{i}"
-                for i in range(29)
-                if i not in [0, 7, 9, 12, 13, 17, 24, 25, 26, 27]
-            ],
-        ),
-        aigen=dict(
-            scale=1.5,
-            model_folders=["aigen_objs/kettle"],
-            exclude=[f"kettle_{i}" for i in range(11) if i not in [0, 2, 6, 9, 10, 11]],
-        ),
-    ),
     kettle_non_electric=dict(
         types=("receptacle"),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         objaverse=dict(
             scale=1.35,
             model_folders=["objaverse/kettle"],
-            exclude=[
+            exclude=["kettle_27"]
+            + [
                 f"kettle_{i}"
                 for i in range(29)
                 if i in [0, 7, 9, 12, 13, 17, 24, 25, 26, 27]
@@ -725,6 +817,14 @@ OBJ_CATEGORIES = dict(
             model_folders=["aigen_objs/kettle"],
             exclude=[f"kettle_{i}" for i in range(11) if i in [0, 2, 6, 9, 10, 11]],
         ),
+        lightwheel=dict(
+            model_folders=["lightwheel/kettle"],
+            scale=1.0,
+            exclude=[
+                "Kettle022",  # too big
+                "Kettle023",  # too big
+            ],
+        ),
     ),
     kiwi=dict(
         types=("fruit"),
@@ -732,12 +832,17 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=0.90,
         ),
         objaverse=dict(
             scale=0.90,
+            exclude=[
+                "kiwi_4",  # slow loading time
+                # "kiwi_6",  # slow loading time but will keep due to too few instances
+            ],
         ),
     ),
     knife=dict(
@@ -746,7 +851,9 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=False,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=1.35,
         ),
@@ -760,7 +867,9 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=False,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=1.5,
         ),
@@ -774,6 +883,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.1,
@@ -786,6 +896,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=True,
         objaverse=dict(
             scale=1.0,
@@ -794,12 +905,33 @@ OBJ_CATEGORIES = dict(
             scale=0.90,
         ),
     ),
+    liquor=dict(
+        types=("drink", "alcohol"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        aigen=dict(
+            model_folders=["aigen_objs/alcohol"],
+            scale=1.50,
+        ),
+        objaverse=dict(
+            model_folders=["objaverse/alcohol"],
+            scale=1.35,
+            exclude=[
+                "alcohol_12",  # slow loading time
+            ],
+        ),
+    ),
     mango=dict(
         types=("fruit"),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.0,
@@ -808,6 +940,7 @@ OBJ_CATEGORIES = dict(
             scale=0.85,
             exclude=[
                 "mango_3",  # one half is pitch dark
+                "mango_19",  # slow load time
             ],
         ),
     ),
@@ -817,6 +950,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.35,
@@ -833,11 +967,17 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=1.3,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "mug_0",  # too dark
+            ],
+        ),
     ),
     mushroom=dict(
         types=("vegetable"),
@@ -845,6 +985,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.35,
@@ -853,6 +994,8 @@ OBJ_CATEGORIES = dict(
             scale=1.20,
             exclude=[
                 # "mushroom_16", # very very small holes. keeping anyway
+                "mushroom_7",
+                "mushroom_13",  # slow loading time
             ],
         ),
     ),
@@ -862,11 +1005,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.1,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "onion_4",  # slow loading time
+            ]
+        ),
     ),
     orange=dict(
         types=("fruit"),
@@ -874,13 +1022,15 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=False,
+        fridgable=True,
+        freezable=True,
         aigen=dict(
             scale=1.05,
         ),
         objaverse=dict(
             exclude=[
                 # "orange_11", # bottom half is dark. keeping anyway
+                "orange_9",  # slow loading time
             ]
         ),
     ),
@@ -890,7 +1040,9 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=2.25,
         ),
@@ -902,6 +1054,7 @@ OBJ_CATEGORIES = dict(
                 "pan_12",
                 "pan_17",
                 "pan_22",  # these are technically what we consider "pots"
+                "pan_9",  # collision model for bottom of pan is too thin
             ],
         ),
     ),
@@ -911,17 +1064,21 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=2.25,
         ),
-        objaverse=dict(
-            model_folders=["objaverse/pan"],
-            scale=1.70,
-            exclude=list(
-                set([f"pan_{i}" for i in range(25)])
-                - set(["pan_0", "pan_12", "pan_17", "pan_22"])
-            ),
+        lightwheel=dict(
+            scale=0.80,
+            exclude=[
+                "Pot052",  # smaller than other pots
+                "Pot054",  # smaller than other pots
+                "Pot061",  # smaller than other pots
+                "Pot062",  # a lot smaller than other pots
+                "Pot068",  # bigger than other pots
+            ],
         ),
     ),
     peach=dict(
@@ -930,7 +1087,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=False,
+        fridgable=True,
+        freezable=True,
         aigen=dict(
             scale=1.05,
         ),
@@ -942,11 +1100,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=False,
+        fridgable=True,
+        freezable=True,
         aigen=dict(),
         objaverse=dict(
             exclude=[
                 "pear_4",  # has big hole. excluding
+                "pear_0",
+                "pear_3",
+                "pear_5",
+                "pear_10",  # slow loading time
             ]
         ),
     ),
@@ -956,7 +1119,9 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=1.65,
         ),
@@ -964,6 +1129,7 @@ OBJ_CATEGORIES = dict(
             scale=1.35,
             exclude=[
                 "plate_6",  # causing error: faces of mesh have inconsistent orientation.
+                "plate_11",  # slow load times
             ],
         ),
     ),
@@ -973,11 +1139,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.10,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "potato_0",  # slow loading time
+            ]
+        ),
     ),
     rolling_pin=dict(
         types=("tool"),
@@ -985,6 +1156,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.6,
@@ -1003,6 +1175,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.35,
@@ -1017,6 +1190,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.25,
@@ -1029,6 +1203,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.7,
@@ -1036,7 +1211,11 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 # "soap_dispenser_4", # can see thru body but that's fine if this is glass
+                # "soap_dispenser_2",  # slow loading time but there are few examples of this category so keep
             ]
+        ),
+        lightwheel=dict(
+            scale=1.0,
         ),
     ),
     spatula=dict(
@@ -1045,6 +1224,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.30,
@@ -1059,6 +1239,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.20,
@@ -1076,11 +1257,17 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=False,
         freezable=False,
+        dishwashable=True,
         aigen=dict(
             scale=1.5,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                "spoon_16",  # slow loading time
+            ]
+        ),
     ),
     spray=dict(
         types=("cleaner"),
@@ -1088,12 +1275,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.75,
         ),
         objaverse=dict(
             scale=1.75,
+        ),
+        lightwheel=dict(
+            scale=1.0,
         ),
     ),
     squash=dict(
@@ -1102,6 +1293,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.15,
@@ -1109,6 +1301,7 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "squash_10",  # hole at bottom
+                "squash_8",  # slow loading time
             ],
         ),
     ),
@@ -1118,6 +1311,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=[1.0, 1.0, 2.0],
@@ -1137,6 +1331,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         aigen=dict(),
         objaverse=dict(),
@@ -1147,7 +1342,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=False,
+        fridgable=True,
+        freezable=True,
         aigen=dict(),
         objaverse=dict(),
     ),
@@ -1157,6 +1353,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.25,
@@ -1174,11 +1371,16 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=False,
         aigen=dict(
             scale=1.25,
         ),
-        objaverse=dict(),
+        objaverse=dict(
+            exclude=[
+                # "tomato_6",  # slow loading time but include bc few items in category
+            ]
+        ),
     ),
     tray=dict(
         types=("receptacle"),
@@ -1186,10 +1388,14 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         aigen=dict(scale=2.0),
         objaverse=dict(
             scale=1.80,
+            exclude=[
+                "tray_1",  # slow loading time
+            ],
         ),
     ),
     waffle=dict(
@@ -1198,6 +1404,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.75,
@@ -1205,6 +1412,7 @@ OBJ_CATEGORIES = dict(
         objaverse=dict(
             exclude=[
                 "waffle_2",  # bottom completely messed up
+                # "waffle_1",  # slow loading time but include because few items in this category
             ]
         ),
     ),
@@ -1214,6 +1422,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.6,
@@ -1222,6 +1431,7 @@ OBJ_CATEGORIES = dict(
             scale=1.5,
             exclude=[
                 "water_bottle_11",  # sides and bottom see thru, but ok if glass. keeping anyway
+                "water_bottle_9",  # slow loading time
             ],
         ),
     ),
@@ -1231,6 +1441,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         aigen=dict(
             scale=1.9,
@@ -1248,6 +1459,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         aigen=dict(
             scale=1.0,
@@ -1256,11 +1468,13 @@ OBJ_CATEGORIES = dict(
             scale=0.95,
         ),
     ),
+    ### AI gen objects ###
     dates=dict(
         graspable=False,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
         aigen=dict(),
@@ -1273,6 +1487,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("drink"),
     ),
@@ -1284,6 +1499,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=(),
     ),
@@ -1291,10 +1507,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=2.15,
         ),
+        lightwheel=dict(
+            scale=0.85,
+        ),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("tool"),
     ),
@@ -1302,10 +1522,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.35,
         ),
+        lightwheel=dict(
+            scale=0.97,
+        ),
         graspable=True,
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("condiment"),
     ),
@@ -1317,6 +1541,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1326,6 +1551,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("sweets"),
     ),
@@ -1333,10 +1559,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.8,
         ),
+        lightwheel=dict(
+            scale=1.0,
+        ),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("utensil"),
     ),
@@ -1344,10 +1574,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.75,
         ),
+        lightwheel=dict(
+            scale=1.0,
+        ),
         graspable=True,
         washable=True,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("receptacle"),
     ),
@@ -1359,6 +1593,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=True,
         types=("sweets"),
     ),
@@ -1368,6 +1603,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
     ),
@@ -1380,6 +1616,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=True,
         types=("packaged_food"),
     ),
@@ -1391,7 +1628,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
-        freezable=True,
+        fridgable=True,
+        freezable=False,
         types=("drink"),
     ),
     ham=dict(
@@ -1402,6 +1640,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1413,6 +1652,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat", "cooked_food"),
     ),
@@ -1424,28 +1664,37 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
-        freezable=True,
+        fridgable=True,
+        freezable=False,
         types=("vegetable"),
     ),
     lettuce=dict(
         aigen=dict(
             scale=2.0,
         ),
+        lightwheel=dict(
+            scale=1.05,
+        ),
         graspable=False,
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=True,
+        fridgable=True,
+        freezable=False,
         types=("vegetable"),
     ),
     tongs=dict(
         aigen=dict(
             scale=1.5,
         ),
+        lightwheel=dict(
+            scale=0.95,
+        ),
         graspable=True,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("tool"),
     ),
@@ -1457,6 +1706,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1464,10 +1714,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=2.0,
         ),
-        graspable=True,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+        graspable=False,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("receptacle"),
     ),
@@ -1475,10 +1729,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.15,
         ),
-        graspable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+        graspable=True,
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1490,6 +1748,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
     ),
@@ -1497,11 +1756,15 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.10,
         ),
+        lightwheel=dict(
+            scale=1.05,
+        ),
         graspable=True,
         washable=False,
         microwavable=False,
         cookable=False,
-        freezable=True,
+        fridgable=False,
+        freezable=False,
         types=("packaged_food"),
     ),
     grapes=dict(
@@ -1512,6 +1775,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
     ),
@@ -1523,6 +1787,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("packaged_food"),
     ),
@@ -1534,6 +1799,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1545,6 +1811,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1556,6 +1823,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("cooked_food"),
     ),
@@ -1567,7 +1835,8 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
-        freezable=True,
+        fridgable=False,
+        freezable=False,
         types=("packaged_food"),
     ),
     kebabs=dict(
@@ -1578,6 +1847,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("cooked_food"),
     ),
@@ -1587,7 +1857,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=True,
+        fridgable=False,
+        freezable=False,
         types=("tool"),
     ),
     chicken_breast=dict(
@@ -1598,6 +1869,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1609,6 +1881,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("packaged_food"),
     ),
@@ -1620,6 +1893,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1629,6 +1903,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1640,6 +1915,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1651,6 +1927,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("receptacle"),
     ),
@@ -1662,7 +1939,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=False,
-        freezable=True,
+        fridgable=False,
+        freezable=False,
         types=("receptacle"),
     ),
     asparagus=dict(
@@ -1673,6 +1951,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1684,6 +1963,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1695,7 +1975,8 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
-        freezable=True,
+        fridgable=True,
+        freezable=False,
         types=("vegetable"),
     ),
     bacon=dict(
@@ -1706,6 +1987,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=False,
         types=("meat"),
     ),
@@ -1717,6 +1999,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("packaged_food"),
     ),
@@ -1728,6 +2011,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
     ),
@@ -1739,6 +2023,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("fruit"),
     ),
@@ -1746,10 +2031,14 @@ OBJ_CATEGORIES = dict(
         aigen=dict(
             scale=1.4,
         ),
-        graspable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+        graspable=True,
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("tool"),
     ),
@@ -1761,6 +2050,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("fruit"),
     ),
@@ -1772,6 +2062,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("fruit"),
     ),
@@ -1781,6 +2072,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=False,
         types=("vegetable"),
     ),
@@ -1792,6 +2084,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("vegetable"),
     ),
@@ -1803,6 +2096,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("packaged_food"),
     ),
@@ -1814,6 +2108,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=False,
         types=("vegetable"),
     ),
@@ -1825,6 +2120,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("pastry", "bread_food"),
     ),
@@ -1836,6 +2132,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("cooked_food"),
     ),
@@ -1847,6 +2144,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
     ),
@@ -1858,6 +2156,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("cooked_food"),
     ),
@@ -1869,6 +2168,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("packaged_food", "condiment"),
     ),
@@ -1880,6 +2180,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1889,6 +2190,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1900,6 +2202,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1911,6 +2214,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1922,6 +2226,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=False,
         types=("fruit"),
     ),
@@ -1933,6 +2238,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("vegetable"),
     ),
@@ -1942,6 +2248,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("sweets"),
     ),
@@ -1953,6 +2260,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("meat"),
     ),
@@ -1964,6 +2272,7 @@ OBJ_CATEGORIES = dict(
         washable=False,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=("dairy"),
     ),
@@ -1975,6 +2284,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
         types=("tool"),
     ),
@@ -1984,6 +2294,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=True,
+        fridgable=True,
         freezable=True,
         types=(),
     ),
@@ -1995,6 +2306,7 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=False,
         cookable=False,
+        fridgable=True,
         freezable=True,
         types=("fruit"),
     ),
@@ -2006,8 +2318,599 @@ OBJ_CATEGORIES = dict(
         washable=True,
         microwavable=True,
         cookable=True,
+        fridgable=True,
         freezable=False,
         types=("meat", "cooked_food"),
+    ),
+    ### lightwheel objects ###
+    colander=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=1.20,
+        ),
+    ),
+    reamer=dict(
+        types=("tool"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    ice_cube=dict(
+        types=("iced_item"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.25,
+        ),
+    ),
+    jar=dict(
+        types=("decoration", "receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.90,
+            exclude=[
+                "Jar017",
+            ],
+        ),
+    ),
+    measuring_cup=dict(
+        types=("tool"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=1.60,
+        ),
+    ),
+    sandwich_bread=dict(
+        types=("bread_food"),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+            exclude=[
+                "SandwichBread001",
+            ],
+        ),
+    ),
+    strainer=dict(
+        types=("tool", "receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=1.40,
+        ),
+    ),
+    sugar_cube=dict(
+        types=("sweets"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=2.0,
+        ),
+    ),
+    cinnamon=dict(
+        types=("spice"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.20,
+        ),
+    ),
+    cookie_dough_ball=dict(
+        types=("sweets"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=0.80,
+        ),
+    ),
+    cream_cheese_stick=dict(
+        types=("dairy"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=2.5,
+        ),
+    ),
+    digital_scale=dict(
+        types=("tool"),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.05,
+        ),
+    ),
+    flour_bag=dict(
+        types=(),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    hotdog_bun=dict(
+        types=("bread_food"),
+        graspable=True,
+        washable=False,
+        microwavable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.15,
+        ),
+    ),
+    mayonnaise=dict(
+        types=("condiment"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.15,
+        ),
+    ),
+    mustard=dict(
+        types=("condiment"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.25,
+        ),
+    ),
+    oven_tray=dict(
+        types=("receptacle"),
+        graspable=False,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    paprika=dict(
+        types=("spice"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.20,
+        ),
+    ),
+    turmeric=dict(
+        types=("spice"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.65,
+        ),
+    ),
+    pickle_slice=dict(
+        types=("vegetable"),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    tomato_slice=dict(
+        types=("vegetable"),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=[1.15, 1.15, 2.0],
+        ),
+    ),
+    turkey_slice=dict(
+        types=("meat"),
+        graspable=False,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=[1.15, 1.15, 1.5],
+        ),
+    ),
+    straw=dict(
+        types=(),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    tupperware=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=True,
+        cookable=False,
+        fridgable=True,
+        freezable=True,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=0.80,
+        ),
+    ),
+    chicken_drumstick=dict(
+        types=("meat"),
+        graspable=True,
+        washable=True,
+        microwavable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.2,
+        ),
+    ),
+    # fruit_bowl=dict(
+    #     types=("receptacle"),
+    #     graspable=False,
+    #     washable=True,
+    #     microwavable=True,
+    #     cookable=False,
+    #     freezable=False,
+    #     lightwheel=dict(
+    #         scale=0.97,
+    #     ),
+    # ),
+    glass_cup=dict(
+        types=("receptacle", "stackable"),
+        graspable=True,
+        washable=True,
+        microwavable=True,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    lemon_wedge=dict(
+        types=("vegetable"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=2.0,
+        ),
+    ),
+    marshmallow=dict(
+        types=("sweets"),
+        graspable=True,
+        washable=False,
+        microwavable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=0.90,
+        ),
+    ),
+    oil_and_vinegar_bottle=dict(
+        types=("condiment"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.05,
+        ),
+    ),
+    pancake=dict(
+        types=("sweets"),
+        graspable=False,
+        washable=False,
+        microwavable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.1,
+        ),
+    ),
+    peeler=dict(
+        types=("tool"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            scale=0.9,
+        ),
+    ),
+    # plant=dict(
+    #     types=("decoration"),
+    #     graspable=False,
+    #     washable=False,
+    #     microwavable=False,
+    #     cookable=False,
+    #     freezable=False,
+    #     lightwheel=dict(
+    #         scale=1.0,
+    #     ),
+    # ),
+    saucepan=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        dishwashable=True,
+        objaverse=dict(
+            model_folders=["objaverse/pan"],
+            scale=1.70,
+            exclude=list(
+                set([f"pan_{i}" for i in range(25)])
+                - set(["pan_0", "pan_12", "pan_17", "pan_22"])
+            ),
+        ),
+        lightwheel=dict(
+            scale=0.92,
+        ),
+    ),
+    saucepan_with_lid=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        dishwashable=True,
+        auxiliary_obj="saucepan_lid",
+        lightwheel=dict(
+            model_folders=["lightwheel/saucepan"],
+            scale=1.0,
+        ),
+    ),
+    saucepan_lid=dict(
+        types=("lid"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        dishwashable=True,
+        lightwheel=dict(
+            model_folders=["lightwheel/saucepan"],
+            is_auxiliary_obj=True,
+            scale=0.98,
+        ),
+    ),
+    wooden_spoon=dict(
+        types=("utensil"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=True,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.95,
+        ),
+    ),
+    aluminum_foil=dict(
+        types=("tool"),
+        graspable=True,
+        washable=False,
+        microwavable=False,
+        cookable=True,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    dish_brush=dict(
+        types=("cleaner", "tool"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    pizza=dict(
+        types=("cooked_food"),
+        graspable=False,
+        washable=False,
+        microwavable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=1.05,
+        ),
+    ),
+    kebab_skewer=dict(
+        types=("cooked_food"),
+        graspable=True,
+        washable=False,
+        microwavable=True,
+        cookable=True,
+        fridgable=True,
+        freezable=True,
+        lightwheel=dict(
+            scale=0.60,
+        ),
+    ),
+    juice=dict(
+        types=("drink"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.0,
+        ),
+    ),
+    salt_and_pepper_shaker=dict(
+        types=("spice"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=1.05,
+        ),
+    ),
+    basket=dict(
+        types=("receptacle"),
+        graspable=False,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.85,
+        ),
+    ),
+    placemat=dict(
+        types=("receptacle"),
+        graspable=False,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=False,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.80,
+            exclude=[
+                "Placemat003",
+                "Placemat006",
+            ],
+        ),
+    ),
+    blender_jug=dict(
+        types=("receptacle"),
+        graspable=True,
+        washable=True,
+        microwavable=False,
+        cookable=False,
+        fridgable=True,
+        freezable=False,
+        lightwheel=dict(
+            scale=0.85,
+            # Exclude: 015, 025, 021 (dont have handles)
+            exclude=[
+                "BlenderJug003",  # scale is off
+                "BlenderJug015",
+                "BlenderJug021",
+                "BlenderJug025",
+            ],
+        ),
     ),
 )
 
@@ -2090,13 +2993,15 @@ OBJ_GROUPS["in_container"] = get_cats_by_type(
         "bread_food",
         "pastry",
         "cooked_food",
+        "tool",
+        "iced_item",
     ]
 )
 
 # custom groups
 OBJ_GROUPS["container"] = ["plate"]  # , "bowl"]
-OBJ_GROUPS["kettle"] = ["kettle_electric", "kettle_non_electric"]
-OBJ_GROUPS["cookware"] = ["pan", "pot", "kettle_non_electric"]
+OBJ_GROUPS["kettle"] = ["kettle_non_electric"]
+OBJ_GROUPS["cookware"] = ["pan", "pot", "saucepan", "kettle_non_electric"]
 OBJ_GROUPS["pots_and_pans"] = ["pan", "pot"]
 OBJ_GROUPS["food_set1"] = [
     "apple",
@@ -2112,3 +3017,14 @@ OBJ_GROUPS["food_set1"] = [
 ]
 OBJ_GROUPS["group1"] = ["apple", "carrot", "banana", "bowl", "can"]
 OBJ_GROUPS["container_set2"] = ["plate", "bowl"]
+OBJ_GROUPS["oven_ready"] = [
+    "corn",
+    "fish",
+    "steak",
+    "tray",
+    "potato",
+    "sweet_potato",
+    "chicken_drumstick",
+    "eggplant",
+    "broccoli",
+]

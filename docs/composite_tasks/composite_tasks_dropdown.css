@@ -1,0 +1,1922 @@
+/* Composite Tasks dropdown styling */
+
+/* Benchmark tables (e.g., Multi-Task Learning) should match Atomic/Composite table look */
+table.rc-benchmark-table,
+table.rc-objects-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.rc-benchmark-table th,
+table.rc-benchmark-table td,
+table.rc-objects-table th,
+table.rc-objects-table td {
+  border-bottom: 1px solid var(--pst-color-border, #e0e0e0);
+  padding: 0.55rem 0.6rem;
+  vertical-align: top;
+  background: transparent;
+}
+
+table.rc-benchmark-table th,
+table.rc-objects-table th {
+  text-align: left;
+  font-weight: 800;
+  background: rgba(127, 127, 127, 0.12);
+}
+
+table.rc-benchmark-table tbody tr:hover td,
+table.rc-objects-table tbody tr:hover td {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+/* Thicker border for section dividers in checkpoint tables */
+table.rc-benchmark-table tbody tr.checkpoint-section-divider td {
+  border-top: 3px solid var(--pst-color-border, #333);
+  border-bottom: 1px solid var(--pst-color-border, #e0e0e0);
+}
+
+html[data-theme="dark"] table.rc-benchmark-table tbody tr.checkpoint-section-divider td {
+  border-top-color: var(--pst-color-border, rgba(255, 255, 255, 0.3));
+}
+
+/* π₀.₅: render dot smaller + lower */
+.rc-pi-subnum {
+  display: inline-block;
+  font-size: 0.6em; /* slightly larger than default subscript glyphs */
+  line-height: 1;
+  vertical-align: -0.33em;
+}
+
+.rc-pi-subdot {
+  display: inline-block;
+  font-size: 0.82em;
+  line-height: 1;
+  vertical-align: -0.33em;
+  margin: 0 0.03em;
+}
+
+/* Objects page helpers */
+table.rc-objects-table {
+  table-layout: fixed;
+}
+
+/* Column widths: shrink Groups, widen numeric columns */
+table.rc-objects-table th:nth-child(1),
+table.rc-objects-table td:nth-child(1) {
+  width: 24%;
+}
+
+table.rc-objects-table th:nth-child(2),
+table.rc-objects-table td:nth-child(2) {
+  width: 16%;
+}
+
+table.rc-objects-table th:nth-child(3),
+table.rc-objects-table td:nth-child(3),
+table.rc-objects-table th:nth-child(4),
+table.rc-objects-table td:nth-child(4),
+table.rc-objects-table th:nth-child(5),
+table.rc-objects-table td:nth-child(5) {
+  width: 20%;
+}
+
+table.rc-objects-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Align numeric headers with numeric cells */
+table.rc-objects-table th:nth-child(3),
+table.rc-objects-table th:nth-child(4),
+table.rc-objects-table th:nth-child(5) {
+  text-align: right;
+}
+
+/* Sort arrows in Objects table headers */
+table.rc-objects-table th .rc-sort-label {
+  margin-right: 0.35rem;
+}
+
+table.rc-objects-table th .rc-table-sort-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0.75;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+table.rc-objects-table th .rc-table-sort-btn:hover {
+  opacity: 1;
+}
+
+table.rc-objects-table th .rc-table-sort-btn:focus-visible {
+  outline: 2px solid var(--pst-color-primary, #2563eb);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+table.rc-objects-table .group-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.71rem;
+  line-height: 1;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: rgba(127, 127, 127, 0.16);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  color: var(--pst-color-text-base, #111827);
+}
+
+html[data-theme="dark"] table.rc-objects-table .group-tag {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Groups cell: keep exactly 2 groups on one line */
+table.rc-objects-table td:nth-child(2) .rc-groups-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+table.rc-objects-table td:nth-child(2) .rc-groups-wrap-2 {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Split label coloring (match existing task tag colors) */
+table.rc-benchmark-table code.rc-benchmark-split {
+  font-weight: 800;
+}
+
+table.rc-benchmark-table code.rc-benchmark-atomic {
+  color: inherit; /* neutral */
+}
+
+table.rc-benchmark-table code.rc-benchmark-comp-seen {
+  color: inherit; /* neutral */
+}
+
+table.rc-benchmark-table code.rc-benchmark-comp-unseen {
+  color: inherit; /* neutral */
+}
+
+/* Per-task tags shown under task names */
+.rc-task-tags {
+  margin-top: 0.36rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  position: relative; /* anchor popover */
+}
+
+.rc-task-skills .rc-task-tags {
+  margin-top: 0; /* inside Task Skills column */
+}
+
+/* Composite Seen/Unseen target tag shown under the task name */
+.rc-comp-target-tagline {
+  margin-top: 0.36rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* Slightly smaller Composite Seen/Unseen tags under task names */
+.rc-comp-target-tagline .rc-task-tag-comp-seen,
+.rc-comp-target-tagline .rc-task-tag-comp-unseen {
+  font-size: 0.68rem;
+  padding: 0.16rem 0.45rem;
+}
+
+.rc-task-tag-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.rc-task-tag-more {
+  background: #e5e7eb; /* gray-200 (lighter) */
+  color: #374151; /* gray-700 */
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  font-size: 0.68rem;
+  padding: 0.16rem 0.42rem;
+  cursor: pointer;
+}
+
+.rc-task-tag-more:hover {
+  filter: brightness(0.98);
+}
+
+.rc-task-tag-popover {
+  position: fixed;
+  /* Positioned via JS so it appears under +N (viewport coords) */
+  top: 0;
+  left: 0;
+  z-index: 1500;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 0.6rem;
+  background: #e5e7eb; /* match +N pill */
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: min(520px, 80vw);
+  opacity: 0;
+  transform: translateY(-2px) scale(0.98);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.rc-task-tag-popover .rc-task-tag {
+  /* Ensure popover tags match main-row tag sizing */
+  font-size: 0.76rem;
+  padding: 0.22rem 0.6rem;
+}
+
+.rc-task-tag-popover.rc-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.rc-task-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.71rem;
+  line-height: 1;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rc-task-tag-PickPlace {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.rc-task-tag-nav {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.rc-task-tag-comp-seen {
+  background: #3e00ff;
+  color: #ffffff;
+}
+
+.rc-task-tag-comp-unseen {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.rc-task-tag-door-open {
+  background: #22c55e; /* green */
+  color: #ffffff;
+}
+
+.rc-task-tag-door-close {
+  background: #16a34a; /* green (darker) */
+  color: #ffffff;
+}
+
+.rc-task-tag-drawer-open {
+  background: #bc31ce;
+  color: #ffffff;
+}
+
+.rc-task-tag-drawer-close {
+  background: #8100ff; 
+  color: #ffffff;
+}
+
+.rc-task-tag-knob-twist {
+  background: #06b6d4; /* cyan */
+  color: #ffffff;
+}
+
+.rc-task-tag-lever-turn {
+  background: #0891b2; /* cyan (darker) */
+  color: #ffffff;
+}
+
+.rc-task-tag-button-press {
+  background: #ec4899; /* pink */
+  color: #ffffff;
+}
+
+.rc-task-tag-rack-slide {
+  background: #64748b; /* slate (lighter) */
+  color: #ffffff;
+}
+
+.rc-task-tag-start-toaster {
+  background: #b87d47; /* brown */
+  color: #ffffff;
+}
+
+.rc-task-tag-stand-mixer-close {
+  background: #E52B50;
+  color: #ffffff;
+}
+
+.rc-task-tag-blender-lid-open {
+  background: #f59e0b; /* more yellow */
+  color: #ffffff;
+}
+
+.rc-task-tag-blender-lid-close {
+  background: #f97316; /* take previous Open Blender Lid orange */
+  color: #ffffff;
+}
+
+.rc-task-tag-kettle-lid-close {
+  background: #f87171; /* coral/salmon */
+  color: #ffffff;
+}
+
+/* Slightly larger task name text in the table (keep tags as-is) */
+body.rc-composite-tasks table tbody td:first-child > a > code,
+body.rc-composite-tasks table tbody td:first-child > code {
+  font-size: 0.873em;
+}
+
+/* Back-to-top button (Composite Tasks page only) */
+.rc-back-to-top {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 9999;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: var(--pst-color-text-base, #111827);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.rc-back-to-top.rc-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.rc-back-to-top:hover {
+  filter: brightness(0.98);
+}
+
+.rc-back-to-top:focus-visible {
+  outline: 2px solid var(--pst-color-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Ensure native form controls (e.g., <select>) match the active theme.
+   This affects the OS-rendered dropdown UI (not just the closed control). */
+html[data-theme="light"] body.rc-composite-tasks {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] body.rc-composite-tasks {
+  color-scheme: dark;
+}
+
+.rc-activity-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.75rem 0 1.25rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  flex-wrap: wrap;
+}
+
+/* If the page ships with the old Sphinx tables, hide them entirely.
+   The JS now renders the full UI from JSON into #rc-composite-tasks-root. */
+body.rc-composite-static section#composite-tasks > section[id] {
+  display: none;
+}
+
+/* Match the table header font (Task / Description / Skills Involved / ...) */
+body.rc-composite-tasks .rc-activity-title,
+body.rc-composite-tasks .rc-activity-selector,
+body.rc-composite-tasks .rc-activity-selector select,
+body.rc-composite-tasks .rc-activity-selector input,
+body.rc-composite-tasks .rc-activity-selector button,
+body.rc-composite-tasks .rc-task-search input[type="search"] {
+  font-family: var(--pst-font-family-base, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif);
+}
+
+.rc-activity-selector label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.rc-activity-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+  min-width: 340px;
+}
+
+.rc-activity-group select {
+  flex: 1 1 auto;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+/* Placeholder (matches input placeholder “shadow” feel) */
+.rc-activity-group select:invalid {
+  color: var(--pst-color-text-muted, #6b7280);
+}
+
+.rc-activity-group select:valid {
+  color: var(--pst-color-text-base, #111827);
+}
+
+.rc-task-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+  min-width: 340px;
+}
+
+.rc-show-all {
+  flex-basis: 100%;
+  margin-top: 0.25rem;
+}
+
+.rc-show-all-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  user-select: none;
+}
+
+.rc-show-all-label input[type="checkbox"] {
+  margin: 0;
+}
+
+.rc-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 0;
+  justify-content: flex-start;
+  min-width: 360px;
+  flex-basis: 100%;
+  padding-top: 0.25rem;
+}
+
+.rc-sort-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-basis: 100%;
+  margin-top: 0.35rem;
+}
+
+.rc-sort-row label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.rc-sort-row select {
+  padding: 0.3rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-task-count {
+  margin-left: 0.5rem;
+  color: var(--pst-color-text-muted, #555);
+  font-weight: 500;
+}
+
+.rc-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rc-filter-length {
+  position: relative;
+}
+
+.rc-length-dropdown-btn {
+  padding: 0.22rem 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  font-weight: 600;
+  font-size: 0.92em;
+  min-width: 0;
+  width: max-content;
+  text-align: left;
+}
+
+.rc-length-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1200;
+  min-width: 100%;
+  width: max-content;
+  max-width: 90vw;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 0.15rem 0.2rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+}
+
+.rc-length-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pst-color-on-background, #fff);
+  padding: 0.25rem 0.25rem;
+  border-bottom: 1px solid var(--pst-color-border, #e0e0e0);
+  margin-bottom: 0.25rem;
+}
+
+.rc-length-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.92em;
+  user-select: none;
+}
+
+.rc-length-all input[type="checkbox"] {
+  margin: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+.rc-length-item {
+  display: grid;
+  grid-template-columns: 1.15rem 1fr max-content;
+  align-items: center;
+  column-gap: 0.45rem;
+  padding: 0.28rem 0.3rem;
+  border-radius: 0.45rem;
+  user-select: none;
+  cursor: pointer;
+  font-size: 0.92em;
+}
+
+.rc-length-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-length-item input[type="checkbox"] {
+  margin: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+.rc-length-item-count {
+  color: var(--pst-color-text-muted, #555);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rc-filter-subtasks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.rc-subtasks-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rc-filter select,
+.rc-filter input {
+  padding: 0.3rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-reset-filters-btn {
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  /* Match Fixtures page "Clear" button color (keep sizing unchanged) */
+  background: #3498db;
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.rc-reset-filters-btn:hover {
+  background: #2980b9;
+}
+
+.rc-filter input {
+  width: 4.2rem;
+}
+
+/* Subtasks min/max: make the two number inputs more compact */
+.rc-filter-subtasks input#rc-filter-sub-min,
+.rc-filter-subtasks input#rc-filter-sub-max {
+  width: 3.2rem;
+  padding: 0.22rem 0.35rem;
+}
+
+.rc-filter-range-sep {
+  color: var(--pst-color-text-muted, #555);
+  padding: 0 0.15rem;
+}
+
+.rc-filter-note {
+  flex-basis: 100%;
+  font-size: 0.92em;
+  color: var(--pst-color-text-muted, #555);
+  margin-top: 0.1rem;
+}
+
+.rc-subtasks-note {
+  flex-basis: auto;
+  margin-top: 0;
+  font-size: 0.78em;
+  color: #b42318;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+.rc-filter-categories,
+.rc-filter-task-attrs {
+  flex-basis: auto;
+  position: relative;
+  margin-top: 0.1rem;
+}
+
+/* Ensure Target Tasks dropdown positions correctly */
+.rc-filter-target-tasks {
+  position: relative;
+}
+
+/* Make the Target Tasks button hug its text (no fixed width) */
+.rc-filter-target-tasks .rc-task-attr-dropdown-btn {
+  min-width: 0;
+  width: max-content;
+  cursor: pointer;
+}
+
+/* Make "All Tasks" row text a bit smaller */
+.rc-target-all-tasks-row {
+  font-size: 0.92em;
+}
+
+.rc-category-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  /* Match Horizon button sizing */
+  padding: 0.22rem 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  font-weight: 600;
+  font-size: 0.92em;
+  min-width: 0;
+  width: max-content;
+  text-align: left;
+}
+
+.rc-task-attr-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  font-weight: 600;
+  font-size: 0.92em;
+  min-width: 155px;
+  text-align: left;
+}
+
+.rc-task-attr-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1200;
+  width: max-content;
+  min-width: 0;
+  max-width: 90vw;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 0.15rem 0.32rem 0.15rem 0.55rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  text-align: left;
+}
+
+/* Make everything inside Task Attributes dropdown a bit bigger */
+.rc-task-attr-dropdown .rc-task-tag {
+  font-size: 0.74rem;
+  padding: 0.19rem 0.52rem;
+}
+
+.rc-task-attr-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--pst-color-on-background, #fff);
+  padding: 0.30rem 0.28rem;
+  border-bottom: 1px solid var(--pst-color-border, #e0e0e0);
+  margin-bottom: 0.28rem;
+}
+
+.rc-task-attr-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.99em;
+  user-select: none;
+}
+
+.rc-task-attr-all input[type="checkbox"] {
+  margin: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.rc-task-attr-item {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr max-content;
+  align-items: center;
+  column-gap: 0.4rem;
+  padding: 0.33rem 0.31rem;
+  border-radius: 0.45rem;
+  user-select: none;
+  cursor: pointer;
+  font-size: 0.99em;
+}
+
+.rc-task-attr-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-task-attr-item input[type="checkbox"] {
+  margin: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.rc-task-attr-item-right {
+  display: flex;
+  min-width: 0;
+}
+
+.rc-task-attr-count {
+  color: var(--pst-color-text-muted, #555);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  justify-self: end;
+  font-size: 0.92em;
+}
+
+.rc-category-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1200;
+  width: max-content;
+  min-width: 0;
+  max-width: 90vw;
+  padding: 0.15rem 0.32rem 0.15rem 0.55rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  text-align: left;
+}
+
+.rc-category-item {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr max-content;
+  align-items: center;
+  column-gap: 0.4rem;
+  padding: 0.30rem 0.26rem;
+  border-radius: 0.45rem;
+  user-select: none;
+}
+
+.rc-category-item-right {
+  display: flex;
+  min-width: 0;
+}
+
+.rc-category-item-count {
+  color: var(--pst-color-text-muted, #555);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+.rc-category-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-category-item input[type="checkbox"] {
+  margin: 0;
+  flex: 0 0 auto;
+  justify-self: start;
+  opacity: 1;
+  position: static;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.rc-category-item span {
+  justify-self: start;
+}
+
+/* Slightly larger tags inside the dropdown */
+.rc-category-tag {
+  font-size: 0.92em;
+  padding: 0.17rem 0.52rem;
+}
+
+.rc-invalid {
+  border-color: #b42318 !important;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.15);
+}
+
+.rc-task-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.rc-task-search input[type="search"] {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+}
+
+.rc-task-suggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.5rem;
+  background: var(--pst-color-on-background, #fff);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.rc-task-suggest-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rc-task-suggest-item:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-task-suggest-item.rc-active {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rc-task-suggest-name {
+  font-weight: 700;
+}
+
+.rc-task-suggest-meta {
+  color: var(--pst-color-text-muted, #555);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+/* Brief row highlight on jump */
+@keyframes rc-flash {
+  0% { background-color: rgba(255, 235, 59, 0.65); }
+  100% { background-color: transparent; }
+}
+
+tr.rc-task-highlight td {
+  animation: rc-flash 1.8s ease-out;
+}
+
+/* Slightly more vertical breathing room in task rows */
+.rc-activity-body table.docutils tbody td {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+  line-height: 1.35;
+}
+
+/* Column width tuning (Composite Tasks tables only)
+   Task reduced to make room for Horizon column */
+body.rc-composite-tasks .rc-activity-body table.docutils {
+  width: 100%;
+  table-layout: fixed;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(1),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(1) {
+  width: 23.5%;
+  overflow-wrap: anywhere;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(2),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(2) {
+  width: 37.05%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(3),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(3) {
+  width: 18.25%;
+  /* font-size: 0.98em; */
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(4),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(4) {
+  width: 8.15%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(5),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(5) {
+  width: 6.8%;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th:nth-child(6),
+body.rc-composite-tasks .rc-activity-body table.docutils td:nth-child(6) {
+  width: 6.25%;
+}
+
+details.rc-activity {
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  margin: 0.6rem 0;
+  overflow: hidden;
+  /* Slightly off-white (between pure white and prior gray) */
+  background: #f8fafc;
+}
+
+details.rc-activity > summary {
+  cursor: pointer;
+  list-style: none;
+  /* Match Atomic fixture header spacing */
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  /* Match Atomic category header feel */
+  font-weight: 800;
+  background: rgba(17, 24, 39, 0.03);
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.rc-activity-summary-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.rc-activity-meta {
+  display: inline-flex;
+  width: fit-content;
+  font-weight: 600;
+  font-size: 0.78em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: #1f2937;
+  text-transform: none;
+}
+
+/* Distinct meta-category colors */
+.rc-activity-meta[data-meta="food prep"] {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+}
+.rc-activity-meta[data-meta="cooking"] {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+.rc-activity-meta[data-meta="beverage preparation"] {
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+.rc-activity-meta[data-meta="organizing and storage"] {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+.rc-activity-meta[data-meta="serving"] {
+  background: #fce7f3;
+  border-color: #f9a8d4;
+}
+.rc-activity-meta[data-meta="cleaning and sanitizing"] {
+  background: #fef9c3;
+  border-color: #fde047;
+}
+
+/* Task link color matches meta-category */
+body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  color: #6d28d9;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  color: #1d4ed8;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  color: #c2410c;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  color: #15803d;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  color: #be185d;
+}
+
+body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  color: #a16207;
+}
+
+/* JSON-rendered tables: make <code> look like a styled task label, not an inline-code chip */
+body.rc-composite-tasks details.rc-activity .rc-activity-body table.docutils tbody td:nth-child(1) > code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-weight: 700;
+}
+
+/* Ensure Task + Description align like the transformed tables */
+body.rc-composite-tasks .rc-activity-body table.docutils th,
+body.rc-composite-tasks .rc-activity-body table.docutils td {
+  text-align: left;
+}
+
+body.rc-composite-tasks details.rc-activity .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+body.rc-composite-tasks details.rc-activity .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code {
+  text-decoration-thickness: 2px;
+}
+
+/* Prevent "broken" underlines on some glyphs (g, y, p, etc).
+   Browsers may enable underline skip-ink by default, which creates gaps. */
+body.rc-composite-tasks details.rc-activity .rc-activity-body table.docutils tbody td:nth-child(1) a,
+body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a,
+body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a,
+body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a {
+  text-decoration-skip-ink: none;
+  -webkit-text-decoration-skip: none;
+}
+
+/* iMessage-style video popup (match Atomic Tasks) */
+.rc-video-modal-overlay {
+  position: fixed;
+  inset: 0;
+  /* Light mode: slightly translucent backdrop (like Atomic Tasks) */
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal-overlay {
+  /* Dark mode: slightly stronger backdrop (like Atomic Tasks) */
+  background: rgba(0, 0, 0, 0.88);
+}
+
+body.rc-modal-open {
+  overflow: hidden;
+}
+
+.rc-video-modal {
+  position: relative;
+  width: min(1297px, 95.76vw);
+  /* Use a solid surface color in light mode (avoid translucent "on-background" tokens) */
+  background: var(--pst-color-surface, #ffffff);
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  padding: 0.75rem;
+}
+
+.rc-video-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.rc-video-modal-download {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--pst-color-text-base, #111);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.rc-video-modal-download:hover {
+  background: rgba(255, 255, 255, 1);
+  text-decoration: none;
+}
+
+.rc-video-modal-player {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  background: #000;
+  max-height: 80vh;
+}
+
+.rc-video-modal-instruction {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: var(--pst-color-text-base, #111);
+}
+
+.rc-video-modal-instruction-text {
+  font-weight: 500;
+}
+
+.rc-video-modal-error {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(180, 35, 24, 0.35);
+  background: rgba(180, 35, 24, 0.06);
+  color: #7a271a;
+  font-weight: 600;
+}
+
+.rc-video-modal-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: var(--pst-color-text-muted, #555);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.rc-video-modal-close:hover {
+  background: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+  color: var(--pst-color-text-base, #111827);
+  transform: translateY(-1px);
+}
+
+.rc-video-modal-close:focus-visible {
+  outline: 2px solid var(--pst-color-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Dark mode: use Composite dark-mode surface vars (no white close button) */
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal-close {
+  background: var(--rc-surface-2);
+  border-color: var(--rc-border);
+  color: var(--rc-muted);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal-close:hover {
+  background: var(--rc-hover);
+  color: var(--rc-text);
+}
+
+.rc-video-modal-title {
+  /* Neutral (theme-aware) text color */
+  color: var(--pst-color-text-base, #111827);
+  font-weight: 800;
+  font-size: 1.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* Task name in modal header should look like inline `code` (font-wise) */
+.rc-video-modal-title-code {
+  font-family: var(--pst-font-family-monospace, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-weight: 800;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+details.rc-activity > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.rc-activity > summary:hover {
+  /* Slightly stronger than base header tint, like Atomic */
+  background: rgba(17, 24, 39, 0.06);
+}
+
+.rc-activity-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.rc-activity-badge {
+  font-weight: 600;
+  font-size: 0.85em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  background: var(--pst-color-surface, #ffffff);
+  color: var(--pst-color-text-muted, #555);
+  white-space: nowrap;
+}
+
+.rc-activity-body {
+  padding: 0.75rem 0.9rem 0.95rem 0.9rem;
+  background: #f8fafc;
+}
+
+/* Slightly tighten table spacing inside accordions */
+.rc-activity-body table.docutils {
+  margin-top: 0.35rem;
+}
+
+/* Composite Tasks tables: match Atomic Tasks table look (white + subtle header + hover) */
+body.rc-composite-tasks .rc-activity-body table.docutils {
+  border-collapse: collapse;
+  background: #f8fafc;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th,
+body.rc-composite-tasks .rc-activity-body table.docutils td {
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  /* Slightly reduce column padding to prevent early wrapping */
+  padding: 0.55rem 0.35rem;
+  vertical-align: top;
+  background: #f8fafc;
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils th {
+  text-align: left;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.85);
+  background: rgba(17, 24, 39, 0.03);
+}
+
+body.rc-composite-tasks .rc-activity-body table.docutils tbody tr:hover td {
+  background: rgba(37, 99, 235, 0.04);
+}
+
+/* Attribute columns */
+.rc-activity-body td.rc-mobile,
+.rc-activity-body td.rc-subtasks {
+  white-space: nowrap;
+}
+
+.rc-activity-body td.rc-episode-length {
+  white-space: nowrap;
+}
+
+/* Composite Tasks: nudge numeric cells slightly right (content only) */
+body.rc-composite-tasks .rc-activity-body table.docutils tbody td.rc-subtasks,
+body.rc-composite-tasks .rc-activity-body table.docutils tbody td.rc-episode-length {
+  padding-left: 0.63rem;
+}
+
+.rc-activity-body td.rc-video {
+  white-space: nowrap;
+}
+
+/* Composite Tasks only: compact Watch button */
+body.rc-composite-tasks .rc-activity-body .rc-atomic-video-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  /* atomic baseline: radius 0.55, padding 0.32x0.62, font 0.85
+     composite target: 10% smaller than atomic baseline */
+  border-radius: 0.495rem !important;
+  padding: 0.288rem 0.558rem !important;
+  font-size: 0.765rem !important;
+  line-height: 1.1 !important;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+body.rc-composite-tasks .rc-activity-body .rc-atomic-video-btn:hover {
+  filter: brightness(0.98);
+}
+
+/* Hide the right-side "Contents" (secondary TOC) on Composite Tasks page */
+body.rc-composite-tasks .bd-sidebar-secondary,
+body.rc-composite-tasks .sidebar-toggle.secondary-toggle,
+body.rc-composite-tasks label.overlay.overlay-secondary,
+body.rc-composite-tasks #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+
+/* Hide the right-side "Contents" (secondary TOC) on Objects page */
+body.rc-objects-page .bd-sidebar-secondary,
+body.rc-objects-page .sidebar-toggle.secondary-toggle,
+body.rc-objects-page label.overlay.overlay-secondary,
+body.rc-objects-page #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+
+/* Use the freed space (no secondary sidebar) on Objects page */
+body.rc-objects-page .bd-main .bd-content .bd-article-container {
+  max-width: 95em;
+}
+
+/* Hide the right-side "Contents" (secondary TOC) on Foundation Model Learning page */
+body.rc-foundation-model-learning .bd-sidebar-secondary,
+body.rc-foundation-model-learning .sidebar-toggle.secondary-toggle,
+body.rc-foundation-model-learning label.overlay.overlay-secondary,
+body.rc-foundation-model-learning #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+
+/* Use the freed space (no secondary sidebar) on Foundation Model Learning page */
+body.rc-foundation-model-learning .bd-main .bd-content .bd-article-container {
+  max-width: 95em;
+}
+
+/* Hide the right-side "Contents" (secondary TOC) on Lifelong Learning page */
+body.rc-lifelong-learning .bd-sidebar-secondary,
+body.rc-lifelong-learning .sidebar-toggle.secondary-toggle,
+body.rc-lifelong-learning label.overlay.overlay-secondary,
+body.rc-lifelong-learning #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+
+/* Use full page width (no secondary sidebar) on Lifelong Learning page */
+body.rc-lifelong-learning .bd-main .bd-content .bd-article-container {
+  max-width: none;
+}
+
+/* Use the freed space (no secondary sidebar) */
+body.rc-composite-tasks .bd-main .bd-content .bd-article-container {
+  max-width: 95em;
+}
+
+/* Datasets overview: match Atomic/Composite table look */
+body.rc-datasets-overview table.docutils {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8fafc;
+  border: none;
+}
+
+/* Datasets overview: add a "card" background around task tables */
+body.rc-datasets-overview .rc-activity-body {
+  margin: 0.6rem 0 1rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  background: #f8fafc;
+}
+
+/* Summary table should also feel like a card */
+table.rc-datasets-summary {
+  border: 1px solid var(--pst-color-border, #e0e0e0);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+
+body.rc-datasets-overview table.docutils th,
+body.rc-datasets-overview table.docutils td {
+  border: none;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  padding: 0.55rem 0.6rem;
+  vertical-align: top;
+  background: #f8fafc;
+}
+
+body.rc-datasets-overview table.docutils th {
+  text-align: left;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.85);
+  background: rgba(17, 24, 39, 0.03);
+}
+
+body.rc-datasets-overview table.docutils tbody tr:hover td {
+  background: rgba(37, 99, 235, 0.04);
+}
+
+/* Datasets overview: top summary table (Pretraining / Target Task stats) */
+table.rc-datasets-summary {
+  margin: 0.75rem auto 1rem auto;
+  max-width: 100%;
+}
+
+table.rc-datasets-summary caption {
+  caption-side: bottom;
+  text-align: center;
+  margin-top: 8px;
+}
+
+table.rc-datasets-summary th:not(:first-child),
+table.rc-datasets-summary td:not(:first-child) {
+  text-align: center;
+}
+
+/* Datasets overview: color-code task names by split */
+body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a,
+body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a code,
+body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child code {
+  color: #ef4444; /* red */
+}
+
+body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a,
+body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a code,
+body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child code {
+  color: #3e00ff; /* Composite Seen */
+}
+
+body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a,
+body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a code,
+body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child code {
+  color: #16a34a; /* Composite Unseen */
+}
+
+/* Datasets overview: atomic-seen column widths should align with composite tables.
+   Match Composite Tasks widths for shared columns (Task / Horizon / Video). */
+body.rc-datasets-overview #rc-datasets-atomic-seen {
+  width: 100%;
+  table-layout: fixed;
+}
+
+body.rc-datasets-overview #rc-datasets-atomic-seen th:nth-child(1),
+body.rc-datasets-overview #rc-datasets-atomic-seen td:nth-child(1) {
+  width: 24%;
+  overflow-wrap: anywhere;
+}
+
+/* Description expands to absorb the missing columns vs composite tables */
+body.rc-datasets-overview #rc-datasets-atomic-seen th:nth-child(2),
+body.rc-datasets-overview #rc-datasets-atomic-seen td:nth-child(2) {
+  width: 60%;
+}
+
+body.rc-datasets-overview #rc-datasets-atomic-seen th:nth-child(3),
+body.rc-datasets-overview #rc-datasets-atomic-seen td:nth-child(3) {
+  width: 9.75%;
+}
+
+body.rc-datasets-overview #rc-datasets-atomic-seen th:nth-child(4),
+body.rc-datasets-overview #rc-datasets-atomic-seen td:nth-child(4) {
+  width: 6.25%;
+}
+
+/* ------------------------------------------------------------
+   Dark mode: make Composite + Datasets tables actually dark
+   (PyData/Sphinx surface vars stay fairly light in this site).
+   ------------------------------------------------------------ */
+
+html[data-theme="dark"] body.rc-composite-tasks,
+html[data-theme="dark"] body.rc-datasets-overview {
+  --rc-surface: rgba(255, 255, 255, 0.05);
+  --rc-surface-2: rgba(255, 255, 255, 0.035);
+  /* Opaque equivalent of --rc-surface-2 for dropdowns (0% transparency), neutral gray (no blue). */
+  --rc-surface-2-solid: #1e1e1e;
+  --rc-border: rgba(255, 255, 255, 0.14);
+  --rc-hover: rgba(255, 255, 255, 0.08);
+  --rc-text: rgba(255, 255, 255, 0.92);
+  --rc-muted: rgba(255, 255, 255, 0.70);
+}
+
+/* Dark mode: force same dropdown color on ALL pages (Composite + Atomic/datasets). Single source of truth. */
+html[data-theme="dark"] .rc-length-dropdown,
+html[data-theme="dark"] .rc-length-header,
+html[data-theme="dark"] .rc-task-attr-dropdown,
+html[data-theme="dark"] .rc-task-attr-header,
+html[data-theme="dark"] .rc-category-dropdown {
+  background: #1e1e1e !important;
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+/* Dark mode: force same video modal background on ALL pages (Composite + Atomic/datasets). */
+html[data-theme="dark"] .rc-video-modal,
+html[data-theme="dark"] .rc-video-modal-instruction {
+  background: #1e1e1e !important;
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+/* Composite Tasks: top controls + filters card */
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-selector {
+  background: var(--rc-surface);
+  border-color: var(--rc-border);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-selector label,
+html[data-theme="dark"] body.rc-composite-tasks .rc-sort-row label {
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-group select,
+html[data-theme="dark"] body.rc-composite-tasks .rc-sort-row select,
+html[data-theme="dark"] body.rc-composite-tasks .rc-filter select,
+html[data-theme="dark"] body.rc-composite-tasks .rc-filter input,
+html[data-theme="dark"] body.rc-composite-tasks .rc-length-dropdown-btn,
+html[data-theme="dark"] body.rc-composite-tasks .rc-category-dropdown-btn,
+html[data-theme="dark"] body.rc-composite-tasks .rc-task-attr-dropdown-btn,
+html[data-theme="dark"] body.rc-composite-tasks .rc-task-search input[type="search"] {
+  background: var(--rc-surface-2);
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+/* Dark mode placeholder styling for Activity select */
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-group select:invalid {
+  color: var(--rc-muted);
+}
+
+/* Dark mode: dropdown popup solid (0% transparency), same perceived color as trigger button. */
+html[data-theme="dark"] body.rc-composite-tasks .rc-length-dropdown,
+html[data-theme="dark"] body.rc-composite-tasks .rc-length-header,
+html[data-theme="dark"] body.rc-composite-tasks .rc-task-attr-dropdown,
+html[data-theme="dark"] body.rc-composite-tasks .rc-task-attr-header,
+html[data-theme="dark"] body.rc-composite-tasks .rc-category-dropdown {
+  background: var(--rc-surface-2-solid);
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+/* Dark mode: checkbox accent same as light mode (theme primary blue). */
+html[data-theme="dark"] body.rc-composite-tasks .rc-length-dropdown input[type="checkbox"],
+html[data-theme="dark"] body.rc-composite-tasks .rc-task-attr-dropdown input[type="checkbox"],
+html[data-theme="dark"] body.rc-composite-tasks .rc-category-dropdown input[type="checkbox"] {
+  accent-color: var(--pst-color-primary, #2563eb);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-filter-range-sep {
+  color: var(--rc-muted);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-task-count {
+  color: var(--rc-muted);
+}
+
+/* Composite Tasks: Reset button should be visible in dark mode (match Atomic) */
+html[data-theme="dark"] body.rc-composite-tasks .rc-reset-filters-btn {
+  border-color: var(--rc-border);
+  background: #3498db;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-reset-filters-btn:hover {
+  background: #2980b9;
+}
+
+/* Composite Tasks: activity cards + tables */
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity {
+  border-color: var(--rc-border);
+  background: var(--rc-surface);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity > summary {
+  background: var(--rc-surface);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-body {
+  background: transparent;
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-body table.docutils {
+  background: transparent;
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-body table.docutils th,
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-body table.docutils td {
+  background: transparent;
+  border-bottom-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-body table.docutils th {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-activity-body table.docutils tbody tr:hover td {
+  background: var(--rc-hover);
+}
+
+/* Dark mode: video modal same solid gray as dropdown boxes */
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal {
+  background: var(--rc-surface-2-solid);
+  border-color: var(--rc-border);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal-download {
+  background: var(--rc-surface-2);
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal-download:hover {
+  background: var(--rc-hover);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks .rc-video-modal-instruction {
+  background: var(--rc-surface-2-solid);
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+/* Composite Tasks: in dark mode, keep category coloring but soften it,
+   and prevent visited links from turning harsh purple. */
+html[data-theme="dark"] body.rc-composite-tasks {
+  --rc-cat-foodprep: rgba(196, 181, 253, 0.92); /* violet-300 */
+  --rc-cat-foodprep-hover: rgba(221, 214, 254, 0.98); /* violet-200 */
+  --rc-cat-cooking: rgba(147, 197, 253, 0.90); /* blue-300 */
+  --rc-cat-cooking-hover: rgba(191, 219, 254, 0.98); /* blue-200 */
+  --rc-cat-beverage: rgba(253, 186, 116, 0.92); /* orange-300 */
+  --rc-cat-beverage-hover: rgba(254, 215, 170, 0.98); /* orange-200 */
+  --rc-cat-organizing: rgba(134, 239, 172, 0.90); /* green-300 */
+  --rc-cat-organizing-hover: rgba(187, 247, 208, 0.98); /* green-200 */
+  --rc-cat-serving: rgba(249, 168, 212, 0.90); /* pink-300 */
+  --rc-cat-serving-hover: rgba(251, 207, 232, 0.98); /* pink-200 */
+  --rc-cat-cleaning: rgba(252, 211, 77, 0.90); /* amber-300 */
+  --rc-cat-cleaning-hover: rgba(253, 230, 138, 0.98); /* amber-200 */
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited code {
+  color: var(--rc-cat-foodprep);
+}
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="food prep"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible code {
+  color: var(--rc-cat-foodprep-hover);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited code {
+  color: var(--rc-cat-cooking);
+}
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cooking"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible code {
+  color: var(--rc-cat-cooking-hover);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited code {
+  color: var(--rc-cat-beverage);
+}
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="beverage preparation"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible code {
+  color: var(--rc-cat-beverage-hover);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited code {
+  color: var(--rc-cat-organizing);
+}
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="organizing and storage"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible code {
+  color: var(--rc-cat-organizing-hover);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited code {
+  color: var(--rc-cat-serving);
+}
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="serving"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible code {
+  color: var(--rc-cat-serving-hover);
+}
+
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a:visited code {
+  color: var(--rc-cat-cleaning);
+}
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a:hover code,
+html[data-theme="dark"] body.rc-composite-tasks details.rc-activity[data-meta-category="cleaning and sanitizing"] .rc-activity-body table.docutils tbody td:nth-child(1) a:focus-visible code {
+  color: var(--rc-cat-cleaning-hover);
+}
+
+/* Datasets overview: docutils tables */
+html[data-theme="dark"] body.rc-datasets-overview table.docutils {
+  background: var(--rc-surface);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-activity-body {
+  background: var(--rc-surface);
+  border-color: var(--rc-border);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview table.rc-datasets-summary {
+  border-color: var(--rc-border);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview table.docutils th,
+html[data-theme="dark"] body.rc-datasets-overview table.docutils td {
+  background: transparent;
+  border-bottom-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview table.docutils th {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview table.docutils tbody tr:hover td {
+  background: var(--rc-hover);
+}
+
+/* Atomic Tasks (datasets overview): same dropdown + video modal dark styling as Composite Tasks (explicit hex so it always matches). */
+html[data-theme="dark"] body.rc-datasets-overview .rc-length-dropdown,
+html[data-theme="dark"] body.rc-datasets-overview .rc-length-header,
+html[data-theme="dark"] body.rc-datasets-overview .rc-task-attr-dropdown,
+html[data-theme="dark"] body.rc-datasets-overview .rc-task-attr-header,
+html[data-theme="dark"] body.rc-datasets-overview .rc-category-dropdown {
+  background: var(--rc-surface-2-solid, #1e1e1e) !important;
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-length-dropdown input[type="checkbox"],
+html[data-theme="dark"] body.rc-datasets-overview .rc-task-attr-dropdown input[type="checkbox"],
+html[data-theme="dark"] body.rc-datasets-overview .rc-category-dropdown input[type="checkbox"] {
+  accent-color: var(--pst-color-primary, #2563eb);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-video-modal {
+  background: var(--rc-surface-2-solid, #1e1e1e) !important;
+  border-color: var(--rc-border);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-video-modal-close {
+  background: var(--rc-surface-2);
+  border-color: var(--rc-border);
+  color: var(--rc-muted);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-video-modal-close:hover {
+  background: var(--rc-hover);
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-video-modal-download {
+  background: var(--rc-surface-2);
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-video-modal-download:hover {
+  background: var(--rc-hover);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview .rc-video-modal-instruction {
+  background: var(--rc-surface-2-solid, #1e1e1e) !important;
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+
+/* Datasets overview: keep split coloring in dark mode, but soften it
+   and prevent visited links from turning harsh purple. */
+html[data-theme="dark"] body.rc-datasets-overview {
+  --rc-split-atomic-seen: rgba(248, 113, 113, 0.92); /* red-400 */
+  --rc-split-composite-seen: rgba(167, 139, 250, 0.92); /* violet-400 */
+  --rc-split-composite-unseen: rgba(74, 222, 128, 0.92); /* green-400 */
+}
+
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a:visited,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a code,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-atomic-seen tbody td:first-child a:visited code {
+  color: var(--rc-split-atomic-seen);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a:visited,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a code,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-seen tbody td:first-child a:visited code {
+  color: var(--rc-split-composite-seen);
+}
+
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a:visited,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a code,
+html[data-theme="dark"] body.rc-datasets-overview #rc-datasets-composite-unseen tbody td:first-child a:visited code {
+  color: var(--rc-split-composite-unseen);
+}
+
