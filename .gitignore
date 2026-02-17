@@ -109,7 +109,7 @@ mjkey.txt
 
 .mujocomanip_temp_model.xml
 
-*.jpg
+#*.jpg
 .idea
 
 .pytest_cache/
@@ -119,16 +119,27 @@ MUJOCO_LOG.TXT
 macros_private.py
 robocasa/models/assets/demonstrations_private
 datasets
+!docs/**/datasets
 
 # model zoo
 v-hacd
 robocasa/models/assets/model_zoo_assets
 
 # object assets
-robocasa/models/assets/objects/objaverse
-robocasa/models/assets/objects/aigen_objs
+robocasa/models/assets/objects/**/*.glb
+robocasa/models/assets/objects/**/*.obj
+robocasa/models/assets/objects/**/*.mtl
+robocasa/models/assets/objects/**/*.blend
+robocasa/models/assets/objects/**/*.blend1
+robocasa/models/assets/objects/**/*.mp4
+robocasa/models/assets/objects/**/*.png
+robocasa/models/assets/objects/**/*.jpeg
+robocasa/models/assets/objects/**/model.xml
 
-# fixture assets
+# don't track any files in objects folder
+robocasa/models/assets/objects
+
+# Ignore all fixture asset files
 robocasa/models/assets/fixtures/**/*.glb
 robocasa/models/assets/fixtures/**/*.obj
 robocasa/models/assets/fixtures/**/*.mtl
@@ -137,9 +148,23 @@ robocasa/models/assets/fixtures/**/*.blend1
 robocasa/models/assets/fixtures/**/*.mp4
 robocasa/models/assets/fixtures/**/*.png
 robocasa/models/assets/fixtures/**/*.jpeg
+robocasa/models/assets/fixtures/**/model.xml
+# Re-include selected directories
+!robocasa/models/assets/fixtures/fixture_registry/**
+!robocasa/models/assets/fixtures/accessories/**
+!robocasa/models/assets/fixtures/counters/**
 
 # default textures
 robocasa/models/assets/textures
 
 # midjourney-generated textures
 robocasa/models/assets/generative_textures
+
+# taskgen outputs
+robocasa/scripts/internal/taskgen/activity_prompting/outputs/
+robocasa/scripts/internal/taskgen/task_prompting/outputs/
+robocasa/scripts/taskgen/activity_prompting/outputs/
+robocasa/scripts/taskgen/task_prompting/outputs/
+
+# Always ignore macOS junk
+**/.DS_Store
