@@ -20,17 +20,16 @@ Given a modest number of source demonstrations, we offer the ability to syntehsi
     ```
 
 ### Generate data for existing tasks
-We have set up MimicGen for 24/25 existing atomic tasks. Generating demonstration datasets for these tasks is a 3 step process, which we illustrate for the `PnPCounterToSink` task:
+We have set up MimicGen for 64/65 existing atomic tasks. Generating demonstration datasets for these tasks is a 3 step process, which we illustrate for the `PickPlaceCounterToSink` task:
 
-(Note: these commands assume that datasets are stored under `~/robocasa/datasets`)
 
 1. Extract subtask meta data:
     ```sh
-    python mimicgen/scripts/prepare_src_dataset.py --dataset ~/robocasa/datasets/v0.1/single_stage/kitchen_pnp/PnPCounterToSink/2024-04-25/demo.hdf5
+    python mimicgen/scripts/prepare_src_dataset.py --dataset <hdf5-ds-path>
     ```
 2. Generate demonstartions:
     ```sh
-    python mimicgen/scripts/generate_dataset.py --config mimicgen/exps/templates/robocasa/single_stage/kitchen_pnp/PnPCounterToSink.json
+    python mimicgen/scripts/generate_dataset_multicore.py --source <hdf5-ds-path> --config mimicgen/exps/templates/robocasa/single_stage/kitchen_pick_place/PickPlaceCounterToSink.json
     ```
 3. Extract image observations.
     You can then extract image datasets following the dataset extraction tutorial on [this guide](../use_cases/creating_datasets.html).

@@ -2,6 +2,8 @@ from collections import OrderedDict
 from enum import IntEnum
 from robosuite.utils.mjcf_utils import xml_path_completion
 import robocasa
+import numpy as np
+import re
 
 
 class LayoutType(IntEnum):
@@ -9,29 +11,84 @@ class LayoutType(IntEnum):
     Enum for available layouts in RoboCasa environment
     """
 
-    ONE_WALL_SMALL = 0
-    ONE_WALL_LARGE = 1
-    L_SHAPED_SMALL = 2
-    L_SHAPED_LARGE = 3
-    GALLEY = 4
-    U_SHAPED_SMALL = 5
-    U_SHAPED_LARGE = 6
-    G_SHAPED_SMALL = 7
-    G_SHAPED_LARGE = 8
-    WRAPAROUND = 9
+    LAYOUT001 = 1
+    LAYOUT002 = 2
+    LAYOUT003 = 3
+    LAYOUT004 = 4
+    LAYOUT005 = 5
+    LAYOUT006 = 6
+    LAYOUT007 = 7
+    LAYOUT008 = 8
+    LAYOUT009 = 9
+    LAYOUT010 = 10
+
+    LAYOUT011 = 11
+    LAYOUT012 = 12
+    LAYOUT013 = 13
+    LAYOUT014 = 14
+    LAYOUT015 = 15
+    LAYOUT016 = 16
+    LAYOUT017 = 17
+    LAYOUT018 = 18
+    LAYOUT019 = 19
+    LAYOUT020 = 20
+    LAYOUT021 = 21
+    LAYOUT022 = 22
+    LAYOUT023 = 23
+    LAYOUT024 = 24
+    LAYOUT025 = 25
+    LAYOUT026 = 26
+    LAYOUT027 = 27
+    LAYOUT028 = 28
+    LAYOUT029 = 29
+    LAYOUT030 = 30
+    LAYOUT031 = 31
+    LAYOUT032 = 32
+    LAYOUT033 = 33
+    LAYOUT034 = 34
+    LAYOUT035 = 35
+    LAYOUT036 = 36
+    LAYOUT037 = 37
+    LAYOUT038 = 38
+    LAYOUT039 = 39
+    LAYOUT040 = 40
+    LAYOUT041 = 41
+    LAYOUT042 = 42
+    LAYOUT043 = 43
+    LAYOUT044 = 44
+    LAYOUT045 = 45
+    LAYOUT046 = 46
+    LAYOUT047 = 47
+    LAYOUT048 = 48
+    LAYOUT049 = 49
+    LAYOUT050 = 50
+    LAYOUT051 = 51
+    LAYOUT052 = 52
+    LAYOUT053 = 53
+    LAYOUT054 = 54
+    LAYOUT055 = 55
+    LAYOUT056 = 56
+    LAYOUT057 = 57
+    LAYOUT058 = 58
+    LAYOUT059 = 59
+    LAYOUT060 = 60
 
     # negative values correspond to groups (see LAYOUT_GROUPS_TO_IDS)
-    ALL = -1
-    NO_ISLAND = -2
-    ISLAND = -3
-    DINING = -4
+    TEST = -1
+    TRAIN = -2
+    ALL = -3
+    NO_ISLAND = -4
+    ISLAND = -5
+    DINING = -6
 
 
 LAYOUT_GROUPS_TO_IDS = {
-    -1: list(range(10)),  # all
-    -2: [0, 2, 4, 5, 7],  # no island
-    -3: [1, 3, 6, 8, 9],  # island
-    -4: [1, 3, 6, 7, 8, 9],  # dining
+    -1: list(range(1, 11)),  # test
+    -2: list(range(11, 61)),  # train
+    -3: list(range(1, 61)),  # train and test
+    -4: [1, 3, 5, 6, 8],  # no island
+    -5: [2, 4, 7, 9, 10],  # island
+    -6: [2, 4, 7, 8, 9, 10],  # dining
 }
 
 
@@ -40,25 +97,76 @@ class StyleType(IntEnum):
     Enums for available styles in RoboCasa environment
     """
 
-    INDUSTRIAL = 0
-    SCANDANAVIAN = 1
-    COASTAL = 2
-    MODERN_1 = 3
-    MODERN_2 = 4
-    TRADITIONAL_1 = 5
-    TRADITIONAL_2 = 6
-    FARMHOUSE = 7
-    RUSTIC = 8
-    MEDITERRANEAN = 9
-    TRANSITIONAL_1 = 10
-    TRANSITIONAL_2 = 11
+    STYLE001 = 1
+    STYLE002 = 2
+    STYLE003 = 3
+    STYLE004 = 4
+    STYLE005 = 5
+    STYLE006 = 6
+    STYLE007 = 7
+    STYLE008 = 8
+    STYLE009 = 9
+    STYLE010 = 10
+
+    STYLE011 = 11
+    STYLE012 = 12
+    STYLE013 = 13
+    STYLE014 = 14
+    STYLE015 = 15
+    STYLE016 = 16
+    STYLE017 = 17
+    STYLE018 = 18
+    STYLE019 = 19
+    STYLE020 = 20
+    STYLE021 = 21
+    STYLE022 = 22
+    STYLE023 = 23
+    STYLE024 = 24
+    STYLE025 = 25
+    STYLE026 = 26
+    STYLE027 = 27
+    STYLE028 = 28
+    STYLE029 = 29
+    STYLE030 = 30
+    STYLE031 = 31
+    STYLE032 = 32
+    STYLE033 = 33
+    STYLE034 = 34
+    STYLE035 = 35
+    STYLE036 = 36
+    STYLE037 = 37
+    STYLE038 = 38
+    STYLE039 = 39
+    STYLE040 = 40
+    STYLE041 = 41
+    STYLE042 = 42
+    STYLE043 = 43
+    STYLE044 = 44
+    STYLE045 = 45
+    STYLE046 = 46
+    STYLE047 = 47
+    STYLE048 = 48
+    STYLE049 = 49
+    STYLE050 = 50
+    STYLE051 = 51
+    STYLE052 = 52
+    STYLE053 = 53
+    STYLE054 = 54
+    STYLE055 = 55
+    STYLE056 = 56
+    STYLE057 = 57
+    STYLE058 = 58
+    STYLE059 = 59
+    STYLE060 = 60
 
     # negative values correspond to groups
-    ALL = -1
+    ALL = -3
 
 
 STYLE_GROUPS_TO_IDS = {
-    -1: list(range(12)),  # all
+    -1: list(range(1, 11)),  # test
+    -2: list(range(11, 61)),  # train
+    -3: list(range(1, 61)),  # all
 }
 
 
@@ -72,7 +180,11 @@ def get_layout_path(layout_id):
     Return:
         str: yaml path for specified layout
     """
-    if isinstance(layout_id, int):
+    if (
+        isinstance(layout_id, int)
+        or isinstance(layout_id, np.int64)
+        or isinstance(layout_id, np.int32)
+    ):
         layout_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), LayoutType)
         )
@@ -82,12 +194,11 @@ def get_layout_path(layout_id):
     else:
         raise ValueError
 
-    # special case: if name starts with one letter, capitalize it
-    if layout_name[1] == "_":
-        layout_name = layout_name.capitalize()
-
+    layout_num = int(re.findall(r"\d+", layout_name)[0])
+    is_test_layout = 1 <= layout_num <= 10
+    layout_folder = "test" if is_test_layout else "train"
     return xml_path_completion(
-        f"scenes/kitchen_layouts/{layout_name}.yaml",
+        f"scenes/kitchen_layouts/{layout_folder}/{layout_name}.yaml",
         root=robocasa.models.assets_root,
     )
 
@@ -102,7 +213,11 @@ def get_style_path(style_id):
     Return:
         str: yaml path for specified style
     """
-    if isinstance(style_id, int):
+    if (
+        isinstance(style_id, int)
+        or isinstance(style_id, np.int64)
+        or isinstance(style_id, np.int32)
+    ):
         style_int_to_name = dict(
             map(lambda item: (item.value, item.name.lower()), StyleType)
         )
@@ -112,8 +227,11 @@ def get_style_path(style_id):
     else:
         raise ValueError
 
+    style_num = int(re.findall(r"\d+", style_name)[0])
+    is_test_style = 1 <= style_num <= 10
+    style_folder = "test" if is_test_style else "train"
     return xml_path_completion(
-        f"scenes/kitchen_styles/{style_name}.yaml",
+        f"scenes/kitchen_styles/{style_folder}/{style_name}.yaml",
         root=robocasa.models.assets_root,
     )
 
@@ -125,15 +243,17 @@ def unpack_layout_ids(layout_ids):
     if not isinstance(layout_ids, list):
         layout_ids = [layout_ids]
 
-    layout_ids = [int(id) for id in layout_ids]
-
     all_layout_ids = []
     for id in layout_ids:
-        if id < 0:
-            all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
-        else:
+        if isinstance(id, dict):
             all_layout_ids.append(id)
-    return list(OrderedDict.fromkeys(all_layout_ids))
+        else:
+            id = int(id)
+            if id < 0:
+                all_layout_ids += LAYOUT_GROUPS_TO_IDS[id]
+            else:
+                all_layout_ids.append(id)
+    return all_layout_ids
 
 
 def unpack_style_ids(style_ids):
@@ -143,12 +263,14 @@ def unpack_style_ids(style_ids):
     if not isinstance(style_ids, list):
         style_ids = [style_ids]
 
-    style_ids = [int(id) for id in style_ids]
-
     all_style_ids = []
     for id in style_ids:
-        if id < 0:
-            all_style_ids += STYLE_GROUPS_TO_IDS[id]
-        else:
+        if isinstance(id, dict):
             all_style_ids.append(id)
-    return list(OrderedDict.fromkeys(all_style_ids))
+        else:
+            id = int(id)
+            if id < 0:
+                all_style_ids += STYLE_GROUPS_TO_IDS[id]
+            else:
+                all_style_ids.append(id)
+    return all_style_ids

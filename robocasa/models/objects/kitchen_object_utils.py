@@ -33,7 +33,11 @@ class ObjCat:
 
         cookable (bool): whether the object is cookable
 
+        fridgable (bool): whether the object is fridgable
+
         freezable (bool): whether the object is freezable
+
+        dishwashable (bool): whether the object is dishwashable
 
         scale (float): scale of the object meshes/geoms
 
@@ -47,7 +51,11 @@ class ObjCat:
 
         priority: priority of the object
 
-        aigen_cat (bool): True if the object is an AI-generated object otherwise its an objaverse object
+        reg_type (str): registry type (options: objaverse, aigen_objs, lightwheel)
+
+        auxiliary_obj (str): name of the auxiliary object group (e.g., "saucepan_lid")
+
+        is_auxiliary_obj (bool): if True, models are located one directory deeper
     """
 
     def __init__(
@@ -60,27 +68,35 @@ class ObjCat:
         washable=False,
         microwavable=False,
         cookable=False,
+        fridgable=False,
         freezable=False,
+        dishwashable=False,
         scale=1.0,
         solimp=(0.998, 0.998, 0.001),
         solref=(0.001, 2),
         density=100,
         friction=(0.95, 0.3, 0.1),
         priority=None,
-        aigen_cat=False,
+        reg_type="objaverse",
+        auxiliary_obj=None,
+        is_auxiliary_obj=False,
     ):
         self.name = name
         if not isinstance(types, tuple):
             types = (types,)
         self.types = types
 
-        self.aigen_cat = aigen_cat
+        self.reg_type = reg_type
 
         self.graspable = graspable
         self.washable = washable
         self.microwavable = microwavable
         self.cookable = cookable
+        self.fridgable = fridgable
         self.freezable = freezable
+        self.dishwashable = dishwashable
+        self.auxiliary_obj = auxiliary_obj
+        self.is_auxiliary_obj = is_auxiliary_obj
 
         self.scale = scale
         self.solimp = solimp
@@ -91,17 +107,32 @@ class ObjCat:
         self.exclude = exclude or []
 
         if model_folders is None:
-            subf = "aigen_objs" if self.aigen_cat else "objaverse"
-            model_folders = ["{}/{}".format(subf, name)]
+            model_folders = ["{}/{}".format(reg_type, name)]
         cat_mjcf_paths = []
         for folder in model_folders:
             cat_path = os.path.join(BASE_ASSET_ZOO_PATH, folder)
-            for root, _, files in os.walk(cat_path):
-                if "model.xml" in files:
-                    model_name = os.path.basename(root)
-                    if model_name in self.exclude:
-                        continue
-                    cat_mjcf_paths.append(os.path.join(root, "model.xml"))
+            if not os.path.exists(cat_path):
+                # skip if the asset path folder does not exist
+                continue
+            for model_name in os.listdir(cat_path):
+                model_dir = os.path.join(cat_path, model_name)
+                if not os.path.isdir(model_dir):
+                    continue
+                if self.is_auxiliary_obj:
+                    # auxiliary objects live one directory deeper
+                    for sub_name in os.listdir(model_dir):
+                        sub_dir = os.path.join(model_dir, sub_name)
+                        if os.path.isdir(sub_dir) and "model.xml" in os.listdir(
+                            sub_dir
+                        ):
+                            if model_name in self.exclude:
+                                continue
+                            cat_mjcf_paths.append(os.path.join(sub_dir, "model.xml"))
+                else:
+                    if "model.xml" in os.listdir(model_dir):
+                        if model_name in self.exclude:
+                            continue
+                        cat_mjcf_paths.append(os.path.join(model_dir, "model.xml"))
         self.mjcf_paths = sorted(cat_mjcf_paths)
 
     def get_mjcf_kwargs(self):
@@ -132,24 +163,37 @@ for (name, kwargs) in OBJ_CATEGORIES.items():
             "washable",
             "microwavable",
             "cookable",
+            "fridgable",
             "freezable",
+            "auxiliary_obj",
+            "is_auxiliary_obj",
+            "dishwashable",
             "types",
             "aigen",
             "objaverse",
+            "lightwheel",
         ]
     objaverse_kwargs = common_properties.pop("objaverse", None)
     aigen_kwargs = common_properties.pop("aigen", None)
+    lightwheel_kwargs = common_properties.pop("lightwheel", None)
     assert "scale" not in kwargs
     OBJ_CATEGORIES[name] = {}
 
     # create instances
     if objaverse_kwargs is not None:
         objaverse_kwargs.update(common_properties)
-        OBJ_CATEGORIES[name]["objaverse"] = ObjCat(name=name, **objaverse_kwargs)
+        OBJ_CATEGORIES[name]["objaverse"] = ObjCat(
+            name=name, reg_type="objaverse", **objaverse_kwargs
+        )
     if aigen_kwargs is not None:
         aigen_kwargs.update(common_properties)
         OBJ_CATEGORIES[name]["aigen"] = ObjCat(
-            name=name, aigen_cat=True, **aigen_kwargs
+            name=name, reg_type="aigen_objs", **aigen_kwargs
+        )
+    if lightwheel_kwargs is not None:
+        lightwheel_kwargs.update(common_properties)
+        OBJ_CATEGORIES[name]["lightwheel"] = ObjCat(
+            name=name, reg_type="lightwheel", **lightwheel_kwargs
         )
 
 
@@ -160,12 +204,16 @@ def sample_kitchen_object(
     washable=None,
     microwavable=None,
     cookable=None,
+    fridgable=None,
     freezable=None,
+    dishwashable=None,
+    auxiliary_obj=None,
     rng=None,
-    obj_registries=("objaverse",),
+    obj_registries=("objaverse", "lightwheel"),
     split=None,
     max_size=(None, None, None),
     object_scale=None,
+    rotate_upright=False,
 ):
     """
     Sample a kitchen object from the specified groups and within max_size bounds.
@@ -183,14 +231,20 @@ def sample_kitchen_object(
 
         cookable (bool): whether whether the sampled object must be cookable
 
+        fridgable (bool): whether whether the sampled object must be fridgable
+
         freezable (bool): whether whether the sampled object must be freezable
+
+        dishwashable (bool): whether whether the sampled object must be dishwashable
+
+        auxiliary_obj (str): name of the auxiliary object group to look for
 
         rng (np.random.Generator): random number object
 
         obj_registries (tuple): registries to sample from
 
-        split (str): split to sample from. Split "A" specifies all but the last 3 object instances
-                    (or the first half - whichever is larger), "B" specifies the  rest, and None specifies all.
+        split (str): split to sample from. Split "pretrain" specifies all but the last 4 object instances
+                    (or the first half - whichever is larger), "target" specifies the rest, and None specifies all.
 
         max_size (tuple): max size of the object. If the sampled object is not within bounds of max size, function will resample
 
@@ -212,39 +266,29 @@ def sample_kitchen_object(
             washable=washable,
             microwavable=microwavable,
             cookable=cookable,
+            fridgable=fridgable,
             freezable=freezable,
+            dishwashable=dishwashable,
+            auxiliary_obj=auxiliary_obj,
             rng=rng,
             obj_registries=obj_registries,
             split=split,
             object_scale=object_scale,
+            rotate_upright=rotate_upright,
         )
 
         # check if object size is within bounds
         mjcf_path = info["mjcf_path"]
         tree = ET.parse(mjcf_path)
         root = tree.getroot()
-        bottom = string_to_array(
-            find_elements(root=root, tags="site", attribs={"name": "bottom_site"}).get(
-                "pos"
+        half_size = string_to_array(
+            find_elements(root=root, tags="geom", attribs={"name": "reg_bbox"}).get(
+                "size"
             )
-        )
-        top = string_to_array(
-            find_elements(root=root, tags="site", attribs={"name": "top_site"}).get(
-                "pos"
-            )
-        )
-        horizontal_radius = string_to_array(
-            find_elements(
-                root=root, tags="site", attribs={"name": "horizontal_radius_site"}
-            ).get("pos")
         )
         scale = mjcf_kwargs["scale"]
-        obj_size = (
-            np.array(
-                [horizontal_radius[0] * 2, horizontal_radius[1] * 2, top[2] - bottom[2]]
-            )
-            * scale
-        )
+        obj_size = (half_size * 2) * scale
+
         valid_object_sampled = True
         for i in range(3):
             if max_size[i] is not None and obj_size[i] > max_size[i]:
@@ -260,11 +304,15 @@ def sample_kitchen_object_helper(
     washable=None,
     microwavable=None,
     cookable=None,
+    fridgable=None,
     freezable=None,
+    dishwashable=None,
+    auxiliary_obj=None,
     rng=None,
     obj_registries=("objaverse",),
     split=None,
     object_scale=None,
+    rotate_upright=False,
 ):
     """
     Helper function to sample a kitchen object.
@@ -282,14 +330,20 @@ def sample_kitchen_object_helper(
 
         cookable (bool): whether whether the sampled object must be cookable
 
+        fridgable (bool): whether whether the sampled object must be fridgable
+
         freezable (bool): whether whether the sampled object must be freezable
+
+        dishwashable (bool): whether whether the sampled object must be dishwashable
+
+        auxiliary_obj (str): name of the auxiliary object group to look for
 
         rng (np.random.Generator): random number object
 
         obj_registries (tuple): registries to sample from
 
-        split (str): split to sample from. Split "A" specifies all but the last 3 object instances
-                    (or the first half - whichever is larger), "B" specifies the  rest, and None specifies all.
+        split (str): split to sample from. Split "pretrain" specifies all but the last 4 object instances
+                    (or the first half - whichever is larger), "target" specifies the rest, and None specifies all.
 
         object_scale (float): scale of the object. If set will multiply the scale of the sampled object by this value
 
@@ -306,6 +360,7 @@ def sample_kitchen_object_helper(
     # option to spawn specific object instead of sampling from a group
     if isinstance(groups, str) and groups.endswith(".xml"):
         mjcf_path = groups
+        model_xml_path = os.path.join(os.path.dirname(mjcf_path), "model.xml")
         # reverse look up mjcf_path to category
         mjcf_kwargs = dict()
         cat = None
@@ -314,7 +369,7 @@ def sample_kitchen_object_helper(
             for reg in obj_registries:
                 if (
                     reg in OBJ_CATEGORIES[cand_cat]
-                    and mjcf_path in OBJ_CATEGORIES[cand_cat][reg].mjcf_paths
+                    and model_xml_path in OBJ_CATEGORIES[cand_cat][reg].mjcf_paths
                 ):
                     mjcf_kwargs = OBJ_CATEGORIES[cand_cat][reg].get_mjcf_kwargs()
                     cat = cand_cat
@@ -370,7 +425,11 @@ def sample_kitchen_object_helper(
                         invalid = True
                     if cookable is True and cat_meta.cookable is not True:
                         invalid = True
+                    if fridgable is True and cat_meta.fridgable is not True:
+                        invalid = True
                     if freezable is True and cat_meta.freezable is not True:
+                        invalid = True
+                    if dishwashable is True and cat_meta.dishwashable is not True:
                         invalid = True
 
                 if invalid:
@@ -390,10 +449,12 @@ def sample_kitchen_object_helper(
 
             # exclude out objects based on split
             if split is not None:
-                split_th = max(len(choices) - 3, int(math.ceil(len(reg_choices) / 2)))
-                if split == "A":
+                split_th = max(
+                    len(reg_choices) - 5, int(math.ceil(len(reg_choices) / 2))
+                )
+                if split == "pretrain":
                     reg_choices = reg_choices[:split_th]
-                elif split == "B":
+                elif split == "target":
                     reg_choices = reg_choices[split_th:]
                 else:
                     raise ValueError
@@ -406,11 +467,23 @@ def sample_kitchen_object_helper(
         )
 
         mjcf_path = rng.choice(choices[chosen_reg])
+        if rotate_upright:
+            mjcf_path = mjcf_path.replace("model.xml", "model_upright.xml")
         mjcf_kwargs = OBJ_CATEGORIES[cat][chosen_reg].get_mjcf_kwargs()
         mjcf_kwargs["mjcf_path"] = mjcf_path
 
     if object_scale is not None:
-        mjcf_kwargs["scale"] *= object_scale
+        if isinstance(object_scale, float):
+            if isinstance(mjcf_kwargs["scale"], float):
+                mjcf_kwargs["scale"] *= object_scale
+            else:
+                mjcf_kwargs["scale"] = [e * object_scale for e in mjcf_kwargs["scale"]]
+        else:
+            if isinstance(mjcf_kwargs["scale"], float):
+                mjcf_kwargs["scale"] = [mjcf_kwargs["scale"] for _ in range(3)]
+            mjcf_kwargs["scale"] = [
+                mjcf_kwargs["scale"][ind] * object_scale[ind] for ind in range(3)
+            ]
 
     groups_containing_sampled_obj = []
     for group, group_cats in OBJ_GROUPS.items():

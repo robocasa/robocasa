@@ -21,7 +21,7 @@ def get_load_time_stats(directory, verbose=False):
     xml_files = find_all_xml_files(directory)
     load_times = []
 
-    for mjcf_path in xml_files:
+    for mjcf_path in tqdm.tqdm(xml_files):
         try:
             sim, info = read_model(filepath=mjcf_path)
             load_times.append(info["sim_load_time"])
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         fixtures_path = os.path.join(robocasa.__path__[0], "models/assets/fixtures")
         objaverse_path = os.path.join(objects_path, "objaverse")
 
-        for fixture_type in os.listdir(fixtures_path):
+        for fixture_type in tqdm.tqdm(os.listdir(fixtures_path)):
             dir = os.path.join(fixtures_path, fixture_type)
             get_load_time_stats(dir)
 

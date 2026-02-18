@@ -174,7 +174,7 @@ def create_env(
         **kwargs,
     )
     print("Created environment with name {}".format(env_name))
-    print("Action size is {}".format(env.action_dimension))
+    # print("Action size is {}".format(env.action_dimension))
     return env
 
 

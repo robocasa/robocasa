@@ -8,6 +8,9 @@
     <default class="cab">
       <geom group="0" density="10"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
@@ -24,16 +27,18 @@
           <geom pos="0.20 0 0" size="0.02 0.3 0.3" type="box" mass=".2" material="mat" class="cab" name="inner_right"/>
           <geom pos="-0.20 0 0" size="0.02 0.3 0.3" type="box" mass=".2" material="mat" class="cab" name="inner_left"/>
           <!-- interior bounding box points -->
-          <site rgba="0.5 0.5 0.5 1" size="0.005" pos="0 0 0" name="int_p0"/>
-          <site rgba="1 1 0 1" size="0.005" pos="0 0 0" name="int_px"/>
-          <site rgba="0 1 1 1" size="0.005" pos="0 0 0" name="int_py"/>
-          <site rgba="1 0 1 1" size="0.005" pos="0 0 0" name="int_pz"/>
+          <geom class="region" name="reg_int" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
+          <site rgba="0.5 0.5 0.5 0" size="0.005" pos="-0.00001 -0.00001 -0.00001" name="int_p0"/>
+          <site rgba="1 1 0 0" size="0.005" pos="0.00001 -0.00001 -0.00001" name="int_px"/>
+          <site rgba="0 1 1 0" size="0.005" pos="-0.00001 0.00001 -0.00001" name="int_py"/>
+          <site rgba="1 0 1 0" size="0.005" pos="-0.00001 -0.00001 0.00001" name="int_pz"/>
         </body>
         <!-- exterior bounding box points -->
-        <site rgba="0 0 0 1" size="0.005" pos="0 0 0" name="ext_p0"/>
-        <site rgba="1 0 0 1" size="0.005" pos="0 0 0" name="ext_px"/>
-        <site rgba="0 1 0 1" size="0.005" pos="0 0 0" name="ext_py"/>
-        <site rgba="0 0 1 1" size="0.005" pos="0 0 0" name="ext_pz"/>
+        <geom class="region" name="reg_main" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
+        <site rgba="0 0 0 0" size="0.005" pos="0 0 0" name="ext_p0"/>
+        <site rgba="1 0 0 0" size="0.005" pos="0 0 0" name="ext_px"/>
+        <site rgba="0 1 0 0" size="0.005" pos="0 0 0" name="ext_py"/>
+        <site rgba="0 0 1 0" size="0.005" pos="0 0 0" name="ext_pz"/>
       </body>
     </body>
   </worldbody>

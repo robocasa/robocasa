@@ -1,4 +1,7 @@
+import os
+
 import numpy as np
+from lxml.html.builder import CLASS
 from robosuite.models.objects import BoxObject, CompositeBodyObject
 from robosuite.utils.mjcf_utils import CustomMaterial
 from robosuite.utils.mjcf_utils import array_to_string as a2s
@@ -6,9 +9,18 @@ from robosuite.utils.mjcf_utils import string_to_array as s2a
 from robosuite.utils.mjcf_utils import xml_path_completion
 
 import robocasa
+from robocasa.models.fixtures import Fixture, WallAccessory
+from robocasa.models.objects.objects import MujocoXMLObjectRobocasa
+import robosuite.utils.transform_utils as T
+
+from robocasa.utils.object_utils import get_pos_after_rel_offset
 
 
-class Window(CompositeBodyObject):
+def site_pos(site):
+    return s2a(site.get("pos"))
+
+
+class WindowProcBase(CompositeBodyObject):
     """
     Window object. Supports creating windows with trim and glass. Proceduraly generated object (no xml needed)
 
@@ -16,8 +28,6 @@ class Window(CompositeBodyObject):
         name (str): name of the object
 
         size (list): size of the window(s) (considers multiple windows in the x-direction)
-
-        ofs (list): offset of the window
 
         pos (list): position of the window
 
@@ -38,7 +48,6 @@ class Window(CompositeBodyObject):
         self,
         name,
         size,
-        ofs=None,
         pos=None,
         quat=None,
         window_bak="textures/others/bk7.png",
@@ -95,8 +104,6 @@ class Window(CompositeBodyObject):
         self.center = np.array([0, 0, 0])
         self.scale = 1.0
         self.num_windows = num_windows
-        self.ofs = ofs if ofs is not None else [0.0, 0.0, 0.0]
-        self.ofs = np.array(self.ofs)
 
         self.create_window()
 
@@ -176,7 +183,7 @@ class Window(CompositeBodyObject):
             objects.append(new_obj)
 
         self.objects = objects
-        self.positions = [position + self.ofs for position in positions]
+        self.positions = [position for position in positions]
         self.quats = [None] * (len(objects) - 1)
         self.quats.append([0, 0, 0.7071081, 0.7071055])
 
@@ -214,7 +221,7 @@ class Window(CompositeBodyObject):
         return rot[2]
 
 
-class FramedWindow(Window):
+class WindowProc(WindowProcBase):
     """
     Window object with a frame around it
 
@@ -222,8 +229,6 @@ class FramedWindow(Window):
         name (str): name of the object
 
         size (list): size of the window(s) (considers multiple windows in the x-direction)
-
-        ofs (list): offset of the window
 
         pos (list): position of the window
 
@@ -246,7 +251,6 @@ class FramedWindow(Window):
         self,
         name,
         size,
-        ofs=None,
         pos=None,
         quat=None,
         window_bak="textures/others/bk7.png",
@@ -262,7 +266,6 @@ class FramedWindow(Window):
         super().__init__(
             name=name,
             size=size,
-            ofs=ofs,
             pos=pos,
             quat=quat,
             window_bak=window_bak,
@@ -302,7 +305,7 @@ class FramedWindow(Window):
             np.array([val + self.frame_width / 4, 0.00145, 0]),
             np.array([-val - self.frame_width / 4, 0.00145, 0]),
         ]
-        new_positions = [frame_pos + self.ofs for frame_pos in frame_positions]
+        new_positions = [frame_pos for frame_pos in frame_positions]
         self.positions.extend(new_positions)
         self.quats.extend([None] * len(new_positions))
 
@@ -332,3 +335,71 @@ class FramedWindow(Window):
         """
         self.pos = pos
         self._obj.set("pos", a2s(pos))
+
+
+class Window(WallAccessory):
+    """
+    Double open window object
+    """
+
+    def __init__(
+        self,
+        xml="fixtures/windows/top_hang_window/model.xml",
+        name="window",
+        window_bkg="textures/flat/white.png",
+        attach_to=None,
+        exclude_background=False,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            xml=xml, name=name, attach_to=attach_to, protrusion=None, *args, **kwargs
+        )
+        self.window_bkg = xml_path_completion(window_bkg, robocasa.models.assets_root)
+        if not exclude_background:
+            self._add_background()
+
+    def _add_background(self):
+        tex_attrib = {"type": "2d"}
+        mat_attrib = {
+            "texrepeat": "1 1",
+            "specular": "0.1",
+            "shininess": "0.1",
+            "texuniform": "true",
+        }
+        self.window_mat = CustomMaterial(
+            texture=self.window_bkg,
+            tex_name="window_bkg",
+            mat_name="window_mat",
+            tex_attrib=tex_attrib,
+            mat_attrib=mat_attrib,
+            shared=True,
+        )
+
+        half_size = self.size / 2
+
+        # make x and z slightly smaller than the size to avoid background overflowing the object
+        x = half_size[0] * 0.95
+        y = 0.0005
+        z = half_size[2] * 0.95
+
+        bkg_obj = BoxObject(
+            name=f"{self.name}_window_background",
+            size=np.array([x, z, y]),
+            material=self.window_mat,
+            obj_type="visual",
+            joints=None,
+        )
+        pos = self._regions["main"]["elem"].get("pos")
+        pos = s2a(pos)
+        offset = (half_size[1] - 0.001) * 0.95
+        pos[1] += offset
+        bkg_obj_elem = bkg_obj.get_obj()
+        bkg_obj_elem.set("pos", a2s(pos))
+        bkg_obj_elem.set("quat", a2s([0.7071055, 0.7071081, 0, 0]))
+        self.merge_assets(bkg_obj)
+        self._obj.append(bkg_obj_elem)
+
+    @property
+    def nat_lang(self):
+        return "window"

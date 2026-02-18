@@ -1,3 +1,8 @@
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("rc-installation-page");
+  });
+</script>
 
 # Installation
 
@@ -5,7 +10,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 1. Set up conda environment:
 
    ```sh
-   conda create -c conda-forge -n robocasa python=3.10
+   conda create -c conda-forge -n robocasa python=3.11
    ```
 2. Activate conda environment:
    ```sh
@@ -15,7 +20,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 
    <div class="admonition warning">
    <p class="admonition-title">Important!</p>
-   The latest version of RoboCasa uses the master branch of robosuite. If you wish to use the previous version of RoboCasa (v0.1), please use the robocasa_v0.1 branch on robosuite. 
+   The latest version of RoboCasa uses the master branch of robosuite
    </div>
    
    ```sh

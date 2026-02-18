@@ -1,0 +1,655 @@
+/* Atomic Tasks page styling */
+
+#rc-atomic-tasks-root {
+  margin-top: 1rem;
+}
+
+/* Ensure native form controls match theme (like Composite Tasks) */
+html[data-theme="light"] body.rc-atomic-tasks {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks {
+  color-scheme: dark;
+}
+
+/* Atomic Tasks: theme-aware surfaces.
+   PyData's --pst-color-surface stays fairly light even in dark mode; we want
+   the Atomic Tasks UI to actually darken with the theme. */
+body.rc-atomic-tasks {
+  /* Match Composite Tasks controls-card light gray */
+  --rc-atomic-surface: #f8fafc;
+  --rc-atomic-surface-2: var(--pst-color-surface, #ffffff);
+  --rc-atomic-border: var(--pst-color-border, #e0e0e0);
+  --rc-atomic-hover: var(--pst-color-surface-hover, rgba(0, 0, 0, 0.03));
+  --rc-atomic-text: var(--pst-color-text-base, #111827);
+  --rc-atomic-muted: var(--pst-color-text-muted, #555);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks {
+  /* Darken the cards/controls/tables to match the dark theme page background */
+  --rc-atomic-surface: rgba(255, 255, 255, 0.05);
+  --rc-atomic-surface-2: rgba(255, 255, 255, 0.035);
+  --rc-atomic-border: rgba(255, 255, 255, 0.14);
+  --rc-atomic-hover: rgba(255, 255, 255, 0.08);
+  --rc-atomic-text: rgba(255, 255, 255, 0.92);
+  --rc-atomic-muted: rgba(255, 255, 255, 0.70);
+  /* Softer link color in dark mode (avoid harsh neon/purple visited links) */
+  --rc-atomic-link: rgba(147, 197, 253, 0.88); /* blue-300-ish */
+  --rc-atomic-link-hover: rgba(191, 219, 254, 0.96); /* blue-200-ish */
+}
+
+/* Atomic Tasks: Horizon and Target Tasks buttons – same look in dark mode */
+html[data-theme="dark"] body.rc-atomic-tasks .rc-length-dropdown-btn,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-task-attr-dropdown-btn {
+  background: var(--rc-atomic-surface-2);
+  border-color: var(--rc-atomic-border);
+  color: var(--rc-atomic-text);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-length-dropdown,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-length-header {
+  /* Make the popup solid (not translucent) */
+  background: #1a202c;
+  border-color: var(--rc-atomic-border);
+}
+
+/* Atomic Tasks: Target Tasks dropdown should match Horizon popup */
+html[data-theme="dark"] body.rc-atomic-tasks .rc-task-attr-dropdown {
+  background: #1a202c;
+  border-color: var(--rc-atomic-border);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-task-attr-dropdown .rc-task-attr-item:hover,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-task-attr-dropdown .rc-task-attr-item:has(input:focus-visible) {
+  background: var(--rc-atomic-hover);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-task-attr-dropdown .rc-task-attr-count {
+  color: var(--rc-atomic-muted);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-length-item:hover {
+  background: var(--rc-atomic-hover);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-length-item-count {
+  color: var(--rc-atomic-muted);
+}
+
+/* Hide the right-side "Contents" (secondary TOC) on Atomic Tasks page */
+body.rc-atomic-tasks .bd-sidebar-secondary,
+body.rc-atomic-tasks .sidebar-toggle.secondary-toggle,
+body.rc-atomic-tasks label.overlay.overlay-secondary,
+body.rc-atomic-tasks #pst-secondary-sidebar-checkbox {
+  display: none !important;
+}
+
+/* Use the freed space (no secondary sidebar) */
+body.rc-atomic-tasks .bd-main .bd-content .bd-article-container {
+  max-width: 95em;
+}
+
+/* Brief row highlight on jump (match Composite Tasks) */
+@keyframes rc-flash {
+  0% { background-color: rgba(255, 235, 59, 0.65); }
+  100% { background-color: transparent; }
+}
+
+body.rc-atomic-tasks tr.rc-task-highlight td {
+  animation: rc-flash 1.8s ease-out;
+}
+
+/* Back-to-top button (Atomic Tasks page) */
+body.rc-atomic-tasks .rc-back-to-top {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 9999;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--rc-atomic-border);
+  background: var(--rc-atomic-surface);
+  color: var(--rc-atomic-text);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+body.rc-atomic-tasks .rc-back-to-top.rc-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+body.rc-atomic-tasks .rc-back-to-top:hover {
+  filter: brightness(0.98);
+}
+
+body.rc-atomic-tasks .rc-back-to-top:focus-visible {
+  outline: 2px solid var(--pst-color-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Target Tasks pill for Atomic Seen (matches style of composite pills) */
+/* Base pill style (Atomic page also uses these pills in dropdown UI) */
+body.rc-atomic-tasks .rc-task-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.71rem;
+  line-height: 1;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+body.rc-atomic-tasks .rc-task-tag-atomic-seen {
+  background: #ef4444; /* red */
+  color: #ffffff;
+}
+
+.rc-atomic-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0.6rem 0 0.9rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--rc-atomic-border);
+  border-radius: 0.5rem;
+  background: var(--rc-atomic-surface);
+}
+
+.rc-atomic-control {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.rc-atomic-control label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.rc-atomic-fixture-select {
+  flex: 1 1 380px;
+  min-width: 320px;
+}
+
+.rc-atomic-sort {
+  flex: 0 0 auto;
+}
+
+.rc-atomic-sort select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--rc-atomic-border);
+  background: var(--rc-atomic-surface-2);
+  color: var(--rc-atomic-text);
+}
+
+.rc-atomic-fixture-select select {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--rc-atomic-border);
+  background: var(--rc-atomic-surface-2);
+  color: var(--rc-atomic-text);
+}
+
+/* Placeholder (matches input placeholder “shadow” feel) */
+.rc-atomic-fixture-select select:invalid {
+  color: var(--rc-atomic-muted);
+}
+
+.rc-atomic-fixture-select select:valid {
+  color: var(--rc-atomic-text);
+}
+
+.rc-atomic-search {
+  flex: 1.5 1 340px; /* narrower than before */
+  min-width: 320px;
+}
+
+.rc-atomic-task-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+#rc-atomic-task-input {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--rc-atomic-border);
+  background: var(--rc-atomic-surface-2);
+  color: var(--rc-atomic-text);
+}
+
+.rc-atomic-filter-horizon {
+  position: relative;
+  flex: 0 0 auto;
+  margin-left: auto; /* keep Horizon at the right edge (like Composite) */
+}
+
+/* After swapping order, keep Target Tasks at the far right */
+body.rc-atomic-tasks .rc-filter-target-tasks {
+  position: relative;
+  margin-left: 0;
+}
+
+/* Button sizing (Horizon / Target Tasks) is inherited from
+   `composite_tasks/composite_tasks_dropdown.css` so the controls match exactly.
+   We only theme colors elsewhere in this file. */
+
+/* Horizon dropdown: match Composite dropdown look/width */
+body.rc-atomic-tasks .rc-atomic-horizon-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: auto;
+  z-index: 1200;
+  width: max-content;
+  min-width: 0;
+  max-width: 90vw;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 0.15rem 0.32rem 0.15rem 0.55rem;
+  border: 1px solid var(--rc-atomic-border);
+  border-radius: 0.6rem;
+  background: var(--rc-atomic-surface);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  text-align: left;
+}
+
+.rc-atomic-horizon-header {
+  padding: 0.15rem 0.25rem 0.35rem 0.25rem;
+  border-bottom: 1px solid var(--rc-atomic-border);
+  margin-bottom: 0.25rem;
+}
+
+.rc-atomic-horizon-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+/* Legacy styles below are kept for safety, but the horizon dropdown now uses
+   the Composite dropdown row classes (rc-task-attr-*) for consistent look. */
+
+.rc-atomic-horizon-item:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.rc-atomic-horizon-item-label {
+  font-weight: 700;
+}
+
+.rc-atomic-horizon-item-count {
+  color: var(--rc-atomic-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.rc-atomic-count {
+  color: var(--rc-atomic-muted);
+  font-weight: 500;
+}
+
+/* Second line footer: count left, Reset right */
+.rc-atomic-controls-footer {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rc-atomic-controls-footer .rc-atomic-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.rc-atomic-controls-footer .rc-atomic-count {
+  margin-left: 0.5rem; /* sits just to the right of Sort dropdown */
+}
+
+/* Reset button: match Composite Tasks */
+body.rc-atomic-tasks .rc-reset-filters-btn {
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--rc-atomic-border);
+  /* Match Fixtures page "Clear" button color (keep sizing unchanged) */
+  background: #3498db;
+  color: #ffffff;
+  font-weight: 600;
+  line-height: 1.1;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+body.rc-atomic-tasks .rc-reset-filters-btn:hover {
+  background: #2980b9;
+}
+
+/* Suggestions dropdown */
+.rc-atomic-task-suggest {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  right: 0;
+  background: var(--rc-atomic-surface);
+  border: 1px solid var(--rc-atomic-border);
+  border-radius: 0.7rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.10);
+  overflow: hidden;
+  z-index: 1200;
+}
+
+.rc-atomic-task-suggest-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.rc-atomic-task-suggest-item:hover,
+.rc-atomic-task-suggest-item.rc-active {
+  background: var(--rc-atomic-hover);
+}
+
+.rc-atomic-task-suggest-name {
+  font-weight: 800;
+}
+
+.rc-atomic-task-suggest-meta {
+  color: var(--rc-atomic-muted);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+/* Sections + table */
+.rc-atomic-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.rc-atomic-fixture {
+  border: 1px solid var(--rc-atomic-border);
+  border-radius: 0.7rem;
+  background: var(--rc-atomic-surface);
+  overflow: hidden;
+}
+
+.rc-atomic-fixture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.85rem;
+  background: var(--rc-atomic-hover);
+}
+
+.rc-atomic-fixture-title {
+  font-weight: 800;
+}
+
+.rc-atomic-fixture-badge {
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--rc-atomic-text);
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.rc-atomic-fixture-body {
+  padding: 0.75rem 0.85rem 0.85rem 0.85rem;
+  background: transparent;
+}
+
+.rc-atomic-empty {
+  color: var(--rc-atomic-muted);
+  font-weight: 600;
+  padding: 0.35rem 0.1rem;
+}
+
+.rc-atomic-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.rc-atomic-col-task {
+  width: 18rem;
+}
+
+.rc-atomic-col-horizon {
+  width: 6.5rem;
+}
+
+.rc-atomic-col-video {
+  width: 5.9rem;
+}
+
+.rc-atomic-table th,
+.rc-atomic-table td {
+  border-bottom: 1px solid var(--rc-atomic-border);
+  padding: 0.55rem 0.6rem;
+  vertical-align: top;
+  background: transparent;
+}
+
+.rc-atomic-table th {
+  text-align: left;
+  font-weight: 800;
+  color: var(--rc-atomic-text);
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.rc-atomic-table tbody tr:hover td {
+  background: var(--rc-atomic-hover);
+}
+
+.rc-atomic-task code {
+  font-weight: 700;
+}
+
+/* Dark mode: soften task link color (including visited) */
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a:visited,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a code,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a:visited code {
+  color: var(--rc-atomic-link);
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a:hover,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a:focus-visible,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a:hover code,
+html[data-theme="dark"] body.rc-atomic-tasks .rc-atomic-task a:focus-visible code {
+  color: var(--rc-atomic-link-hover);
+}
+
+/* Target task tag shown under task name (Atomic Tasks page) */
+body.rc-atomic-tasks .rc-atomic-target-tagline {
+  margin-top: 0.36rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.rc-atomic-desc {
+  color: var(--rc-atomic-text);
+  line-height: 1.35;
+}
+
+.rc-atomic-horizon {
+  white-space: nowrap;
+}
+
+.rc-atomic-var em {
+  font-style: italic;
+  font-weight: 700;
+}
+
+.rc-atomic-video {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.rc-atomic-video-btn {
+  background: var(--pst-color-primary, #2563eb);
+  color: #ffffff;
+  border: 1px solid var(--rc-atomic-border);
+  border-radius: 0.55rem;
+  padding: 0.32rem 0.62rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rc-atomic-video-btn:hover {
+  filter: brightness(0.98);
+}
+
+/* Video modal (match Composite Tasks look) */
+body.rc-atomic-tasks .rc-video-modal-overlay {
+  position: fixed;
+  inset: 0;
+  /* Make the backdrop clearly opaque enough (light mode was too transparent) */
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+html[data-theme="dark"] body.rc-atomic-tasks .rc-video-modal-overlay {
+  background: rgba(0, 0, 0, 0.88);
+}
+
+body.rc-modal-open {
+  overflow: hidden;
+}
+
+body.rc-atomic-tasks .rc-video-modal {
+  position: relative;
+  width: min(1297px, 95.76vw);
+  background: var(--rc-atomic-surface);
+  border: 1px solid var(--rc-atomic-border);
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  padding: 0.75rem;
+}
+
+/* Dark mode: make modal background solid (not translucent) */
+html[data-theme="dark"] body.rc-atomic-tasks .rc-video-modal {
+  background: #111827;
+}
+
+body.rc-atomic-tasks .rc-video-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+body.rc-atomic-tasks .rc-video-modal-player {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  background: #000;
+  max-height: 80vh;
+}
+
+body.rc-atomic-tasks .rc-video-modal-instruction {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--rc-atomic-border);
+  background: var(--rc-atomic-surface-2);
+  color: var(--rc-atomic-text);
+}
+
+body.rc-atomic-tasks .rc-video-modal-instruction-text {
+  font-weight: 500;
+}
+
+body.rc-atomic-tasks .rc-video-modal-error {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(180, 35, 24, 0.35);
+  background: rgba(180, 35, 24, 0.06);
+  color: #7a271a;
+  font-weight: 600;
+}
+
+body.rc-atomic-tasks .rc-video-modal-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid var(--rc-atomic-border);
+  background: var(--rc-atomic-surface-2);
+  color: var(--rc-atomic-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+body.rc-atomic-tasks .rc-video-modal-close:hover {
+  background: var(--rc-atomic-hover);
+  color: var(--rc-atomic-text);
+  transform: translateY(-1px);
+}
+
+body.rc-atomic-tasks .rc-video-modal-close:focus-visible {
+  outline: 2px solid var(--pst-color-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+/* Slightly different title treatment on Atomic page (keeps it readable) */
+body.rc-atomic-tasks .rc-video-modal-title {
+  color: var(--rc-atomic-text);
+  font-weight: 800;
+  font-size: 1.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Task name in modal header should use code-like font (font-wise) */
+body.rc-atomic-tasks .rc-video-modal-title-code {
+  font-family: var(--pst-font-family-monospace, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-weight: 800;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+

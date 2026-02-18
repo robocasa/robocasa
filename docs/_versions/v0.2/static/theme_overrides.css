@@ -1,0 +1,213 @@
+/* Hide the top header bar entirely (v0.2 only) */
+header.bd-header.bd-navbar {
+  display: none !important;
+}
+/* Adjust layout so content starts at top when header is hidden */
+.bd-sidebar-primary,
+.bd-header-article {
+  top: 0 !important;
+}
+.bd-main .bd-content {
+  padding-top: 0 !important;
+}
+
+/* Ensure full "RoboCasa 0.2 documentation" shows in sidebar and header (no truncation) */
+.bd-sidebar-primary .navbar-brand .logo__title,
+.navbar-brand .logo__title,
+.logo__title {
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: unset !important;
+  max-width: none !important;
+}
+.bd-sidebar-primary .navbar-brand,
+.navbar-brand.logo {
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+/* Match robocasa-main/docs style: clean literals, no gray boxes, purple/red code */
+
+/* Inline and block literals: muted purple, no background box, minimal border */
+code.docutils.literal,
+.docutils code.literal,
+code.literal {
+  color: #993366 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  font-family: monospace;
+}
+
+/* Inline code in body text (e.g. .hdf5): muted red (only when single literal in paragraph) */
+p code.literal:only-of-type {
+  color: #cc0000 !important;
+}
+
+/* Dark mode: inline literals must be visible on dark background */
+html[data-theme="dark"] code.docutils.literal,
+html[data-theme="dark"] .docutils code.literal,
+html[data-theme="dark"] code.literal {
+  color: #e6a0c0 !important;
+}
+html[data-theme="dark"] p code.literal:only-of-type {
+  color: #f48771 !important;
+}
+
+/* Code blocks (highlight): subtle border, no heavy box (light mode) */
+.highlight pre {
+  background: #fafafa !important;
+  border: 1px solid #e8e8e8;
+  border-radius: 2px;
+}
+
+/* Dark mode: code blocks must use dark background and light text */
+html[data-theme="dark"] .highlight pre {
+  background: #282c34 !important;
+  border-color: #43464a;
+  color: #abb2bf;
+}
+/* Some pages wrap <pre> in an extra ".highlight" div; keep that dark too. */
+html[data-theme="dark"] div[class^="highlight-"] > .highlight,
+html[data-theme="dark"] div[class*=" highlight-"] > .highlight {
+  background: #282c34 !important;
+  border-radius: 2px;
+}
+/* Pygments "sphinx" style uses dark colors; override for dark mode readability */
+html[data-theme="dark"] .highlight .k { color: #c678dd; }
+html[data-theme="dark"] .highlight .kc { color: #c678dd; }
+html[data-theme="dark"] .highlight .kd { color: #c678dd; }
+html[data-theme="dark"] .highlight .kn { color: #c678dd; }
+html[data-theme="dark"] .highlight .kp { color: #c678dd; }
+html[data-theme="dark"] .highlight .kr { color: #c678dd; }
+html[data-theme="dark"] .highlight .kt { color: #c678dd; }
+html[data-theme="dark"] .highlight .s { color: #98c379; }
+html[data-theme="dark"] .highlight .sa { color: #98c379; }
+html[data-theme="dark"] .highlight .sb { color: #98c379; }
+html[data-theme="dark"] .highlight .sc { color: #98c379; }
+html[data-theme="dark"] .highlight .dl { color: #98c379; }
+html[data-theme="dark"] .highlight .sd { color: #98c379; }
+html[data-theme="dark"] .highlight .c { color: #5c6370; font-style: italic; }
+html[data-theme="dark"] .highlight .c1 { color: #5c6370; font-style: italic; }
+html[data-theme="dark"] .highlight .cm { color: #5c6370; font-style: italic; }
+html[data-theme="dark"] .highlight .nb { color: #e5c07b; }
+html[data-theme="dark"] .highlight .nf { color: #61afef; }
+html[data-theme="dark"] .highlight .nn { color: #e5c07b; }
+html[data-theme="dark"] .highlight .mi { color: #d19a66; }
+html[data-theme="dark"] .highlight .na { color: #61afef; }
+html[data-theme="dark"] .highlight .o { color: #abb2bf; }
+html[data-theme="dark"] .highlight .ow { color: #c678dd; }
+html[data-theme="dark"] .highlight .bp { color: #e5c07b; }
+html[data-theme="dark"] .highlight .fm { color: #61afef; }
+html[data-theme="dark"] .highlight .vc { color: #e5c07b; }
+html[data-theme="dark"] .highlight .vg { color: #e5c07b; }
+html[data-theme="dark"] .highlight .vi { color: #e5c07b; }
+html[data-theme="dark"] .highlight .vm { color: #e5c07b; }
+html[data-theme="dark"] .highlight .il { color: #d19a66; }
+
+/* Main content: left-aligned (match second screenshot layout) */
+.bd-article-container {
+  max-width: 900px;
+  margin-left: 0 !important;
+  margin-right: auto;
+}
+
+/* Atomic/Composite tasks tables: left-align instead of center (override Sphinx basic.css) */
+.bd-main .bd-content table.docutils,
+.bd-article-container table.docutils,
+.bd-content table.docutils {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+.bd-main .bd-content table.docutils.align-center {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+/* Table headers and cells left-aligned (fix Class File column alignment) */
+.bd-main .bd-content table.docutils th,
+.bd-main .bd-content table.docutils td,
+.bd-article-container table.docutils th,
+.bd-article-container table.docutils td {
+  text-align: left !important;
+}
+
+/* Prev/Next at bottom already provided by theme */
+.bd-footer-article a {
+  color: #2a6496;
+}
+
+/* "Current Version: v1.0" link in left sidebar */
+.sidebar-current-version {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.sidebar-current-version a {
+  color: #2a6496;
+}
+html[data-theme="dark"] .sidebar-current-version {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}
+html[data-theme="dark"] .sidebar-current-version a {
+  color: #79b8ff;
+}
+
+/* Dark mode: admonitions (e.g. Attention Mac users) - ensure readable */
+html[data-theme="dark"] .admonition.attention,
+html[data-theme="dark"] .admonition.warning {
+  background: rgba(180, 100, 50, 0.2);
+  border-left-color: #e0a060;
+}
+html[data-theme="dark"] .admonition.attention .admonition-title,
+html[data-theme="dark"] .admonition.warning .admonition-title {
+  background: rgba(180, 100, 50, 0.25);
+  color: #f0d0a0;
+}
+html[data-theme="dark"] .admonition.attention p,
+html[data-theme="dark"] .admonition.warning p {
+  color: #e8e0d8;
+}
+
+/* Nicer link underlines: sit below descenders (g, y, p) so the line doesn't cut through letters */
+.bd-content a[href],
+.bd-article-content a[href],
+.content a[href],
+div.body a[href] {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+
+/* Reduce whitespace above the Citation section on overview */
+section#citation > h2,
+section#citation > h3,
+h2#citation,
+h3#citation {
+  margin-top: 0.75rem !important;
+}
+
+/* Tighter spacing between sections: less gap above h2/h3 */
+.bd-content h2:not(.fixture-card-title),
+.bd-article-content h2:not(.fixture-card-title),
+.bd-content h3,
+.bd-article-content h3,
+.content h2:not(.fixture-card-title),
+.content h3,
+div.body h2:not(.fixture-card-title),
+div.body h3 {
+  margin-top: 1.25rem !important;
+}
+
+/* Overview banner: prevent theme from darkening image in dark mode (same as fixture images) */
+@media (prefers-color-scheme: dark) {
+  .overview-banner-image {
+    filter: none;
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+}
+html[data-theme="dark"] .overview-banner-image {
+  filter: none !important;
+  opacity: 1 !important;
+  background-color: rgba(255, 255, 255, 0.06);
+}

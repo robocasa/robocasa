@@ -9,6 +9,9 @@
     <default class="counter">
       <geom group="0" density="10"/>
     </default>
+    <default class="region">
+      <geom group="1" conaffinity="0" contype="0" rgba="0 1 0 0"/>
+    </default>
   </default>
   <worldbody>
     <body>
@@ -18,15 +21,9 @@
         <geom pos="0.0 0 0" size="0.50 0.50 1.0" type="box" material="counter_base" name="base_back" class="counter"/>
         <geom pos="0.0 0 0" size="0.50 0.50 1.0" type="box" material="counter_base" name="base_front" class="counter"/>
         <!-- exterior bounding box points -->
-        <site rgba="0 0 0 1" size="0.01" pos="0 0 0" name="ext_p0"/>
-        <site rgba="1 0 0 1" size="0.01" pos="0 0 0" name="ext_px"/>
-        <site rgba="0 1 0 1" size="0.01" pos="0 0 0" name="ext_py"/>
-        <site rgba="0 0 1 1" size="0.01" pos="0 0 0" name="ext_pz"/>
+        <geom class="region" name="reg_main" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
         <!-- interior bounding box points -->
-        <site rgba="0.5 0.5 0.5 1" size="0.01" pos="0 0 0" name="int_p0"/>
-        <site rgba="1 1 0 1" size="0.01" pos="0 0 0" name="int_px"/>
-        <site rgba="0 1 1 1" size="0.01" pos="0 0 0" name="int_py"/>
-        <site rgba="1 0 1 1" size="0.01" pos="0 0 0" name="int_pz"/>
+        <geom class="region" name="reg_int" type="box" pos="0.0 0.0 0.0" size="0.0001 0.0001 0.0001"/>
       </body>
     </body>
   </worldbody>

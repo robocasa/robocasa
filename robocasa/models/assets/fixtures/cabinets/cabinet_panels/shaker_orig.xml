@@ -1,0 +1,28 @@
+<mujoco model="cab_panel_slab">
+  <compiler angle="radian"/>
+  <asset>
+    <texture file="../../../textures/wood/dark_wood_parquet.png" type="2d" name="tex"/>
+    <material name="mat" reflectance="0.1" shininess="0.1" texrepeat="4 4" texuniform="true" texture="tex"/>
+    <!-- Potentially flipping the texture to make trims more pronounced -->
+    <!-- <texture file="../../../textures/wood/dark_wood_parquet.png" type="2d" hflip="true" name="plywood_2d_flipped"/>
+        <material name="cabinet_wood_uniform_flipped" shininess="0.1" texrepeat="4 4" texuniform="true" texture="plywood_2d_flipped" /> -->
+  </asset>
+  <default>
+    <default class="cab">
+      <geom group="0" density="10"/>
+    </default>
+  </default>
+  <worldbody>
+    <body>
+      <body name="object">
+        <geom pos="-0.185 -.005 0" size="0.2 0.3 0.02" type="box" material="mat" class="cab" name="door" euler="1.5708 0 0"/>
+        <body name="trims">
+          <geom pos="0 0 0.27" size="0.14 0.03 0.005" type="box" material="mat" class="cab" name="trim_top" euler="1.5708 0 0"/>
+          <geom pos="0 0 -0.27" size="0.14 0.03 0.005" type="box" material="mat" class="cab" name="trim_bottom" euler="1.5708 0 0"/>
+          <geom pos="-0.17 0 0" size="0.03 0.3 0.005" type="box" material="mat" class="cab" name="trim_left" euler="1.5708 0 0"/>
+          <geom pos="0.17 0 0" size="0.03 0.3 0.005" type="box" material="mat" class="cab" name="trim_right" euler="1.5708 0 0"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

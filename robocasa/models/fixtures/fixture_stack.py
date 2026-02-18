@@ -23,6 +23,7 @@ class FixtureStack:
             - size (list): [width, depth, height] of the stack
             - levels (list): list of fixtures to stack on top of each other
             - percentages (list): list of percentages of the height of each level
+            - z_rot (float, optional): rotation of the entire stack around z-axis in radians
 
         scene_fixtures (dict): dictionary of fixtures in the scene
 
@@ -93,6 +94,9 @@ class FixtureStack:
         z_current = z_stack - height_stack / 2
         fxtr_count = 0
 
+        # Get stack rotation if specified
+        stack_z_rot = self.config.get("z_rot", 0.0)
+
         # add base for stack
         if self.base_height > 0:
             depth_base = depth - self.base_overhang
@@ -100,13 +104,29 @@ class FixtureStack:
             base_name = self.config["name"] + "_base"
 
             base_config = load_style_config(self.scene_style, {"type": "box"})
-            base_config["pos"] = [x_stack, y + self.base_overhang / 2, z_base]
+            if stack_z_rot != 0.0:
+                # apply rotation to the base offset
+                base_offset = np.array([0, self.base_overhang / 2, 0])
+                cos_rot = np.cos(stack_z_rot)
+                sin_rot = np.sin(stack_z_rot)
+                rotation_matrix = np.array(
+                    [[cos_rot, -sin_rot, 0], [sin_rot, cos_rot, 0], [0, 0, 1]]
+                )
+                rotated_offset = rotation_matrix @ base_offset
+                base_pos = [x_stack + rotated_offset[0], y + rotated_offset[1], z_base]
+            else:
+                base_pos = [x_stack, y + self.base_overhang / 2, z_base]
+            base_config["pos"] = base_pos
             base_config["size"] = [width_stack, depth_base, self.base_height]
             base_config["name"] = base_name
             base_config["type"] = STACKABLE["box"]
             for k in ["group_origin", "group_pos", "group_z_rot"]:
                 if k in self.config:
                     base_config[k] = self.config[k]
+
+            # Apply stack rotation to base config (will be handled by scene builder)
+            if stack_z_rot != 0.0:
+                base_config["z_rot"] = stack_z_rot
 
             if self.default_texture is not None:
                 base_config["texture"] = self.default_texture
@@ -167,6 +187,14 @@ class FixtureStack:
                 for k in ["group_origin", "group_pos", "group_z_rot"]:
                     if k in self.config:
                         fxtr_config[k] = self.config[k]
+
+                # Apply stack rotation to individual fixtures (will be handled by scene builder)
+                if stack_z_rot != 0.0:
+                    # If fixture already has a z_rot, add the stack rotation to it
+                    if "z_rot" in fxtr_config:
+                        fxtr_config["z_rot"] += stack_z_rot
+                    else:
+                        fxtr_config["z_rot"] = stack_z_rot
 
                 # for texture randomization, ensures all cabinets have the same color
                 if self.default_texture is not None and "texture" in fxtr_config:

@@ -1,0 +1,770 @@
+room:
+  walls:
+    - name: wall_left_1
+      type: wall
+      size: [2.338, 1.5, 0.02]
+      pos: [0.002, -2.338, 1.5]
+      wall_side: left
+
+    - name: wall_left_1_backing
+      type: wall
+      backing: true
+      backing_extended: [True, True]
+      size: [2.338, 1.5, 0.1]
+      pos: [0.002, -2.338, 1.5]
+      wall_side: left
+
+    - name: wall_main_1
+      type: wall
+      size: [3.968, 1.5, 0.02]
+      pos: [4.01, -0.0, 1.5]
+
+    - name: wall_main_1_backing
+      type: wall
+      backing: true
+      size: [4.00, 1.5, 0.1]  #[1.678,5.981]
+      pos: [3.978, -0.0, 1.5]
+
+    - name: wall_right_1
+      type: wall
+      enclosing_wall: true
+      wall_side: right
+      size: [2.338, 1.5, 0.02]
+      pos: [7.976, -2.338, 1.5]
+
+    - name: wall_right_1_backing
+      type: wall
+      enclosing_wall: true
+      wall_side: right
+      backing: true
+      backing_extended: [True, True]
+      size: [2.338, 1.5, 0.1]
+      pos: [7.976, -2.338, 1.5]
+
+    - name: wall_front_1
+      type: wall
+      size: [1.339, 1.5, 0.02]
+      pos: [1.339, -4.676, 1.5]
+      wall_side: front
+
+    - name: wall_front_1_backing
+      type: wall
+      backing: true
+      size: [1.339, 1.5, 0.1]
+      pos: [1.339, -4.676, 1.5]
+      wall_side: front
+
+    - name: wall_front_2
+      type: wall
+      size: [1.944, 1.5, 0.02]
+      pos: [6.028, -4.676, 1.5]
+      wall_side: front
+
+    - name: wall_front_2_backing
+      type: wall
+      backing: true
+      size: [1.944, 1.5, 0.1]
+      pos: [6.028, -4.676, 1.5]
+      wall_side: front
+
+    - name: wall_front_3
+      type: wall
+      size: [0.625, 0.351, 0.02]
+      pos: [3.381, -4.676, 2.649]
+      wall_side: front
+
+    - name: wall_front_3_backing
+      type: wall
+      backing: true
+      # size: [0.775, 0.351, 0.1]
+      size: [0.775, 0.231, 0.1]
+      # pos: [3.531, -4.676, 2.649]
+      pos: [3.531, -4.676, 2.769]
+      wall_side: front
+
+  floor:
+    - name: floor_1
+      type: floor
+      size: [3.988, 2.338, 0.02]
+      pos: [3.988, -2.338, 0.0]
+
+    - name: floor_1_backing
+      type: floor
+      backing: true
+      size: [3.988, 2.338, 0.1] # +0.6
+      pos: [3.988, -2.338, 0.0] # +0.3
+
+  wall_accessories:
+    - name: wall_accessory_1
+      type: wall_accessory
+      attach_to: wall_left_1
+      pos: [null, -0.427, 1.187]
+
+    - name: wall_accessory_2
+      type: wall_accessory
+      attach_to: wall_left_1
+      pos: [null, -2.891, 1.187]
+
+    - name: wall_accessory_3
+      type: wall_accessory
+      attach_to: wall_main_1
+      pos: [0.481, null, 1.187]
+
+    - name: wall_accessory_4
+      type: wall_accessory
+      attach_to: wall_main_1
+      pos: [2.894, null, 1.187]
+    - name: window_group
+      type: window
+      # num_windows: 3
+      pos: [null,-1.751,1.79]
+      size: [1.266, 0.03, 0.797]
+      attach_to: wall_left_1
+      
+main_group:
+  group_origin: [0, 0]
+  group_pos: [0.0, 0.0]
+  group_z_rot: 0.0
+  bottom_row:
+    - name: counter_corner
+      type: counter
+      pos: [0.325, -0.325, 0.46]
+      size: [0.65, 0.65, 0.92]
+      hollow: [False, False]
+
+    - name: counter_1
+      type: counter
+      # pos: [1.284, -0.325, 0.46]
+      size: [1.27, 0.65, 0.92]
+      align_to: counter_corner
+      side: right
+      alignment: top_back
+
+    - name: stove
+      type: stove_wide
+      size: [0.91, 0.70, 0.915]
+      align_to: counter_1
+      side: right
+      alignment: top_back
+
+    - name: counter_2
+      type: counter
+      # pos: [3.363, -0.325, 0.46]
+      size: [1.312, 0.65, 0.92]
+      align_to: stove
+      side: right
+      alignment: top_back
+
+  bottom_row_cabinets:
+    - name: stack_1
+      type: stack
+      size: [0.656, 0.6, 0.84]
+      align_to: stove
+      side: left
+      alignment: top_back
+      levels: [single_cabinet, drawer]
+      percentages: [0.7, 0.3]
+      offset: [0, 0, -0.03]
+
+    - name: stack_2
+      type: stack
+      #pos: [0.994, -0.3, 0.47]
+      size: [0.546, 0.6, 0.84]
+      align_to: stack_1
+      side: left
+      alignment: top_back
+      levels: [single_cabinet]
+      percentages: [1]
+      configs:
+        single_cabinet:
+          orientation: left
+          panel_config:
+            handle_vpos: top
+
+    - name: box
+      type: box
+      # pos: [0.65, -0.3, 0.445]
+      size: [0.07, 0.6, 0.89]
+      align_to: stack_2
+      side: left
+      alignment: top_back
+
+    - name: stack_3
+      type: stack
+      size: [0.656, 0.6, 0.84]
+      levels: [single_cabinet, drawer]
+      percentages: [0.7, 0.3]
+      align_to: stove
+      side: right
+      alignment: top_back
+      offset: [0, 0, -0.03]
+
+    - name: stack_4
+      type: stack
+      # pos: [3.691, -0.325, 0.47]
+      size: [0.656, 0.6, 0.84]
+      levels: [single_cabinet, drawer]
+      percentages: [0.7, 0.3]
+      align_to: stack_3
+      side: right
+      alignment: bottom_back
+
+    - name: stack_5
+      type: stack
+      levels: [hinge_cabinet]
+      percentages: [1]
+      pos: [5.5, -0.3, 1.175]
+      size: [0.8, 0.6, 2.25]
+      configs:
+        hinge_cabinet:
+          panel_config:
+            handle_vpos: center
+
+    - name: stack_6
+      type: stack
+      levels: [hinge_cabinet]
+      percentages: [1]
+      # pos: [5.489, -0.196, 1.145]
+      size: [0.8, 0.6, 2.25]
+      align_to: stack_5
+      side: right
+      alignment: back
+      configs:
+        hinge_cabinet:
+          panel_config:
+            handle_vpos: center
+
+  top_row:
+    - name: cab_1
+      type: hinge_cabinet
+      pos: [1.593, -0.2, 1.84]
+      size: [0.65, 0.4, 0.92]
+
+    - name: cab_2
+      type: hinge_cabinet
+      # pos: [0.937, -0.2, 1.84]
+      size: [0.65, 0.4, 0.92]
+      align_to: cab_1
+      side: left
+      alignment: bottom_back
+
+    - name: cab_3
+      type: single_cabinet
+      # pos: [0.442, -0.2, 1.84]
+      size: [0.325, 0.4, 0.92]
+      is_corner_cab: true
+      orientation: left
+      panel_config:
+        handle_vpos: bottom
+      align_to: cab_2
+      side: left
+      alignment: bottom_back
+
+    - name: microwave
+      type: microwave
+      align_to: cab_1
+      side: right
+      alignment: bottom_back
+      size: [stove, 0.45, null]
+
+    - name: cab_4
+      type: hinge_cabinet
+      handle_type: knob
+      default_config_name: cab_top_small
+
+      align_to: microwave
+      side: top
+      alignment: back
+      size: [microwave, 0.4, null]
+      stack_height: 0.92
+      stack_fixtures: [microwave]
+
+    - name: cab_5
+      type: hinge_cabinet
+      size: [0.65, 0.4, 0.92]
+      # pos: [1.593, -0.2, 1.84]
+      align_to: microwave
+      side: right
+      alignment: bottom_back
+
+    - name: cab_6
+      type: hinge_cabinet
+      # pos: [3.691, -0.2, 1.84]
+      size: [0.65, 0.4, 0.92]
+      align_to: cab_5
+      side: right
+      alignment: bottom_back
+
+  counter_accessories:
+    - name: coffee_machine
+      type: coffee_machine
+      placement:
+        fixture: counter_1_main_group
+        size: [1.0, 0.52]
+        pos: [1.0, 1.0]
+        rotation: [0, 0]
+
+    - name: paper_towel
+      type: paper_towel
+
+      placement:
+        fixture: counter_corner_main_group
+        size: [0.4, 1.0]
+        pos: [-1.0, null]
+        rotation: [0, 0]
+
+left_group:
+  group_origin: [0, 0]
+  group_pos: [0, -4.191]
+  group_z_rot: 1.5707962925663537
+  bottom_row:
+    - name: counter_corner_1
+      type: counter
+      pos: [-0.16, -0.325, 0.46]
+      size: [0.65, 0.65, 0.92]
+      hollow: [False, False]
+
+    - name: sink_1
+      type: sink
+
+    - name: counter_1
+      type: counter
+      interior_obj: sink_1
+      obj_x_percent: 0.68
+      obj_y_percent: 0.01
+      size: [3.376, 0.65, 0.92]
+      align_to: counter_corner_1
+      side: right
+      alignment: top_back
+
+  bottom_row_cabinets:
+    - name: box_1
+      type: box
+      size: [0.1, 0.6, 0.89]
+      pos: [0.2, -0.3, 0.445]
+
+    - name: stack_1
+      type: stack
+      # pos: [0.44, -0.3, 0.47]
+      size: [1, 0.6, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: box_1
+      side: right
+      alignment: top_back
+
+    - name: dishwasher_1
+      type: dishwasher
+      size: [0.6, 0.6, 0.89]
+      align_to: stack_1
+      side: right
+      alignment: top_back
+
+    - name: stack_2
+      type: stack
+      levels: [hinge_cabinet]
+      percentages: [1]
+      # pos: [2.459, -0.3, 0.47]
+      size: [1.194, 0.6, 0.84]
+      open_top: true
+      configs: {'hinge_cabinet': {'open_top': 'true', 'panel_config': {'handle_vpos': 'center'}}}
+      align_to: dishwasher_1
+      side: right
+      alignment: top_back
+
+    - name: stack_3
+      type: stack
+      # pos: [3.276, -0.3, 0.47] #3.54
+      size: [0.44, 0.6, 0.84]
+      levels: [single_cabinet]
+      percentages: [1]
+      align_to: stack_2
+      side: right
+      alignment: top_back
+
+    - name: box_2
+      type: box
+      # pos: [3.546, -0.3, 0.445]
+      size: [0.1, 0.6, 0.89]
+      align_to: stack_3
+      side: right
+      alignment: top_back
+
+  top_row:
+    - name: cab_1
+      type: single_cabinet
+      pos: [1.34, -0.2, 1.84]
+      size: [0.409, 0.4, 0.92]
+
+    - name: cab_2
+      type: hinge_cabinet
+      # pos: [0.73, -0.2, 1.84]
+      size: [0.812, 0.4, 0.92]
+      align_to: cab_1
+      side: left
+      alignment: bottom_back
+
+    - name: cab_3
+      type: single_cabinet
+      # pos: [0.119, -0.2, 1.84]
+      size: [0.409, 0.4, 0.92]
+      is_corner_cab: true
+      orientation: left
+      panel_config:
+        handle_vpos: bottom
+      align_to: cab_2
+      side: left
+      alignment: bottom_back
+
+    - name: cab_corner
+      type: box
+      size: [0.4, 0.65, 0.92]
+      align_to: cab_3
+      side: left
+      alignment: bottom_back
+  
+  counter_accessories:
+    - name: dish_rack
+      type: dish_rack
+      enable: false
+
+      placement:
+        fixture: counter_1_left_group
+        sample_region_kwargs:
+          ref: sink
+          loc: left_right
+        size: [obj, 0.5]
+        pos: ["ref", 1.0]
+        rotation: [0, 0]
+
+    - name: knife_block
+      type: knife_block
+
+      placement:
+        fixture: counter_corner_1_left_group
+        size: [1.0, 0.40]
+        pos: [null, 1.0]
+        rotation: [0, 0]
+
+    - name: electric_kettle
+      type: electric_kettle
+      enable: false
+
+      placement:
+        fixture: counter_1_left_group
+        sample_region_kwargs:
+          ref: cab_2
+        size: [0.80, 0.30]
+        pos: [null, -0.75]
+        rotation: [-1.0, 0.1]
+
+island_group_1:
+  group_origin: [0, 0]
+  group_pos: [1.7, -2.35]
+  group_z_rot: 0.0
+
+  bottom_row:
+    - name: island
+      type: counter
+      pos: [1.25, -0.325, 0.46]
+      size: [2.6, 0.65, 0.92]
+
+  island_row:
+    - name: panel_stack_1
+      type: stack
+      size: [0.1, 0.6, 0.84]
+      pos: [0, -0.3, 0.47]
+      levels: [panel_cabinet]
+      percentages: [1]
+      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+
+    - name: stack_1
+      type: stack
+      size: [0.8, 0.6, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: panel_stack_1
+      side: right
+      alignment: bottom_back
+
+    - name: stack_2
+      type: stack
+      size: [0.8, 0.6, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: stack_1
+      side: right
+      alignment: bottom_back
+
+    - name: stack_3
+      type: stack
+      size: [0.8, 0.6, 0.84]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: stack_2
+      side: right
+      alignment: bottom_back
+
+    - name: panel_stack_2
+      type: stack
+      size: [0.1, 0.6, 0.84]
+      levels: [panel_cabinet]
+      percentages: [1]
+      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+      align_to: stack_3
+      side: right
+      alignment: bottom_front
+
+  counter_accessories:
+    - name: blender
+      type: blender
+      enable: false
+      aux_fixture_config:
+        has_free_joints: true
+        placement: anchor
+        auxiliary_placement_args:
+          ensure_valid_placement: false
+
+      placement:
+        fixture: island_island_group_1
+        size: [1.0, 0.25]
+        pos: [null, -1]
+        rotation: [0, 0]
+        margin: 0.03
+
+    - name: plant
+      type: plant
+
+      placement:
+        fixture: island_island_group_1
+        size: [1.0, 0.4]
+        pos: [null, 1.0]
+        rotation: [0, 0]
+
+island_group_2:
+  group_origin: [0, 0]
+  group_pos: [4.2, -2.35]
+  group_z_rot: 3.1415925661670165
+
+  bottom_row:
+    - name: counter_1
+      type: counter
+      pos: [1.25, -0.325, 0.46]
+      size: [2.6, 0.65, 0.92]
+
+  island_row:
+    - name: panel_stack_1
+      type: stack
+      size: [0.1, 0.6, 0.84]
+      pos: [0, -0.3, 0.47]
+      levels: [panel_cabinet]
+      percentages: [1]
+      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+
+    - name: stack_1
+      type: stack
+      size: [0.8, 0.6, 0.84]
+      levels: [drawer, drawer]
+      percentages: [0.5, 0.5]
+      align_to: panel_stack_1
+      side: right
+      alignment: bottom_front
+
+    - name: stack_2
+      type: stack
+      size: [0.8, 0.6, 0.84]
+      levels: [drawer, drawer]
+      percentages: [0.5, 0.5]
+      align_to: stack_1
+      side: right
+      alignment: bottom_back
+
+    - name: stack_3
+      type: stack
+      size: [0.8, 0.6, 0.84]
+      levels: [drawer, drawer]
+      percentages: [0.5, 0.5]
+      align_to: stack_2
+      side: right
+      alignment: bottom_back
+
+    - name: panel_stack_2
+      type: stack
+      size: [0.1, 0.6, 0.84]
+      levels: [panel_cabinet]
+      percentages: [1]
+      configs: {'panel_cabinet': {'solid_body': True, 'panel_type': 'slab'}}
+      align_to: stack_3
+      side: right
+      alignment: bottom_front
+
+  counter_accessories:
+    - name: stand_mixer
+      type: stand_mixer
+      enable: false
+
+      placement:
+        fixture: counter_1_island_group_2
+        sample_region_kwargs:
+          ref: stack_1_island_group_2
+        size: [1.0, 0.25]
+        pos: ["ref", -1.0]
+        rotation: [-1.57, -1.57]
+        offset: [0, 0.01]
+
+front_group_1:
+  group_origin: [0, 0]
+  group_pos: [2.672, -4.676]
+  group_z_rot: -3.1415925661670165
+
+  bottom_row:
+
+    - name: counter_1
+      type: counter
+      pos: [1.53, -0.325, 0.46]
+      size: [0.986, 0.65, 0.92]
+      #align_to: fridge_1_housing
+      #side: right
+      #alignment: bottom_back
+
+  bottom_row_cabinets:
+
+    - name: fridge_1
+      type: fridge_french_door
+      size: [0.85,0.80,1.78]
+
+    - name: fridge_1_housing
+      type: housing_cabinet
+      interior_obj: fridge_1
+      padding: [[0.02, 0.02], [0, 0], [0, 0]]
+      #pos: [0.642, -0.4, 0.84]
+      align_to: counter_1
+      side: left
+      alignment: bottom_back
+
+
+    - name: stack_1
+      type: stack
+      size: [0.934, 0.6, 0.84]
+      #pos: [1.536, -0.325, 0.47]
+      levels: [hinge_cabinet]
+      percentages: [1]
+      align_to: fridge_1_housing
+      side: right
+      alignment: bottom_back
+      offset: [0, 0, 0.05]
+    
+    - name: box
+      type: box
+      size: [0.1, 0.6, 0.89]
+      align_to: stack_1
+      side: right
+      alignment: top_back
+
+ 
+
+  top_row:
+    - name: cab_1
+      type: hinge_cabinet
+      size: [fridge_1_housing, fridge_1_housing, null]
+      align_to: fridge_1_housing
+      side: top
+      alignment: back
+      stack_height: 2.3
+      stack_fixtures: [fridge_1_housing]
+
+    - name: cab_2
+      type: single_cabinet
+      #pos: [1.326, -0.2, 1.84]
+      size: [0.578, 0.4, 0.92]
+      align_to: cab_1
+      side: right
+      alignment: top_back
+      orientation: left
+      panel_config:
+        handle_vpos: bottom
+
+    - name: cab_3
+      type: single_cabinet
+      pos: [1.818, -0.2, 1.84]
+      size: [0.409, 0.4, 0.92]
+  
+  counter_accessories:
+    - name: toaster
+      type: toaster
+      placement:
+        fixture: counter_1_front_group_1
+        size: [1.0, 0.40]
+        pos: [null, 1.0]
+        rotation: [0, 0]
+  
+front_group_2:
+  group_origin: [0, 0]
+  group_pos: [7.072, -4.676]
+  group_z_rot: -3.1415925661670165
+  bottom_row:
+
+    - name: counter_1
+      type: counter
+      pos: [1.333, -0.325, 0.46]
+      size: [2.665, 0.65, 0.92]
+
+  bottom_row_cabinets:
+
+    - name: stack_1
+      type: stack
+      pos: [2.21, -0.3, 0.47]
+      size: [0.91, 0.6, 0.84]
+      levels: [single_cabinet]
+      percentages: [1]
+
+    - name: stack_2
+      type: stack
+      #pos: [1.333,-0.3,0.46]
+      align_to: stack_1
+      side: left
+      alignment: top_back
+      size: [0.846, 0.6, 0.84]
+      levels: [single_cabinet]
+      percentages: [1]
+      orientation: right
+      panel_config:
+        handle_vpos: top
+
+    - name: stack_3
+      type: stack
+      #pos: [0.455, -0.3, 0.47]
+      size: [0.91, 0.6, 0.84]
+      levels: [single_cabinet]
+      percentages: [1]
+      align_to: stack_2
+      side: left
+      alignment: top_back
+
+  top_row:
+
+    - name: cab_1
+      type: hinge_cabinet
+      pos: [0.455, -0.2, 1.84]
+      size: [0.91, 0.4, 0.92]
+
+    - name: cab_2
+      type: hinge_cabinet
+      pos: [1.333, -0.2, 1.84]
+      size: [0.846, 0.4, 0.92]
+
+    - name: cab_3
+      type: hinge_cabinet
+      pos: [2.221, -0.2, 1.84]
+      size: [0.932, 0.4, 0.92]
+
+  counter_accessories:
+    - name: toaster_oven
+      type: toaster_oven
+      enable: true
+  
+      placement:
+        fixture: counter_1_front_group_2
+        size: [1.0, 0.45]
+        pos: [null, 1.0]
+        rotation: [0, 0]

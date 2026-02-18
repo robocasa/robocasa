@@ -2,13 +2,76 @@ import abc
 import xml
 
 from robosuite.utils.mjcf_utils import array_to_string as a2s
-from robosuite.utils.mjcf_utils import find_elements, xml_path_completion
+from robosuite.utils.mjcf_utils import string_to_array as s2a
+from robosuite.utils.mjcf_utils import find_elements, xml_path_completion, get_elements
 
 import robocasa
 from robocasa.models.objects import MujocoXMLObject
 from robocasa.models.fixtures.fixture import get_texture_name_from_file
 from robocasa.models.fixtures.handles import *
 from robocasa.utils.object_utils import set_geom_dimensions
+
+
+VISUAL_MESH_ELONGATED_HANDLE_REG = {
+    "CabinetHandle001": "fixtures/handles/CabinetHandle001/model.xml",
+    "CabinetHandle002": "fixtures/handles/CabinetHandle002/model.xml",
+    "CabinetHandle003": "fixtures/handles/CabinetHandle003/model.xml",
+    "CabinetHandle004": "fixtures/handles/CabinetHandle004/model.xml",
+    "CabinetHandle005": "fixtures/handles/CabinetHandle005/model.xml",
+    "CabinetHandle006": "fixtures/handles/CabinetHandle006/model.xml",
+    "CabinetHandle007": "fixtures/handles/CabinetHandle007/model.xml",
+    "CabinetHandle008": "fixtures/handles/CabinetHandle008/model.xml",
+    "CabinetHandle009": "fixtures/handles/CabinetHandle009/model.xml",
+    "CabinetHandle010": "fixtures/handles/CabinetHandle010/model.xml",
+    "CabinetHandle011": "fixtures/handles/CabinetHandle011/model.xml",
+    "CabinetHandle012": "fixtures/handles/CabinetHandle012/model.xml",
+    "CabinetHandle013": "fixtures/handles/CabinetHandle013/model.xml",
+    "CabinetHandle014": "fixtures/handles/CabinetHandle014/model.xml",
+    "CabinetHandle015": "fixtures/handles/CabinetHandle015/model.xml",
+    "CabinetHandle017": "fixtures/handles/CabinetHandle017/model.xml",
+    "CabinetHandle018": "fixtures/handles/CabinetHandle018/model.xml",
+    "CabinetHandle019": "fixtures/handles/CabinetHandle019/model.xml",
+    "CabinetHandle020": "fixtures/handles/CabinetHandle020/model.xml",
+    "CabinetHandle021": "fixtures/handles/CabinetHandle021/model.xml",
+    "CabinetHandle022": "fixtures/handles/CabinetHandle022/model.xml",
+    "CabinetHandle023": "fixtures/handles/CabinetHandle023/model.xml",
+    "CabinetHandle024": "fixtures/handles/CabinetHandle024/model.xml",
+    "CabinetHandle025": "fixtures/handles/CabinetHandle025/model.xml",
+    "CabinetHandle026": "fixtures/handles/CabinetHandle026/model.xml",
+    "CabinetHandle027": "fixtures/handles/CabinetHandle027/model.xml",
+    "CabinetHandle028": "fixtures/handles/CabinetHandle028/model.xml",
+    "CabinetHandle029": "fixtures/handles/CabinetHandle029/model.xml",
+    "CabinetHandle030": "fixtures/handles/CabinetHandle030/model.xml",
+    "CabinetHandle031": "fixtures/handles/CabinetHandle031/model.xml",
+    "CabinetHandle032": "fixtures/handles/CabinetHandle032/model.xml",
+    "CabinetHandle033": "fixtures/handles/CabinetHandle033/model.xml",
+    "CabinetHandle034": "fixtures/handles/CabinetHandle034/model.xml",
+    "CabinetHandle037": "fixtures/handles/CabinetHandle037/model.xml",
+    "CabinetHandle038": "fixtures/handles/CabinetHandle038/model.xml",
+    "CabinetHandle039": "fixtures/handles/CabinetHandle039/model.xml",
+    "CabinetHandle040": "fixtures/handles/CabinetHandle040/model.xml",
+    "CabinetHandle041": "fixtures/handles/CabinetHandle041/model.xml",
+    "CabinetHandle043": "fixtures/handles/CabinetHandle043/model.xml",
+    "CabinetHandle044": "fixtures/handles/CabinetHandle044/model.xml",
+    "CabinetHandle045": "fixtures/handles/CabinetHandle045/model.xml",
+    "CabinetHandle046": "fixtures/handles/CabinetHandle046/model.xml",
+    "CabinetHandle047": "fixtures/handles/CabinetHandle047/model.xml",
+    "CabinetHandle048": "fixtures/handles/CabinetHandle048/model.xml",
+    "CabinetHandle049": "fixtures/handles/CabinetHandle049/model.xml",
+    "CabinetHandle050": "fixtures/handles/CabinetHandle050/model.xml",
+    "flat": "fixtures/handles/flat_handle/model.xml",
+    "irregularity": "fixtures/handles/irregularity_handle/model.xml",
+    "rectangular": "fixtures/handles/rectangular_handle/model.xml",
+    "protruding_rectangular": "fixtures/handles/protruding_rectangular_handle/model.xml",
+}
+
+VISUAL_MESH_KNOB_HANDLE_REG = {
+    "CabinetHandle016": "fixtures/handles/CabinetHandle016/model.xml",
+    "CabinetHandle035": "fixtures/handles/CabinetHandle035/model.xml",
+    "CabinetHandle036": "fixtures/handles/CabinetHandle036/model.xml",
+    "CabinetHandle042": "fixtures/handles/CabinetHandle042/model.xml",
+    "CabinetHandle051": "fixtures/handles/CabinetHandle051/model.xml",
+}
 
 
 class CabinetPanel(MujocoXMLObject):
@@ -43,12 +106,16 @@ class CabinetPanel(MujocoXMLObject):
         handle_hpos=None,
         handle_vpos=None,
         texture=None,
+        handle_hpercent=0.825,
+        handle_vpercent=0.80,
+        # needs to be false if using cabinets with visual meshes
+        duplicate_collision_geoms=True,
     ):
         super().__init__(
             xml_path_completion(xml, root=robocasa.models.assets_root),
             name=name,
             joints=None,
-            duplicate_collision_geoms=True,
+            duplicate_collision_geoms=duplicate_collision_geoms,
         )
 
         self.size = size
@@ -58,6 +125,8 @@ class CabinetPanel(MujocoXMLObject):
         self.handle_config = handle_config
         self.handle_hpos = handle_hpos
         self.handle_vpos = handle_vpos
+        self.handle_hpercent = handle_hpercent
+        self.handle_vpercent = handle_vpercent
 
         self._set_texture()
         self._create_panel()
@@ -138,6 +207,18 @@ class CabinetPanel(MujocoXMLObject):
             handle_class = BoxedHandle
             vpad = 0.20
             hpad = 0.05
+        elif self.handle_type in VISUAL_MESH_ELONGATED_HANDLE_REG:
+            vpad = 0.20
+            hpad = 0.05
+            handle_class = VisualMeshElongatedHandle
+            self.handle_config["xml"] = VISUAL_MESH_ELONGATED_HANDLE_REG[
+                self.handle_type
+            ]
+        elif self.handle_type in VISUAL_MESH_KNOB_HANDLE_REG:
+            vpad = 0.05
+            hpad = 0.05
+            handle_class = VisualMeshKnobHandle
+            self.handle_config["xml"] = VISUAL_MESH_KNOB_HANDLE_REG[self.handle_type]
         else:
             raise NotImplementedError
 
@@ -152,25 +233,44 @@ class CabinetPanel(MujocoXMLObject):
         )
         handle_elem = handle.get_obj()
 
+        handle_height = (
+            handle.length
+            if handle.length is not None and handle.orientation == "vertical"
+            else 0.05
+        )
+
         if self.handle_vpos == "bottom":
-            handle_z = -(panel_h / 2 - vpad)
+            handle_z = (-(panel_h / 2) + (handle_height / 2)) * self.handle_vpercent
         elif self.handle_vpos == "top":
-            handle_z = panel_h / 2 - vpad
+            handle_z = ((panel_h / 2) - (handle_height / 2)) * self.handle_vpercent
         elif self.handle_vpos == "center":
             handle_z = 0.0
         else:
             raise NotImplementedError
 
         if self.handle_hpos == "left":
-            handle_x = -(panel_w / 2 - hpad)
+            handle_x = -(panel_w / 2) * self.handle_hpercent
         elif self.handle_hpos == "right":
-            handle_x = panel_w / 2 - hpad
+            handle_x = (panel_w / 2) * self.handle_hpercent
         elif self.handle_hpos == "center":
             handle_x = 0.0
         else:
             raise NotImplementedError
-
-        handle_elem.set("pos", a2s([handle_x, 0, handle_z]))
+        y_offset = (
+            0
+            if handle._get_depth_ofs() is None
+            else handle._get_depth_ofs() - self.size[1] / 2
+        )
+        reg_main = find_elements(
+            self.root,
+            tags="geom",
+            attribs={"name": f"{self.naming_prefix}reg_main"},
+            return_first=True,
+        )
+        if reg_main is not None:
+            # make sure to attach panel to reg main of the panel
+            y_offset += s2a(reg_main.get("pos"))[1]
+        handle_elem.set("pos", a2s([handle_x, y_offset, handle_z]))
 
         parent_body = self.get_obj()
 
@@ -559,3 +659,54 @@ class CabinetShelf(MujocoXMLObject):
         sizes = {"shelf": self.size / 2}
         positions = {"shelf": self.pos}
         set_geom_dimensions(sizes, positions, geoms)
+
+
+class VisualMeshPanel(CabinetPanel):
+    def __init__(self, *args, **kwargs):
+        kwargs["duplicate_collision_geoms"] = False
+        super().__init__(*args, **kwargs)
+        # give no mass to visual geoms
+        self._set_physics_params(geom_group=1, density=0)
+        self._set_physics_params(geom_group=0, density=10)
+
+    def _get_components(self):
+        """
+        Gets the geoms for the cabinet panel.
+        """
+        geom_names = ["reg_main"]
+        return self._get_elements_by_name(geom_names)[0]
+
+    def _create_panel(self):
+        """
+        Creates the cabinet panel. This involves setting the size and position of the panel's geom
+        """
+        geoms = self._get_components()
+        size = [1, 1, 1]
+        for i, geom in geoms.items():
+            # get size
+            size = s2a(geom[0].get("size"))
+            break
+
+        # remove door_vis in geoms
+        # divide by 2 for mujoco convention
+        x, y, z = [dim / 2 for dim in self.size]
+
+        scale = [x / size[0], y / size[1], z / size[2]]
+
+        self.set_scale(scale)
+
+    def _set_physics_params(
+        self,
+        geom_group,
+        solimp=(0.9, 0.95, 0.001, 0.5, 2),
+        solref=(0.02, 1),
+        density=10,
+        friction=(1, 0.005, 0.0001),
+    ):
+        all_geoms = get_elements(self._obj, "geom")
+        for (_, geom) in all_geoms:
+            if int(geom.get("group", "-1")) == geom_group:
+                geom.set("solref", a2s(solref))
+                geom.set("solimp", a2s(solimp))
+                geom.set("density", str(density))
+                geom.set("friction", a2s(friction))

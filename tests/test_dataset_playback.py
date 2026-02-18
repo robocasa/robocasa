@@ -5,10 +5,10 @@ import os
 
 from robocasa.scripts.playback_dataset import playback_dataset
 from robocasa.utils.dataset_registry import (
-    SINGLE_STAGE_TASK_DATASETS,
-    MULTI_STAGE_TASK_DATASETS,
+    ATOMIC_TASK_DATASETS,
+    COMPOSITE_TASK_DATASETS,
 )
-from robocasa.utils.dataset_registry import get_ds_path
+from robocasa.utils.dataset_registry_utils import get_ds_path
 
 
 class TestTasksValidity(unittest.TestCase):
@@ -21,12 +21,10 @@ class TestTasksValidity(unittest.TestCase):
         """
 
         # iterate through all atomic and composite tasks
-        all_tasks = list(SINGLE_STAGE_TASK_DATASETS) + list(MULTI_STAGE_TASK_DATASETS)
+        all_tasks = list(ATOMIC_TASK_DATASETS) + list(COMPOSITE_TASK_DATASETS)
         all_tasks = all_tasks[-2:]
         for task_i, task in enumerate(all_tasks):
-            human_path = get_ds_path(
-                task=task, ds_type="human_raw"
-            )  # human dataset path
+            human_path = get_ds_path(task=task, source="human")  # human dataset path
             print(f"Dataset path: {human_path}")
             print(
                 colored(
