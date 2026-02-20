@@ -28,8 +28,8 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 3. Clone and setup robosuite dependency (**important: use the master branch!**):
 
    ```sh
-   git clone https://github.com/ARISE-Initiative/robosuite
-   cd robosuite
+   git clone https://github.com/ARISE-Initiative/robosuite v1.5.1
+   cd v1.5.1
    pip install -e .
    ```
 4. Clone and setup this repo:
