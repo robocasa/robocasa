@@ -1,6 +1,6 @@
 <h1 align="center">RoboCasa</h1>
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
-<img src="docs/images/robocasa-banner.webp" width="100%" />
+<img src="docs/images/readme.webp" width="100%" />
 
 **RoboCasa** is a large-scale simulation framework for training generally capable robots to perform everyday tasks. It was [originally released](https://robocasa.ai/assets/robocasa_rss24.pdf) in 2024 by UT Austin researchers. The latest iteration, **RoboCasa365**, builds upon the original release with significant new functionalities to support large-scale training and benchmarking in sim. Four pillars underlie RoboCasa365:
 - **Diverse tasks**: 365 tasks created with the guidance of large language models
