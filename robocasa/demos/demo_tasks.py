@@ -13,6 +13,14 @@ from robocasa.scripts.dataset_scripts.playback_dataset import playback_dataset
 from robocasa.utils.dataset_registry_utils import get_ds_path
 
 
+def get_ds_path_any_split(task, source="human"):
+    """Return dataset path trying pretrain first, then target (for tasks that only have target human demos, e.g. composite-unseen)."""
+    path = get_ds_path(task, source=source, split="pretrain")
+    if path is not None:
+        return path
+    return get_ds_path(task, source=source, split="target")
+
+
 def choose_option(
     options, option_name, show_keys=False, default=None, default_message=None
 ):
@@ -79,7 +87,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    tasks = OrderedDict(
+    all_tasks = OrderedDict(
         [
             ("PickPlaceCounterToCabinet", "pick and place from counter to cabinet"),
             ("PickPlaceCounterToSink", "pick and place from counter to sink"),
@@ -95,31 +103,54 @@ if __name__ == "__main__":
             ("RestockPantry", "restock cans in pantry"),
             ("PreSoakPan", "prepare pan for washing"),
             ("PrepareCoffee", "make coffee"),
+            (
+                "HotDogSetup",
+                "gather ingredients for a hot dog and place them on the dining table [Navigation]",
+            ),
+            (
+                "DeliverStraw",
+                "place the straw in the glass cup on the dining counter [Navigation]",
+            ),
+            (
+                "GatherTableware",
+                "gather tableware from around the kitchen [Navigation]",
+            ),
         ]
     )
+    tasks = OrderedDict(
+        (k, v)
+        for k, v in all_tasks.items()
+        if get_ds_path_any_split(k, source="human") is not None
+    )
+    if not tasks:
+        raise RuntimeError(
+            "No tasks with registered human demo paths. Check dataset registry and DATASET_BASE_PATH."
+        )
 
     video_num = -1
     while True:
         if args.task is None:
             task = choose_option(
-                tasks, "task", default="PickPlaceCounterToCabinet", show_keys=True
+                tasks, "task", default=list(tasks.keys())[0], show_keys=True
             )
         else:
             task = args.task
         video_num += 1
 
-        dataset = get_ds_path(task, source="human")
+        dataset = get_ds_path_any_split(task, source="human")
         if dataset is None:
             raise ValueError(f"No registered dataset path for task={task} source=human")
 
         if os.path.exists(dataset) is False:
-            # download dataset files
+            # download dataset files (try both splits so target-only tasks e.g. GatherTableware work)
             print(
                 colored(
                     "Unable to find dataset locally. Downloading...", color="yellow"
                 )
             )
-            download_datasets(tasks=[task], split=["pretrain"], source=["human"])
+            download_datasets(
+                tasks=[task], split=["pretrain", "target"], source=["human"]
+            )
 
         dataset = dataset
 

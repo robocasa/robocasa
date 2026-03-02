@@ -14,6 +14,10 @@ import robocasa
 from pathlib import Path
 import robocasa.utils.lerobot_utils as LU
 
+from robocasa.scripts.dataset_scripts.playback_utils import (
+    resolve_instruction_from_ep_meta,
+)
+
 
 def playback_trajectory_with_env(
     env,
@@ -58,8 +62,9 @@ def playback_trajectory_with_env(
 
     if verbose:
         ep_meta = json.loads(initial_state["ep_meta"])
-        lang = ep_meta.get("lang", None)
-        if lang is not None:
+        # Use exact instruction from episode; resolve placeholders (e.g. {condiment_lang}) from object_cfgs if needed
+        lang = resolve_instruction_from_ep_meta(ep_meta)
+        if lang:
             print(colored(f"Instruction: {lang}", "green"))
         print(colored("Spawning environment...", "yellow"))
     reset_to(env, initial_state)

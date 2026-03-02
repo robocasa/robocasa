@@ -9,7 +9,7 @@ There are two phases of training:
   - **Composite-Unseen** (a separate set of 16 composite tasks, not seen in pretraining)
 
 -------
-<!-- ## Benchmark results and checkpoints
+## Benchmark results and checkpoints
 We perform a benchmark featruing the GR00T N1.5 algorithm. We compare pretraining only, target training only, and pretraining following by target task fine-tuning. Here is a summary of our benchmarking results **(average task success rate, in %)**. We share the model checkpoints for reference.
 
 <table class="docutils rc-benchmark-table">
@@ -18,7 +18,7 @@ We perform a benchmark featruing the GR00T N1.5 algorithm. We compare pretrainin
       <th rowspan="2"><strong>Task Type</strong></th>
       <th rowspan="2"><strong>Pretraining Only</strong></th>
       <th colspan="3"><strong>Target Task Learning Only</strong></th>
-      <th colspan="3"><strong>Pretraining + Target Task Learning</strong></th>
+      <th colspan="3"><strong>Pretraining + Target Task Post-Training</strong></th>
     </tr>
     <tr>
       <th><strong>10%</strong></th>
@@ -114,7 +114,7 @@ We perform a benchmark featruing the GR00T N1.5 algorithm. We compare pretrainin
   </tbody>
 </table>
 
-------- -->
+-------
 ## Benchmark instructions
 
 ### GR00T

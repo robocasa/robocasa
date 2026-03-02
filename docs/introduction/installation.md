@@ -45,7 +45,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 
 5. Install the package and download assets:
    ```sh
-   python robocasa/scripts/download_kitchen_assets.py   # Caution: Assets to be downloaded are around 5GB.
-   python robocasa/scripts/setup_macros.py              # Set up system variables.
+   python -m robocasa.scripts.setup_macros              # Set up system variables.
+   python -m robocasa.scripts.download_kitchen_assets   # Caution: Assets to be downloaded are around 10GB.
    ```
 

@@ -8,7 +8,7 @@ We do policy learning on the [Human Pretraining Datasets](../datasets/datasets_o
 For each task, we provide 100 task demonstrations per task, resulting in **482 hours of total data**.
 
 -------
-<!-- ## Benchmark results and checkpoints
+## Benchmark results and checkpoints
 
 We provide support for benchmarking across Diffusion Policy, Openpi, and GR00T N1.5. Here is a summary of our benchmarking results **(average task success rate, in %)**. We share the model checkpoints for reference.
 
@@ -55,7 +55,7 @@ We provide support for benchmarking across Diffusion Policy, Openpi, and GR00T N
   </tbody>
 </table>
 
-------- -->
+-------
 ## Benchmark instructions
 
 ### Diffusion Policy

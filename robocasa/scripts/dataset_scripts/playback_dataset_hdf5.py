@@ -12,6 +12,10 @@ import traceback
 import robosuite
 import robocasa
 
+from robocasa.scripts.dataset_scripts.playback_utils import (
+    resolve_instruction_from_ep_meta,
+)
+
 
 def playback_trajectory_with_env(
     env,
@@ -56,8 +60,8 @@ def playback_trajectory_with_env(
 
     if verbose:
         ep_meta = json.loads(initial_state["ep_meta"])
-        lang = ep_meta.get("lang", None)
-        if lang is not None:
+        lang = resolve_instruction_from_ep_meta(ep_meta)
+        if lang:
             print(colored(f"Instruction: {lang}", "green"))
         print(colored("Spawning environment...", "yellow"))
     reset_to(env, initial_state)

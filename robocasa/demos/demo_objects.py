@@ -20,10 +20,6 @@ from termcolor import colored
 
 import robocasa
 from robocasa.models.objects.kitchen_object_utils import sample_kitchen_object
-from robocasa.scripts.download_kitchen_assets import (
-    DOWNLOAD_ASSET_REGISTRY,
-    download_and_extract_from_hf,
-)
 
 
 def edit_model_xml(xml_str):

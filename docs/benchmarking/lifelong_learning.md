@@ -13,7 +13,7 @@ After each phase, we evaluate the policy on all of the tasks learned from the fi
 The goal is to learn tasks in new phases effectively while retaining knowledge about all previous phases.
 
 -------
-<!-- ## Benchmark results and checkpoints
+## Benchmark results and checkpoints
 We have performed the lifelong learning benchmark using GR00T N1.5. Here is a summary of our benchmarking results **(average task success rate, in %)**. We share the model checkpoints for reference.
 
 <table class="docutils rc-benchmark-table">
@@ -63,7 +63,7 @@ We have performed the lifelong learning benchmark using GR00T N1.5. Here is a su
   </tbody>
 </table>
 
-------- -->
+-------
 ## Benchmark instructions
 
 ### GR00T
