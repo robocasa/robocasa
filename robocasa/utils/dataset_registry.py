@@ -1403,9 +1403,6 @@ COMPOSITE_TASK_DATASETS = OrderedDict(
         horizon=900,
     ),
     PlaceOnDishRack=dict(
-        pretrain=dict(
-            human_path="v1.0/pretrain/composite/PlaceOnDishRack/20250915",
-        ),
         real=dict(
             human_path="real_data/PlaceOnDishRack/",
         ),
