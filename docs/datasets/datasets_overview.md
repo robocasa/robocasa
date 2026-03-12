@@ -45,11 +45,11 @@ We provide a detailed overview of the pretraining and target datasets below.
 -------
 ## Pretraining Datasets
 RoboCasa offers ~2,000 hours of pretraining demonstration data.
-The pretraining datasets feature 300 diverse tasks across 2500 pretraining kitchens. We feature both human and sythentic datasets:
+The pretraining datasets feature 300 diverse tasks across 2500 pretraining kitchens. We feature both human and synthetic datasets:
 
 ### Human Datasets
 482 hours of data collected via teleoperation. The data spans 300 tasks (65 atomic tasks and 235 composite tasks), with 100 demonstrations per task.
-Go to the [Atomic Tasks](../tasks/atomic_tasks.html) and [Composite Tasks](../tasks/atomic_tasks.html) pages to see the list of supported tasks.
+Go to the [Atomic Tasks](../tasks/atomic_tasks.html) and [Composite Tasks](../tasks/composite_tasks.html) pages to see the list of supported tasks.
 
 ### Synthetic Datasets
 1615 hours of data generated via [MimicGen](https://mimicgen.github.io/). The data spans 60 atomic tasks, with ~10k demonstrations per task.

@@ -30,6 +30,9 @@ v0.2:
 html:
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@$(MAKE) v0.2
+	@echo "Post-processing Sphinx static paths..."
+	@python3 postprocess_sphinx_static.py --outdir "$(BUILDDIR)/html"
+	@python3 postprocess_sphinx_static.py --outdir "$(BUILDDIR)/html/v0.2"
 
 .PHONY: all help Makefile apidoc v0.2 html
 

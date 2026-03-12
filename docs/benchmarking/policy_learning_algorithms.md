@@ -6,8 +6,8 @@ We provide official support for benchmarking the following policy learning algor
 ## Diffusion Policy
 We fork the official Diffusion Policy code base, hosted at [https://github.com/robocasa-benchmark/diffusion_policy](https://github.com/robocasa-benchmark/diffusion_policy).
 ### Recommended system specs
-For training we recommend a GPU with at least 24 Gb of memory, but 48 Gb+ is prefered.
-For inference we recommend a GPU with at least 8 Gb of memory.
+For training we recommend a GPU with at least 24 GB of memory, but 48 GB+ is prefered.
+For inference we recommend a GPU with at least 8 GB of memory.
 
 ### Installation
 ```
@@ -44,8 +44,8 @@ python diffusion_policy/scripts/get_eval_stats.py \
 We fork the official Openpi code base, hosted at [https://github.com/robocasa-benchmark/openpi](https://github.com/robocasa-benchmark/openpi). Our fork support training for **pi0**.
 
 ### Recommended system specs
-For training we recommend a GPU with at least 80 Gb of memory (H100, H200, etc).
-For inference we recommend a GPU with at least 8 Gb of memory.
+For training we recommend a GPU with at least 100 GB of memory (B100, H200, etc).
+For inference we recommend a GPU with at least 8 GB of memory.
 
 
 ### Installation
@@ -92,8 +92,8 @@ python examples/robocasa/get_eval_stats.py \
 We fork the official GR00T code base, hosted at [https://github.com/robocasa-benchmark/Isaac-GR00T](https://github.com/robocasa-benchmark/Isaac-GR00T). Our fork supports training for **GR00T N1.5**.
 
 ### Recommended system specs
-For training we recommend a GPU with at least 80 Gb of memory (H100, H200, etc).
-For inference we recommend a GPU with at least 8 Gb of memory.
+For training we recommend a GPU with at least 100 GB of memory (B100, H200, etc).
+For inference we recommend a GPU with at least 8 GB of memory.
 
 
 ### Installation
