@@ -1026,7 +1026,7 @@ assert (
     robosuite_check
 ), "robosuite version must be >=1.5.2 Please install the correct version"
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __logo__ = """
       ;     /        ,--.
      ["]   ["]  ,<  |__**|

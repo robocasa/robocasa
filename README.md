@@ -105,6 +105,7 @@ Please refer to the [documentation page](https://robocasa.ai/docs/introduction/o
 
 -------
 ## Releases
+* [5/12/2026] **v1.0.1**: Updated horizon lengths (1.5x increase) across all tasks for consistency. Please update to the latest version for running evals.
 * [2/18/2026] **v1.0**: RoboCasa365 release, with 365 tasks, 2500+ kitchen scenes, 2200+ hours of robot demonstration data, and benchmarking support.
 * [10/31/2024] **v0.2**: using RoboSuite `v1.5` as the backend, with improved support for custom robot composition, composite controllers, more teleoperation devices, photo-realistic rendering.
 

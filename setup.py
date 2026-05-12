@@ -40,8 +40,8 @@ setup(
     description="RoboCasa365: A Large-Scale Simulation Framework for Training and Benchmarking Generalist Robots",
     author="Soroush Nasiriany, Sepehr Nasiriany, Abhiram Maddukuri, Yuke Zhu",
     url="https://github.com/robocasa/robocasa",
-    author_email="soroush@cs.utexas.edu",
-    version="1.0.0",
+    author_email="abhicm@utexas.edu",
+    version="1.0.1",
     long_description=long_description,
     long_description_content_type="text/markdown",
 )
