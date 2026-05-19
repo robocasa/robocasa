@@ -247,11 +247,11 @@ for item in train_dataset:
 
 To get dataset statistics (filter keys, objects, task language, scenes):
 ```
-python robocasa/scripts/get_dataset_info.py --dataset <ds-path>
+python robocasa/scripts/dataset_scripts/get_dataset_info.py --dataset <ds-path>
 ```
 
 You can visualize dataset videos by looking at the `videos` folder under each lerobot dataset directory. To visualize a dataset and save a video:
 ```
-python robocasa/scripts/playback_dataset.py --n 10 --dataset <ds-path>
+python robocasa/scripts/dataset_scripts/playback_dataset.py --n 10 --dataset <ds-path>
 ```
 This will save a video of 10 random demonstrations in the same path as the dataset. You can play the full dataset by removing the `--n` flag.

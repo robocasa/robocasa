@@ -2,7 +2,6 @@ from robocasa.utils.dataset_registry import (
     ATOMIC_TASK_DATASETS,
     COMPOSITE_TASK_DATASETS,
 )
-from robocasa.scripts.playback_dataset import get_env_metadata_from_dataset
 from robosuite import load_controller_config
 import os
 import robosuite

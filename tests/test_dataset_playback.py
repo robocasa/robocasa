@@ -3,7 +3,7 @@ from termcolor import colored
 import argparse
 import os
 
-from robocasa.scripts.playback_dataset import playback_dataset
+from robocasa.scripts.dataset_scripts.playback_dataset import playback_dataset
 from robocasa.utils.dataset_registry import (
     ATOMIC_TASK_DATASETS,
     COMPOSITE_TASK_DATASETS,
