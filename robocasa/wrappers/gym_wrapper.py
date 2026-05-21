@@ -17,6 +17,19 @@ ALLOWED_LANGUAGE_CHARSET = (
 from robocasa.utils.env_utils import create_env
 
 
+def _camera_depth_flags(env, num_cameras: int) -> list[bool]:
+    """Per-camera depth flags; defaults to all False when depth is disabled."""
+    depths = getattr(env, "camera_depths", None)
+    if depths is None:
+        return [False] * num_cameras
+    depths = list(depths)
+    if len(depths) < num_cameras:
+        depths.extend([False] * (num_cameras - len(depths)))
+    elif len(depths) > num_cameras:
+        depths = depths[:num_cameras]
+    return [bool(d) for d in depths]
+
+
 class PandaOmronKeyConverter:
     @classmethod
     def get_camera_config(cls):
@@ -227,13 +240,27 @@ class RoboCasaGymEnv(gym.Env):
         # now remap observation and action space
         self.observation_space = self.key_converter.deduce_observation_space(self.env)
         mapped_names, _, _, _ = self.key_converter.get_camera_config()
-        for mapped_name in mapped_names:
+        camera_depths = _camera_depth_flags(self.env, len(mapped_names))
+        for mapped_name, cam_depth in zip(mapped_names, camera_depths):
             self.observation_space[mapped_name] = spaces.Box(
                 low=0,
                 high=255,
                 shape=(self.camera_heights, self.camera_widths, 3),
                 dtype=np.uint8,
             )
+            if cam_depth:
+                self.observation_space[f"{mapped_name}_image"] = spaces.Box(
+                    low=0,
+                    high=255,
+                    shape=(self.camera_heights, self.camera_widths, 3),
+                    dtype=np.uint8,
+                )
+                self.observation_space[f"{mapped_name}_depth"] = spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(self.camera_heights, self.camera_widths, 1),
+                    dtype=np.float32,
+                )
 
         self.observation_space["annotation.human.task_description"] = spaces.Text(
             max_length=256, charset=ALLOWED_LANGUAGE_CHARSET
@@ -249,16 +276,24 @@ class RoboCasaGymEnv(gym.Env):
             if obs_name.endswith("_image"):
                 # image observations
                 raw_obs[obs_name] = process_img(obs_value)
+            elif obs_name.endswith("_depth"):
+                raw_obs[obs_name] = process_img(obs_value).astype(np.float32)
             else:
                 # non-image observations
                 raw_obs[obs_name] = obs_value.astype(np.float32)
 
         # Return black image if rendering is disabled
         if not self.enable_render:
+            camera_depths = _camera_depth_flags(self.env, len(self.camera_names))
             for name in self.camera_names:
                 raw_obs[f"{name}_image"] = np.zeros(
                     (self.camera_heights, self.camera_widths, 3), dtype=np.uint8
                 )
+            for name, cam_depth in zip(self.camera_names, camera_depths):
+                if cam_depth:
+                    raw_obs[f"{name}_depth"] = np.zeros(
+                        (self.camera_heights, self.camera_widths, 1), dtype=np.float32
+                    )
 
         self.render_cache = raw_obs[self.render_obs_key]
         raw_obs["language"] = self.env.get_ep_meta().get("lang", "")
@@ -275,11 +310,18 @@ class RoboCasaGymEnv(gym.Env):
             else:
                 raise ValueError(f"Unknown key: {k}")
         mapped_names, camera_names, _, _ = self.key_converter.get_camera_config()
-        for mapped_name, camera_name in zip(mapped_names, camera_names):
-            obs[mapped_name] = basic_obs[camera_name + "_image"]
-            # self.process_img(
-            #     basic_obs[camera_name + "_image"]
-            # )
+        camera_depths = _camera_depth_flags(self.env, len(mapped_names))
+        for mapped_name, camera_name, cam_depth in zip(
+            mapped_names, camera_names, camera_depths
+        ):
+            image = basic_obs[camera_name + "_image"]
+            # Legacy key (e.g. video.robot0_agentview_left) — unchanged when depth is off.
+            obs[mapped_name] = image
+            if cam_depth:
+                obs[f"{mapped_name}_image"] = image
+                depth_key = f"{camera_name}_depth"
+                if depth_key in basic_obs:
+                    obs[f"{mapped_name}_depth"] = basic_obs[depth_key]
 
         obs["annotation.human.task_description"] = basic_obs["language"]
 

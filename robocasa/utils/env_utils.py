@@ -103,6 +103,14 @@ def create_env(
     else:
         raise ValueError('split must be either {None, "all", "pretrain", "target"}')
 
+    # Allow camera_depths via kwargs (e.g. gym.make(..., camera_depths=True)) without
+    # conflicting with the explicit env_kwargs entry below.
+    if "camera_depths" in kwargs:
+        camera_depths = kwargs["camera_depths"]
+        del kwargs["camera_depths"]
+    else:
+        camera_depths = False
+
     env_kwargs = dict(
         env_name=env_name,
         robots=robots,
@@ -115,7 +123,7 @@ def create_env(
         ignore_done=True,
         use_object_obs=True,
         use_camera_obs=(not render_onscreen),
-        camera_depths=False,
+        camera_depths=camera_depths,
         seed=seed,
         obj_instance_split=obj_instance_split,
         generative_textures=generative_textures,
