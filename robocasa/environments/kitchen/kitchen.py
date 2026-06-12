@@ -838,8 +838,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         ) = EnvUtils.init_robot_base_pose(self)
 
         robot_model = self.robots[0].robot_model
-        # set the robot way out of the scene at the start, it will be placed correctly later
-        robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
+        robot_model_cls = type(robot_model).__name__
+        if robot_model_cls == "G1Sonic":
+            robot_model.set_base_xpos(self.init_robot_base_pos_anchor)
+        else:
+            # set the robot way out of the scene at the start, it will be placed correctly later
+            robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
         robot_model.set_base_ori(self.init_robot_base_ori_anchor)
 
         self.robot_geom_ids = None

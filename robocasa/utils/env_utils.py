@@ -41,6 +41,7 @@ _ROBOT_POS_OFFSETS: dict[str, list[float]] = {
     "GR1FixedLowerBody": [0, 0, 0.97],
     "G1FloatingBody": [0, -0.33, 0],
     "G1": [0, -0.33, 0],
+    "G1Sonic": [0, -0.33, 0],
     "G1FixedLowerBody": [0, -0.33, 0],
     "GoogleRobot": [0, 0, 0],
 }
@@ -1548,6 +1549,15 @@ def generate_random_robot_pos(env, anchor_pos, anchor_ori, pos_dev_x, pos_dev_y)
 
 
 def set_robot_to_position(env, global_pos):
+    if not _sim_has_joints(
+        env,
+        [
+            "mobilebase0_joint_mobile_forward",
+            "mobilebase0_joint_mobile_side",
+        ],
+    ):
+        return
+
     local_pos = np.matmul(
         T.matrix_inverse(T.euler2mat(env.init_robot_base_ori_anchor)), global_pos
     )
@@ -1584,6 +1594,10 @@ def set_robot_to_position(env, global_pos):
         env.sim.forward()
 
 
+def _sim_has_joints(env, joint_names):
+    return all(name in env.sim.model.joint_names for name in joint_names)
+
+
 def set_robot_base(
     env,
     anchor_pos,
@@ -1600,9 +1614,15 @@ def set_robot_base(
         RandomizationError: If the robot cannot be placed without collisions.
     """
     assert len(env.robots) == 1
-    # assert isinstance(self.robots[0].robot_model, PandaOmron) or isinstance(
-    #     self.robots[0].robot_model, GR1FloatingBody
-    # )
+
+    mobile_base_joints = [
+        "mobilebase0_joint_mobile_yaw",
+        "mobilebase0_joint_mobile_forward",
+        "mobilebase0_joint_mobile_side",
+    ]
+    if not _sim_has_joints(env, mobile_base_joints):
+        env.sim.forward()
+        return anchor_pos
 
     with no_collision(env.sim):
         env.sim.data.qpos[

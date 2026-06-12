@@ -99,6 +99,22 @@ python -m robocasa.demos.demo_teleop
 ```
 Note: If using SpaceMouse, you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`.
 
+### Unitree SONIC bridge
+Run the Unitree G1 43DoF SONIC DDS bridge through the integration entry point:
+
+This bridge only runs the RoboCasa simulation side and DDS state / command forwarding. Install the SONIC runtime separately from [NVlabs/GR00T-WholeBodyControl](https://github.com/NVlabs/GR00T-WholeBodyControl), then start the SONIC inference process before or alongside the bridge so it can publish motor commands to `rt/lowcmd`.
+
+```sh
+NUMBA_DISABLE_JIT=1 python -m robocasa.integrations.sonic.sonic_robocasa_bridge \
+  --task TurnOnMicrowave \
+  --layout 11 \
+  --style 34 \
+  --domain-id 0 \
+  --network-interface <network-interface-name> \
+  --cmd-topic rt/lowcmd
+```
+Replace `<network-interface-name>` with the DDS network interface on your machine, for example `wlp6s0`, `wlan0`, or `eth0`.
+
 -------
 ## Tasks, datasets, policy learning, and additional use cases
 Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for information about tasks, datasets, benchmarking, and more.

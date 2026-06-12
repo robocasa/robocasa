@@ -1,5 +1,11 @@
 from robosuite.environments.base import make
 
+# Import the optional SONIC G1 model so it is available through the robosuite robot registry.
+try:
+    import robosuite.models.robots.manipulators.g1_sonic_robot  # noqa: F401
+except ModuleNotFoundError:
+    pass
+
 # Manipulation environments
 from robocasa.environments.kitchen.kitchen import Kitchen
 from robocasa.environments.kitchen.composite.adding_ice_to_beverages.make_ice_lemonade import (

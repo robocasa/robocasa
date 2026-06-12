@@ -110,6 +110,68 @@ CAM_CONFIGS = dict(
     ### Add robot specific configs here ####
     PandaMobile=dict(),
     GR1FixedLowerBody=dict(),
+    G1Sonic=dict(
+        robot0_agentview_center=dict(
+            pos=[0.0, 0.0, 0.0],
+            quat=[0.5, 0.5, -0.5, -0.5],
+            camera_attribs=dict(
+                focalpixel="243.2 243.2",
+                resolution="640 480",
+                sensorsize="0.02 0.015",
+            ),
+            parent_body="robot0_d435_link",
+        ),
+        robot0_agentview_left=dict(
+            pos=[-0.04012, -0.07441, 0.15711],
+            quat=[0.860242, -0.00539, -0.508091, 0.0424],
+            camera_attribs=dict(
+                focalpixel="384 384",
+                resolution="640 480",
+                sensorsize="0.02 0.015",
+            ),
+            parent_body="robot0_left_hand_camera_base_link",
+        ),
+        robot0_agentview_right=dict(
+            pos=[-0.04012, 0.07441, 0.15711],
+            quat=[0.860242, -0.00539, -0.508091, 0.0424],
+            camera_attribs=dict(
+                focalpixel="384 384",
+                resolution="640 480",
+                sensorsize="0.02 0.015",
+            ),
+            parent_body="robot0_right_hand_camera_base_link",
+        ),
+        robot0_frontview=dict(
+            pos=[0.0, 0.0, 0.0],
+            quat=[0.5, 0.5, -0.5, -0.5],
+            camera_attribs=dict(
+                focalpixel="243.2 243.2",
+                resolution="640 480",
+                sensorsize="0.02 0.015",
+            ),
+            parent_body="robot0_d435_link",
+        ),
+        robot0_eye_in_hand=dict(
+            pos=[-0.04012, 0.07441, 0.15711],
+            quat=[0.860242, -0.00539, -0.508091, 0.0424],
+            camera_attribs=dict(
+                focalpixel="384 384",
+                resolution="640 480",
+                sensorsize="0.02 0.015",
+            ),
+            parent_body="robot0_right_hand_camera_base_link",
+        ),
+        robot0_left_eye_in_hand=dict(
+            pos=[-0.04012, -0.07441, 0.15711],
+            quat=[0.860242, -0.00539, -0.508091, 0.0424],
+            camera_attribs=dict(
+                focalpixel="384 384",
+                resolution="640 480",
+                sensorsize="0.02 0.015",
+            ),
+            parent_body="robot0_left_hand_camera_base_link",
+        ),
+    ),
 )
 
 COTRAIN_CAM_CONFIGS = dict(
@@ -180,10 +242,23 @@ def deep_update(d, u):
 def get_robot_cam_configs(robot, use_cotraining_cameras=False):
     if use_cotraining_cameras:
         default_cotraining_configs = deepcopy(COTRAIN_CAM_CONFIGS["DEFAULT"])
+        for cam_cfg in default_cotraining_configs.values():
+            _normalize_camera_attribs(cam_cfg)
         return default_cotraining_configs
     default_configs = deepcopy(CAM_CONFIGS["DEFAULT"])
     robot_specific_configs = deepcopy(CAM_CONFIGS.get(robot, {}))
-    return deep_update(default_configs, robot_specific_configs)
+    configs = deep_update(default_configs, robot_specific_configs)
+    for cam_cfg in configs.values():
+        _normalize_camera_attribs(cam_cfg)
+    return configs
+
+
+def _normalize_camera_attribs(cam_cfg):
+    camera_attribs = cam_cfg.get("camera_attribs")
+    if camera_attribs is None:
+        return
+    if "sensorsize" in camera_attribs:
+        camera_attribs.pop("fovy", None)
 
 
 def set_cameras(env):
