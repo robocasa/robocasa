@@ -587,6 +587,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 )
                 robot.init_torso_qpos = np.array([0.0])
 
+        for robot in self.robots:
+            if type(robot.robot_model).__name__ in {"SonicG1", "SonicG1Fixed"}:
+                robot.init_qpos = EnvUtils.SONIC_G1_DEFAULT_QPOS.copy()
+
         # determine sample layout and style
         if "layout_id" in self._ep_meta and "style_id" in self._ep_meta:
             self.layout_id = self._ep_meta["layout_id"]
@@ -839,7 +843,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         robot_model = self.robots[0].robot_model
         robot_model_cls = type(robot_model).__name__
-        if robot_model_cls == "G1Sonic":
+        if robot_model_cls in {"SonicG1", "SonicG1Fixed"}:
             robot_model.set_base_xpos(self.init_robot_base_pos_anchor)
         else:
             # set the robot way out of the scene at the start, it will be placed correctly later

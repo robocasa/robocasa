@@ -41,10 +41,22 @@ _ROBOT_POS_OFFSETS: dict[str, list[float]] = {
     "GR1FixedLowerBody": [0, 0, 0.97],
     "G1FloatingBody": [0, -0.33, 0],
     "G1": [0, -0.33, 0],
-    "G1Sonic": [0, -0.33, 0],
+    "SonicG1": [0, -0.33, 0.793],
+    "SonicG1Fixed": [0, -0.33, 0.793],
     "G1FixedLowerBody": [0, -0.33, 0],
     "GoogleRobot": [0, 0, 0],
 }
+
+SONIC_G1_DEFAULT_QPOS = np.array(
+    [
+        -0.1, 0.0, 0.0, 0.3, -0.2, 0.0,
+        -0.1, 0.0, 0.0, 0.3, -0.2, 0.0,
+        0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    ],
+    dtype=float,
+)
 
 KITCHEN_SCENES_5X5 = [
     (layout, style) for layout in [11, 15, 18, 40, 50] for style in [14, 28, 34, 46, 58]

@@ -130,7 +130,7 @@ class NavigateKitchen(Kitchen):
             bool: True if the task is successful, False otherwise.
         """
         robot_model_cls = type(self.robots[0].robot_model).__name__
-        if robot_model_cls == "G1Sonic":
+        if robot_model_cls in {"SonicG1", "SonicG1Fixed"}:
             robot_body_name = "robot0_pelvis"
             if robot_body_name not in self.sim.model.body_names:
                 robot_body_name = "robot0_base"

@@ -1,8 +1,8 @@
 from robosuite.environments.base import make
 
-# Import the optional SONIC G1 model so it is available through the robosuite robot registry.
+# Import optional SONIC G1 models so they are available through the robosuite robot registry.
 try:
-    import robosuite.models.robots.manipulators.g1_sonic_robot  # noqa: F401
+    import robosuite.models.robots.manipulators.sonic_g1_robot  # noqa: F401
 except ModuleNotFoundError:
     pass
 

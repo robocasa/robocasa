@@ -110,69 +110,58 @@ CAM_CONFIGS = dict(
     ### Add robot specific configs here ####
     PandaMobile=dict(),
     GR1FixedLowerBody=dict(),
-    G1Sonic=dict(
-        robot0_agentview_center=dict(
-            pos=[0.0, 0.0, 0.0],
-            quat=[0.5, 0.5, -0.5, -0.5],
-            camera_attribs=dict(
-                focalpixel="243.2 243.2",
-                resolution="640 480",
-                sensorsize="0.02 0.015",
-            ),
-            parent_body="robot0_d435_link",
-        ),
-        robot0_agentview_left=dict(
-            pos=[-0.04012, -0.07441, 0.15711],
-            quat=[0.860242, -0.00539, -0.508091, 0.0424],
-            camera_attribs=dict(
-                focalpixel="384 384",
-                resolution="640 480",
-                sensorsize="0.02 0.015",
-            ),
-            parent_body="robot0_left_hand_camera_base_link",
-        ),
-        robot0_agentview_right=dict(
-            pos=[-0.04012, 0.07441, 0.15711],
-            quat=[0.860242, -0.00539, -0.508091, 0.0424],
-            camera_attribs=dict(
-                focalpixel="384 384",
-                resolution="640 480",
-                sensorsize="0.02 0.015",
-            ),
-            parent_body="robot0_right_hand_camera_base_link",
-        ),
-        robot0_frontview=dict(
-            pos=[0.0, 0.0, 0.0],
-            quat=[0.5, 0.5, -0.5, -0.5],
-            camera_attribs=dict(
-                focalpixel="243.2 243.2",
-                resolution="640 480",
-                sensorsize="0.02 0.015",
-            ),
-            parent_body="robot0_d435_link",
-        ),
-        robot0_eye_in_hand=dict(
-            pos=[-0.04012, 0.07441, 0.15711],
-            quat=[0.860242, -0.00539, -0.508091, 0.0424],
-            camera_attribs=dict(
-                focalpixel="384 384",
-                resolution="640 480",
-                sensorsize="0.02 0.015",
-            ),
-            parent_body="robot0_right_hand_camera_base_link",
-        ),
-        robot0_left_eye_in_hand=dict(
-            pos=[-0.04012, -0.07441, 0.15711],
-            quat=[0.860242, -0.00539, -0.508091, 0.0424],
-            camera_attribs=dict(
-                focalpixel="384 384",
-                resolution="640 480",
-                sensorsize="0.02 0.015",
-            ),
-            parent_body="robot0_left_hand_camera_base_link",
-        ),
-    ),
 )
+
+_SONIC_G1_HEAD_CAMERA = dict(
+    pos=[0.06, 0.0, 0.45],
+    quat=[0.651548, -0.275251, -0.27547, -0.651029],
+    camera_attribs=dict(
+        focalpixel="243.2 243.2",
+        resolution="640 480",
+        sensorsize="0.02 0.015",
+    ),
+    parent_body="robot0_torso_link",
+)
+_SONIC_G1_FRONTVIEW_CAMERA = dict(
+    pos=[-0.50, 0.0, 0.95],
+    quat=[
+        0.6088936924934387,
+        0.3814677894115448,
+        -0.3673907518386841,
+        -0.5905545353889465,
+    ],
+    camera_attribs=dict(fovy="60"),
+    parent_body="robot0_pelvis",
+)
+_SONIC_G1_LEFT_WRIST_CAMERA = dict(
+    pos=[0.0415, 0.003, 0.0],
+    quat=[0.860242, -0.00539, -0.508091, 0.0424],
+    camera_attribs=dict(
+        focalpixel="384 384",
+        resolution="640 480",
+        sensorsize="0.02 0.015",
+    ),
+    parent_body="robot0_left_wrist_yaw_link",
+)
+_SONIC_G1_RIGHT_WRIST_CAMERA = dict(
+    pos=[0.0415, -0.003, 0.0],
+    quat=[0.860242, -0.00539, -0.508091, 0.0424],
+    camera_attribs=dict(
+        focalpixel="384 384",
+        resolution="640 480",
+        sensorsize="0.02 0.015",
+    ),
+    parent_body="robot0_right_wrist_yaw_link",
+)
+for _sonic_robot_name in ("SonicG1", "SonicG1Fixed"):
+    CAM_CONFIGS[_sonic_robot_name] = dict(
+        robot0_agentview_center=deepcopy(_SONIC_G1_HEAD_CAMERA),
+        robot0_frontview=deepcopy(_SONIC_G1_FRONTVIEW_CAMERA),
+        robot0_agentview_left=deepcopy(_SONIC_G1_LEFT_WRIST_CAMERA),
+        robot0_left_eye_in_hand=deepcopy(_SONIC_G1_LEFT_WRIST_CAMERA),
+        robot0_agentview_right=deepcopy(_SONIC_G1_RIGHT_WRIST_CAMERA),
+        robot0_eye_in_hand=deepcopy(_SONIC_G1_RIGHT_WRIST_CAMERA),
+    )
 
 COTRAIN_CAM_CONFIGS = dict(
     DEFAULT=dict(
