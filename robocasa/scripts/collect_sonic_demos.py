@@ -13,6 +13,7 @@ import argparse
 import datetime
 import json
 import os
+import shutil
 import threading
 import time
 
@@ -33,6 +34,9 @@ import robocasa  # noqa: F401  registers the kitchen envs
 from robocasa.scripts.collect_demos import gather_demonstrations_as_hdf5
 from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimic_format
 from robocasa.wrappers.enclosing_wall_render_wrapper import EnclosingWallRenderWrapper
+
+
+_BAND_HOLD_SEC = 2.0
 
 
 def _controller(base):
@@ -109,6 +113,11 @@ def _copy_sonic_gains(gains):
             for k, (kp, kd) in gains.items()}
 
 
+def _sim_time(env):
+    data = env.sim.data._data if hasattr(env.sim.data, "_data") else env.sim.data
+    return float(data.time)
+
+
 def _sonic_runtime_json(args):
     post_action_freq = max(1, round(args.control_freq / args.post_action_hz))
     render_freq = max(1, round(args.control_freq / args.render_hz))
@@ -134,6 +143,25 @@ def _stamp_sonic_attrs(path, gains, args):
                 if gj:
                     f["data"].attrs["sonic_gains"] = gj
                 f["data"].attrs["sonic_runtime"] = _sonic_runtime_json(args)
+
+
+def _delete_episode_dir(ep_dir, episodes_root):
+    if ep_dir is None:
+        return False
+    ep_abs = os.path.abspath(ep_dir)
+    root_abs = os.path.abspath(episodes_root)
+    try:
+        common = os.path.commonpath([root_abs, ep_abs])
+    except ValueError:
+        common = None
+    if ep_abs == root_abs or common != root_abs:
+        print(f"[sonic] refused to delete episode dir outside episodes root: {ep_abs}",
+              flush=True)
+        return False
+    if not os.path.isdir(ep_abs):
+        return False
+    shutil.rmtree(ep_abs)
+    return True
 
 
 class Hotkeys:
@@ -253,43 +281,113 @@ def run_collection(args, base, wall, env_kwargs, source):
     keys = Hotkeys()
     hold = np.zeros(base.action_dim)
     saved, recording, gains, saved_gains = [], False, None, None
+    band_release_at, band_auto_done = None, False
     next_t = time.perf_counter()
     print(f"[sonic] dataset dir: {demo_dir}", flush=True)
-    print("[sonic] press 'b' to drop the band once balancing, then 'c' to record.", flush=True)
+    print(f"[sonic] band is enabled by default and auto-releases after "
+          f"{_BAND_HOLD_SEC:.3g}s; press 'b' to toggle it.", flush=True)
     _print_instruction(base)
 
+    def arm_band_timer():
+        nonlocal band_release_at, band_auto_done
+        ctrl = _controller(base)
+        ctrl.band_enabled = True
+        band_auto_done = False
+        hold_sec = _BAND_HOLD_SEC
+        now = _sim_time(base)
+        band_release_at = now + hold_sec
+
+    def maybe_auto_release_band():
+        nonlocal band_auto_done
+        if band_auto_done or band_release_at is None:
+            return
+        now = _sim_time(base)
+        if now < band_release_at:
+            return
+        ctrl = _controller(base)
+        if ctrl.band_enabled:
+            ctrl.release_band()
+            print(f"[sonic] auto-released band after {_BAND_HOLD_SEC:.3g}s", flush=True)
+        band_auto_done = True
+
+    def reset_driver():
+        nonlocal next_t, gains
+        reset_with_retry(wall, base, args)
+        source.reset(base)
+        gains = None
+        arm_band_timer()
+        _print_instruction(base)
+        next_t = time.perf_counter()
+
+    def clear_episode_state():
+        env.has_interaction = False
+        env.states, env.integration_states, env.action_infos = [], [], []
+        env.successful = False
+        env.ep_directory = None
+
+    def discard_current_episode(reason=None):
+        nonlocal recording
+        ep = env.ep_directory
+        name = os.path.basename(ep) if ep is not None else "<no episode dir>"
+        clear_episode_state()
+        recording = False
+        deleted = _delete_episode_dir(ep, eps)
+        msg = f"[sonic] discarded {name}"
+        if deleted:
+            msg += " and deleted folder"
+        if reason:
+            msg += f" ({reason})"
+        print(msg, flush=True)
+
     def finish(discard):
-        nonlocal recording, saved_gains
+        nonlocal recording, saved_gains, next_t
         ep = env.ep_directory
         if not env.has_interaction or ep is None:
+            clear_episode_state()
             recording = False
             return
         name = os.path.basename(ep)
-        if env.states:
-            env._flush()
-        env.has_interaction, env.states, env.integration_states, env.action_infos = False, [], [], []
-        recording = False
         if discard:
-            print(f"[sonic] discarded {name}", flush=True)
+            discard_current_episode()
         else:
-            saved.append(name)
-            if _valid_sonic_gains(gains):
-                saved_gains = _copy_sonic_gains(gains)
-            h = gather_demonstrations_as_hdf5(eps, ep, env_info, successful_episodes=[name],
-                                              out_name="ep_demo.hdf5")
-            _stamp_sonic_attrs(h, saved_gains or gains, args)
-            if h:
+            try:
+                if env.states:
+                    env._flush()
+                clear_episode_state()
+                episode_gains = saved_gains
+                if _valid_sonic_gains(gains):
+                    episode_gains = _copy_sonic_gains(gains)
+                h = gather_demonstrations_as_hdf5(eps, ep, env_info, successful_episodes=[name],
+                                                  out_name="ep_demo.hdf5")
+                if not h:
+                    raise RuntimeError("no recorded states were written")
+                _stamp_sonic_attrs(h, episode_gains or gains, args)
                 convert_to_robomimic_format(h, filter_num_demos=None)
+            except Exception as e:
+                clear_episode_state()
+                recording = False
+                deleted = _delete_episode_dir(ep, eps)
+                msg = f"[sonic] failed to save {name}; discarded"
+                if deleted:
+                    msg += " and deleted folder"
+                msg += f": {e}"
+                print(msg, flush=True)
+                reset_driver()
+                return
+            saved.append(name)
+            saved_gains = episode_gains
             print(f"[sonic] saved {name}", flush=True)
-        reset_with_retry(wall, base, args)
-        source.reset(base)
-        _print_instruction(base)
+            recording = False
+        reset_driver()
+
+    arm_band_timer()
 
     try:
         while True:
             p = keys.consume()
             if "b" in p:
                 _controller(base).toggle_band()
+                band_auto_done = True
             if "c" in p and not recording:
                 if gains is None:
                     print("[sonic] not engaged yet -- cannot record.", flush=True)
@@ -310,7 +408,24 @@ def run_collection(args, base, wall, env_kwargs, source):
                 if _valid_sonic_gains(source.gains):
                     gains = source.gains
             act = a if a is not None else hold
-            (env if (recording and a is not None) else wall).step(act)
+            if a is None:
+                next_t += base.control_timestep
+                slp = next_t - time.perf_counter()
+                if slp > 0:
+                    time.sleep(slp)
+                else:
+                    next_t = time.perf_counter()
+                continue
+            maybe_auto_release_band()
+            try:
+                (env if (recording and a is not None) else wall).step(act)
+            except mujoco.FatalError as e:
+                print(f"[sonic] MuJoCo fatal error; resetting and discarding current episode: {e}",
+                      flush=True)
+                if recording:
+                    discard_current_episode(reason="MuJoCo fatal error")
+                reset_driver()
+                continue
 
             next_t += base.control_timestep
             slp = next_t - time.perf_counter()
@@ -353,6 +468,10 @@ def get_args():
     ap.add_argument("--floor-torsion", type=float, default=0.005, help="floor torsional friction")
     ap.add_argument("--wall-alpha", type=float, default=0.0,
                     help="enclosing-wall transparency in the viewer (0 hides, 1 opaque)")
+    ap.add_argument("--dds-interface", default=None,
+                    help="DDS network interface for the local sim side, e.g. lo, eth0, enp5s0")
+    ap.add_argument("--dds-domain-id", type=int, default=None,
+                    help="DDS domain id for the local sim side")
     ap.add_argument("--rtf-log", action="store_true", help="print the [real-time] RTF line")
     return ap.parse_args()
 
@@ -371,7 +490,17 @@ def main():
     print(f"[sonic] {1.0/args.sim_dt:.0f} Hz physics | control_freq {args.control_freq} | "
           f"{n_sub} substep(s)/step", flush=True)
 
-    source = DDSActionSource(_controller(base)._cfg)
+    sonic_cfg = dict(_controller(base)._cfg)
+    sonic_cfg["OBS_RELATIVE_INITIAL_YAW"] = True
+    if args.dds_interface is not None:
+        sonic_cfg["INTERFACE"] = args.dds_interface
+    if args.dds_domain_id is not None:
+        sonic_cfg["DOMAIN_ID"] = args.dds_domain_id
+    print(f"[sonic] DDS domain {sonic_cfg.get('DOMAIN_ID')} | interface "
+          f"{sonic_cfg.get('INTERFACE', '<default>')}", flush=True)
+    print("[sonic] DDS lowstate uses an initial-yaw-relative observation frame", flush=True)
+
+    source = DDSActionSource(sonic_cfg)
     source.reset(base)
     run_collection(args, base, wall, env_kwargs, source)
 
