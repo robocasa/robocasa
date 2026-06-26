@@ -23,6 +23,12 @@ The image renderer runs in a separate process. The 200 Hz collection loop only
 copies the latest MuJoCo state into a bounded queue, so image streaming is not in
 the control-loop critical path.
 
+During startup, the controller startup band remains enabled, but its orientation
+reference is the reset/spawn pelvis pose so fixture-facing spawn yaw is not
+pulled back toward the world frame.
+Recording remains blocked until that real command arrives, so saved demos still
+contain real SONIC gains and q-star targets.
+
 ## Terminals
 
 Run these in separate terminals.
@@ -92,7 +98,7 @@ Local collector hotkeys still work:
 - `c`: start recording in RoboCasa and notify the exporter.
 - `k`: save the RoboCasa episode and notify the exporter to stop/save.
 - `x`: discard the RoboCasa episode and notify the exporter to abort.
-- `b`: toggle the startup elastic band.
+- `b`: toggle the startup elastic band after SONIC is balancing.
 
 VR/PICO `manager_state` toggles are also consumed:
 
