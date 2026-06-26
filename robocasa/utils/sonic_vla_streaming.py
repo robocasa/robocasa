@@ -353,7 +353,10 @@ class RoboCasaVLACameraPublisher:
             self._raise_camera_process_error()
             raise RuntimeError("RoboCasa VLA camera process exited unexpectedly")
 
-        model_xml = env.model.get_xml()
+        # Use the compiled sim XML, not env.model.get_xml(). RoboCasa applies
+        # camera overrides in edit_model_xml(), so env.model.get_xml() can be
+        # stale and render a different camera than playback / env.sim.render().
+        model_xml = env.sim.model.get_xml()
         self._mp_ctx = mp.get_context("fork")
         self._snapshot_queue = self._mp_ctx.Queue(maxsize=1)
         self._mp_ready = self._mp_ctx.Event()
