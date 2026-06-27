@@ -324,6 +324,21 @@ def run_collection(args, base, wall, env_kwargs, source):
         source.reset(base)
         _print_instruction(base)
 
+    def recover_from_step_error(err):
+        nonlocal recording, next_t
+        print(f"[sonic] simulator step error; re-sampling and continuing: {err}", flush=True)
+        if recording:
+            sync_exporter("x", from_vr=False)
+            if env.ep_directory is not None:
+                print(f"[sonic] discarded {os.path.basename(env.ep_directory)}", flush=True)
+            env.has_interaction, env.states, env.integration_states, env.action_infos = False, [], [], []
+            env.ep_directory = None
+            recording = False
+        reset_with_retry(wall, base, args)
+        source.reset(base)
+        _print_instruction(base)
+        next_t = time.perf_counter()
+
     try:
         while True:
             p = keys.consume()
@@ -367,9 +382,13 @@ def run_collection(args, base, wall, env_kwargs, source):
                 if _valid_sonic_gains(source.gains):
                     gains = source.gains
             act = a if a is not None else hold
-            (env if (recording and a is not None) else wall).step(act)
-            if image_pub is not None:
-                image_pub.maybe_publish(base)
+            try:
+                (env if (recording and a is not None) else wall).step(act)
+                if image_pub is not None:
+                    image_pub.maybe_publish(base)
+            except mujoco.FatalError as e:
+                recover_from_step_error(e)
+                continue
 
             next_t += base.control_timestep
             slp = next_t - time.perf_counter()
@@ -443,7 +462,7 @@ def get_args():
                     help="run_data_exporter.py ZMQ keyboard port")
     ap.add_argument("--no-vla-keyboard-sync", dest="vla_keyboard_sync", action="store_false",
                     help="Do not forward local c/k/x hotkeys to run_data_exporter.py")
-    ap.set_defaults(vla_keyboard_sync=True, vla_camera_flip=True)
+    ap.set_defaults(vla_keyboard_sync=True, vla_camera_flip=False)
     ap.add_argument("--vla-save-sync-delay", type=float, default=0.08,
                     help="Small episode-end delay so run_data_exporter.py sees save/discard before reset")
     return ap.parse_args()

@@ -90,40 +90,43 @@ def test_vla_camera_config_defaults_to_sonic_ego_view():
 
     assert config.camera_name == "robot0_head_camera"
     assert config.output_key == "ego_view"
-    assert config.flip_vertical is True
-    assert config.async_render is True
+    assert config.flip_vertical is False
     assert config.render_collision_mesh is False
     assert config.render_visual_mesh is True
 
 
-def test_robocasa_vla_camera_publisher_rate_limits_fake_sim():
+def test_robocasa_vla_camera_publisher_rate_limits_fake_sim(monkeypatch):
     sensor_server = pytest.importorskip("gear_sonic.camera.sensor_server")
 
-    class FakeSim:
+    class FakeRenderer:
         def __init__(self):
             self.render_count = 0
 
-        def render(self, camera_name, width, height, depth=False):
-            assert camera_name == "robot0_head_camera"
-            assert depth is False
+        def update_scene(self, data, camera, scene_option=None):
+            assert camera == "robot0_head_camera"
+
+        def render(self):
             self.render_count += 1
+            width, height = 32, 24
             rows = (np.arange(height, dtype=np.uint8) * 10)[:, None, None]
             cols = np.zeros((1, width, 3), dtype=np.uint8)
             return rows + cols
 
     class FakeEnv:
         def __init__(self):
-            self.sim = FakeSim()
+            self.sim = type("FakeSim", (), {"data": type("FakeData", (), {"_data": object()})()})()
 
     port = _free_port()
     publisher = RoboCasaVLACameraPublisher(
-        VLACameraConfig(width=32, height=24, hz=30.0, port=port, async_render=False)
+        VLACameraConfig(width=32, height=24, hz=30.0, port=port)
     )
     ctx = zmq.Context()
     sub = ctx.socket(zmq.SUB)
     sub.setsockopt_string(zmq.SUBSCRIBE, "")
     sub.connect(f"tcp://127.0.0.1:{port}")
     env = FakeEnv()
+    fake_renderer = FakeRenderer()
+    monkeypatch.setattr(publisher, "_get_live_renderer", lambda env: (fake_renderer, None))
 
     try:
         publisher.start()
@@ -131,19 +134,19 @@ def test_robocasa_vla_camera_publisher_rate_limits_fake_sim():
         assert publisher.maybe_publish(env)
         for _ in range(10):
             assert not publisher.maybe_publish(env)
-        assert env.sim.render_count == 1
+        assert fake_renderer.render_count == 1
 
         assert sub.poll(1000)
         message = msgpack.unpackb(sub.recv(), raw=False)
         assert "ego_view" in message["images"]
         assert "ego_view" in message["timestamps"]
         image = sensor_server.ImageMessageSchema.deserialize(message).images["ego_view"]
-        assert image[0].mean() > 180
-        assert image[-1].mean() < 50
+        assert image[0].mean() < 50
+        assert image[-1].mean() > 180
 
         time.sleep(0.06)
         assert publisher.maybe_publish(env)
-        assert env.sim.render_count == 2
+        assert fake_renderer.render_count == 2
     finally:
         publisher.close()
         sub.close()
