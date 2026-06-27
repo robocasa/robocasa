@@ -250,6 +250,37 @@ def run_collection(args, base, wall, env_kwargs, source):
     env = SonicDataCollectionWrapper(wall, eps, collect_freq=args.record_freq, flush_freq=0,
                                      use_env_xml_for_reset=True)
 
+    manager_sub = None
+    keyboard_pub = None
+    image_pub = None
+    if args.vla_stream:
+        from robocasa.utils.sonic_vla_streaming import (
+            ManagerStateSubscriber,
+            RoboCasaVLACameraPublisher,
+            VLACameraConfig,
+            VLAExporterKeyboardPublisher,
+        )
+
+        image_pub = RoboCasaVLACameraPublisher(
+            VLACameraConfig(
+                camera_name=args.vla_camera_name,
+                output_key=args.vla_camera_key,
+                width=args.vla_camera_width,
+                height=args.vla_camera_height,
+                hz=args.vla_camera_hz,
+                port=args.vla_camera_port,
+                flip_vertical=args.vla_camera_flip,
+            )
+        )
+        image_pub.start(base)
+        manager_sub = ManagerStateSubscriber(args.vla_manager_host, args.vla_manager_port)
+        if args.vla_keyboard_sync:
+            keyboard_pub = VLAExporterKeyboardPublisher(args.vla_keyboard_port)
+        print(
+            f"[sonic-vla] publishing {args.vla_camera_key} from {args.vla_camera_name} "
+            f"at {args.vla_camera_hz:g} Hz on port {args.vla_camera_port}",
+            flush=True,
+        )
     keys = Hotkeys()
     hold = np.zeros(base.action_dim)
     saved, recording, gains, saved_gains = [], False, None, None
@@ -257,6 +288,14 @@ def run_collection(args, base, wall, env_kwargs, source):
     print(f"[sonic] dataset dir: {demo_dir}", flush=True)
     print("[sonic] press 'b' to drop the band once balancing, then 'c' to record.", flush=True)
     _print_instruction(base)
+
+    def sync_exporter(key, from_vr=False, delay=True):
+        if not args.vla_stream:
+            return
+        if not from_vr and keyboard_pub is not None:
+            keyboard_pub.send(key)
+        if delay and key in {"c", "x"} and args.vla_save_sync_delay > 0:
+            time.sleep(args.vla_save_sync_delay)
 
     def finish(discard):
         nonlocal recording, saved_gains
@@ -285,22 +324,55 @@ def run_collection(args, base, wall, env_kwargs, source):
         source.reset(base)
         _print_instruction(base)
 
+    def recover_from_step_error(err):
+        nonlocal recording, next_t
+        print(f"[sonic] simulator step error; re-sampling and continuing: {err}", flush=True)
+        if recording:
+            sync_exporter("x", from_vr=False)
+            if env.ep_directory is not None:
+                print(f"[sonic] discarded {os.path.basename(env.ep_directory)}", flush=True)
+            env.has_interaction, env.states, env.integration_states, env.action_infos = False, [], [], []
+            env.ep_directory = None
+            recording = False
+        reset_with_retry(wall, base, args)
+        source.reset(base)
+        _print_instruction(base)
+        next_t = time.perf_counter()
+
     try:
         while True:
             p = keys.consume()
+            vr_events = manager_sub.poll() if manager_sub is not None else set()
+            if "toggle_data_collection" in vr_events:
+                p.add("vla_toggle")
+            if "toggle_data_abort" in vr_events:
+                p.add("vla_discard")
             if "b" in p:
                 _controller(base).toggle_band()
-            if "c" in p and not recording:
+            local_start = "c" in p and not recording
+            vr_start = "vla_toggle" in p and not recording
+            local_save = "k" in p and recording
+            vr_save = "vla_toggle" in p and recording
+            local_discard = "x" in p and recording
+            vr_discard = "vla_discard" in p and recording
+
+            if local_start or vr_start:
                 if gains is None:
                     print("[sonic] not engaged yet -- cannot record.", flush=True)
+                    if vr_start and keyboard_pub is not None:
+                        keyboard_pub.send("x")
                 else:
+                    if local_start:
+                        sync_exporter("c", from_vr=False, delay=False)
                     env.start_episode_from_current_state()
                     recording = True
                     print("[sonic] recording...", flush=True)
-            if "k" in p and recording:
+            if local_save or vr_save:
+                sync_exporter("c", from_vr=vr_save)
                 finish(discard=False)
                 continue
-            if "x" in p and recording:
+            if local_discard or vr_discard:
+                sync_exporter("x", from_vr=vr_discard)
                 finish(discard=True)
                 continue
 
@@ -310,7 +382,13 @@ def run_collection(args, base, wall, env_kwargs, source):
                 if _valid_sonic_gains(source.gains):
                     gains = source.gains
             act = a if a is not None else hold
-            (env if (recording and a is not None) else wall).step(act)
+            try:
+                (env if (recording and a is not None) else wall).step(act)
+                if image_pub is not None:
+                    image_pub.maybe_publish(base)
+            except mujoco.FatalError as e:
+                recover_from_step_error(e)
+                continue
 
             next_t += base.control_timestep
             slp = next_t - time.perf_counter()
@@ -322,6 +400,12 @@ def run_collection(args, base, wall, env_kwargs, source):
             finish(discard=False)
     finally:
         keys.close()
+        if manager_sub is not None:
+            manager_sub.close()
+        if keyboard_pub is not None:
+            keyboard_pub.close()
+        if image_pub is not None:
+            image_pub.close()
         if saved:
             h = gather_demonstrations_as_hdf5(eps, demo_dir, env_info, successful_episodes=saved,
                                               verbose=True)
@@ -354,6 +438,33 @@ def get_args():
     ap.add_argument("--wall-alpha", type=float, default=0.0,
                     help="enclosing-wall transparency in the viewer (0 hides, 1 opaque)")
     ap.add_argument("--rtf-log", action="store_true", help="print the [real-time] RTF line")
+    ap.add_argument("--vla-stream", action="store_true",
+                    help="Publish RoboCasa images and sync episode controls for run_data_exporter.py")
+    ap.add_argument("--vla-camera-port", type=int, default=5555,
+                    help="ZMQ port for the RoboCasa VLA camera stream")
+    ap.add_argument("--vla-camera-name", default="robot0_head_camera",
+                    help="MuJoCo camera rendered as the VLA ego_view stream")
+    ap.add_argument("--vla-camera-key", default="ego_view",
+                    help="Image key expected by run_data_exporter.py")
+    ap.add_argument("--vla-camera-width", type=int, default=640)
+    ap.add_argument("--vla-camera-height", type=int, default=480)
+    ap.add_argument("--vla-camera-hz", type=float, default=30.0,
+                    help="Camera publish rate; 30 Hz matches the supported real OAK camera path")
+    ap.add_argument("--vla-camera-flip", dest="vla_camera_flip", action="store_true",
+                    help=argparse.SUPPRESS)
+    ap.add_argument("--no-vla-camera-flip", dest="vla_camera_flip", action="store_false",
+                    help="Do not vertically flip rendered frames before publishing")
+    ap.add_argument("--vla-manager-host", default="localhost",
+                    help="PICO manager_state ZMQ host")
+    ap.add_argument("--vla-manager-port", type=int, default=5556,
+                    help="PICO manager_state ZMQ port")
+    ap.add_argument("--vla-keyboard-port", type=int, default=5580,
+                    help="run_data_exporter.py ZMQ keyboard port")
+    ap.add_argument("--no-vla-keyboard-sync", dest="vla_keyboard_sync", action="store_false",
+                    help="Do not forward local c/k/x hotkeys to run_data_exporter.py")
+    ap.set_defaults(vla_keyboard_sync=True, vla_camera_flip=False)
+    ap.add_argument("--vla-save-sync-delay", type=float, default=0.08,
+                    help="Small episode-end delay so run_data_exporter.py sees save/discard before reset")
     return ap.parse_args()
 
 
