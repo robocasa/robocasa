@@ -114,7 +114,11 @@ def test_robocasa_vla_camera_publisher_rate_limits_fake_sim(monkeypatch):
 
     class FakeEnv:
         def __init__(self):
-            self.sim = type("FakeSim", (), {"data": type("FakeData", (), {"_data": object()})()})()
+            self.sim = type(
+                "FakeSim",
+                (),
+                {"data": type("FakeData", (), {"_data": object()})()},
+            )()
 
     port = _free_port()
     publisher = RoboCasaVLACameraPublisher(
@@ -151,3 +155,117 @@ def test_robocasa_vla_camera_publisher_rate_limits_fake_sim(monkeypatch):
         publisher.close()
         sub.close()
         ctx.term()
+
+
+def test_robocasa_vla_camera_publisher_warms_cameras_during_start(monkeypatch):
+    class FakeRenderer:
+        def __init__(self):
+            self.cameras = []
+            self.render_count = 0
+
+        def update_scene(self, data, camera, scene_option=None):
+            self.cameras.append(camera)
+
+        def render(self):
+            self.render_count += 1
+            return np.zeros((12, 16, 3), dtype=np.uint8)
+
+    class FakeEnv:
+        def __init__(self):
+            self.sim = type(
+                "FakeSim",
+                (),
+                {"data": type("FakeData", (), {"_data": object()})()},
+            )()
+
+    camera_names = (
+        "robot0_head_camera",
+        "robot0_left_wrist_camera",
+        "robot0_right_wrist_camera",
+    )
+    publisher = RoboCasaVLACameraPublisher(
+        VLACameraConfig(
+            camera_names=camera_names,
+            output_keys=("ego_view", "left_wrist", "right_wrist"),
+            width=16,
+            height=12,
+            hz=30.0,
+        )
+    )
+    env = FakeEnv()
+    fake_renderer = FakeRenderer()
+
+    def fake_send_loop():
+        publisher._ready_event.set()
+        publisher._stop_event.wait(timeout=1.0)
+
+    monkeypatch.setattr(publisher, "_send_loop", fake_send_loop)
+    monkeypatch.setattr(
+        publisher,
+        "_get_live_renderer",
+        lambda env: (fake_renderer, None),
+    )
+
+    try:
+        publisher.start(env)
+
+        assert fake_renderer.cameras == list(camera_names)
+        assert fake_renderer.render_count == len(camera_names)
+    finally:
+        publisher.close()
+
+
+def test_robocasa_vla_camera_publisher_sends_multiple_camera_keys(monkeypatch):
+    class FakeRenderer:
+        def __init__(self):
+            self.cameras = []
+
+        def update_scene(self, data, camera, scene_option=None):
+            self.cameras.append(camera)
+
+        def render(self):
+            value = len(self.cameras)
+            return np.full((12, 16, 3), value, dtype=np.uint8)
+
+    class FakeEnv:
+        def __init__(self):
+            self.sim = type(
+                "FakeSim",
+                (),
+                {"data": type("FakeData", (), {"_data": object()})()},
+            )()
+
+    camera_names = (
+        "robot0_head_camera",
+        "robot0_left_wrist_camera",
+        "robot0_right_wrist_camera",
+    )
+    output_keys = ("ego_view", "left_wrist", "right_wrist")
+    publisher = RoboCasaVLACameraPublisher(
+        VLACameraConfig(
+            camera_names=camera_names,
+            output_keys=output_keys,
+            width=16,
+            height=12,
+            hz=30.0,
+        )
+    )
+    env = FakeEnv()
+    fake_renderer = FakeRenderer()
+    enqueued = []
+    monkeypatch.setattr(publisher, "_get_live_renderer", lambda env: (fake_renderer, None))
+    monkeypatch.setattr(
+        publisher,
+        "_enqueue_images",
+        lambda timestamps, images: enqueued.append((timestamps, images)),
+    )
+
+    assert publisher.maybe_publish(env)
+
+    timestamps, images = enqueued[0]
+    assert set(images) == set(output_keys)
+    assert set(timestamps) == set(output_keys)
+    assert fake_renderer.cameras == list(camera_names)
+    assert images["ego_view"].mean() == 1
+    assert images["left_wrist"].mean() == 2
+    assert images["right_wrist"].mean() == 3

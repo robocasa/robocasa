@@ -135,6 +135,8 @@ class VLAExporterKeyboardPublisher:
 class VLACameraConfig:
     camera_name: str = "robot0_head_camera"
     output_key: str = "ego_view"
+    camera_names: tuple[str, ...] | list[str] | None = None
+    output_keys: tuple[str, ...] | list[str] | None = None
     width: int = 640
     height: int = 480
     hz: float = 30.0
@@ -152,6 +154,18 @@ def _prepare_image(image: np.ndarray, flip_vertical: bool) -> np.ndarray:
     return np.ascontiguousarray(image)
 
 
+def _resolve_names(value, fallback: str, label: str) -> tuple[str, ...]:
+    if value is None:
+        resolved = (fallback,)
+    elif isinstance(value, str):
+        resolved = (value,)
+    else:
+        resolved = tuple(value)
+    if not resolved or any(not item for item in resolved):
+        raise ValueError(f"VLA {label} must contain at least one non-empty value")
+    return resolved
+
+
 class RoboCasaVLACameraPublisher:
     """Publish RoboCasa frames using SONIC's camera-server schema.
 
@@ -163,9 +177,21 @@ class RoboCasaVLACameraPublisher:
         if config.hz <= 0:
             raise ValueError("VLA camera hz must be positive")
         self.config = config
+        self._camera_names = _resolve_names(
+            config.camera_names, config.camera_name, "camera_names"
+        )
+        self._output_keys = _resolve_names(
+            config.output_keys, config.output_key, "output_keys"
+        )
+        if len(self._camera_names) != len(self._output_keys):
+            raise ValueError("VLA camera_names and output_keys must have the same length")
+        if len(set(self._output_keys)) != len(self._output_keys):
+            raise ValueError("VLA output_keys must be unique")
         self._period = 1.0 / float(config.hz)
         self._next_publish_time = 0.0
-        self._queue: queue.Queue[tuple[float, np.ndarray]] = queue.Queue(maxsize=1)
+        self._queue: queue.Queue[
+            tuple[dict[str, float], dict[str, np.ndarray]]
+        ] = queue.Queue(maxsize=1)
         self._stop_event = threading.Event()
         self._ready_event = threading.Event()
         self._thread: threading.Thread | None = None
@@ -194,7 +220,7 @@ class RoboCasaVLACameraPublisher:
         if self._startup_error is not None:
             raise RuntimeError("Failed to start RoboCasa VLA camera publisher") from self._startup_error
         if env is not None:
-            self._get_live_renderer(env)
+            self._render_images(env)
 
     def maybe_publish(self, env) -> bool:
         self._raise_sender_error()
@@ -207,11 +233,22 @@ class RoboCasaVLACameraPublisher:
         else:
             self._next_publish_time += self._period
 
-        renderer, scene_option = self._get_live_renderer(env)
-        renderer.update_scene(env.sim.data._data, camera=self.config.camera_name, scene_option=scene_option)
-        image = renderer.render()
-        self._enqueue_image(time.time(), _prepare_image(image, self.config.flip_vertical))
+        timestamp = time.time()
+        timestamps = {output_key: timestamp for output_key in self._output_keys}
+        images = self._render_images(env)
+        self._enqueue_images(timestamps, images)
         return True
+
+    def _render_images(self, env) -> dict[str, np.ndarray]:
+        renderer, scene_option = self._get_live_renderer(env)
+        images: dict[str, np.ndarray] = {}
+        for camera_name, output_key in zip(self._camera_names, self._output_keys):
+            renderer.update_scene(
+                env.sim.data._data, camera=camera_name, scene_option=scene_option
+            )
+            image = renderer.render()
+            images[output_key] = _prepare_image(image, self.config.flip_vertical)
+        return images
 
     def _raise_sender_error(self):
         if self._startup_error is not None:
@@ -239,16 +276,16 @@ class RoboCasaVLACameraPublisher:
             self._renderer_model = None
             self._scene_option = None
 
-    def _enqueue_image(self, timestamp: float, image: np.ndarray):
+    def _enqueue_images(self, timestamps: dict[str, float], images: dict[str, np.ndarray]):
         try:
-            self._queue.put_nowait((timestamp, image))
+            self._queue.put_nowait((timestamps, images))
         except queue.Full:
             self._increment_drop_count()
             try:
                 self._queue.get_nowait()
             except queue.Empty:
                 pass
-            self._queue.put_nowait((timestamp, image))
+            self._queue.put_nowait((timestamps, images))
 
     def _increment_drop_count(self):
         self._drop_count += 1
@@ -263,13 +300,13 @@ class RoboCasaVLACameraPublisher:
             self._ready_event.set()
             while not self._stop_event.is_set():
                 try:
-                    timestamp, image = self._queue.get(timeout=0.1)
+                    timestamps, images = self._queue.get(timeout=0.1)
                 except queue.Empty:
                     continue
 
                 message = ImageMessageSchema(
-                    timestamps={self.config.output_key: timestamp},
-                    images={self.config.output_key: image},
+                    timestamps=timestamps,
+                    images=images,
                 )
                 server.send_message(message.serialize())
                 self._publish_count += 1
