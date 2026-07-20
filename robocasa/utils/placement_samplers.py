@@ -209,6 +209,7 @@ class UniformRandomSampler(ObjectPositionSampler):
             raise ValueError(
                 "Invalid value for side, must be one of:", self.valid_sides
             )
+        self.side = side
 
         super().__init__(
             name=name,
@@ -236,6 +237,12 @@ class UniformRandomSampler(ObjectPositionSampler):
                 minimum += buffer
                 maximum -= buffer
 
+        midpoint = (minimum + maximum) / 2
+        if self.side in {"left", "front_left", "back_left"}:
+            maximum = midpoint
+        elif self.side in {"right", "front_right", "back_right"}:
+            minimum = midpoint
+
         if minimum > maximum:
             raise PlacementError(
                 f"Invalid x range for placement initializer: ({minimum}, {maximum})"
@@ -256,6 +263,12 @@ class UniformRandomSampler(ObjectPositionSampler):
             if self.ensure_object_boundary_in_range:
                 minimum += buffer
                 maximum -= buffer
+
+        midpoint = (minimum + maximum) / 2
+        if self.side in {"front", "front_left", "front_right"}:
+            maximum = midpoint
+        elif self.side in {"back", "back_left", "back_right"}:
+            minimum = midpoint
 
         if minimum > maximum:
             raise PlacementError(

@@ -864,6 +864,24 @@ class PickPlaceCounterToStove(PickPlace):
             )
         )
 
+        obj_placement = dict(
+            fixture=self.counter,
+            sample_region_kwargs=dict(ref=self.stove),
+            size=(0.30, 0.30),
+            pos=("ref", -1.0),
+            try_to_place_in="container",
+        )
+        if EnvUtils.is_sonic_g1(self):
+            obj_placement["try_to_place_in_kwargs"] = {
+                "placement": {
+                    "fixture": self.counter,
+                    "sample_region_kwargs": {"ref": self.stove},
+                    "size": (0.30, 0.30),
+                    "pos": ("ref", -1.0),
+                    "side": "front",
+                }
+            }
+
         cfgs.append(
             dict(
                 name="obj",
@@ -871,15 +889,7 @@ class PickPlaceCounterToStove(PickPlace):
                 exclude_obj_groups=self.exclude_obj_groups,
                 graspable=True,
                 cookable=True,
-                placement=dict(
-                    fixture=self.counter,
-                    sample_region_kwargs=dict(
-                        ref=self.stove,
-                    ),
-                    size=(0.30, 0.30),
-                    pos=("ref", -1.0),
-                    try_to_place_in="container",
-                ),
+                placement=obj_placement,
             )
         )
 

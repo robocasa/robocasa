@@ -877,6 +877,7 @@ def _check_cfg_is_valid(cfg):
             "anchor_to",
             "object",
             "try_to_place_in_kwargs",
+            "side",
         }
     )
 
@@ -1009,6 +1010,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
             "ensure_valid_auxiliary_placement"
         )
         rotation_axis = placement.get("rotation_axis", "z")
+        side = placement.get("side", "all")
         sampler_kwargs = dict(
             name="{}_Sampler".format(cfg["name"]),
             mujoco_objects=mj_obj,
@@ -1018,6 +1020,7 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
             ensure_valid_auxiliary_placement=ensure_valid_auxiliary_placement,
             rotation_axis=rotation_axis,
             rotation=rotation,
+            side=side,
         )
 
         if anchor_to is not None:
