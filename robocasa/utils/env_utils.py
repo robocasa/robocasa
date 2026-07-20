@@ -48,6 +48,13 @@ _ROBOT_POS_OFFSETS: dict[str, list[float]] = {
     "H1":[0, -0.1, -0.05],
 }
 
+_DEFAULT_TASK_ROBOT_INIT_OFFSET = (0.0, 0.0)
+_TASK_ROBOT_INIT_OFFSETS: dict[str, tuple[float, float]] = {
+    # (lateral, longitudinal) in the SonicG1 robot frame, in meters.
+    "SlideDishwasherRack": (-0.50, 0.0),
+    "PickPlaceDrawerToCounter": (0.0, -0.35),
+}
+
 KITCHEN_SCENES_5X5 = [
     (layout, style) for layout in [11, 15, 18, 40, 50] for style in [14, 28, 34, 46, 58]
 ]
@@ -1331,6 +1338,56 @@ def _get_placement_initializer(env, cfg_list, z_offset=0.01):
     return placement_initializer
 
 
+def get_task_robot_init_offset(task_name):
+    return _TASK_ROBOT_INIT_OFFSETS.get(task_name, _DEFAULT_TASK_ROBOT_INIT_OFFSET)
+
+
+def is_sonic_g1(env):
+    robots = getattr(env, "robots", [])
+    robot = robots[0] if robots else None
+    robot_model = getattr(robot, "robot_model", None)
+    return robot_model is not None and type(robot_model).__name__ == "SonicG1"
+
+
+def get_effective_robot_init_offset(env):
+    if not is_sonic_g1(env):
+        return _DEFAULT_TASK_ROBOT_INIT_OFFSET
+    return normalize_robot_init_offset(
+        getattr(
+            env,
+            "robot_init_offset",
+            get_task_robot_init_offset(env.__class__.__name__),
+        )
+    )
+
+
+def normalize_robot_init_offset(offset):
+    try:
+        normalized_offset = np.asarray(offset, dtype=float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "robot_init_offset must contain exactly two finite values"
+        ) from exc
+    if normalized_offset.shape != (2,) or not np.isfinite(normalized_offset).all():
+        raise ValueError("robot_init_offset must contain exactly two finite values")
+    return tuple(normalized_offset.tolist())
+
+
+def apply_robot_init_offset(robot_base_pos, robot_base_ori, offset):
+    """Apply a (lateral, longitudinal) offset in the robot base frame.
+
+    Lateral values are positive to the robot right; longitudinal values are
+    positive forward.
+    """
+    lateral, longitudinal = normalize_robot_init_offset(offset)
+    yaw = float(robot_base_ori[2])
+    adjusted_pos = np.asarray(robot_base_pos, dtype=float).copy()
+    adjusted_pos[:2] += lateral * np.array(
+        [np.sin(yaw), -np.cos(yaw)]
+    ) + longitudinal * np.array([np.cos(yaw), np.sin(yaw)])
+    return adjusted_pos
+
+
 def init_robot_base_pose(env):
     """
     helper function to initialize robot base pose
@@ -1374,6 +1431,12 @@ def init_robot_base_pose(env):
         env,
         ref_fixture=ref_fixture,
         ref_object=ref_object,
+    )
+
+    robot_base_pos = apply_robot_init_offset(
+        robot_base_pos,
+        robot_base_ori,
+        get_effective_robot_init_offset(env),
     )
 
     return robot_base_pos, robot_base_ori
