@@ -79,6 +79,8 @@ def reset_with_retry(env, base, args, tries=12):
     # FactorizeHessian on the reset mj_forward. Each reset re-samples the kitchen, so retry.
     last = None
     for k in range(tries):
+        # Episode capture serializes fixture refs; fresh samples must not reuse that metadata.
+        base.unset_ep_meta()
         try:
             ret = env.reset()
             _apply_runtime(base, args)
