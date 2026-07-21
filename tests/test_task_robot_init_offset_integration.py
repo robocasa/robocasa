@@ -12,7 +12,10 @@ from robosuite.scripts.collect_sonic_g1_demos import SONIC_CFG
 from robocasa.utils import env_utils as EnvUtils
 
 
-def _make_env(task_name, layout_id=1):
+def _make_env(task_name, layout_id=1, mujoco_solver=None):
+    env_kwargs = {}
+    if mujoco_solver is not None:
+        env_kwargs["mujoco_solver"] = mujoco_solver
     return robosuite.make(
         task_name,
         robots=["SonicG1"],
@@ -29,6 +32,7 @@ def _make_env(task_name, layout_id=1):
         control_freq=200,
         initialization_noise=None,
         seed=7,
+        **env_kwargs,
     )
 
 
@@ -115,6 +119,42 @@ def test_close_dishwasher_writes_selected_side_pose_to_sonic_root():
             expected_anchor,
             atol=1e-7,
         )
+    finally:
+        if env is not None:
+            env.close()
+
+
+@pytest.mark.parametrize(
+    "task_name",
+    ["CloseDishwasher", "PickPlaceDrawerToCounter"],
+)
+def test_explicit_pgs_solver_survives_sonic_reset_and_step(task_name):
+    env = None
+    try:
+        env = _make_env(task_name, mujoco_solver="PGS")
+        env.reset()
+
+        assert env.sim.model._model.opt.solver == int(mujoco.mjtSolver.mjSOL_PGS)
+        env.step(np.zeros(env.action_spec[0].shape))
+        assert env.sim.model._model.opt.solver == int(mujoco.mjtSolver.mjSOL_PGS)
+        assert np.isfinite(env.sim.data.qpos).all()
+        assert np.isfinite(env.sim.data.qvel).all()
+        assert np.isfinite(env.sim.data.ctrl).all()
+
+        env.reset()
+        assert env.sim.model._model.opt.solver == int(mujoco.mjtSolver.mjSOL_PGS)
+    finally:
+        if env is not None:
+            env.close()
+
+
+def test_explicit_newton_solver_uses_mujoco_xml_spelling():
+    env = None
+    try:
+        env = _make_env("CloseDishwasher", mujoco_solver="newton")
+        env.reset()
+
+        assert env.sim.model._model.opt.solver == int(mujoco.mjtSolver.mjSOL_NEWTON)
     finally:
         if env is not None:
             env.close()

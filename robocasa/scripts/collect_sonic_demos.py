@@ -35,6 +35,10 @@ from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimi
 from robocasa.wrappers.enclosing_wall_render_wrapper import EnclosingWallRenderWrapper
 
 
+# PGS avoids Newton's sparse Hessian factorization failures under dense contacts.
+SONIC_MUJOCO_SOLVER = "PGS"
+
+
 def _controller(base):
     # recreated on every env.reset() (robot.reset -> _load_controller) -> always fetch fresh
     return base.robots[0].composite_controller
@@ -57,11 +61,12 @@ def make_env(args, cfg):
         has_renderer=True, has_offscreen_renderer=False, use_camera_obs=False, ignore_done=True,
         renderer="mjviewer", render_camera=args.render_camera,
         layout_ids=args.layout, style_ids=args.style, control_freq=args.control_freq,
-        initialization_noise=None,
+        initialization_noise=None, mujoco_solver=SONIC_MUJOCO_SOLVER,
     )
     env_kwargs = dict(robots=[args.robot], controller_configs=cfg, initialization_noise=None,
                       use_camera_obs=False, translucent_robot=False,
-                      layout_ids=args.layout, style_ids=args.style, control_freq=args.control_freq)
+                      layout_ids=args.layout, style_ids=args.style, control_freq=args.control_freq,
+                      mujoco_solver=SONIC_MUJOCO_SOLVER)
     return env, env_kwargs
 
 
@@ -70,13 +75,13 @@ def _apply_runtime(base, args):
     # control loop. Re-applied after each reset (hard reset rebuilds the model).
     match_base_sim_physics(base.sim.model._model, args.floor_friction, args.floor_torsion,
                            timestep=args.sim_dt)
+    base.sim.model._model.opt.solver = int(mujoco.mjtSolver.mjSOL_PGS)
     base.post_action_freq = max(1, round(args.control_freq / args.post_action_hz))
     base.render_freq = max(1, round(args.control_freq / args.render_hz))
 
 
 def reset_with_retry(env, base, args, tries=12):
-    # robocasa spawns the robot near a fixture; some samples penetrate it and the solver raises
-    # FactorizeHessian on the reset mj_forward. Each reset re-samples the kitchen, so retry.
+    # Keep a reset fallback for invalid placements and other fatal simulation errors.
     last = None
     for k in range(tries):
         # Episode capture serializes fixture refs; fresh samples must not reuse that metadata.
@@ -124,6 +129,7 @@ def _sonic_runtime_json(args):
         "render_freq": int(render_freq),
         "floor_friction": float(args.floor_friction),
         "floor_torsion": float(args.floor_torsion),
+        "mujoco_solver": SONIC_MUJOCO_SOLVER,
         "mujoco_state_spec": "mjSTATE_INTEGRATION",
     })
 
@@ -507,8 +513,9 @@ def main():
     wall = EnclosingWallRenderWrapper(base, alpha=args.wall_alpha, enabled=True)
     reset_with_retry(wall, base, args)
     n_sub = int(round(base.control_timestep / base.model_timestep))
+    solver = mujoco.mjtSolver(base.sim.model._model.opt.solver).name.removeprefix("mjSOL_")
     print(f"[sonic] {1.0/args.sim_dt:.0f} Hz physics | control_freq {args.control_freq} | "
-          f"{n_sub} substep(s)/step", flush=True)
+          f"{n_sub} substep(s)/step | solver {solver}", flush=True)
 
     source = DDSActionSource(_controller(base)._cfg)
     source.reset(base)

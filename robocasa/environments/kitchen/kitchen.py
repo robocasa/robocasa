@@ -46,6 +46,11 @@ import re
 
 
 REGISTERED_KITCHEN_ENVS = {}
+_MUJOCO_SOLVER_XML_NAMES = {
+    "PGS": "PGS",
+    "CG": "CG",
+    "NEWTON": "Newton",
+}
 SLIDING_INTERIOR_FIXTURES = [
     FixtureType.DRAWER,
     FixtureType.DISHWASHER,
@@ -174,6 +179,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         renderer (str): Specifies which renderer to use.
 
         renderer_config (dict): dictionary for the renderer configurations
+
+        mujoco_solver (str): optional MuJoCo constraint solver. Supported values are
+            "PGS", "CG", and "NEWTON". None preserves MuJoCo's default.
 
         init_robot_base_ref (str): name of the fixture to place the near. If None, will randomly select a fixture.
 
@@ -388,6 +396,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         camera_depths=False,
         renderer="mjviewer",
         renderer_config=None,
+        mujoco_solver=None,
         init_robot_base_ref=None,
         seed=None,
         layout_and_style_ids=None,
@@ -411,6 +420,14 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         use_cotraining_cameras=False,
         use_novel_instructions=False,
     ):
+        if mujoco_solver is not None:
+            solver_key = str(mujoco_solver).upper()
+            if solver_key not in _MUJOCO_SOLVER_XML_NAMES:
+                raise ValueError(
+                    "mujoco_solver must be one of: PGS, CG, NEWTON, or None"
+                )
+            mujoco_solver = _MUJOCO_SOLVER_XML_NAMES[solver_key]
+        self.mujoco_solver = mujoco_solver
         self.init_robot_base_ref = init_robot_base_ref
         self.robot_init_offset = EnvUtils.get_task_robot_init_offset(
             self.__class__.__name__
@@ -1279,6 +1296,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         tree = ET.fromstring(xml_str)
         root = tree
+        if self.mujoco_solver is not None:
+            option = root.find("option")
+            if option is None:
+                option = ET.Element("option")
+                root.insert(0, option)
+            option.set("solver", self.mujoco_solver)
         worldbody = root.find("worldbody")
         actuator = root.find("actuator")
         asset = root.find("asset")
