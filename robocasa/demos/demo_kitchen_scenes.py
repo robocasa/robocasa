@@ -1,7 +1,10 @@
 import argparse
 import json
 import sys
-import termios
+try:
+    import termios
+except ImportError:
+    termios = None
 from collections import OrderedDict
 
 import numpy as np
@@ -209,7 +212,13 @@ if __name__ == "__main__":
 
         # Flush stdin to clear any buffered keypresses otherwise when getting
         # the next layout/style choice, it will read a 'q' from before
-        termios.tcflush(sys.stdin, termios.TCIFLUSH)
+        if termios is not None:
+            termios.tcflush(sys.stdin, termios.TCIFLUSH)
+        else:
+            import msvcrt
+
+            while msvcrt.kbhit():
+                msvcrt.getch()
 
         print()
         print()

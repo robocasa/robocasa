@@ -1423,6 +1423,7 @@ def create_obj(env, cfg):
         )  # replace windows backslashes with forward slashes
         new_base_path = os.path.join(robocasa.models.assets_root, "objects")
         new_path = os.path.join(new_base_path, mjcf_path.split("/objects/")[-1])
+        new_path = os.path.normpath(new_path)
         obj_groups = new_path
         exclude_obj_groups = None
     else:

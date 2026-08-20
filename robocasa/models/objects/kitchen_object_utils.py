@@ -133,7 +133,7 @@ class ObjCat:
                         if model_name in self.exclude:
                             continue
                         cat_mjcf_paths.append(os.path.join(model_dir, "model.xml"))
-        self.mjcf_paths = sorted(cat_mjcf_paths)
+        self.mjcf_paths = sorted(os.path.normpath(p) for p in cat_mjcf_paths)
 
     def get_mjcf_kwargs(self):
         """
@@ -360,7 +360,7 @@ def sample_kitchen_object_helper(
     # option to spawn specific object instead of sampling from a group
     if isinstance(groups, str) and groups.endswith(".xml"):
         mjcf_path = groups
-        model_xml_path = os.path.join(os.path.dirname(mjcf_path), "model.xml")
+        model_xml_path = os.path.normpath(os.path.join(os.path.dirname(mjcf_path), "model.xml"))
         # reverse look up mjcf_path to category
         mjcf_kwargs = dict()
         cat = None

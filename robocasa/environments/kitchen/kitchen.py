@@ -1235,7 +1235,8 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         textures = asset.findall("texture")
         all_elements = meshes + textures
 
-        robocasa_path_split = os.path.split(robocasa.__file__)[0].split("/")
+        robocasa_path = os.path.split(robocasa.__file__)[0]
+        robocasa_path_split = robocasa_path.replace("\\", "/").split("/")
 
         # replace robocasa-specific asset paths
         for elem in all_elements:
@@ -1243,21 +1244,23 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             if old_path is None:
                 continue
 
-            old_path_split = old_path.split("/")
+            # normalize to forward slashes for consistent processing
+            old_path_norm = old_path.replace("\\", "/")
+            old_path_split = old_path_norm.split("/")
             # maybe replace all paths to robosuite assets
             if (
-                ("models/assets/fixtures" in old_path)
-                or ("models/assets/textures" in old_path)
-                or ("models/assets/objects" in old_path)
-                or ("models/assets/generative_textures" in old_path)
+                ("models/assets/fixtures" in old_path_norm)
+                or ("models/assets/textures" in old_path_norm)
+                or ("models/assets/objects" in old_path_norm)
+                or ("models/assets/generative_textures" in old_path_norm)
             ):
-                if "/robosuite/" in old_path:
+                if "/robosuite/" in old_path_norm:
                     check_lst = [
                         loc
                         for loc, val in enumerate(old_path_split)
                         if val == "robosuite"
                     ]
-                elif "/robocasa/" in old_path:
+                elif "/robocasa/" in old_path_norm:
                     check_lst = [
                         loc
                         for loc, val in enumerate(old_path_split)
