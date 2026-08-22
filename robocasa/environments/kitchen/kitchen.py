@@ -640,26 +640,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             enable_sleeping_islands=False,
         )
 
-        # save assembled MJCF to file (with relative asset paths)
-        import os
-        out_dir = os.path.join(robocasa.models.assets_root, "..")
-        os.makedirs(out_dir, exist_ok=True)
-        style_str = "custom" if isinstance(self.style_id, dict) else f"{int(self.style_id):03d}"
-        out_path = os.path.join(
-            out_dir,
-            f"layout{int(self.layout_id):03d}_style{style_str}.xml",
-        )
-        xml_str = self.model.get_xml()
-        tree = ET.fromstring(xml_str)
-        out_dir_abs = os.path.abspath(out_dir)
-        for elem in tree.iter():
-            f = elem.get("file")
-            if f is not None:
-                elem.set("file", os.path.relpath(f, out_dir_abs).replace("\\", "/"))
-        with open(out_path, "w") as f:
-            f.write(ET.tostring(tree, encoding="unicode"))
-        print(f"[Kitchen] MJCF saved to {out_path}")
-
     def _load_model(self, attempt_num=1):
         """
         Loads an xml model, puts it in self.model
@@ -861,6 +841,26 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # set the robot way out of the scene at the start, it will be placed correctly later
         robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
         robot_model.set_base_ori(self.init_robot_base_ori_anchor)
+
+        # save assembled MJCF to file (with relative asset paths)
+        import os
+        out_dir = os.path.join(robocasa.models.assets_root, "..")
+        os.makedirs(out_dir, exist_ok=True)
+        style_str = "custom" if isinstance(self.style_id, dict) else f"{int(self.style_id):03d}"
+        out_path = os.path.join(
+            out_dir,
+            f"layout{int(self.layout_id):03d}_style{style_str}.xml",
+        )
+        xml_str = self.model.get_xml()
+        tree = ET.fromstring(xml_str)
+        out_dir_abs = os.path.abspath(out_dir)
+        for elem in tree.iter():
+            f = elem.get("file")
+            if f is not None:
+                elem.set("file", os.path.relpath(f, out_dir_abs).replace("\\", "/"))
+        with open(out_path, "w") as f:
+            f.write(ET.tostring(tree, encoding="unicode"))
+        print(f"[Kitchen] MJCF saved to {out_path}")
 
         self.robot_geom_ids = None
 
