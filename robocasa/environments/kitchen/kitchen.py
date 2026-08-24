@@ -1118,6 +1118,26 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         super()._reset_internal()
 
+        # save MuJoCo-compiled MJCF to file (with relative asset paths)
+        import os as _os
+        _out_dir = _os.path.join(robocasa.models.assets_root, "..")
+        _os.makedirs(_out_dir, exist_ok=True)
+        _style_str = "custom" if isinstance(self.style_id, dict) else f"{int(self.style_id):03d}"
+        _out_path = _os.path.join(
+            _out_dir,
+            f"layout{int(self.layout_id):03d}_style{_style_str}_compiled.xml",
+        )
+        _compiled_xml = self.sim.model.get_xml()
+        _tree = ET.fromstring(_compiled_xml)
+        _out_dir_abs = _os.path.abspath(_out_dir)
+        for _elem in _tree.iter():
+            _f = _elem.get("file")
+            if _f is not None:
+                _elem.set("file", _os.path.relpath(_f, _out_dir_abs).replace("\\", "/"))
+        with open(_out_path, "w") as _f:
+            _f.write(ET.tostring(_tree, encoding="unicode"))
+        print(f"[Kitchen] Compiled MJCF saved to {_out_path}")
+
         # set up the scene (fixtures, variables, etc)
         self._setup_scene()
 
