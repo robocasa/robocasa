@@ -1189,6 +1189,20 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.sim.step2()
             policy_step = False
 
+        # Print robot state after settle steps
+        print(f"\n[Kitchen._reset_internal] After {10 * int(self.control_timestep / self.model_timestep)} settle steps:")
+        for robot in self.robots:
+            for jname, qpos_idx in zip(robot.robot_joints, robot._ref_joint_pos_indexes):
+                print(f"  {jname}: qpos={self.sim.data.qpos[qpos_idx]:.8f}  "
+                      f"qvel={self.sim.data.qvel[qpos_idx]:.8f} (adr={qpos_idx})")
+            for arm in robot.arms:
+                if robot.has_gripper[arm]:
+                    for gname, gidx in zip(robot.gripper[arm].joints, robot._ref_gripper_joint_pos_indexes[arm]):
+                        print(f"  {gname}: qpos={self.sim.data.qpos[gidx]:.8f} (adr={gidx})")
+                eef_site_id = robot.eef_site_id[arm]
+                eef_pos = self.sim.data.site_xpos[eef_site_id]
+                print(f"  EEF ({arm}) site_xpos: [{eef_pos[0]:.6f} {eef_pos[1]:.6f} {eef_pos[2]:.6f}]")
+
     def _setup_scene(self):
         pass
 
