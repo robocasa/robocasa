@@ -1289,6 +1289,116 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                         if g1 and g2:
                             print(f"    {g1} <-> {g2}  dist={c.dist:.8f}")
 
+        # === Post-settle phase: controller active (contrast with Unity's ctrl=0) ===
+        # After settle, robosuite's step() calls _pre_action -> robot.control() which
+        # computes OSC/PD torques (with gravity compensation) and writes to ctrl.
+        # Unity does plain mj_step with ctrl=0, so the arm keeps falling.
+        # This loop logs the divergence for comparison.
+        _post_steps = 250
+        _post_csv_path = _os.path.join(_os.path.dirname(robocasa.models.assets_root), "..", "post_settle_diagnostics.csv")
+
+        # Resolve all robot joint qpos/qvel addresses for comprehensive logging
+        _robot_joint_names = []
+        _robot_joint_qpos = []
+        _robot_joint_dof = []
+        for robot in self.robots:
+            for jname, qpos_idx in zip(robot.robot_joints, robot._ref_joint_pos_indexes):
+                jid = self.sim.model.joint_name2id(jname)
+                _robot_joint_names.append(jname)
+                _robot_joint_qpos.append(qpos_idx)
+                _robot_joint_dof.append(self.sim.model.jnt_dofadr[jid])
+
+        # Resolve mobile base + torso joint addresses
+        _aux_joint_names = [
+            "mobilebase0_joint_torso_height",
+            "mobilebase0_joint_mobile_forward",
+            "mobilebase0_joint_mobile_side",
+            "mobilebase0_joint_mobile_yaw",
+        ]
+        _aux_joint_qpos = []
+        _aux_joint_dof = []
+        for jname_aux in _aux_joint_names:
+            aux_idx = self.sim.model.get_joint_qpos_addr(jname_aux)
+            aux_jid = self.sim.model.joint_name2id(jname_aux)
+            _aux_joint_qpos.append(aux_idx)
+            _aux_joint_dof.append(self.sim.model.jnt_dofadr[aux_jid])
+
+        # Resolve EEF site
+        _eef_site_id = None
+        for robot in self.robots:
+            for arm in robot.arms:
+                _eef_site_id = robot.eef_site_id[arm]
+                break
+            break
+
+        # Resolve body addresses for transform logging
+        _body_names = ["robot0_base", "mobilebase0_base", "mobilebase0_fixed_support",
+                       "mobilebase0_support", "manipulator_mount", "robot0_link0"]
+        _body_ids = []
+        for bname in _body_names:
+            try:
+                _body_ids.append(self.sim.model.body_name2id(bname))
+            except Exception:
+                _body_ids.append(-1)
+
+        with open(_post_csv_path, "w") as _pcf:
+            # Header: step, t, all robot joint qpos/qvel, aux joint qpos/qvel, ctrl values, EEF pos, body transforms, ncon
+            _hdr = "step,t"
+            for jn in _robot_joint_names:
+                _hdr += f",{jn}_qpos,{jn}_qvel"
+            for jn in _aux_joint_names:
+                _hdr += f",{jn}_qpos,{jn}_qvel"
+            for ci in range(len(self.sim.data.ctrl)):
+                _hdr += f",ctrl[{ci}]"
+            _hdr += ",eef_x,eef_y,eef_z"
+            for bn in _body_names:
+                _hdr += f",{bn}_x,{bn}_y,{bn}_z,{bn}_qx,{bn}_qy,{bn}_qz,{bn}_qw"
+            _hdr += ",ncon\n"
+            _pcf.write(_hdr)
+
+            _post_action = np.zeros(self.action_spec[0].shape)
+            _post_policy_step = True
+            for i in range(_post_steps):
+                self.sim.step1()
+                self._pre_action(_post_action, _post_policy_step)
+                self.sim.step2()
+                _post_policy_step = False
+
+                _row = f"{i+1},{self.sim.data.time:.6f}"
+                for qpos_idx, dof_idx in zip(_robot_joint_qpos, _robot_joint_dof):
+                    _row += f",{self.sim.data.qpos[qpos_idx]:.10f},{self.sim.data.qvel[dof_idx]:.10f}"
+                for qpos_idx, dof_idx in zip(_aux_joint_qpos, _aux_joint_dof):
+                    _row += f",{self.sim.data.qpos[qpos_idx]:.10f},{self.sim.data.qvel[dof_idx]:.10f}"
+                for ci in range(len(self.sim.data.ctrl)):
+                    _row += f",{self.sim.data.ctrl[ci]:.10f}"
+                if _eef_site_id is not None:
+                    eef = self.sim.data.site_xpos[_eef_site_id]
+                    _row += f",{eef[0]:.6f},{eef[1]:.6f},{eef[2]:.6f}"
+                else:
+                    _row += ",0,0,0"
+                for bid in _body_ids:
+                    if bid >= 0:
+                        pos = self.sim.data.xpos[bid]
+                        quat = self.sim.data.xquat[bid]
+                        _row += f",{pos[0]:.6f},{pos[1]:.6f},{pos[2]:.6f},{quat[0]:.6f},{quat[1]:.6f},{quat[2]:.6f},{quat[3]:.6f}"
+                    else:
+                        _row += ",0,0,0,0,0,0,0"
+                _row += f",{self.sim.data.ncon}\n"
+                _pcf.write(_row)
+
+            # Print final pose for quick comparison
+            print(f"\n[Kitchen._reset_internal] After {_post_steps} post-settle steps (t={self.sim.data.time:.4f}s):")
+            for robot in self.robots:
+                for jname, qpos_idx in zip(robot.robot_joints, robot._ref_joint_pos_indexes):
+                    dof_idx = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id(jname)]
+                    print(f"  {jname}: qpos={self.sim.data.qpos[qpos_idx]:.8f}  qvel={self.sim.data.qvel[dof_idx]:.8f}")
+                for arm in robot.arms:
+                    eef_site_id = robot.eef_site_id[arm]
+                    eef_pos = self.sim.data.site_xpos[eef_site_id]
+                    print(f"  EEF ({arm}) site_xpos: [{eef_pos[0]:.6f} {eef_pos[1]:.6f} {eef_pos[2]:.6f}]")
+            print(f"  ctrl (first 10): {self.sim.data.ctrl[:10]}")
+            print(f"  [post_settle_diagnostics.csv written to {_post_csv_path}]")
+
     def _setup_scene(self):
         pass
 
