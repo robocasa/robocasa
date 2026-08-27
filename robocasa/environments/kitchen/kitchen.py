@@ -1192,112 +1192,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # step through a few timesteps to settle objects
         action = np.zeros(self.action_spec[0].shape)  # apply empty action
 
-        # Since the env.step frequency is slower than the mjsim timestep frequency, the internal controller will output
-        # multiple torque commands in between new high level action commands. Therefore, we need to denote via
-        # 'policy_step' whether the current step we're taking is simply an internal update of the controller,
-        # or an actual policy update
-        policy_step = True
-
-        # Loop through the simulation at the model timestep rate until we're ready to take the next policy step
-        # (as defined by the control frequency specified at the environment level)
-        total_settle_steps = 10 * int(self.control_timestep / self.model_timestep)
-        # Clear ctrl before settle loop so step1 also sees ctrl=0 (matches Unity's mj_step)
-        self.sim.data.ctrl[:] = 0.0
-
-        # Resolve DOF addresses for CSV logging
-        _j1_dof = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id("robot0_joint1")]
-        _j2_dof = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id("robot0_joint2")]
-        _mf_dof = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id("mobilebase0_joint_mobile_forward")]
-        _ms_dof = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id("mobilebase0_joint_mobile_side")]
-        _j1_qpos = self.sim.model.get_joint_qpos_addr("robot0_joint1")
-        _j2_qpos = self.sim.model.get_joint_qpos_addr("robot0_joint2")
-        _mf_qpos = self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_forward")
-        _ms_qpos = self.sim.model.get_joint_qpos_addr("mobilebase0_joint_mobile_side")
-
-        # Open CSV log file
-        import os as _os
-        _csv_path = _os.path.join(_os.path.dirname(robocasa.models.assets_root), "..", "settle_diagnostics.csv")
-        with open(_csv_path, "w") as _csv_f:
-            _csv_f.write("step,t,j1_qpos,j1_qvel,j1_qfrc_bias,j1_qfrc_constraint,j2_qpos,j2_qvel,j2_qfrc_bias,j2_qfrc_constraint,mf_qpos,ms_qpos,ncon\n")
-
-            for i in range(total_settle_steps):
-                self.sim.step1()
-                # TEST: bypass controller — set ctrl to zeros directly (matches Unity behavior)
-                self.sim.data.ctrl[:] = 0.0
-                self.sim.step2()
-                policy_step = False
-
-                # CSV log: step, t, j1_qpos, j1_qvel, j1_qfrc_bias, j1_qfrc_constraint, j2_..., mobile_base, ncon
-                _row = (
-                    f"{i+1},{self.sim.data.time:.6f},"
-                    f"{self.sim.data.qpos[_j1_qpos]:.10f},{self.sim.data.qvel[_j1_dof]:.10f},"
-                    f"{self.sim.data.qfrc_bias[_j1_dof]:.10f},{self.sim.data.qfrc_constraint[_j1_dof]:.10f},"
-                    f"{self.sim.data.qpos[_j2_qpos]:.10f},{self.sim.data.qvel[_j2_dof]:.10f},"
-                    f"{self.sim.data.qfrc_bias[_j2_dof]:.10f},{self.sim.data.qfrc_constraint[_j2_dof]:.10f},"
-                    f"{self.sim.data.qpos[_mf_qpos]:.10f},{self.sim.data.qpos[_ms_qpos]:.10f},"
-                    f"{self.sim.data.ncon}\n"
-                )
-                _csv_f.write(_row)
-
-                # Print step 1 and step 250 to compare with Unity diagnostics
-                if i < 1 or i == total_settle_steps - 1:
-                    step_num = i + 1
-                    sim_time = self.sim.data.time
-                    print(f"\n[Kitchen._reset_internal] After {step_num} settle steps (t={sim_time:.4f}s):")
-                    for robot in self.robots:
-                        for jname, qpos_idx in zip(robot.robot_joints, robot._ref_joint_pos_indexes):
-                            print(f"  {jname}: qpos={self.sim.data.qpos[qpos_idx]:.8f}  "
-                                  f"qvel={self.sim.data.qvel[qpos_idx]:.8f} (adr={qpos_idx})")
-                        # Print torso + mobile base joints
-                        for jname_aux in ["mobilebase0_joint_torso_height",
-                                          "mobilebase0_joint_mobile_forward",
-                                          "mobilebase0_joint_mobile_side",
-                                          "mobilebase0_joint_mobile_yaw"]:
-                            try:
-                                aux_idx = self.sim.model.get_joint_qpos_addr(jname_aux)
-                                aux_jid = self.sim.model.joint_name2id(jname_aux)
-                                aux_dof = self.sim.model.jnt_dofadr[aux_jid]
-                                print(f"  {jname_aux}: qpos={self.sim.data.qpos[aux_idx]:.8f}  "
-                                      f"qvel={self.sim.data.qvel[aux_dof]:.8f} (adr={aux_idx})")
-                            except Exception as e:
-                                print(f"  {jname_aux}: ERROR {e}")
-                        for arm in robot.arms:
-                            if robot.has_gripper[arm]:
-                                for gname, gidx in zip(robot.gripper[arm].joints, robot._ref_gripper_joint_pos_indexes[arm]):
-                                    print(f"  {gname}: qpos={self.sim.data.qpos[gidx]:.8f} (adr={gidx})")
-                            eef_site_id = robot.eef_site_id[arm]
-                            eef_pos = self.sim.data.site_xpos[eef_site_id]
-                            print(f"  EEF ({arm}) site_xpos: [{eef_pos[0]:.6f} {eef_pos[1]:.6f} {eef_pos[2]:.6f}]")
-                        # Print body chain transforms
-                        for bname in ["robot0_base", "mobilebase0_base", "mobilebase0_fixed_support",
-                                      "mobilebase0_support", "manipulator_mount", "robot0_link0"]:
-                            try:
-                                bid = self.sim.model.body_name2id(bname)
-                                pos = self.sim.data.xpos[bid]
-                                quat = self.sim.data.xquat[bid]
-                                print(f"  {bname} xpos: [{pos[0]:.6f} {pos[1]:.6f} {pos[2]:.6f}]  "
-                                      f"xquat: [{quat[0]:.6f} {quat[1]:.6f} {quat[2]:.6f} {quat[3]:.6f}]")
-                            except Exception as e:
-                                print(f"  {bname}: ERROR {e}")
-                    # Print contacts involving robot geoms
-                    ncon = self.sim.data.ncon
-                    print(f"  [contacts] ncon={ncon}")
-                    for ci in range(ncon):
-                        c = self.sim.data.contact[ci]
-                        g1 = self.sim.model.geom_id2name(c.geom1)
-                        g2 = self.sim.model.geom_id2name(c.geom2)
-                        if g1 and g2:
-                            print(f"    {g1} <-> {g2}  dist={c.dist:.8f}")
-
-        # === Post-settle phase: controller active (contrast with Unity's ctrl=0) ===
-        # After settle, robosuite's step() calls _pre_action -> robot.control() which
-        # computes OSC/PD torques (with gravity compensation) and writes to ctrl.
-        # Unity does plain mj_step with ctrl=0, so the arm keeps falling.
-        # This loop logs the divergence for comparison.
-        _post_steps = 250
-        _post_csv_path = _os.path.join(_os.path.dirname(robocasa.models.assets_root), "..", "post_settle_diagnostics.csv")
-
-        # Resolve all robot joint qpos/qvel addresses for comprehensive logging
+        # Resolve all robot joint qpos/qvel addresses
         _robot_joint_names = []
         _robot_joint_qpos = []
         _robot_joint_dof = []
@@ -1341,11 +1236,24 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             except Exception:
                 _body_ids.append(-1)
 
-        with open(_post_csv_path, "w") as _pcf:
-            # Header: step, t, all robot joint qpos/qvel, aux joint qpos/qvel, ctrl values, EEF pos, body transforms, ncon
+        # j1/j2 dof addresses (for qfrc_bias / qfrc_constraint logging)
+        _j1_dof = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id("robot0_joint1")]
+        _j2_dof = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id("robot0_joint2")]
+
+        # Open unified CSV
+        import os as _os
+        _csv_path = _os.path.join(_os.path.dirname(robocasa.models.assets_root), "..", "robot-pose-diagnostics.csv")
+        _total_steps = 10 * int(self.control_timestep / self.model_timestep) + 250  # settle + post-settle
+        self.sim.data.ctrl[:] = 0.0
+
+        with open(_csv_path, "w") as _csv_f:
+            # Header: step, t, {robot joints}_qpos/qvel, j1/j2 qfrc_bias/qfrc_constraint,
+            #         {aux joints}_qpos/qvel, ctrl[], eef, {bodies}, ncon
             _hdr = "step,t"
             for jn in _robot_joint_names:
                 _hdr += f",{jn}_qpos,{jn}_qvel"
+            _hdr += ",robot0_joint1_qfrc_bias,robot0_joint1_qfrc_constraint"
+            _hdr += ",robot0_joint2_qfrc_bias,robot0_joint2_qfrc_constraint"
             for jn in _aux_joint_names:
                 _hdr += f",{jn}_qpos,{jn}_qvel"
             for ci in range(len(self.sim.data.ctrl)):
@@ -1354,19 +1262,27 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             for bn in _body_names:
                 _hdr += f",{bn}_x,{bn}_y,{bn}_z,{bn}_qx,{bn}_qy,{bn}_qz,{bn}_qw"
             _hdr += ",ncon\n"
-            _pcf.write(_hdr)
+            _csv_f.write(_hdr)
 
+            _settle_steps = 10 * int(self.control_timestep / self.model_timestep)
             _post_action = np.zeros(self.action_spec[0].shape)
             _post_policy_step = True
-            for i in range(_post_steps):
-                self.sim.step1()
-                self._pre_action(_post_action, _post_policy_step)
-                self.sim.step2()
-                _post_policy_step = False
 
+            for i in range(_total_steps):
+                self.sim.step1()
+                if i < _settle_steps:
+                    self.sim.data.ctrl[:] = 0.0
+                else:
+                    self._pre_action(_post_action, _post_policy_step)
+                    _post_policy_step = False
+                self.sim.step2()
+
+                # CSV row
                 _row = f"{i+1},{self.sim.data.time:.6f}"
                 for qpos_idx, dof_idx in zip(_robot_joint_qpos, _robot_joint_dof):
                     _row += f",{self.sim.data.qpos[qpos_idx]:.10f},{self.sim.data.qvel[dof_idx]:.10f}"
+                _row += f",{self.sim.data.qfrc_bias[_j1_dof]:.10f},{self.sim.data.qfrc_constraint[_j1_dof]:.10f}"
+                _row += f",{self.sim.data.qfrc_bias[_j2_dof]:.10f},{self.sim.data.qfrc_constraint[_j2_dof]:.10f}"
                 for qpos_idx, dof_idx in zip(_aux_joint_qpos, _aux_joint_dof):
                     _row += f",{self.sim.data.qpos[qpos_idx]:.10f},{self.sim.data.qvel[dof_idx]:.10f}"
                 for ci in range(len(self.sim.data.ctrl)):
@@ -1384,20 +1300,25 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     else:
                         _row += ",0,0,0,0,0,0,0"
                 _row += f",{self.sim.data.ncon}\n"
-                _pcf.write(_row)
+                _csv_f.write(_row)
 
-            # Print final pose for quick comparison
-            print(f"\n[Kitchen._reset_internal] After {_post_steps} post-settle steps (t={self.sim.data.time:.4f}s):")
-            for robot in self.robots:
-                for jname, qpos_idx in zip(robot.robot_joints, robot._ref_joint_pos_indexes):
-                    dof_idx = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id(jname)]
-                    print(f"  {jname}: qpos={self.sim.data.qpos[qpos_idx]:.8f}  qvel={self.sim.data.qvel[dof_idx]:.8f}")
-                for arm in robot.arms:
-                    eef_site_id = robot.eef_site_id[arm]
-                    eef_pos = self.sim.data.site_xpos[eef_site_id]
-                    print(f"  EEF ({arm}) site_xpos: [{eef_pos[0]:.6f} {eef_pos[1]:.6f} {eef_pos[2]:.6f}]")
-            print(f"  ctrl (first 10): {self.sim.data.ctrl[:10]}")
-            print(f"  [post_settle_diagnostics.csv written to {_post_csv_path}]")
+                # Print step 1 and final step
+                if i < 1 or i == _total_steps - 1:
+                    step_num = i + 1
+                    sim_time = self.sim.data.time
+                    print(f"\n[Kitchen._reset_internal] After {step_num} steps (t={sim_time:.4f}s):")
+                    for robot in self.robots:
+                        for jname, qpos_idx in zip(robot.robot_joints, robot._ref_joint_pos_indexes):
+                            dof_idx = self.sim.model.jnt_dofadr[self.sim.model.joint_name2id(jname)]
+                            print(f"  {jname}: qpos={self.sim.data.qpos[qpos_idx]:.8f}  "
+                                  f"qvel={self.sim.data.qvel[dof_idx]:.8f} (adr={qpos_idx})")
+                        for arm in robot.arms:
+                            eef_site_id = robot.eef_site_id[arm]
+                            eef_pos = self.sim.data.site_xpos[eef_site_id]
+                            print(f"  EEF ({arm}) site_xpos: [{eef_pos[0]:.6f} {eef_pos[1]:.6f} {eef_pos[2]:.6f}]")
+                    print(f"  ctrl (first 10): {self.sim.data.ctrl[:10]}")
+
+            print(f"\n[Kitchen._reset_internal] Logging complete ({_total_steps} steps). CSV: {_csv_path}")
 
     def _setup_scene(self):
         pass
