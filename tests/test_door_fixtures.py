@@ -31,7 +31,7 @@ SKIP_FXTRS = ["handle_knob"]
 
 def get_all_style_configs():
     style_config_list = []
-    for i in range(12):
+    for i in range(1, 61):
         style_path = get_style_path(style_id=i)
         with open(style_path, "r") as f:
             style_config = yaml.safe_load(f)
