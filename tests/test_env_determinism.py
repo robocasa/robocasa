@@ -7,7 +7,7 @@ from lxml import etree as ET
 import mujoco
 import robocasa
 import robosuite
-from robosuite import load_controller_config
+from robosuite.controllers import load_composite_controller_config
 from termcolor import colored
 
 DEFAULT_SEED = 3
@@ -99,8 +99,8 @@ class TestEnvDeterminism(unittest.TestCase):
             config = {
                 "env_name": env,
                 "robots": "PandaOmron",
-                "controller_configs": load_controller_config(
-                    default_controller="OSC_POSE"
+                "controller_configs": load_composite_controller_config(
+                    controller=None, robot="PandaOmron"
                 ),
                 "has_renderer": False,
                 "has_offscreen_renderer": False,
@@ -131,9 +131,11 @@ class TestEnvDeterminism(unittest.TestCase):
         """
 
         config = {
-            "env_name": "PnPCounterToCab",
+            "env_name": "PickPlaceCounterToCabinet",
             "robots": "PandaOmron",
-            "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+            "controller_configs": load_composite_controller_config(
+                controller=None, robot="PandaOmron"
+            ),
             "has_renderer": False,
             "has_offscreen_renderer": False,
             "ignore_done": True,
@@ -162,9 +164,11 @@ class TestEnvDeterminism(unittest.TestCase):
         """
 
         config = {
-            "env_name": "PnPCounterToCab",
+            "env_name": "PickPlaceCounterToCabinet",
             "robots": "PandaOmron",
-            "controller_configs": load_controller_config(default_controller="OSC_POSE"),
+            "controller_configs": load_composite_controller_config(
+                controller=None, robot="PandaOmron"
+            ),
             "has_renderer": False,
             "has_offscreen_renderer": False,
             "ignore_done": True,

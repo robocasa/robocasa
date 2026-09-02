@@ -54,8 +54,26 @@ class TestTasksValidity(unittest.TestCase):
             args.first = False
             args.extend_states = False
             args.verbose = False
+            args.camera_height = 512
+            args.camera_width = 768
 
-            playback_dataset(args)
+            playback_dataset(
+                dataset=args.dataset,
+                use_actions=args.use_actions,
+                use_abs_actions=args.use_abs_actions,
+                use_obs=args.use_obs,
+                filter_key=args.filter_key,
+                n=args.n,
+                render=args.render,
+                render_image_names=args.render_image_names,
+                camera_height=args.camera_height,
+                camera_width=args.camera_width,
+                video_path=args.video_path,
+                video_skip=args.video_skip,
+                extend_states=args.extend_states,
+                first=args.first,
+                verbose=args.verbose,
+            )
 
 
 if __name__ == "__main__":
