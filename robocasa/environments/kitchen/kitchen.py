@@ -54,6 +54,26 @@ SLIDING_INTERIOR_FIXTURES = [
 ]
 
 
+def _refresh_controller_goals(robots):
+    """Refresh controller state after the reset moves a robot base.
+
+    Controllers are constructed before :meth:`Kitchen._reset_internal` places a
+    mobile robot.  An absolute controller can therefore retain the end-effector
+    pose from the previous base pose.  Updating each part controller from the
+    settled simulator state and then resetting its goal gives the internal
+    settling loop a pose-holding goal instead of an implicit origin target.
+    """
+    for robot in robots:
+        composite_controller = getattr(robot, "composite_controller", None)
+        if composite_controller is None:
+            continue
+
+        composite_controller.update_state()
+        for controller in composite_controller.part_controllers.values():
+            controller.update(force=True)
+        composite_controller.reset()
+
+
 def register_kitchen_env(target_class):
     REGISTERED_KITCHEN_ENVS[target_class.__name__] = target_class
 
@@ -1132,22 +1152,27 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.init_robot_base_pos = robot_pos
             self.init_robot_base_ori = self.init_robot_base_ori_anchor
 
-        # step through a few timesteps to settle objects
-        action = np.zeros(self.action_spec[0].shape)  # apply empty action
+        # Robot base placement happens after robosuite creates the controllers.
+        # Refresh their state and hold the achieved pose before settling objects;
+        # a zero policy action would be interpreted as an origin target by
+        # absolute position controllers.
+        _refresh_controller_goals(self.robots)
 
-        # Since the env.step frequency is slower than the mjsim timestep frequency, the internal controller will output
-        # multiple torque commands in between new high level action commands. Therefore, we need to denote via
-        # 'policy_step' whether the current step we're taking is simply an internal update of the controller,
-        # or an actual policy update
-        policy_step = True
+        self._settle_simulation()
 
-        # Loop through the simulation at the model timestep rate until we're ready to take the next policy step
-        # (as defined by the control frequency specified at the environment level)
-        for i in range(10 * int(self.control_timestep / self.model_timestep)):
+    def _settle_simulation(self):
+        """Advance the simulator while preserving the reset controller goals.
+
+        The settling action is intentionally never marked as a policy step.
+        This matters for absolute controllers, where an all-zero action is a
+        valid command for the world origin rather than a no-op.
+        """
+        action = np.zeros(self.action_spec[0].shape)
+        num_steps = 10 * int(self.control_timestep / self.model_timestep)
+        for _ in range(num_steps):
             self.sim.step1()
-            self._pre_action(action, policy_step)
+            self._pre_action(action, policy_step=False)
             self.sim.step2()
-            policy_step = False
 
     def _setup_scene(self):
         pass
