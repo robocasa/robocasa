@@ -129,7 +129,18 @@ class NavigateKitchen(Kitchen):
         Returns:
             bool: True if the task is successful, False otherwise.
         """
-        robot_id = self.sim.model.body_name2id("mobilebase0_base")
+        robot_model_cls = type(self.robots[0].robot_model).__name__
+        if robot_model_cls in {"SonicG1", "SonicG1Fixed"}:
+            robot_body_name = "robot0_pelvis"
+            if robot_body_name not in self.sim.model.body_names:
+                robot_body_name = "robot0_base"
+        else:
+            robot_body_name = "mobilebase0_base"
+
+        if robot_body_name not in self.sim.model.body_names:
+            return False
+
+        robot_id = self.sim.model.body_name2id(robot_body_name)
         base_pos = np.array(self.sim.data.body_xpos[robot_id])
         pos_check = np.linalg.norm(self.target_pos[:2] - base_pos[:2]) <= 0.20
         base_ori = T.mat2euler(

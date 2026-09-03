@@ -106,11 +106,110 @@ CAM_CONFIGS = dict(
             quat=[0, 0.707107, 0.707107, 0],
             parent_body="robot0_right_hand",
         ),
+        GR1_robot0_frontview=dict(
+            pos=[-0.50, 0, 0.95],
+            quat=[
+                0.6088936924934387,
+                0.3814677894115448,
+                -0.3673907518386841,
+                -0.5905545353889465,
+            ],
+            camera_attribs=dict(fovy="60"),
+            parent_body="mobilebase0_support",
+        ),
+        G1_robot0_frontview=dict(
+            pos=[-0.50, 0, 1.4],
+            quat=[
+                0.6088936924934387,
+                0.3814677894115448,
+                -0.3673907518386841,
+                -0.5905545353889465,
+            ],
+            camera_attribs=dict(fovy="60"),
+            parent_body="mobilebase0_support",
+        ),
+        H1_robot0_frontview=dict(
+            pos=[-0.50, 0, 1.8],
+            quat=[
+                0.6088936924934387,
+                0.3814677894115448,
+                -0.3673907518386841,
+                -0.5905545353889465,
+            ],
+            camera_attribs=dict(fovy="60"),
+            parent_body="mobilebase0_support",
+        ),
     ),
     ### Add robot specific configs here ####
     PandaMobile=dict(),
     GR1FixedLowerBody=dict(),
 )
+
+_SONIC_G1_AGENTVIEW_CENTER_CAMERA = dict(
+    CAM_CONFIGS["DEFAULT"]["robot0_agentview_center"],
+    parent_body="robot0_pelvis",
+)
+_SONIC_G1_AGENTVIEW_LEFT_CAMERA = dict(
+    CAM_CONFIGS["DEFAULT"]["robot0_agentview_left"],
+    parent_body="robot0_pelvis",
+)
+_SONIC_G1_AGENTVIEW_RIGHT_CAMERA = dict(
+    CAM_CONFIGS["DEFAULT"]["robot0_agentview_right"],
+    parent_body="robot0_pelvis",
+)
+_SONIC_G1_FRONTVIEW_CAMERA = dict(
+    pos=[-0.50, 0.0, 0.95],
+    quat=[
+        0.6088936924934387,
+        0.3814677894115448,
+        -0.3673907518386841,
+        -0.5905545353889465,
+    ],
+    camera_attribs=dict(fovy="60"),
+    parent_body="robot0_pelvis",
+)
+_SONIC_G1_HEAD_CAMERA = dict(
+    pos=[0.0576235, 0.01753, 0.42987],
+    quat=[0.65925249, 0.25570717, -0.25570717, -0.65925249],
+    camera_attribs=dict(
+        focalpixel="243.2 243.2",
+        resolution="640 480",
+        sensorsize="0.02 0.015",
+    ),
+    parent_body="robot0_torso_link",
+)
+_SONIC_G1_LEFT_WRIST_CAMERA = dict(
+    pos=[0.00138, -0.07141, 0.15711],
+    quat=[0.860242, -0.00539, -0.508091, 0.0424],
+    camera_attribs=dict(
+        focalpixel="384 384",
+        resolution="640 480",
+        sensorsize="0.02 0.015",
+    ),
+    parent_body="robot0_left_wrist_yaw_link",
+)
+_SONIC_G1_RIGHT_WRIST_CAMERA = dict(
+    pos=[0.00138, 0.07141, 0.15711],
+    quat=[0.860242, -0.00539, -0.508091, 0.0424],
+    camera_attribs=dict(
+        focalpixel="384 384",
+        resolution="640 480",
+        sensorsize="0.02 0.015",
+    ),
+    parent_body="robot0_right_wrist_yaw_link",
+)
+for _sonic_robot_name in ("SonicG1", "SonicG1Fixed"):
+    CAM_CONFIGS[_sonic_robot_name] = dict(
+        robot0_agentview_center=deepcopy(_SONIC_G1_AGENTVIEW_CENTER_CAMERA),
+        robot0_agentview_left=deepcopy(_SONIC_G1_AGENTVIEW_LEFT_CAMERA),
+        robot0_agentview_right=deepcopy(_SONIC_G1_AGENTVIEW_RIGHT_CAMERA),
+        robot0_frontview=deepcopy(_SONIC_G1_FRONTVIEW_CAMERA),
+        robot0_eye_in_hand=deepcopy(_SONIC_G1_RIGHT_WRIST_CAMERA),
+        robot0_left_eye_in_hand=deepcopy(_SONIC_G1_LEFT_WRIST_CAMERA),
+        robot0_head_camera=deepcopy(_SONIC_G1_HEAD_CAMERA),
+        robot0_left_wrist_camera=deepcopy(_SONIC_G1_LEFT_WRIST_CAMERA),
+        robot0_right_wrist_camera=deepcopy(_SONIC_G1_RIGHT_WRIST_CAMERA),
+    )
 
 COTRAIN_CAM_CONFIGS = dict(
     DEFAULT=dict(
@@ -180,10 +279,23 @@ def deep_update(d, u):
 def get_robot_cam_configs(robot, use_cotraining_cameras=False):
     if use_cotraining_cameras:
         default_cotraining_configs = deepcopy(COTRAIN_CAM_CONFIGS["DEFAULT"])
+        for cam_cfg in default_cotraining_configs.values():
+            _normalize_camera_attribs(cam_cfg)
         return default_cotraining_configs
     default_configs = deepcopy(CAM_CONFIGS["DEFAULT"])
     robot_specific_configs = deepcopy(CAM_CONFIGS.get(robot, {}))
-    return deep_update(default_configs, robot_specific_configs)
+    configs = deep_update(default_configs, robot_specific_configs)
+    for cam_cfg in configs.values():
+        _normalize_camera_attribs(cam_cfg)
+    return configs
+
+
+def _normalize_camera_attribs(cam_cfg):
+    camera_attribs = cam_cfg.get("camera_attribs")
+    if camera_attribs is None:
+        return
+    if "sensorsize" in camera_attribs:
+        camera_attribs.pop("fovy", None)
 
 
 def set_cameras(env):

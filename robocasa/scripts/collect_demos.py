@@ -255,6 +255,7 @@ def gather_demonstrations_as_hdf5(
 
         state_paths = os.path.join(directory, ep_directory, "state_*.npz")
         states = []
+        integration_states = []
         actions = []
         actions_abs = []
         # success = False
@@ -264,6 +265,8 @@ def gather_demonstrations_as_hdf5(
             env_name = str(dic["env"])
 
             states.extend(dic["states"])
+            if "integration_states" in dic:
+                integration_states.extend(dic["integration_states"])
             for ai in dic["action_infos"]:
                 actions.append(ai["actions"])
                 if "actions_abs" in ai:
@@ -281,6 +284,9 @@ def gather_demonstrations_as_hdf5(
         # recorded the states and actions, the states were recorded AFTER playing that action,
         # so we end up with an extra state at the end.
         del states[-1]
+        if len(integration_states) > 0:
+            del integration_states[-1]
+            assert len(integration_states) == len(actions)
         assert len(states) == len(actions)
 
         num_eps += 1
@@ -301,6 +307,8 @@ def gather_demonstrations_as_hdf5(
 
         # write datasets for states and actions
         ep_data_grp.create_dataset("states", data=np.array(states))
+        if len(integration_states) > 0:
+            ep_data_grp.create_dataset("states_integration", data=np.array(integration_states))
         ep_data_grp.create_dataset("actions", data=np.array(actions))
         if len(actions_abs) > 0:
             print(np.array(actions_abs).shape)
