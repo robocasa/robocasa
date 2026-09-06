@@ -1,17 +1,17 @@
 from robocasa.environments.kitchen.kitchen import *
 
 
-class PortionHotDogs(Kitchen):
+class PortionPeaches(Kitchen):
     """
-    Portion Hot Dogs: composite task for Portioning Meals activity.
+    Portion Peaches: composite task for Portioning Meals activity.
 
-    Simulates the task of portioning hot dog buns and sausages from a bowl into plates.
-    The task involves taking 2 hot dog buns and 2 sausages from a bowl on the dining counter
-    and placing exactly 1 bun and 1 sausage on each of the 2 plates.
+    Simulates the task of portioning peaches from a bowl into plates.
+    The task involves taking 2 peaches from a bowl on the dining counter
+    and placing exactly 1 peach on each of the 2 plates.
 
     Steps:
-        1. Take hot dog buns and sausages from the bowl on the dining counter
-        2. Place exactly 1 bun and 1 sausage on each plate
+        1. Take the peaches from the bowl on the dining counter
+        2. Place exactly 1 peach on each plate
     """
 
     EXCLUDE_LAYOUTS = Kitchen.DINING_COUNTER_EXCLUDED_LAYOUTS + [22, 58]
@@ -59,7 +59,7 @@ class PortionHotDogs(Kitchen):
         else:
             ep_meta[
                 "lang"
-            ] = "Place one bun and one sausage from the bowl on each plate."
+            ] = "Place one peach from the bowl on each plate."
         return ep_meta
 
     def _setup_scene(self):
@@ -115,8 +115,8 @@ class PortionHotDogs(Kitchen):
 
         cfgs.append(
             dict(
-                name="hotdog_bun1",
-                obj_groups="hotdog_bun",
+                name="peach1",
+                obj_groups="peach",
                 graspable=True,
                 placement=dict(
                     object="bowl",
@@ -127,32 +127,8 @@ class PortionHotDogs(Kitchen):
 
         cfgs.append(
             dict(
-                name="hotdog_bun2",
-                obj_groups="hotdog_bun",
-                graspable=True,
-                placement=dict(
-                    object="bowl",
-                    size=(1.0, 1.0),
-                ),
-            )
-        )
-
-        cfgs.append(
-            dict(
-                name="sausage1",
-                obj_groups="sausage",
-                graspable=True,
-                placement=dict(
-                    object="bowl",
-                    size=(1.0, 1.0),
-                ),
-            )
-        )
-
-        cfgs.append(
-            dict(
-                name="sausage2",
-                obj_groups="sausage",
+                name="peach2",
+                obj_groups="peach",
                 graspable=True,
                 placement=dict(
                     object="bowl",
@@ -164,34 +140,24 @@ class PortionHotDogs(Kitchen):
         return cfgs
 
     def _check_success(self):
-        buns_in_plate1 = 0
-        sausages_in_plate1 = 0
-        for bun_name in ["hotdog_bun1", "hotdog_bun2"]:
-            if OU.check_obj_in_receptacle(self, bun_name, "plate1"):
-                buns_in_plate1 += 1
-        for sausage_name in ["sausage1", "sausage2"]:
-            if OU.check_obj_in_receptacle(self, sausage_name, "plate1"):
-                sausages_in_plate1 += 1
+        peaches_in_plate1 = 0
+        for peach_name in ["peach1", "peach2"]:
+            if OU.check_obj_in_receptacle(self, peach_name, "plate1"):
+                peaches_in_plate1 += 1
 
-        buns_in_plate2 = 0
-        sausages_in_plate2 = 0
-        for bun_name in ["hotdog_bun1", "hotdog_bun2"]:
-            if OU.check_obj_in_receptacle(self, bun_name, "plate2"):
-                buns_in_plate2 += 1
-        for sausage_name in ["sausage1", "sausage2"]:
-            if OU.check_obj_in_receptacle(self, sausage_name, "plate2"):
-                sausages_in_plate2 += 1
+        peaches_in_plate2 = 0
+        for peach_name in ["peach1", "peach2"]:
+            if OU.check_obj_in_receptacle(self, peach_name, "plate2"):
+                peaches_in_plate2 += 1
 
         gripper_far = True
-        for obj_name in ["hotdog_bun1", "hotdog_bun2", "sausage1", "sausage2"]:
+        for obj_name in ["peach1", "peach2"]:
             if not OU.gripper_obj_far(self, obj_name):
                 gripper_far = False
                 break
 
         return (
-            buns_in_plate1 == 1
-            and sausages_in_plate1 == 1
-            and buns_in_plate2 == 1
-            and sausages_in_plate2 == 1
+            peaches_in_plate1 == 1
+            and peaches_in_plate2 == 1
             and gripper_far
         )
