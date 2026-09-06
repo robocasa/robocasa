@@ -11,10 +11,12 @@ from robocasa.utils import env_utils as EnvUtils
     [
         ("SlideDishwasherRack", (-0.50, 0.0)),
         ("PickPlaceDrawerToCounter", (0.0, -0.35)),
+        ("CloseFridgeDrawer", (0.0, -0.05)),
+        ("OpenFridgeDrawer", (0.0, 0.0)),
         ("OpenDrawer", (0.0, 0.0)),
     ],
 )
-def test_task_robot_init_offsets_use_two_task_overrides_and_a_zero_default(
+def test_task_robot_init_offsets_use_task_overrides_and_a_zero_default(
     task_name, expected_offset
 ):
     assert EnvUtils.get_task_robot_init_offset(task_name) == expected_offset

@@ -53,6 +53,7 @@ _TASK_ROBOT_INIT_OFFSETS: dict[str, tuple[float, float]] = {
     # (lateral, longitudinal) in the SonicG1 robot frame, in meters.
     "SlideDishwasherRack": (-0.50, 0.0),
     "PickPlaceDrawerToCounter": (0.0, -0.35),
+    "CloseFridgeDrawer": (0.0, -0.05),
 }
 
 KITCHEN_SCENES_5X5 = [

@@ -45,18 +45,19 @@ def _xml_pelvis_position(env):
 
 
 @pytest.mark.parametrize(
-    ("task_name", "expected_offset"),
+    ("task_name", "expected_offset", "layout_id"),
     [
-        ("SlideDishwasherRack", (-0.50, 0.0)),
-        ("PickPlaceDrawerToCounter", (0.0, -0.35)),
+        ("SlideDishwasherRack", (-0.50, 0.0), 1),
+        ("PickPlaceDrawerToCounter", (0.0, -0.35), 1),
+        ("CloseFridgeDrawer", (0.0, -0.05), 4),
     ],
 )
 def test_tasks_apply_unified_offsets_before_the_sonic_root_is_written(
-    task_name, expected_offset
+    task_name, expected_offset, layout_id
 ):
     env = None
     try:
-        env = _make_env(task_name)
+        env = _make_env(task_name, layout_id=layout_id)
         env.reset()
         assert env.sim.model._model.opt.solver == int(mujoco.mjtSolver.mjSOL_NEWTON)
         unshifted_anchor, base_ori = EnvUtils.compute_robot_base_placement_pose(
@@ -79,6 +80,7 @@ def test_tasks_apply_unified_offsets_before_the_sonic_root_is_written(
             env.init_robot_base_pos_anchor,
             atol=1e-7,
         )
+        assert env.get_ep_meta()["robot_init_offset"] == list(expected_offset)
 
         env.step(np.zeros(env.action_spec[0].shape))
         assert np.isfinite(env.sim.data.qpos).all()

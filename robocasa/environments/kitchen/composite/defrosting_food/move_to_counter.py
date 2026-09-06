@@ -46,6 +46,7 @@ class MoveToCounter(Kitchen):
                 graspable=True,
                 placement=dict(
                     fixture=self.fridge,
+                    sample_region_kwargs=dict(rack_index=0),
                     size=(0.3, 0.25),
                     pos=(0, -1.0),
                 ),
