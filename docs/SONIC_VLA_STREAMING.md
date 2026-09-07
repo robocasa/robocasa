@@ -58,7 +58,7 @@ cd /home/amaddukuri/Projects/robocasa-dev-sonic-vla
 /home/amaddukuri/Projects/GR00T-WholeBodyControl/.venv_sim/bin/python \
   robocasa/scripts/collect_sonic_demos.py \
   --environment Kitchen \
-  --layout 1 \
+  --layout -1 \
   --robot SonicG1 \
   --out /tmp/sonic_robocasa_demos \
   --vla-stream

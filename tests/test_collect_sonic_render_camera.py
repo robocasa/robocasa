@@ -15,6 +15,12 @@ def test_render_camera_defaults_to_frontview(monkeypatch):
     assert args.render_camera == "robot0_frontview"
 
 
+def test_layout_defaults_to_random_test_group(monkeypatch):
+    args = _parse_args(monkeypatch)
+
+    assert args.layout == -1
+
+
 def test_render_camera_accepts_robot_head_camera(monkeypatch):
     args = _parse_args(monkeypatch, "--render-camera", "robot0_head_camera")
 
