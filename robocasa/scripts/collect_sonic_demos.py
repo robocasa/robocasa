@@ -17,6 +17,12 @@ import os
 import threading
 import time
 
+# Editable RoboSuite checkouts do not always provide Numba with a source-cache
+# locator. Keep compiled artifacts outside the repository and isolate users.
+os.environ.setdefault(
+    "NUMBA_CACHE_DIR", f"/tmp/robocasa-numba-cache-{os.getuid()}"
+)
+
 import h5py
 import mujoco
 import numpy as np
@@ -531,7 +537,12 @@ def get_args():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--environment", default="Kitchen", help="robocasa kitchen env name")
-    ap.add_argument("--layout", type=int, default=1, help="kitchen layout id")
+    ap.add_argument(
+        "--layout",
+        type=int,
+        default=-1,
+        help="kitchen layout id (-1=random compatible test layout)",
+    )
     ap.add_argument("--style", type=int, default=None, help="kitchen style id (None=random)")
     ap.add_argument("--robot", default="SonicG1", help="SonicG1 or SonicG1Fixed")
     ap.add_argument(
