@@ -52,7 +52,7 @@ class GarnishPancake(Kitchen):
                     fixture=self.fridge,
                     size=(0.15, 0.15),
                     pos=(0, -1.0),
-                    sample_region_kwargs=dict(z_range=(1.0, 1.5)),
+                    sample_region_kwargs=dict(z_range=(0.5, 1.0)),
                 ),
             )
         )

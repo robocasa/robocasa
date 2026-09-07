@@ -20,6 +20,19 @@ import zmq
 
 MANAGER_HEADER_SIZE = 1280
 MANAGER_TOPIC = "manager_state"
+MANAGER_SESSION_FIELD = "manager_session_id"
+MANAGER_TIMESTAMP_FIELD = "manager_timestamp_monotonic"
+MANAGER_EVENT_SEQUENCE_FIELDS = {
+    "toggle_data_collection": "toggle_data_collection_sequence",
+    "toggle_data_abort": "toggle_data_abort_sequence",
+}
+MANAGER_EVENT_TIMESTAMP_FIELDS = {
+    "toggle_data_collection": "toggle_data_collection_event_monotonic",
+    "toggle_data_abort": "toggle_data_abort_event_monotonic",
+}
+EPISODE_INSTRUCTION_MESSAGE_TYPE = "robocasa_episode_instruction"
+EPISODE_INSTRUCTION_PROTOCOL_VERSION = 1
+EPISODE_INSTRUCTION_EVENTS = frozenset({"ready", "start"})
 
 
 def unpack_pico_message(packed_data: bytes, topic: str = MANAGER_TOPIC) -> dict[str, Any]:
@@ -78,20 +91,101 @@ def _array_bool(data: dict[str, Any], key: str) -> bool:
     return bool(value)
 
 
+def _array_scalar(data: dict[str, Any], key: str, cast):
+    value = data.get(key)
+    if value is None:
+        return None
+    if isinstance(value, np.ndarray):
+        if value.size == 0:
+            return None
+        value = value.flat[0]
+    try:
+        return cast(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
 class ManagerStateSubscriber:
-    """Receive VR recording toggles from pico_manager_thread_server."""
+    """Receive the latest VR manager state without replaying stale samples.
+
+    Current manager publishers repeat monotonic event sequences in every state
+    message. This lets the SUB socket conflate continuous state while still
+    detecting a button edge that occurred while the simulator was rendering,
+    saving an episode, or resetting. Boolean toggles remain as a compatibility
+    fallback for older publishers.
+    """
 
     def __init__(self, host: str = "localhost", port: int = 5556):
+        self._subscribed_at_monotonic = time.monotonic()
         self._ctx = zmq.Context()
         self._socket = self._ctx.socket(zmq.SUB)
+        self._socket.setsockopt(zmq.CONFLATE, 1)
+        self._socket.setsockopt(zmq.RCVHWM, 1)
+        self._socket.setsockopt(zmq.LINGER, 0)
         self._socket.setsockopt_string(zmq.SUBSCRIBE, MANAGER_TOPIC)
-        self._socket.setsockopt(zmq.RCVHWM, 20)
         self._socket.setsockopt(zmq.RCVTIMEO, 0)
         self._socket.connect(f"tcp://{host}:{port}")
+        self._manager_session_id: int | None = None
+        self._last_event_sequences: dict[str, int] = {}
+        self.last_message_age_ms: float | None = None
+        self._last_latency_warning_time = 0.0
+
+    def _update_message_age(self, data: dict[str, Any]) -> None:
+        sent_at = _array_scalar(data, MANAGER_TIMESTAMP_FIELD, float)
+        if sent_at is None:
+            self.last_message_age_ms = None
+            return
+        self.last_message_age_ms = max(0.0, (time.monotonic() - sent_at) * 1000.0)
+        now = time.monotonic()
+        if self.last_message_age_ms > 250.0 and now - self._last_latency_warning_time >= 5.0:
+            print(
+                f"[sonic-vla] stale manager_state: {self.last_message_age_ms:.1f} ms old",
+                flush=True,
+            )
+            self._last_latency_warning_time = now
+
+    def _events_from_message(self, data: dict[str, Any]) -> set[str]:
+        events: set[str] = set()
+        session_id = _array_scalar(data, MANAGER_SESSION_FIELD, int)
+        session_changed = (
+            session_id is not None
+            and self._manager_session_id is not None
+            and session_id != self._manager_session_id
+        )
+        if session_id is not None:
+            self._manager_session_id = session_id
+
+        for event_name, sequence_field in MANAGER_EVENT_SEQUENCE_FIELDS.items():
+            sequence = _array_scalar(data, sequence_field, int)
+            pulse = _array_bool(data, event_name)
+            if sequence is None:
+                if pulse:
+                    events.add(event_name)
+                continue
+
+            previous = self._last_event_sequences.get(sequence_field)
+            if previous is None or session_changed:
+                # Establish a baseline without replaying events from before this
+                # subscriber connected. The repeated event timestamp covers an
+                # edge that happened after connect but whose pulse was conflated.
+                event_timestamp = _array_scalar(
+                    data, MANAGER_EVENT_TIMESTAMP_FIELDS[event_name], float
+                )
+                if pulse or (
+                    event_timestamp is not None
+                    and event_timestamp >= self._subscribed_at_monotonic
+                ):
+                    events.add(event_name)
+            elif sequence != previous:
+                events.add(event_name)
+            self._last_event_sequences[sequence_field] = sequence
+        return events
 
     def poll(self, max_messages: int = 20) -> set[str]:
         events: set[str] = set()
-        for _ in range(max_messages):
+        # CONFLATE guarantees at most one retained manager_state sample. Keep
+        # the argument for API compatibility with the previous subscriber.
+        for _ in range(min(max_messages, 1)):
             try:
                 raw = self._socket.recv(zmq.NOBLOCK)
             except zmq.Again:
@@ -100,10 +194,8 @@ class ManagerStateSubscriber:
                 data = unpack_pico_message(raw, topic=MANAGER_TOPIC)
             except Exception:
                 continue
-            if _array_bool(data, "toggle_data_collection"):
-                events.add("toggle_data_collection")
-            if _array_bool(data, "toggle_data_abort"):
-                events.add("toggle_data_abort")
+            self._update_message_age(data)
+            events.update(self._events_from_message(data))
         return events
 
     def close(self):
@@ -131,10 +223,135 @@ class VLAExporterKeyboardPublisher:
         self._ctx.term()
 
 
+def make_episode_instruction_message(
+    instruction: str | None,
+    *,
+    episode_id: str,
+    sequence: int,
+    event: str = "ready",
+    attempt: int = 0,
+    captured_at: float | None = None,
+) -> dict[str, Any]:
+    """Build the versioned metadata sent for one sampled RoboCasa episode."""
+    if not isinstance(episode_id, str) or not episode_id.strip():
+        raise ValueError("episode_id must be a non-empty string")
+    if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0:
+        raise ValueError("sequence must be a non-negative integer")
+    if event not in EPISODE_INSTRUCTION_EVENTS:
+        raise ValueError(f"event must be one of {sorted(EPISODE_INSTRUCTION_EVENTS)}")
+    if isinstance(attempt, bool) or not isinstance(attempt, int) or attempt < 0:
+        raise ValueError("attempt must be a non-negative integer")
+    if event == "ready" and attempt != 0:
+        raise ValueError("ready messages must use attempt 0")
+    if event == "start" and attempt == 0:
+        raise ValueError("start messages must use a positive attempt")
+    if instruction is not None:
+        if not isinstance(instruction, str):
+            raise TypeError("instruction must be a string or None")
+        instruction = instruction.strip() or None
+
+    return {
+        "type": EPISODE_INSTRUCTION_MESSAGE_TYPE,
+        "version": EPISODE_INSTRUCTION_PROTOCOL_VERSION,
+        "episode_id": episode_id.strip(),
+        "sequence": int(sequence),
+        "event": event,
+        "attempt": attempt,
+        "instruction": instruction,
+        "captured_at": time.time() if captured_at is None else float(captured_at),
+    }
+
+
+class VLAExporterInstructionPublisher:
+    """Publish the current episode instruction as replayable state.
+
+    This intentionally uses a separate port from the edge-triggered ``c`` / ``x``
+    keyboard channel. The latest instruction is repeated so an exporter started
+    after the RoboCasa collector still receives the current episode metadata.
+    """
+
+    def __init__(
+        self,
+        port: int = 5581,
+        *,
+        repeat_interval: float = 0.5,
+        startup_delay: float = 0.2,
+    ):
+        if repeat_interval <= 0:
+            raise ValueError("repeat_interval must be positive")
+        if startup_delay < 0:
+            raise ValueError("startup_delay must be non-negative")
+        self._ctx = zmq.Context()
+        self._socket = self._ctx.socket(zmq.PUB)
+        self._socket.setsockopt(zmq.SNDHWM, 20)
+        self._socket.setsockopt(zmq.LINGER, 0)
+        self._socket.bind(f"tcp://*:{port}")
+        self._repeat_interval = float(repeat_interval)
+        self._latest_message: dict[str, Any] | None = None
+        self._start_attempt = 0
+        self._last_publish_time = float("-inf")
+        if startup_delay:
+            time.sleep(startup_delay)
+
+    @property
+    def latest_message(self) -> dict[str, Any] | None:
+        if self._latest_message is None:
+            return None
+        return dict(self._latest_message)
+
+    def set_episode(
+        self,
+        instruction: str | None,
+        *,
+        episode_id: str,
+        sequence: int,
+    ) -> bool:
+        self._latest_message = make_episode_instruction_message(
+            instruction,
+            episode_id=episode_id,
+            sequence=sequence,
+        )
+        self._start_attempt = 0
+        return self.maybe_publish(force=True)
+
+    def mark_start(self) -> bool:
+        """Publish a new recording attempt tied to the current instruction."""
+        if self._latest_message is None:
+            raise RuntimeError("set_episode() must be called before mark_start()")
+        self._start_attempt += 1
+        self._latest_message = {
+            **self._latest_message,
+            "event": "start",
+            "attempt": self._start_attempt,
+        }
+        return self.maybe_publish(force=True)
+
+    def maybe_publish(self, *, force: bool = False) -> bool:
+        if self._latest_message is None:
+            return False
+        now = time.monotonic()
+        if not force and now - self._last_publish_time < self._repeat_interval:
+            return False
+
+        message = {**self._latest_message, "sent_at": time.time()}
+        try:
+            self._socket.send_json(message, flags=zmq.NOBLOCK)
+        except zmq.Again:
+            return False
+        self._last_publish_time = now
+        return True
+
+    def close(self):
+        self._socket.close()
+        self._ctx.term()
+
+
 @dataclass
 class VLACameraConfig:
     camera_name: str = "robot0_head_camera"
     output_key: str = "ego_view"
+    camera_names: tuple[str, ...] | list[str] | None = None
+    output_keys: tuple[str, ...] | list[str] | None = None
     width: int = 640
     height: int = 480
     hz: float = 30.0
@@ -152,6 +369,18 @@ def _prepare_image(image: np.ndarray, flip_vertical: bool) -> np.ndarray:
     return np.ascontiguousarray(image)
 
 
+def _resolve_names(value, fallback: str, label: str) -> tuple[str, ...]:
+    if value is None:
+        resolved = (fallback,)
+    elif isinstance(value, str):
+        resolved = (value,)
+    else:
+        resolved = tuple(value)
+    if not resolved or any(not item for item in resolved):
+        raise ValueError(f"VLA {label} must contain at least one non-empty value")
+    return resolved
+
+
 class RoboCasaVLACameraPublisher:
     """Publish RoboCasa frames using SONIC's camera-server schema.
 
@@ -163,9 +392,21 @@ class RoboCasaVLACameraPublisher:
         if config.hz <= 0:
             raise ValueError("VLA camera hz must be positive")
         self.config = config
+        self._camera_names = _resolve_names(
+            config.camera_names, config.camera_name, "camera_names"
+        )
+        self._output_keys = _resolve_names(
+            config.output_keys, config.output_key, "output_keys"
+        )
+        if len(self._camera_names) != len(self._output_keys):
+            raise ValueError("VLA camera_names and output_keys must have the same length")
+        if len(set(self._output_keys)) != len(self._output_keys):
+            raise ValueError("VLA output_keys must be unique")
         self._period = 1.0 / float(config.hz)
         self._next_publish_time = 0.0
-        self._queue: queue.Queue[tuple[float, np.ndarray]] = queue.Queue(maxsize=1)
+        self._queue: queue.Queue[
+            tuple[dict[str, float], dict[str, np.ndarray]]
+        ] = queue.Queue(maxsize=1)
         self._stop_event = threading.Event()
         self._ready_event = threading.Event()
         self._thread: threading.Thread | None = None
@@ -194,7 +435,7 @@ class RoboCasaVLACameraPublisher:
         if self._startup_error is not None:
             raise RuntimeError("Failed to start RoboCasa VLA camera publisher") from self._startup_error
         if env is not None:
-            self._get_live_renderer(env)
+            self._render_images(env)
 
     def maybe_publish(self, env) -> bool:
         self._raise_sender_error()
@@ -207,11 +448,31 @@ class RoboCasaVLACameraPublisher:
         else:
             self._next_publish_time += self._period
 
-        renderer, scene_option = self._get_live_renderer(env)
-        renderer.update_scene(env.sim.data._data, camera=self.config.camera_name, scene_option=scene_option)
-        image = renderer.render()
-        self._enqueue_image(time.time(), _prepare_image(image, self.config.flip_vertical))
+        timestamp = time.time()
+        timestamps = {output_key: timestamp for output_key in self._output_keys}
+        images = self._render_images(env)
+        self._enqueue_images(timestamps, images)
         return True
+
+    def _render_images(self, env) -> dict[str, np.ndarray]:
+        previous_renderer = self._renderer
+        render_started = time.perf_counter()
+        renderer, scene_option = self._get_live_renderer(env)
+        rebuilding_renderer = renderer is not previous_renderer
+        images: dict[str, np.ndarray] = {}
+        for camera_name, output_key in zip(self._camera_names, self._output_keys):
+            renderer.update_scene(
+                env.sim.data._data, camera=camera_name, scene_option=scene_option
+            )
+            image = renderer.render()
+            images[output_key] = _prepare_image(image, self.config.flip_vertical)
+        if rebuilding_renderer:
+            print(
+                f"[sonic-timing] initialized {len(self._camera_names)}-camera renderer "
+                f"in {time.perf_counter() - render_started:.3f}s",
+                flush=True,
+            )
+        return images
 
     def _raise_sender_error(self):
         if self._startup_error is not None:
@@ -239,16 +500,16 @@ class RoboCasaVLACameraPublisher:
             self._renderer_model = None
             self._scene_option = None
 
-    def _enqueue_image(self, timestamp: float, image: np.ndarray):
+    def _enqueue_images(self, timestamps: dict[str, float], images: dict[str, np.ndarray]):
         try:
-            self._queue.put_nowait((timestamp, image))
+            self._queue.put_nowait((timestamps, images))
         except queue.Full:
             self._increment_drop_count()
             try:
                 self._queue.get_nowait()
             except queue.Empty:
                 pass
-            self._queue.put_nowait((timestamp, image))
+            self._queue.put_nowait((timestamps, images))
 
     def _increment_drop_count(self):
         self._drop_count += 1
@@ -263,13 +524,13 @@ class RoboCasaVLACameraPublisher:
             self._ready_event.set()
             while not self._stop_event.is_set():
                 try:
-                    timestamp, image = self._queue.get(timeout=0.1)
+                    timestamps, images = self._queue.get(timeout=0.1)
                 except queue.Empty:
                     continue
 
                 message = ImageMessageSchema(
-                    timestamps={self.config.output_key: timestamp},
-                    images={self.config.output_key: image},
+                    timestamps=timestamps,
+                    images=images,
                 )
                 server.send_message(message.serialize())
                 self._publish_count += 1

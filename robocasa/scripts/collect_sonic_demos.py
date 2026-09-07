@@ -10,11 +10,18 @@ Start the C++ SONIC controller (publishes lowcmd to DDS) first, then run this on
 display (do NOT set MUJOCO_GL=egl).
 """
 import argparse
+from copy import deepcopy
 import datetime
 import json
 import os
 import threading
 import time
+
+# Editable RoboSuite checkouts do not always provide Numba with a source-cache
+# locator. Keep compiled artifacts outside the repository and isolate users.
+os.environ.setdefault(
+    "NUMBA_CACHE_DIR", f"/tmp/robocasa-numba-cache-{os.getuid()}"
+)
 
 import h5py
 import mujoco
@@ -35,16 +42,24 @@ from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimi
 from robocasa.wrappers.enclosing_wall_render_wrapper import EnclosingWallRenderWrapper
 
 
+# PGS avoids Newton's sparse Hessian factorization failures under dense contacts.
+SONIC_MUJOCO_SOLVER = "PGS"
+
+
 def _controller(base):
     # recreated on every env.reset() (robot.reset -> _load_controller) -> always fetch fresh
     return base.robots[0].composite_controller
 
 
-def _print_instruction(base):
-    # match the traditional robocasa collector: announce the task's language goal each episode
-    lang = base.get_ep_meta().get("lang")
-    if lang:
-        print(colored(f"Instruction: {lang}", "green"), flush=True)
+def _snapshot_and_print_instruction(base):
+    """Capture the sampled episode metadata exactly once and announce its goal."""
+    ep_meta = base.get_ep_meta()
+    base.set_ep_meta(ep_meta)
+    lang = ep_meta.get("lang")
+    instruction = lang.strip() if isinstance(lang, str) and lang.strip() else None
+    if instruction:
+        print(colored(f"Instruction: {instruction}", "green"), flush=True)
+    return ep_meta, instruction
 
 
 def make_env(args, cfg):
@@ -55,12 +70,14 @@ def make_env(args, cfg):
     env = robosuite.make(
         args.environment, robots=[args.robot], controller_configs=cfg,
         has_renderer=True, has_offscreen_renderer=False, use_camera_obs=False, ignore_done=True,
-        renderer="mjviewer", render_camera="robot0_frontview",
+        renderer="mjviewer", render_camera=args.render_camera,
         layout_ids=args.layout, style_ids=args.style, control_freq=args.control_freq,
+        initialization_noise=None, mujoco_solver=SONIC_MUJOCO_SOLVER,
     )
     env_kwargs = dict(robots=[args.robot], controller_configs=cfg, initialization_noise=None,
                       use_camera_obs=False, translucent_robot=False,
-                      layout_ids=args.layout, style_ids=args.style, control_freq=args.control_freq)
+                      layout_ids=args.layout, style_ids=args.style, control_freq=args.control_freq,
+                      mujoco_solver=SONIC_MUJOCO_SOLVER)
     return env, env_kwargs
 
 
@@ -69,22 +86,38 @@ def _apply_runtime(base, args):
     # control loop. Re-applied after each reset (hard reset rebuilds the model).
     match_base_sim_physics(base.sim.model._model, args.floor_friction, args.floor_torsion,
                            timestep=args.sim_dt)
+    base.sim.model._model.opt.solver = int(mujoco.mjtSolver.mjSOL_PGS)
     base.post_action_freq = max(1, round(args.control_freq / args.post_action_hz))
     base.render_freq = max(1, round(args.control_freq / args.render_hz))
 
 
 def reset_with_retry(env, base, args, tries=12):
-    # robocasa spawns the robot near a fixture; some samples penetrate it and the solver raises
-    # FactorizeHessian on the reset mj_forward. Each reset re-samples the kitchen, so retry.
+    # Keep a reset fallback for invalid placements and other fatal simulation errors.
     last = None
+    reset_started = time.perf_counter()
     for k in range(tries):
+        attempt_started = time.perf_counter()
+        # Episode capture serializes fixture refs; fresh samples must not reuse that metadata.
+        base.unset_ep_meta()
         try:
             ret = env.reset()
             _apply_runtime(base, args)
+            print(
+                f"[sonic-timing] env.reset ready in "
+                f"{time.perf_counter() - reset_started:.3f}s "
+                f"(attempt {k + 1}, current attempt "
+                f"{time.perf_counter() - attempt_started:.3f}s)",
+                flush=True,
+            )
             return ret
         except mujoco.FatalError as e:
             last = e
-            print(f"[sonic] reset solver error; re-sampling ({k + 2}/{tries})", flush=True)
+            print(
+                f"[sonic] reset solver error after "
+                f"{time.perf_counter() - attempt_started:.3f}s; "
+                f"re-sampling ({k + 2}/{tries})",
+                flush=True,
+            )
     raise last
 
 
@@ -109,6 +142,21 @@ def _copy_sonic_gains(gains):
             for k, (kp, kd) in gains.items()}
 
 
+def _resolve_episode_event(pressed, vr_events, recording):
+    """Merge local and VR lifecycle events with deterministic abort-first priority."""
+    local_abort = "x" in pressed
+    vr_abort = "toggle_data_abort" in vr_events
+    if local_abort or vr_abort:
+        return ("discard", vr_abort) if recording else (None, vr_abort)
+
+    vr_toggle = "toggle_data_collection" in vr_events
+    if recording and ("k" in pressed or vr_toggle):
+        return "save", vr_toggle
+    if not recording and ("c" in pressed or vr_toggle):
+        return "start", vr_toggle
+    return None, False
+
+
 def _sonic_runtime_json(args):
     post_action_freq = max(1, round(args.control_freq / args.post_action_hz))
     render_freq = max(1, round(args.control_freq / args.render_hz))
@@ -121,6 +169,7 @@ def _sonic_runtime_json(args):
         "render_freq": int(render_freq),
         "floor_friction": float(args.floor_friction),
         "floor_torsion": float(args.floor_torsion),
+        "mujoco_solver": SONIC_MUJOCO_SOLVER,
         "mujoco_state_spec": "mjSTATE_INTEGRATION",
     })
 
@@ -191,7 +240,23 @@ class SonicDataCollectionWrapper(DataCollectionWrapper):
         return state
 
     def _on_first_interaction(self):
-        super()._on_first_interaction()
+        # DataCollectionWrapper calls env.get_ep_meta() here. Use the exact
+        # snapshot already published to the exporter instead, because novel
+        # instruction generators may otherwise sample a second string.
+        self.has_interaction = True
+        t1, t2 = str(time.time()).split(".")
+        self.ep_directory = os.path.join(self.directory, f"ep_{t1}_{t2}")
+        assert not os.path.exists(self.ep_directory)
+        print(f"DataCollectionWrapper: making folder at {self.ep_directory}")
+        os.makedirs(self.ep_directory)
+
+        with open(os.path.join(self.ep_directory, "model.xml"), "w", encoding="utf-8") as f:
+            f.write(self._current_task_instance_xml)
+        with open(os.path.join(self.ep_directory, "ep_meta.json"), "w", encoding="utf-8") as f:
+            json.dump(self._current_task_instance_ep_meta, f)
+
+        assert len(self.states) == 0
+        self.states.append(self._current_task_instance_state)
         self.integration_states.append(self._current_task_instance_integration_state)
 
     def _flush(self):
@@ -225,7 +290,7 @@ class SonicDataCollectionWrapper(DataCollectionWrapper):
             self.action_infos.append({"actions": np.asarray(action, dtype=float)})
         return ret
 
-    def start_episode_from_current_state(self):
+    def start_episode_from_current_state(self, ep_meta=None):
         if self.has_interaction:
             self._flush()
         self.t = 0
@@ -237,7 +302,12 @@ class SonicDataCollectionWrapper(DataCollectionWrapper):
         self._current_task_instance_xml = self.env.model.get_xml()
         self._current_task_instance_state = np.array(self.env.sim.get_state().flatten())
         self._current_task_instance_integration_state = self._integration_state_for(self.env)
-        self.env.set_ep_meta(self.env.get_ep_meta())
+        # Reuse the metadata snapshot already sent to the VLA exporter. Some
+        # novel-instruction tasks sample text inside get_ep_meta(), so reading it
+        # again here could give the raw demo and LeRobot export different labels.
+        selected_ep_meta = ep_meta if ep_meta is not None else self.env.get_ep_meta()
+        self._current_task_instance_ep_meta = deepcopy(selected_ep_meta)
+        self.env.set_ep_meta(deepcopy(selected_ep_meta))
 
 
 def run_collection(args, base, wall, env_kwargs, source):
@@ -252,6 +322,7 @@ def run_collection(args, base, wall, env_kwargs, source):
 
     manager_sub = None
     keyboard_pub = None
+    instruction_pub = None
     image_pub = None
     if args.vla_stream:
         from robocasa.utils.sonic_vla_streaming import (
@@ -259,12 +330,15 @@ def run_collection(args, base, wall, env_kwargs, source):
             RoboCasaVLACameraPublisher,
             VLACameraConfig,
             VLAExporterKeyboardPublisher,
+            VLAExporterInstructionPublisher,
         )
 
         image_pub = RoboCasaVLACameraPublisher(
             VLACameraConfig(
                 camera_name=args.vla_camera_name,
                 output_key=args.vla_camera_key,
+                camera_names=args.vla_camera_names,
+                output_keys=args.vla_camera_keys,
                 width=args.vla_camera_width,
                 height=args.vla_camera_height,
                 hz=args.vla_camera_hz,
@@ -276,8 +350,14 @@ def run_collection(args, base, wall, env_kwargs, source):
         manager_sub = ManagerStateSubscriber(args.vla_manager_host, args.vla_manager_port)
         if args.vla_keyboard_sync:
             keyboard_pub = VLAExporterKeyboardPublisher(args.vla_keyboard_port)
+        if args.vla_instruction_sync:
+            instruction_pub = VLAExporterInstructionPublisher(
+                args.vla_instruction_port,
+                repeat_interval=args.vla_instruction_heartbeat,
+            )
         print(
-            f"[sonic-vla] publishing {args.vla_camera_key} from {args.vla_camera_name} "
+            f"[sonic-vla] publishing {','.join(args.vla_camera_keys)} "
+            f"from {','.join(args.vla_camera_names)} "
             f"at {args.vla_camera_hz:g} Hz on port {args.vla_camera_port}",
             flush=True,
         )
@@ -285,9 +365,30 @@ def run_collection(args, base, wall, env_kwargs, source):
     hold = np.zeros(base.action_dim)
     saved, recording, gains, saved_gains = [], False, None, None
     next_t = time.perf_counter()
+    instruction_sequence = 0
+    current_ep_meta = None
+    current_instruction = None
     print(f"[sonic] dataset dir: {demo_dir}", flush=True)
     print("[sonic] press 'b' to drop the band once balancing, then 'c' to record.", flush=True)
-    _print_instruction(base)
+
+    def announce_episode():
+        nonlocal current_ep_meta, current_instruction, instruction_sequence
+        current_ep_meta, current_instruction = _snapshot_and_print_instruction(base)
+        if instruction_pub is not None:
+            episode_id = f"{ts}:{instruction_sequence:06d}"
+            instruction_pub.set_episode(
+                current_instruction,
+                episode_id=episode_id,
+                sequence=instruction_sequence,
+            )
+            source_label = current_instruction or "<CLI --task-prompt fallback>"
+            print(
+                f"[sonic-vla] episode instruction {episode_id} -> {source_label}",
+                flush=True,
+            )
+        instruction_sequence += 1
+
+    announce_episode()
 
     def sync_exporter(key, from_vr=False, delay=True):
         if not args.vla_stream:
@@ -298,11 +399,12 @@ def run_collection(args, base, wall, env_kwargs, source):
             time.sleep(args.vla_save_sync_delay)
 
     def finish(discard):
-        nonlocal recording, saved_gains
+        nonlocal recording, saved_gains, next_t
         ep = env.ep_directory
         if not env.has_interaction or ep is None:
             recording = False
             return
+        transition_started = time.perf_counter()
         name = os.path.basename(ep)
         if env.states:
             env._flush()
@@ -320,9 +422,23 @@ def run_collection(args, base, wall, env_kwargs, source):
             if h:
                 convert_to_robomimic_format(h, filter_num_demos=None)
             print(f"[sonic] saved {name}", flush=True)
+        finalize_finished = time.perf_counter()
         reset_with_retry(wall, base, args)
+        reset_finished = time.perf_counter()
         source.reset(base)
-        _print_instruction(base)
+        announce_episode()
+        ready_at = time.perf_counter()
+        # A hard reset and optional HDF5 conversion can take seconds. Do not
+        # make the 200 Hz loop chase those expired wall-clock deadlines.
+        next_t = ready_at
+        print(
+            f"[sonic-timing] episode {'discard' if discard else 'save'} transition: "
+            f"finalize={finalize_finished - transition_started:.3f}s, "
+            f"reset={reset_finished - finalize_finished:.3f}s, "
+            f"source+instruction={ready_at - reset_finished:.3f}s, "
+            f"total={ready_at - transition_started:.3f}s",
+            flush=True,
+        )
 
     def recover_from_step_error(err):
         nonlocal recording, next_t
@@ -336,43 +452,40 @@ def run_collection(args, base, wall, env_kwargs, source):
             recording = False
         reset_with_retry(wall, base, args)
         source.reset(base)
-        _print_instruction(base)
+        announce_episode()
         next_t = time.perf_counter()
 
     try:
         while True:
+            if instruction_pub is not None:
+                instruction_pub.maybe_publish()
             p = keys.consume()
             vr_events = manager_sub.poll() if manager_sub is not None else set()
-            if "toggle_data_collection" in vr_events:
-                p.add("vla_toggle")
-            if "toggle_data_abort" in vr_events:
-                p.add("vla_discard")
             if "b" in p:
                 _controller(base).toggle_band()
-            local_start = "c" in p and not recording
-            vr_start = "vla_toggle" in p and not recording
-            local_save = "k" in p and recording
-            vr_save = "vla_toggle" in p and recording
-            local_discard = "x" in p and recording
-            vr_discard = "vla_discard" in p and recording
+            episode_event, from_vr = _resolve_episode_event(p, vr_events, recording)
 
-            if local_start or vr_start:
+            if episode_event == "start":
                 if gains is None:
                     print("[sonic] not engaged yet -- cannot record.", flush=True)
-                    if vr_start and keyboard_pub is not None:
+                    if from_vr and keyboard_pub is not None:
                         keyboard_pub.send("x")
                 else:
-                    if local_start:
+                    if instruction_pub is not None:
+                        instruction_pub.mark_start()
+                        if args.vla_instruction_start_delay > 0:
+                            time.sleep(args.vla_instruction_start_delay)
+                    if not from_vr:
                         sync_exporter("c", from_vr=False, delay=False)
-                    env.start_episode_from_current_state()
+                    env.start_episode_from_current_state(ep_meta=current_ep_meta)
                     recording = True
                     print("[sonic] recording...", flush=True)
-            if local_save or vr_save:
-                sync_exporter("c", from_vr=vr_save)
+            elif episode_event == "save":
+                sync_exporter("c", from_vr=from_vr)
                 finish(discard=False)
                 continue
-            if local_discard or vr_discard:
-                sync_exporter("x", from_vr=vr_discard)
+            elif episode_event == "discard":
+                sync_exporter("x", from_vr=from_vr)
                 finish(discard=True)
                 continue
 
@@ -404,6 +517,8 @@ def run_collection(args, base, wall, env_kwargs, source):
             manager_sub.close()
         if keyboard_pub is not None:
             keyboard_pub.close()
+        if instruction_pub is not None:
+            instruction_pub.close()
         if image_pub is not None:
             image_pub.close()
         if saved:
@@ -422,9 +537,22 @@ def get_args():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--environment", default="Kitchen", help="robocasa kitchen env name")
-    ap.add_argument("--layout", type=int, default=1, help="kitchen layout id")
+    ap.add_argument(
+        "--layout",
+        type=int,
+        default=-1,
+        help="kitchen layout id (-1=random compatible test layout)",
+    )
     ap.add_argument("--style", type=int, default=None, help="kitchen style id (None=random)")
     ap.add_argument("--robot", default="SonicG1", help="SonicG1 or SonicG1Fixed")
+    ap.add_argument(
+        "--render-camera",
+        default="robot0_frontview",
+        help=(
+            "MuJoCo camera used by the interactive viewer; "
+            "use robot0_head_camera for robot first-person view"
+        ),
+    )
     ap.add_argument("--out", default="/tmp/sonic_robocasa_demos", help="output dataset directory")
     ap.add_argument("--record-freq", type=int, default=1, help="record one sample every N steps")
     ap.add_argument("--sim-dt", type=float, default=0.005, help="physics timestep (s); 200 Hz")
@@ -443,9 +571,13 @@ def get_args():
     ap.add_argument("--vla-camera-port", type=int, default=5555,
                     help="ZMQ port for the RoboCasa VLA camera stream")
     ap.add_argument("--vla-camera-name", default="robot0_head_camera",
-                    help="MuJoCo camera rendered as the VLA ego_view stream")
+                    help="MuJoCo camera rendered as the single VLA image stream")
     ap.add_argument("--vla-camera-key", default="ego_view",
-                    help="Image key expected by run_data_exporter.py")
+                    help="Image key expected by run_data_exporter.py for single-camera streaming")
+    ap.add_argument("--vla-camera-names", nargs="+", default=None,
+                    help="MuJoCo cameras rendered into one VLA camera message")
+    ap.add_argument("--vla-camera-keys", nargs="+", default=None,
+                    help="Image keys for --vla-camera-names, e.g. ego_view left_wrist right_wrist")
     ap.add_argument("--vla-camera-width", type=int, default=640)
     ap.add_argument("--vla-camera-height", type=int, default=480)
     ap.add_argument("--vla-camera-hz", type=float, default=30.0,
@@ -462,10 +594,40 @@ def get_args():
                     help="run_data_exporter.py ZMQ keyboard port")
     ap.add_argument("--no-vla-keyboard-sync", dest="vla_keyboard_sync", action="store_false",
                     help="Do not forward local c/k/x hotkeys to run_data_exporter.py")
-    ap.set_defaults(vla_keyboard_sync=True, vla_camera_flip=False)
+    ap.add_argument("--vla-instruction-port", type=int, default=5581,
+                    help="ZMQ port for per-episode RoboCasa instruction metadata")
+    ap.add_argument(
+        "--no-vla-instruction-sync",
+        dest="vla_instruction_sync",
+        action="store_false",
+        help="Do not publish sampled episode instructions to run_data_exporter.py",
+    )
+    ap.add_argument("--vla-instruction-heartbeat", type=float, default=0.5,
+                    help="Seconds between repeats of the current episode instruction")
+    ap.add_argument("--vla-instruction-start-delay", type=float, default=0.05,
+                    help="Local-start grace period for exporter instruction receipt (seconds)")
+    ap.set_defaults(
+        vla_keyboard_sync=True,
+        vla_instruction_sync=True,
+        vla_camera_flip=False,
+    )
     ap.add_argument("--vla-save-sync-delay", type=float, default=0.08,
                     help="Small episode-end delay so run_data_exporter.py sees save/discard before reset")
-    return ap.parse_args()
+    args = ap.parse_args()
+    if (args.vla_camera_names is None) != (args.vla_camera_keys is None):
+        ap.error("--vla-camera-names and --vla-camera-keys must be provided together")
+    if args.vla_camera_names is None:
+        args.vla_camera_names = [args.vla_camera_name]
+        args.vla_camera_keys = [args.vla_camera_key]
+    if len(args.vla_camera_names) != len(args.vla_camera_keys):
+        ap.error("--vla-camera-names and --vla-camera-keys must have the same length")
+    if len(set(args.vla_camera_keys)) != len(args.vla_camera_keys):
+        ap.error("--vla-camera-keys must be unique")
+    if args.vla_instruction_heartbeat <= 0:
+        ap.error("--vla-instruction-heartbeat must be positive")
+    if args.vla_instruction_start_delay < 0:
+        ap.error("--vla-instruction-start-delay must be non-negative")
+    return args
 
 
 def main():
@@ -479,8 +641,9 @@ def main():
     wall = EnclosingWallRenderWrapper(base, alpha=args.wall_alpha, enabled=True)
     reset_with_retry(wall, base, args)
     n_sub = int(round(base.control_timestep / base.model_timestep))
+    solver = mujoco.mjtSolver(base.sim.model._model.opt.solver).name.removeprefix("mjSOL_")
     print(f"[sonic] {1.0/args.sim_dt:.0f} Hz physics | control_freq {args.control_freq} | "
-          f"{n_sub} substep(s)/step", flush=True)
+          f"{n_sub} substep(s)/step | solver {solver}", flush=True)
 
     source = DDSActionSource(_controller(base)._cfg)
     source.reset(base)

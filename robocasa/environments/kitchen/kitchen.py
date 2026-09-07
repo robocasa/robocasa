@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from copy import deepcopy
 
 import numpy as np
+import mujoco
 import robosuite.utils.transform_utils as T
 from robosuite.environments.manipulation.manipulation_env import ManipulationEnv
 from robosuite.models.tasks import ManipulationTask
@@ -45,6 +46,11 @@ import re
 
 
 REGISTERED_KITCHEN_ENVS = {}
+_MUJOCO_SOLVER_XML_NAMES = {
+    "PGS": "PGS",
+    "CG": "CG",
+    "NEWTON": "Newton",
+}
 SLIDING_INTERIOR_FIXTURES = [
     FixtureType.DRAWER,
     FixtureType.DISHWASHER,
@@ -173,6 +179,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         renderer (str): Specifies which renderer to use.
 
         renderer_config (dict): dictionary for the renderer configurations
+
+        mujoco_solver (str): optional MuJoCo constraint solver. Supported values are
+            "PGS", "CG", and "NEWTON". None preserves MuJoCo's default.
 
         init_robot_base_ref (str): name of the fixture to place the near. If None, will randomly select a fixture.
 
@@ -387,6 +396,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         camera_depths=False,
         renderer="mjviewer",
         renderer_config=None,
+        mujoco_solver=None,
         init_robot_base_ref=None,
         seed=None,
         layout_and_style_ids=None,
@@ -410,7 +420,18 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         use_cotraining_cameras=False,
         use_novel_instructions=False,
     ):
+        if mujoco_solver is not None:
+            solver_key = str(mujoco_solver).upper()
+            if solver_key not in _MUJOCO_SOLVER_XML_NAMES:
+                raise ValueError(
+                    "mujoco_solver must be one of: PGS, CG, NEWTON, or None"
+                )
+            mujoco_solver = _MUJOCO_SOLVER_XML_NAMES[solver_key]
+        self.mujoco_solver = mujoco_solver
         self.init_robot_base_ref = init_robot_base_ref
+        self.robot_init_offset = EnvUtils.get_task_robot_init_offset(
+            self.__class__.__name__
+        )
 
         self.robot_spawn_deviation_pos_x = robot_spawn_deviation_pos_x
         self.robot_spawn_deviation_pos_y = robot_spawn_deviation_pos_y
@@ -826,8 +847,14 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.init_robot_base_ori_anchor,
         ) = EnvUtils.init_robot_base_pose(self)
 
+        self._write_robot_base_pose_to_model()
+        self.robot_geom_ids = None
+
+    def _write_robot_base_pose_to_model(self):
+        """Write the final task-selected base pose into the robot MJCF model."""
         robot_model = self.robots[0].robot_model
         from robosuite.models.robots import PandaOmron
+
         if isinstance(robot_model, PandaOmron):
             # placement code only really works for PandaOmron
             robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
@@ -838,8 +865,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             # called on every hard_reset, so this is re-evaluated each episode.
             robot_model.set_base_xpos(self.init_robot_base_pos_anchor)
             robot_model.set_base_ori(self.init_robot_base_ori_anchor)
-
-        self.robot_geom_ids = None
 
     def _create_objects(self):
         """
@@ -1089,7 +1114,35 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # consistent physics
         self.sim.set_state(initial_state_copy)
 
+    def _initialize_sim(self, xml_string=None):
+        super()._initialize_sim(xml_string=xml_string)
+        self._robot_init_reset_solver = None
+
+        if EnvUtils.get_effective_robot_init_offset(self) == (0.0, 0.0):
+            return
+
+        native_model = self.sim.model._model
+        if native_model.opt.solver == int(mujoco.mjtSolver.mjSOL_NEWTON):
+            # A shifted robot can create redundant fixture contacts while the
+            # kitchen reset settles its objects. CG avoids Newton's singular
+            # Hessian only for that reset phase.
+            self._robot_init_reset_solver = int(native_model.opt.solver)
+            native_model.opt.solver = int(mujoco.mjtSolver.mjSOL_CG)
+
+    def _restore_robot_init_reset_solver(self):
+        if self._robot_init_reset_solver is None:
+            return
+
+        self.sim.model._model.opt.solver = self._robot_init_reset_solver
+        self._robot_init_reset_solver = None
+
     def _reset_internal(self):
+        try:
+            self._reset_internal_impl()
+        finally:
+            self._restore_robot_init_reset_solver()
+
+    def _reset_internal_impl(self):
         """
         Resets simulation internal configurations.
         """
@@ -1116,7 +1169,9 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
             self.init_robot_base_pos = self._ep_meta["init_robot_base_pos"]
             self.init_robot_base_ori = self._ep_meta["init_robot_base_ori"]
             EnvUtils.set_robot_to_position(self, self.init_robot_base_pos)
-            self.sim.forward()
+            # SonicG1 has no runtime base translation; its XML base position is final.
+            if not EnvUtils.is_sonic_g1(self):
+                self.sim.forward()
         else:
             robot_pos = EnvUtils.set_robot_base(
                 env=self,
@@ -1207,8 +1262,24 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         ep_meta["cam_configs"] = deepcopy(self._cam_configs)
         ep_meta["init_robot_base_pos"] = list(self.init_robot_base_pos)
         ep_meta["init_robot_base_ori"] = list(self.init_robot_base_ori)
+        ep_meta["robot_init_offset"] = list(
+            EnvUtils.get_effective_robot_init_offset(self)
+        )
 
         return ep_meta
+
+    def set_ep_meta(self, meta):
+        super().set_ep_meta(meta)
+        if "robot_init_offset" in meta:
+            self.robot_init_offset = EnvUtils.normalize_robot_init_offset(
+                meta["robot_init_offset"]
+            )
+
+    def unset_ep_meta(self):
+        super().unset_ep_meta()
+        self.robot_init_offset = EnvUtils.get_task_robot_init_offset(
+            self.__class__.__name__
+        )
 
     def edit_model_xml(self, xml_str):
         """
@@ -1225,6 +1296,12 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         tree = ET.fromstring(xml_str)
         root = tree
+        if self.mujoco_solver is not None:
+            option = root.find("option")
+            if option is None:
+                option = ET.Element("option")
+                root.insert(0, option)
+            option.set("solver", self.mujoco_solver)
         worldbody = root.find("worldbody")
         actuator = root.find("actuator")
         asset = root.find("asset")
