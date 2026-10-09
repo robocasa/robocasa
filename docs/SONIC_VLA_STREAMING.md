@@ -153,6 +153,19 @@ Exporter-side overrides are `--instruction-zmq-host`,
 collector that does not publish port `5581`; the existing `--task-prompt` is
 then used immediately.
 
+## Navigation target annotation
+
+`NavigateKitchen` collection shows a yellow outline, downward arrow, and target
+name in the interactive RoboCasa window by default. The annotation follows the
+newly sampled target after `k`/`x` resets and viewer recreation. The normal
+`./collect_sonic.sh NavigateKitchen` workflow enables it automatically; when
+calling `collect_sonic_demos.py` directly, `--no-nav-target-marker` disables it.
+
+These decorations exist only in the passive viewer's `user_scn` and text
+overlay. They do not modify simulation geoms, materials, sites, XML, states, or
+the camera publisher's render scene. The head/left-wrist/right-wrist images
+sent to the exporter, LeRobot videos, and raw replay data remain unannotated.
+
 ## Navigation success criterion
 
 Navigation succeeds when the robot is within 25 cm of the target base placement

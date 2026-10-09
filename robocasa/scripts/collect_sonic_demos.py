@@ -38,6 +38,7 @@ from robosuite.utils.sonic.action_sources import DDSActionSource
 
 import robocasa  # noqa: F401  registers the kitchen envs
 from robocasa.scripts.collect_demos import gather_demonstrations_as_hdf5
+from robocasa.utils.navigation_target_overlay import NavigationTargetOverlay
 from robocasa.utils.robomimic.robomimic_dataset_utils import convert_to_robomimic_format
 from robocasa.wrappers.enclosing_wall_render_wrapper import EnclosingWallRenderWrapper
 
@@ -362,6 +363,11 @@ def run_collection(args, base, wall, env_kwargs, source):
             flush=True,
         )
     keys = Hotkeys()
+    nav_overlay = (
+        NavigationTargetOverlay()
+        if args.environment == "NavigateKitchen" and args.nav_target_marker
+        else None
+    )
     hold = np.zeros(base.action_dim)
     saved, recording, gains, saved_gains = [], False, None, None
     next_t = time.perf_counter()
@@ -497,6 +503,8 @@ def run_collection(args, base, wall, env_kwargs, source):
             act = a if a is not None else hold
             try:
                 (env if (recording and a is not None) else wall).step(act)
+                if nav_overlay is not None:
+                    nav_overlay.update(base)
                 if image_pub is not None:
                     image_pub.maybe_publish(base)
             except mujoco.FatalError as e:
@@ -513,6 +521,8 @@ def run_collection(args, base, wall, env_kwargs, source):
             finish(discard=False)
     finally:
         keys.close()
+        if nav_overlay is not None:
+            nav_overlay.close()
         if manager_sub is not None:
             manager_sub.close()
         if keyboard_pub is not None:
@@ -565,6 +575,10 @@ def get_args():
     ap.add_argument("--floor-torsion", type=float, default=0.005, help="floor torsional friction")
     ap.add_argument("--wall-alpha", type=float, default=0.0,
                     help="enclosing-wall transparency in the viewer (0 hides, 1 opaque)")
+    ap.add_argument(
+        "--no-nav-target-marker", dest="nav_target_marker", action="store_false",
+        help="Disable the NavigateKitchen target outline and label in the operator window",
+    )
     ap.add_argument("--rtf-log", action="store_true", help="print the [real-time] RTF line")
     ap.add_argument("--vla-stream", action="store_true",
                     help="Publish RoboCasa images and sync episode controls for run_data_exporter.py")
