@@ -13,6 +13,9 @@ class LoadDishwasher(Kitchen):
         Close the dishwasher fully.
     """
 
+    # Counter-local meters: shift the shared dish region 15 cm left.
+    DISH_SAMPLING_OFFSET = (-0.15, 0.0)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -44,7 +47,8 @@ class LoadDishwasher(Kitchen):
 
     def _load_model(self, *args, **kwargs):
         super()._load_model(*args, **kwargs)
-        self._place_robot()
+        if self._place_robot():
+            self._write_robot_base_pose_to_model()
 
     def _place_robot(self):
         X_OFS = 0.25
@@ -119,6 +123,7 @@ class LoadDishwasher(Kitchen):
                     ),
                     size=(0.35, 0.25),
                     pos=("ref", -1.0),
+                    offset=self.DISH_SAMPLING_OFFSET,
                 ),
             )
         )
@@ -135,6 +140,7 @@ class LoadDishwasher(Kitchen):
                     ),
                     size=(0.35, 0.25),
                     pos=("ref", -1.0),
+                    offset=self.DISH_SAMPLING_OFFSET,
                 ),
             )
         )
