@@ -153,6 +153,15 @@ Exporter-side overrides are `--instruction-zmq-host`,
 collector that does not publish port `5581`; the existing `--task-prompt` is
 then used immediately.
 
+## Navigation success criterion
+
+Navigation succeeds when the robot is within 25 cm of the target base placement
+in the horizontal plane and its yaw error is at most about 11.48 degrees. For
+SonicG1, this position and heading are measured at the pelvis. This is the
+task-level criterion in `NavigateKitchen._check_success()`, shared by live
+collection, policy evaluation, and offline raw replay; it is not a cleanup-only
+tolerance. The distance is to the target base placement, not the fixture surface.
+
 ## Episode controls
 
 Local collector hotkeys still work:
