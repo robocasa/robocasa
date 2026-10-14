@@ -27,6 +27,7 @@ This guide contains information about installation and setup. Please refer to th
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
 - [Tasks, datasets, policy learning, and additional use cases](#tasks-datasets-policy-learning-and-additional-use-cases)
+- [Questions](#questions)
 - [License](#license)
 - [Citation](#citation)
 
@@ -119,6 +120,10 @@ Note: If using SpaceMouse, you may need to modify the product ID to your appropr
 -------
 ## Tasks, datasets, policy learning, and additional use cases
 Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for information about tasks, datasets, benchmarking, and more.
+
+-------
+## Questions
+If you have any questions about the benchmark or the submission process, reach out at [robocasa@googlegroups.com](mailto:robocasa@googlegroups.com).
 
 -------
 ## License
