@@ -18,7 +18,7 @@ This guide contains information about installation and setup. Please refer to th
 * [10/14/2026] Released the [**subtask annotation pipeline**](https://robocasa.ai/docs/build/html/use_cases/subtask_annotations.html), with labelers covering all 300 composite tasks. It generates per-frame subtask labels directly from each demo's simulation state.
 * [7/7/2026] Our target composite task datasets have been updated to include per-frame **subtask annotations**. Every timestep is labeled with a subtask index, atomic-skill name, stage (i.e. pick / place / navigate), and a natural-language instruction, to support hierarchical policy learning.
 * [5/12/2026] **v1.0.1**: Updated horizon lengths (1.5x increase) across all tasks for consistency. Please update to the latest version for running evals.
-* [4/6/2026] **RoboCasa365 Leaderboard** published, comparing generalist robot policies on the multi-task learning benchmark and open to community model submissions.
+* [4/6/2026] [**RoboCasa365 Leaderboard**](https://robocasa.ai/leaderboard.html) published, comparing generalist robot policies on the multi-task learning benchmark and open to community model submissions.
 * [2/18/2026] **v1.0**: RoboCasa365 release, with 365 tasks, 2500+ kitchen scenes, 2200+ hours of robot demonstration data, and benchmarking support.
 * [10/31/2024] **v0.2**: using RoboSuite `v1.5` as the backend, with improved support for custom robot composition, composite controllers, more teleoperation devices, photo-realistic rendering.
 
