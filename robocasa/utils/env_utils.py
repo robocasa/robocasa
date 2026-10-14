@@ -208,6 +208,27 @@ def determine_face_dir(fixture_rot, ref_rot, epsilon=1e-2):
         return 2
 
 
+_LAYOUT_YAML_CACHE = {}
+
+
+def _load_layout_yaml(layout_path):
+    """
+    Parse a layout file, at most once per path.
+
+    The helpers below are reachable from `compute_robot_base_placement_pose`, which
+    `_check_success` calls on every step, so parsing on each call costs tens of
+    milliseconds per step for the island and dining layouts -- by far the most
+    expensive thing in that function. A layout file does not change while the
+    process is running, so the parse is cached.
+    """
+    layout_data = _LAYOUT_YAML_CACHE.get(layout_path)
+    if layout_data is None:
+        with open(layout_path, "r") as f:
+            layout_data = yaml.safe_load(f)
+        _LAYOUT_YAML_CACHE[layout_path] = layout_data
+    return layout_data
+
+
 def get_current_layout_stool_rotations(env):
     """
     Automatically detect the current layout and extract unique stool rotation values (z_rot)
@@ -223,8 +244,7 @@ def get_current_layout_stool_rotations(env):
 
     layout_path = get_layout_path(env.layout_id)
 
-    with open(layout_path, "r") as file:
-        layout_data = yaml.safe_load(file)
+    layout_data = _load_layout_yaml(layout_path)
 
     unique_rots = set()
 
@@ -310,8 +330,7 @@ def get_island_group_counter_names(env):
     from robocasa.models.scenes.scene_registry import get_layout_path
 
     layout_path = get_layout_path(env.layout_id)
-    with open(layout_path, "r") as f:
-        layout_data = yaml.safe_load(f)
+    layout_data = _load_layout_yaml(layout_path)
     counter_names = []
     for group_key, group_val in layout_data.items():
         if group_key.startswith("island_group"):
