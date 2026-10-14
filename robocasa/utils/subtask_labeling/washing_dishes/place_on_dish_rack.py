@@ -1,0 +1,157 @@
+import numpy as np
+
+from robocasa.utils.subtask_labeling.base import (
+    BaseSubtaskLabeler,
+    STAGE_DONE,
+    STAGE_PICK,
+    STAGE_PLACE,
+    register_labeler,
+)
+from robocasa.utils.subtask_labeling.subtask_bank import DONE
+
+
+# Transfer the CLEAN items from the right sink basin to the dish rack for drying; the dirty
+# items in the left basin are left untouched. Sink -> dish rack has no bank name ->
+# PickPlaceSinkToDishRack (extension). Doc-canonical count = 2 (two moves). Only the
+# clean_item* objects are tracked; dirty_item* are never emitted.
+SUBTASK_MOVE = "PickPlaceSinkToDishRack"
+
+DONE_LANG = "task complete"
+
+CLEAN = ("clean_item1", "clean_item2")
+
+
+@register_labeler
+class PlaceOnDishRackLabeler(BaseSubtaskLabeler):
+    """Labeler for the PlaceOnDishRack composite task.
+
+    Task: move the two clean items from the right basin of the sink into the dish rack; leave
+    the dirty items in the left basin alone. Doc-canonical count = 2. Order by first grasped
+    move; same-type items read "a X"/"the other X".
+
+    pick/place split at each clean item's first sustained displacement (cursor-relative rest);
+    place ends at the gripper release.
+    """
+
+    ENV_NAME = "PlaceOnDishRack"
+
+    MOVE_TOL = 0.10
+    MOVE_SUSTAIN = 5
+    HOLD_W = 40
+    RELEASE_MARGIN = 0.08
+    RELEASE_SUSTAIN = 5
+    MIN_CARRY = 15
+    REST_W = 15
+
+    def setup(self, env, ep_meta: dict) -> None:
+        super().setup(env, ep_meta)
+        self.names = [o for o in CLEAN if o in env.obj_body_id]
+        self.obj_body_ids = {o: env.obj_body_id[o] for o in self.names}
+        self.eef_site_id = env.robots[0].eef_site_id["right"]
+        self.base = {}
+        for o in self.names:
+            try:
+                self.base[o] = env.get_obj_lang(o)
+            except Exception:
+                self.base[o] = "item"
+        self.extra_subtasks = {SUBTASK_MOVE}
+        self.expected_done_idx = None
+        self.min_segment_frames = 10
+
+    def per_step(self, env, t: int) -> dict:
+        d = {"grip": env.sim.data.site_xpos[self.eef_site_id].copy()}
+        for o in self.names:
+            d[o] = env.sim.data.body_xpos[self.obj_body_ids[o]].copy()
+        return d
+
+    @staticmethod
+    def _sustained_start(mask, start, sustain):
+        run = 0
+        for t in range(int(start), len(mask)):
+            if mask[t]:
+                run += 1
+                if run >= sustain:
+                    return t - sustain + 1
+            else:
+                run = 0
+        return None
+
+    def resolve(self, history):
+        T = len(history)
+        opos = {o: np.array([h[o] for h in history]) for o in self.names}
+        grip = np.array([h["grip"] for h in history])
+        gd = {o: np.linalg.norm(grip - opos[o], axis=1) for o in self.names}
+
+        first_move = {}
+        for o in self.names:
+            rest = np.median(opos[o][: self.REST_W], axis=0)
+            dsp = np.linalg.norm(opos[o] - rest, axis=1)
+            fm = self._sustained_start(dsp >= self.MOVE_TOL, 0, self.MOVE_SUSTAIN)
+            first_move[o] = fm if fm is not None else T
+        order = sorted([o for o in self.names if first_move[o] < T], key=lambda o: first_move[o])
+
+        from collections import Counter
+        counts = Counter(self.base[o] for o in order)
+        seen, noun = {}, {}
+        for o in order:
+            w = self.base[o]
+            if counts[w] <= 1:
+                noun[o] = f"the {w}"
+            else:
+                seen[w] = seen.get(w, 0) + 1
+                art = "an" if w[:1].lower() in "aeiou" else "a"
+                noun[o] = f"{art} {w}" if seen[w] == 1 else f"the other {w}"
+
+        segments = []
+        cursor = 0
+
+        def emit(end, name, stage, lang):
+            nonlocal cursor
+            end = int(min(max(end, cursor), T))
+            segments.append((end, name, stage, lang))
+            cursor = end
+
+        n = 0
+        for o in order:
+            nn = noun[o]
+            r = np.median(opos[o][max(cursor - self.REST_W, 0): cursor + 1], axis=0)
+            dsp = np.linalg.norm(opos[o] - r, axis=1)
+            t_move = self._sustained_start(dsp >= self.MOVE_TOL, cursor, self.MOVE_SUSTAIN)
+            if t_move is None:
+                mv = np.where(dsp[cursor:] >= self.MOVE_TOL)[0]
+                t_move = cursor + int(mv[0]) if mv.size else min(cursor + 1, T - 1)
+            t_move = max(t_move, cursor)
+            hold_gd = float(np.median(gd[o][t_move: min(t_move + self.HOLD_W, T)]))
+            t_placed = self._sustained_start(gd[o] > hold_gd + self.RELEASE_MARGIN,
+                                             t_move + self.MIN_CARRY, self.RELEASE_SUSTAIN)
+            if t_placed is None:
+                t_placed = T - 1
+            emit(t_move, SUBTASK_MOVE, STAGE_PICK, f"pick up {nn} from the right basin")
+            emit(t_placed, SUBTASK_MOVE, STAGE_PLACE, f"place {nn} in the dish rack")
+            n += 1
+
+        emit(T, DONE, STAGE_DONE, DONE_LANG)
+        self.expected_done_idx = len(segments) - 1
+
+        review = []
+        if n != 2:
+            review.append(f"only {n}/2 clean items moved")
+        result = self.build_result(T, segments, debug={"order": order, "n": n,
+                                                       "n_segments": len(segments)})
+        result.review = review
+        return result
+
+    def validate(self, result):
+        self.extra_subtasks = {SUBTASK_MOVE}
+        issues = super().validate(result)
+        idx = result.subtask_idx
+        if idx.size == 0:
+            return issues
+        firsts = np.concatenate([[0], np.where(np.diff(idx) != 0)[0] + 1])
+        names = result.subtask_name[firsts]
+        stages = result.subtask_stage[firsts]
+        if int(np.sum((names == SUBTASK_MOVE) & (stages == STAGE_PICK))) != 2:
+            issues.append("expected 2 clean-item picks")
+        if int(np.sum((names == SUBTASK_MOVE) & (stages == STAGE_PLACE))) != 2:
+            issues.append("expected 2 clean-item places")
+        return issues

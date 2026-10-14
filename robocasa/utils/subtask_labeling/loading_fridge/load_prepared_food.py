@@ -1,0 +1,197 @@
+import numpy as np
+
+from robocasa.utils.subtask_labeling.base import (
+    BaseSubtaskLabeler,
+    STAGE_DONE,
+    STAGE_EXECUTE,
+    STAGE_NAVIGATE,
+    STAGE_PICK,
+    STAGE_PLACE,
+    register_labeler,
+)
+from robocasa.utils.subtask_labeling.subtask_bank import DONE
+
+# A tupperware (holding meat + vegetables) is carried from the counter onto a fridge
+# shelf, then the fridge door is closed. Counter -> fridge has no bank name ->
+# PickPlaceCounterToFridge (extension); NavigateKitchen and CloseFridge are bank. The
+# contents ride inside the tupperware, so only the tupperware is tracked. The robot
+# starts at the counter.
+SUBTASK_MOVE = "PickPlaceCounterToFridge"
+SUBTASK_NAV = "NavigateKitchen"
+SUBTASK_CLOSE = "CloseFridge"
+
+DONE_LANG = "task complete"
+
+
+@register_labeler
+class LoadPreparedFoodLabeler(BaseSubtaskLabeler):
+    """Labeler for the LoadPreparedFood composite task.
+
+    Task (mobile): a tupperware of prepared food sits on the counter; existing items
+    fill the (open) fridge shelves. Place the tupperware on the target shelf (top or
+    second highest, from ep_meta refs), then close the fridge door. The existing items
+    are distractors and stay put. The robot starts at the counter.
+
+    Doc-canonical decomposition (4 high-level subtasks): pick -> nav(carry to the
+    fridge) -> place -> close. Emitted:
+      PickPlaceCounterToFridge [pick] -> NavigateKitchen -> [place] -> CloseFridge.
+
+    Detection: t_pick = the tupperware first departs its counter rest; place = the
+    gripper RELEASE; the carry nav splits off the base motion; the close ends when
+    every opened fridge-door leaf swings back below CLOSE_TH.
+    """
+
+    ENV_NAME = "LoadPreparedFood"
+
+    MOVE_TOL = 0.10
+    MOVE_SUSTAIN = 5
+    HOLD_W = 40
+    RELEASE_MARGIN = 0.08
+    RELEASE_SUSTAIN = 5
+    MIN_CARRY = 20
+    BASE_MOVE_TH = 0.003
+    MIN_NAV_DIST = 0.30
+    REST_W = 15
+    CLOSE_TH = 0.20
+    CLOSE_SUSTAIN = 5
+
+    def setup(self, env, ep_meta: dict) -> None:
+        super().setup(env, ep_meta)
+        self.tup_body_id = env.obj_body_id["tupperware"]
+        self.eef_site_id = env.robots[0].eef_site_id["right"]
+        refs = ep_meta.get("refs", {})
+        self.shelf = "top shelf" if refs.get("target_rack_index", -1) == -1 else "second highest shelf"
+        fr = env.fridge
+        joint_names = list(getattr(fr, "_fridge_door_joint_names", []) or [])
+        self.door_adrs, self.door_scales = [], []
+        for j in joint_names:
+            try:
+                adr = env.sim.model.get_joint_qpos_addr(j)
+                jid = env.sim.model.joint_name2id(j)
+                lo, hi = env.sim.model.jnt_range[jid]
+            except Exception:
+                continue
+            self.door_scales.append(max(abs(float(hi)), abs(float(lo)), 1e-6))
+            self.door_adrs.append(adr)
+        self.base_qpos_adrs = []
+        for nm in ("mobilebase0_joint_mobile_forward", "mobilebase0_joint_mobile_side"):
+            try:
+                jid = env.sim.model.joint_name2id(nm)
+            except Exception:
+                continue
+            self.base_qpos_adrs.append(env.sim.model.jnt_qposadr[jid])
+        self.extra_subtasks = {SUBTASK_MOVE}
+        self.expected_done_idx = None
+        self.min_segment_frames = 12
+
+    def per_step(self, env, t: int) -> dict:
+        doors = np.array(
+            [abs(float(env.sim.data.qpos[a])) / s
+             for a, s in zip(self.door_adrs, self.door_scales)]
+        )
+        return {
+            "tup": env.sim.data.body_xpos[self.tup_body_id].copy(),
+            "grip": env.sim.data.site_xpos[self.eef_site_id].copy(),
+            "base_xy": np.array([float(env.sim.data.qpos[a]) for a in self.base_qpos_adrs]),
+            "doors": doors,
+        }
+
+    @staticmethod
+    def _sustained_start(mask, start, sustain):
+        run = 0
+        for t in range(int(start), len(mask)):
+            if mask[t]:
+                run += 1
+                if run >= sustain:
+                    return t - sustain + 1
+            else:
+                run = 0
+        return None
+
+    def resolve(self, history):
+        T = len(history)
+        tup = np.array([h["tup"] for h in history])
+        grip = np.array([h["grip"] for h in history])
+        doorv = (np.array([h["doors"] for h in history])
+                 if T and len(history[0]["doors"]) else np.zeros((T, 0)))
+        base_xy = np.array([h["base_xy"] for h in history]) if self.base_qpos_adrs else None
+        if base_xy is not None and T >= 2:
+            binst = np.linalg.norm(np.diff(base_xy, axis=0), axis=1)
+            binst = np.concatenate([binst, binst[-1:]])
+        else:
+            binst = np.zeros(T)
+
+        rest = np.median(tup[: self.REST_W], axis=0)
+        disp = np.linalg.norm(tup - rest, axis=1)
+        gd = np.linalg.norm(grip - tup, axis=1)
+
+        t_pick = self._sustained_start(disp >= self.MOVE_TOL, 0, self.MOVE_SUSTAIN)
+        if t_pick is None:
+            t_pick = min(1, T - 1)
+        hold_gd = float(np.median(gd[t_pick: min(t_pick + self.HOLD_W, T)]))
+        released = gd > hold_gd + self.RELEASE_MARGIN
+        t_placed = self._sustained_start(released, t_pick + self.MIN_CARRY, self.RELEASE_SUSTAIN)
+        if t_placed is None:
+            t_placed = T - 1
+
+        close_frames = []
+        for i in range(doorv.shape[1]):
+            if float(doorv[:, i].max()) < 0.5:
+                continue
+            fr = self._sustained_start(doorv[:, i] < self.CLOSE_TH, t_placed, self.CLOSE_SUSTAIN)
+            if fr is not None:
+                close_frames.append(fr)
+        n_doors = int(sum(1 for i in range(doorv.shape[1]) if float(doorv[:, i].max()) >= 0.5))
+        t_close = max(close_frames) if close_frames else T - 1
+        t_close = max(t_close, t_placed + 1)
+        door_word = "doors" if n_doors >= 2 else "door"
+
+        def base_disp(a, b):
+            if base_xy is None or b <= a:
+                return 0.0
+            return float(np.max(np.linalg.norm(base_xy[a:b] - base_xy[a], axis=1)))
+
+        carry_moving = np.where(binst[t_pick: t_placed] > self.BASE_MOVE_TH)[0]
+        t_arrive = min(t_pick + int(carry_moving[-1]) + 1, t_placed) if carry_moving.size else t_pick
+
+        segments = []
+        cursor = 0
+
+        def emit(end, name, stage, lang):
+            nonlocal cursor
+            end = int(min(max(end, cursor), T))
+            segments.append((end, name, stage, lang))
+            cursor = end
+
+        emit(t_pick, SUBTASK_MOVE, STAGE_PICK, "pick up the tupperware from the counter")
+        if t_arrive > cursor and base_disp(t_pick, t_arrive) >= self.MIN_NAV_DIST:
+            emit(t_arrive, SUBTASK_NAV, STAGE_NAVIGATE, "carry the tupperware to the fridge")
+        emit(t_placed, SUBTASK_MOVE, STAGE_PLACE, f"place the tupperware on the {self.shelf} of the fridge")
+        emit(t_close, SUBTASK_CLOSE, STAGE_EXECUTE, f"close the fridge {door_word}")
+        segments.append((T, DONE, STAGE_DONE, DONE_LANG))
+        self.expected_done_idx = len(segments) - 1
+
+        closed = bool(doorv[-1].max() < self.CLOSE_TH) if doorv.shape[1] else False
+        debug = {
+            "t_pick": int(t_pick), "t_placed": int(t_placed), "t_close": int(t_close),
+            "n_doors": n_doors, "closed_at_end": int(closed), "n_segments": len(segments),
+        }
+        return self.build_result(T, segments, debug=debug)
+
+    def validate(self, result):
+        issues = super().validate(result)
+        idx = result.subtask_idx
+        if idx.size == 0:
+            return issues
+        firsts = np.concatenate([[0], np.where(np.diff(idx) != 0)[0] + 1])
+        names = result.subtask_name[firsts]
+        stages = result.subtask_stage[firsts]
+        if int(np.sum(stages == STAGE_PICK)) != 1:
+            issues.append("expected 1 pick stage")
+        if int(np.sum(stages == STAGE_PLACE)) != 1:
+            issues.append("expected 1 place stage")
+        if int(np.sum(names == SUBTASK_CLOSE)) != 1:
+            issues.append("expected 1 CloseFridge")
+        if result.debug.get("closed_at_end") == 0:
+            issues.append("fridge not closed at end")
+        return issues
