@@ -12,6 +12,28 @@ from robocasa.utils.dataset_registry_utils import get_ds_path
 
 
 class TestTasksValidity(unittest.TestCase):
+    def test_lerobot_absolute_action_playback_is_rejected(self):
+        with self.assertRaisesRegex(
+            NotImplementedError, "LeRobot datasets do not store absolute actions"
+        ):
+            playback_dataset(
+                dataset="unused",
+                use_actions=False,
+                use_abs_actions=True,
+                use_obs=False,
+                filter_key=None,
+                n=None,
+                render=False,
+                render_image_names=None,
+                camera_height=512,
+                camera_width=512,
+                video_path=None,
+                video_skip=5,
+                extend_states=False,
+                first=False,
+                verbose=False,
+            )
+
     def test_tasks_validity(self, *args):
         """
         Tests that all kitchen environment tasks run error free. Iterates through
