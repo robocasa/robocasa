@@ -113,3 +113,57 @@ if __name__ == "__main__":
             f"Number of passed datasets: {num_passed} / {len(ds_path_list)}", "yellow"
         )
     )
+
+
+def test_make_demo_ids_contiguous_preserves_episode_and_filter_metadata(tmp_path):
+    from robocasa.utils.robomimic.robomimic_dataset_utils import (
+        make_demo_ids_contiguous,
+    )
+
+    dataset = tmp_path / "demos.hdf5"
+    with h5py.File(dataset, "w") as f:
+        data = f.create_group("data")
+        for index in (0, 2, 5):
+            demo = data.create_group(f"demo_{index}")
+            demo.attrs["original_id"] = index
+            obs = demo.create_group("obs")
+            obs.attrs["camera"] = "agentview"
+            image = obs.create_dataset(
+                "image", data=np.full((2, 3), index), compression="gzip"
+            )
+            image.attrs["units"] = "pixels"
+        train = f.create_dataset(
+            "mask/train", data=np.array(["demo_2", "demo_5", "demo_1"], dtype="S")
+        )
+        train.attrs["split"] = "train"
+        f.create_dataset("mask/valid", data=np.array(["demo_0"], dtype="S"))
+    make_demo_ids_contiguous(dataset)
+    with h5py.File(dataset, "r") as f:
+        assert set(f["data"]) == {"demo_0", "demo_1", "demo_2"}
+        assert f["mask/train"][:].tolist() == [b"demo_2", b"demo_1"]
+        assert f["mask/valid"][:].tolist() == [b"demo_0"]
+        assert f["mask/train"].attrs["split"] == "train"
+        assert f["data/demo_1"].attrs["original_id"] == 5
+        assert f["data/demo_1/obs"].attrs["camera"] == "agentview"
+        assert f["data/demo_1/obs/image"].attrs["units"] == "pixels"
+        assert f["data/demo_1/obs/image"].compression == "gzip"
+        assert np.all(f["data/demo_1/obs/image"][:] == 5)
+    # A second conversion must leave both IDs and filters unchanged.
+    make_demo_ids_contiguous(dataset)
+    with h5py.File(dataset, "r") as f:
+        assert f["mask/train"][:].tolist() == [b"demo_2", b"demo_1"]
+
+
+def test_make_demo_ids_contiguous_without_filter_masks(tmp_path):
+    from robocasa.utils.robomimic.robomimic_dataset_utils import (
+        make_demo_ids_contiguous,
+    )
+
+    dataset = tmp_path / "demos.hdf5"
+    with h5py.File(dataset, "w") as f:
+        f.create_dataset("data/demo_3/actions", data=np.ones((2, 7)))
+    make_demo_ids_contiguous(dataset)
+    with h5py.File(dataset, "r") as f:
+        assert list(f["data"]) == ["demo_0"]
+        assert "mask" not in f
+        assert np.array_equal(f["data/demo_0/actions"][:], np.ones((2, 7)))
