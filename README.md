@@ -123,7 +123,7 @@ Please refer to the [documentation page](https://robocasa.ai/docs/introduction/o
 
 -------
 ## Questions
-If you have any questions about the benchmark or the submission process, reach out at [robocasa@googlegroups.com](mailto:robocasa@googlegroups.com).
+If you have any questions about RoboCasa, reach out at [robocasa@googlegroups.com](mailto:robocasa@googlegroups.com).
 
 -------
 ## License
