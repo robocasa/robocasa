@@ -256,7 +256,16 @@ class MakeCheesecakeFillingLabeler(BaseSubtaskLabeler):
     # ---- structural validation ----------------------------------------
 
     def validate(self, result):
+        # PickPlaceCounterToStandMixer + CloseStandMixerHead are bank atomics;
+        # TurnOnStandMixer is a declared extension. Re-declare it here so a manual
+        # override (which bypasses setup()) still passes the atomic-bank check, and
+        # keep the manual short-circuit so a hand-reviewed demo skips the fixed
+        # 3-ingredient count checks (e.g. demo_67 has only 2 ingredients, demo_106
+        # co-grabs two at once).
+        self.extra_subtasks = {SUBTASK_TURNON}
         issues = super().validate(result)
+        if getattr(result, "debug", None) and result.debug.get("manual"):
+            return issues
         idx = result.subtask_idx
         if idx.size == 0:
             return issues
