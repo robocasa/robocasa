@@ -38,11 +38,13 @@ class PortionInTupperwareLabeler(BaseSubtaskLabeler):
 
     Doc-canonical count = 4 (one move per item). Each item, in first-motion order:
       PickPlaceCounterToCounter [pick]  -> pick up {a|another} {item} from the plate
-      (NavigateKitchen [navigate])      -> carry the {item} to {a tupperware|the other tupperware}  (adaptive)
-      PickPlaceCounterToCounter [place] -> place the {item} in {a tupperware|the other tupperware}
+      (NavigateKitchen [navigate])      -> carry the {item} to the {left|right} tupperware  (adaptive)
+      PickPlaceCounterToCounter [place] -> place the {item} in the {left|right} tupperware
     plus a terminal done. Items are named by type (get_obj_lang; repeats get "another"). The
-    destination tupperware is resolved from which one the item ends up nearest to; the first used
-    is "a tupperware", the other "the other tupperware".
+    destination tupperware is resolved from which one the item ends up nearest to, named by its
+    geometric placement in the robot base frame -- "the left/right tupperware" when the two are
+    separated laterally (the usual case), or "the near/far tupperware" when they are arranged
+    front-to-back (a few mobile demos where the robot drives between them).
 
     Boundaries: t_pick = first sustained displacement from a rest re-anchored at the segment start;
     a carry nav is emitted only if the base actually travels; t_place = the gripper RELEASE.
@@ -59,6 +61,7 @@ class PortionInTupperwareLabeler(BaseSubtaskLabeler):
     REST_W = 15
     BASE_MOVE_TH = 0.008
     MIN_NAV_DIST = 0.25
+    LATERAL_MIN = 0.15   # |Δy| below this (and dominated by Δx) -> name tups near/far, not left/right
 
     def setup(self, env, ep_meta: dict) -> None:
         super().setup(env, ep_meta)
@@ -67,6 +70,31 @@ class PortionInTupperwareLabeler(BaseSubtaskLabeler):
         self.obj_body_ids = {o: env.obj_body_id[o] for o in self.names + self.tups}
         self.eef_site_id = env.robots[0].eef_site_id["right"]
         self.word = {o: env.get_obj_lang(o) for o in self.names}
+        # Name each destination tupperware by its geometric placement in the robot
+        # base frame at the demo's initial pose: (x_fwd, y_left). When the two are
+        # separated laterally (the usual case) they are "the left/right tupperware"
+        # (+y=left, -y=right); when they are arranged front-to-back (a few mobile
+        # demos where the robot drives between a near and a far one) they are "the
+        # near/far tupperware". env side fields are re-randomized on replay, so take
+        # this from body geometry.
+        bbid = env.sim.model.body_name2id("mobilebase0_base")
+        bp = env.sim.data.body_xpos[bbid].copy()
+        bm = env.sim.data.body_xmat[bbid].reshape(3, 3)
+        tup_rel = {t: (bm.T @ (env.sim.data.body_xpos[self.obj_body_ids[t]].copy() - bp))[:2]
+                   for t in self.tups}
+        self.tup_side = {}
+        if len(self.tups) == 2:
+            a, b = self.tups
+            dy = abs(float(tup_rel[a][1] - tup_rel[b][1]))
+            dx = abs(float(tup_rel[a][0] - tup_rel[b][0]))
+            if dy >= self.LATERAL_MIN or dy >= dx:
+                self.tup_side[max(self.tups, key=lambda t: tup_rel[t][1])] = "the left tupperware"
+                self.tup_side[min(self.tups, key=lambda t: tup_rel[t][1])] = "the right tupperware"
+            else:
+                self.tup_side[min(self.tups, key=lambda t: tup_rel[t][0])] = "the near tupperware"
+                self.tup_side[max(self.tups, key=lambda t: tup_rel[t][0])] = "the far tupperware"
+        elif len(self.tups) == 1:
+            self.tup_side[self.tups[0]] = "the tupperware"
         self.base_qpos_adrs = []
         for nm in ("mobilebase0_joint_mobile_forward", "mobilebase0_joint_mobile_side"):
             try:
@@ -121,7 +149,6 @@ class PortionInTupperwareLabeler(BaseSubtaskLabeler):
         segments = []
         cursor = 0
         seen = {}
-        tup_phrase = {}
 
         def emit(end, name, stage, lang):
             nonlocal cursor
@@ -152,9 +179,7 @@ class PortionInTupperwareLabeler(BaseSubtaskLabeler):
             if self.tups:
                 fpos = opos[o][min(t_placed, T - 1)]
                 nearest = min(self.tups, key=lambda b: np.linalg.norm(fpos - opos[b][min(t_placed, T - 1)]))
-                if nearest not in tup_phrase:
-                    tup_phrase[nearest] = "a tupperware" if len(tup_phrase) == 0 else "the other tupperware"
-                where = tup_phrase[nearest]
+                where = self.tup_side.get(nearest, "a tupperware")
             else:
                 where = "a tupperware"
 
@@ -182,7 +207,14 @@ class PortionInTupperwareLabeler(BaseSubtaskLabeler):
         return result
 
     def validate(self, result):
+        # PickPlaceCounterToCounter is a declared extension. Re-declare it here so a
+        # manual override (which bypasses setup()) still passes the atomic-bank check,
+        # and keep the manual short-circuit so a hand-reviewed demo skips the fixed
+        # 4-pick/4-place count checks.
+        self.extra_subtasks = {SUBTASK_MOVE}
         issues = super().validate(result)
+        if getattr(result, "debug", None) and result.debug.get("manual"):
+            return issues
         idx = result.subtask_idx
         if idx.size == 0:
             return issues
