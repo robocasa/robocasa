@@ -10,8 +10,9 @@ from robocasa.utils.subtask_labeling.base import (
 )
 from robocasa.utils.subtask_labeling.subtask_bank import DONE
 
-# Both bowls are moved counter -> the open cabinet (pick/place); the second one is
-# stacked on top of the first. PickPlaceCounterToCabinet is a bank atomic.
+# Both bowls end stacked (smaller on top of larger) in the open cabinet, reached
+# by one of two strategies the demos use interchangeably -- see the class
+# docstring. PickPlaceCounterToCabinet is a bank atomic.
 SUBTASK_BOWL = "PickPlaceCounterToCabinet"
 SUBTASK_NAV = "NavigateKitchen"
 
@@ -24,16 +25,24 @@ DONE_LANG = "task complete"
 class StackBowlsCabinetLabeler(BaseSubtaskLabeler):
     """Labeler for the StackBowlsCabinet composite task.
 
-    Task (mobile): two bowls sit on the counter and a cabinet is open. Move both
-    bowls into the cabinet, stacking the second on top of the first. The robot
-    starts at the cabinet.
+    Task (mobile): two bowls sit on the counter and a cabinet is open. The end
+    state is the smaller bowl stacked on top of the larger bowl inside the
+    cabinet. Demos reach it by one of two strategies (detected per demo; both
+    are supported and labeled on their own terms):
 
-    Doc-canonical decomposition (2 subtasks: the two bowls). Emitted fine-grained:
-      1. PickPlaceCounterToCabinet [pick/place]  -> first bowl into the cabinet
-      2. PickPlaceCounterToCabinet [pick/place]  -> second bowl stacked on top
-    plus a terminal done, with adaptive NavigateKitchen segments where the base
-    drives (the cabinet is reachable in most layouts, so most demos do not move).
-    The two bowls are auto-ordered by which is lifted first (the order varies).
+      A (independent): carry the larger bowl into the cabinet, then carry the
+        smaller bowl and stack it on top IN the cabinet. Larger is grasped
+        first; it stays put while the smaller is stacked (only a small nudge).
+      B (nest-then-carry): nest the smaller bowl onto the larger one ON THE
+        COUNTER, then carry the stacked pair into the cabinet as one unit.
+        Smaller is grasped first; it is then carried a SECOND time (riding
+        inside the larger bowl) -- this is the discriminator (NEST_LATE_TH).
+
+    B is the common case in this dataset; A is rare. Both emit 2 bowl subtasks
+    (PickPlaceCounterToCabinet [pick/place]) plus a terminal done, with adaptive
+    NavigateKitchen segments where the base actually drives (the cabinet is
+    reachable in most layouts, so most demos do not move -- and B never drives
+    between the two picks, since the nest is local to the counter).
 
     The bowls are rim-grasped, so the contact-grasp check is unreliable; the
     gripper finger-width is clean. Pick ends at the grasp (finger-close before the
@@ -52,6 +61,10 @@ class StackBowlsCabinetLabeler(BaseSubtaskLabeler):
     NAV_MOVING_TH = 0.004
     NAV_SMOOTH_W = 7
     MIN_NAV_DIST = 0.65
+    # Strategy discriminator: the first-placed bowl's max displacement AFTER the
+    # second bowl is lifted. A stacking nudge stays tiny (~0.02); a nested bowl
+    # riding to the cabinet moves a lot (~0.5). The gap is wide, so 0.20 is safe.
+    NEST_LATE_TH = 0.20
 
     BOWLS = ["bowl1", "bowl2"]
     # bowl1 is scaled 0.7 and bowl2 0.95 in the env, so bowl1 is the smaller bowl
@@ -160,6 +173,20 @@ class StackBowlsCabinetLabeler(BaseSubtaskLabeler):
         second["grasp"] = self._grasp_time(closes, second["depart"], first["release"])
         second["release"] = self._release_time(opens, second["pos"], second["depart"], T)
 
+        # Strategy detection: does the first-placed bowl get carried a SECOND
+        # time -- riding nested inside the other bowl into the cabinet? If so
+        # this is the nest-on-the-counter-then-carry-the-pair strategy; else
+        # each bowl is moved independently into the cabinet. Keyed on the first
+        # bowl's displacement after the second bowl is lifted (bimodal: a
+        # stacking nudge ~0.02 vs. a full carry ~0.5).
+        sref = min(second["grasp"], T - 1)
+        first_late = (
+            float(np.max(np.linalg.norm(first["pos"][sref:] - first["pos"][sref], axis=1)))
+            if sref < T - 1
+            else 0.0
+        )
+        nest_then_carry = first_late > self.NEST_LATE_TH
+
         segments = []
         cursor = 0
 
@@ -174,20 +201,37 @@ class StackBowlsCabinetLabeler(BaseSubtaskLabeler):
             if nav_end > cursor:
                 emit(nav_end, SUBTASK_NAV, STAGE_NAVIGATE, lang)
 
-        # First bowl: pick, carry to cabinet, place (it becomes the bottom).
-        emit(first["grasp"], SUBTASK_BOWL, STAGE_PICK,
-             f"pick up the {first['size']} bowl from the counter")
-        maybe_nav(first["release"], NAV_TO_CABINET_LANG)
-        emit(first["release"], SUBTASK_BOWL, STAGE_PLACE,
-             f"place the {first['size']} bowl in the cabinet")
-        # Second bowl: back to counter, pick, carry to cabinet, stack on top.
-        maybe_nav(second["grasp"], NAV_BACK_LANG)
-        emit(second["grasp"], SUBTASK_BOWL, STAGE_PICK,
-             f"pick up the {second['size']} bowl from the counter")
-        maybe_nav(second["release"], NAV_TO_CABINET_LANG)
-        emit(second["release"], SUBTASK_BOWL, STAGE_PLACE,
-             f"stack the {second['size']} bowl on top of the {first['size']} "
-             f"bowl in the cabinet")
+        if nest_then_carry:
+            # Strategy B: nest the first bowl onto the second ON THE COUNTER
+            # (local, no nav), then carry the stacked pair into the cabinet as
+            # one unit. The first bowl's "place" is the stack; the second bowl's
+            # "place" is the whole pair arriving in the cabinet.
+            emit(first["grasp"], SUBTASK_BOWL, STAGE_PICK,
+                 f"pick up the {first['size']} bowl from the counter")
+            emit(first["release"], SUBTASK_BOWL, STAGE_PLACE,
+                 f"stack the {first['size']} bowl on top of the "
+                 f"{second['size']} bowl")
+            emit(second["grasp"], SUBTASK_BOWL, STAGE_PICK,
+                 f"pick up the {second['size']} bowl from the counter")
+            maybe_nav(second["release"], NAV_TO_CABINET_LANG)
+            emit(second["release"], SUBTASK_BOWL, STAGE_PLACE,
+                 "place the bowls in the cabinet")
+        else:
+            # Strategy A: carry the first bowl into the cabinet (it becomes the
+            # bottom), drive back, then carry the second bowl and stack it on
+            # top IN the cabinet.
+            emit(first["grasp"], SUBTASK_BOWL, STAGE_PICK,
+                 f"pick up the {first['size']} bowl from the counter")
+            maybe_nav(first["release"], NAV_TO_CABINET_LANG)
+            emit(first["release"], SUBTASK_BOWL, STAGE_PLACE,
+                 f"place the {first['size']} bowl in the cabinet")
+            maybe_nav(second["grasp"], NAV_BACK_LANG)
+            emit(second["grasp"], SUBTASK_BOWL, STAGE_PICK,
+                 f"pick up the {second['size']} bowl from the counter")
+            maybe_nav(second["release"], NAV_TO_CABINET_LANG)
+            emit(second["release"], SUBTASK_BOWL, STAGE_PLACE,
+                 f"stack the {second['size']} bowl on top of the "
+                 f"{first['size']} bowl in the cabinet")
         segments.append((T, DONE, STAGE_DONE, DONE_LANG))
         self.expected_done_idx = len(segments) - 1
 
@@ -197,6 +241,8 @@ class StackBowlsCabinetLabeler(BaseSubtaskLabeler):
             "first_release": int(first["release"]),
             "second_grasp": int(second["grasp"]),
             "second_release": int(second["release"]),
+            "strategy": "B_nest_carry" if nest_then_carry else "A_independent",
+            "first_late": round(first_late, 3),
             "base_max": float(np.linalg.norm(base_xy - base_xy[0], axis=1).max())
             if base_xy is not None else 0.0,
             "n_segments": len(segments),
