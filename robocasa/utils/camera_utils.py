@@ -222,15 +222,15 @@ def randomize_cameras(env):
             euler_noise = env.rng.normal(loc=0, scale=rot_scale, size=(1, 3))[0]
         elif "eye_in_hand" in camera:
             # bias and clip wristview position so as to not penetrate robot
-            pos_noise = np.random.normal(
-                loc=[-0.008, 0, 0], scale=0.00625, size=(1, 3)
-            )[0]
+            pos_noise = env.rng.normal(loc=[-0.008, 0, 0], scale=0.00625, size=(1, 3))[
+                0
+            ]
             pos_noise[0] = min(0, pos_noise[0])
             pos_noise[2] = min(0.00125, pos_noise[2] / 2.5)
             # # clip z direction if the camera is close to the eef bc the camera will penetrate robot
             # if pos_noise[0] < 0.02:
             #     pos_noise[2] = max(0, pos_noise[2])
-            euler_noise = np.random.normal(loc=0, scale=0.75, size=(1, 3))[0]
+            euler_noise = env.rng.normal(loc=0, scale=0.75, size=(1, 3))[0]
         else:
             # skip randomization for cameras not implemented
             continue

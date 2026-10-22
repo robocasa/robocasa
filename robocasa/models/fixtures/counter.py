@@ -366,7 +366,7 @@ class Counter(ProcGenFixture):
 
         # break the top width into chunks
         chunk_positions, chunk_sizes = self._get_chunks(pos, size, chunk_size=0.5)
-        rgba = a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
+        rgba = a2s(np.concatenate((self.rng.uniform(low=0, high=1, size=3), [0.5])))
         for i in range(len(chunk_sizes)):
             g = new_geom(
                 name=geom_name + "_{}".format(i),
@@ -471,7 +471,7 @@ class Counter(ProcGenFixture):
                 )
                 geoms[geom_name].append(g)
 
-        rgba = a2s(np.concatenate((np.random.uniform(low=0, high=1, size=3), [0.5])))
+        rgba = a2s(np.concatenate((self.rng.uniform(low=0, high=1, size=3), [0.5])))
         for side in SIDES:
             # convert coordinate of bottom-left corner to coordinate of center
             # the origin is now the center of the entire fixture
