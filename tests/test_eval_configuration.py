@@ -14,7 +14,7 @@ from robocasa_eval import configuration as conf, evaluation
 
 @pytest.fixture
 def options(tmp_path):
-    return {"workspace": str(tmp_path / "xuchengxin"), "envs_per_gpu": 2}
+    return {"workspace": str(tmp_path / "workspace"), "envs_per_gpu": 2}
 
 
 def build(options, **kwargs):

@@ -2,27 +2,41 @@
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/readme.webp" width="100%" />
 
-This checkout adds a shared VLA evaluation runner for **Unitree G1 with SONIC**
-to RoboCasa. It provides model adapters, isolated simulation workers, dynamic
-inference batches, resumable episodes, and task success reports. The default
-benchmark contains **50 tasks × 30 episodes**: 25 seen atomic tasks, 15 seen
-composite tasks, and 10 unseen composite tasks.
+This checkout provides a shared VLA evaluation workflow for **Unitree G1 with
+SONIC** in RoboCasa. Start a model server on **port 8000**, then connect the
+simulator from its own environment. The same port supports one or multiple GPU
+model replicas, concurrent episodes, dynamic inference batches, and resumable
+success reports. The default benchmark contains **50 tasks × 30 episodes**:
+25 seen atomic tasks, 15 seen composite tasks, and 10 unseen composite tasks.
 
-Start with the [Unitree G1 policy evaluation guide](docs/benchmarking/policy_evaluation.md).
-Planning uses only Python's standard library and does not load a model or the
-simulator:
+Configure the model and simulator paths using the
+[Unitree G1 policy evaluation guide](docs/benchmarking/policy_evaluation.md), then
+start the two processes from the repository root:
 
 ```sh
-python -m robocasa_eval plan --config examples/evaluation/groot.json
+# Model environment: serve GROOT N1.7 on one GPU and one port.
+python -m robocasa_eval serve --config examples/evaluation/server_groot.json \
+  --host 127.0.0.1 --port 8000 --devices cuda:0
+
+# Simulation environment, in another terminal: connect to the running server.
+python -m robocasa_eval check --config examples/evaluation/http.json
+python -m robocasa_eval smoke --config examples/evaluation/http.json \
+  --envs 4 --full-episodes
+python -m robocasa_eval run --config examples/evaluation/http.json
 ```
 
-The examples put generated files under `./xuchengxin/`. Configure your model
-and simulation runtime, run `check`, and pass a single-GPU full-horizon `smoke`
-before starting a formal evaluation. GR00T N1.7 has a built-in adapter; other
-VLAs can use a custom Python adapter or the documented HTTP bridge. Models must
-produce the G1 SONIC action representation; a Panda or end-effector-action
-checkpoint is not directly compatible. The new shared runner still requires
-a real-model smoke test; the earlier 1,500-episode GROOT run used its predecessor.
+Set `--devices cuda:{0..15}` in Bash to serve 16 GPU replicas behind the same
+port. GR00T N1.7 has a built-in adapter; other VLAs implement the shared Python
+adapter or HTTP protocol with G1 SONIC motion tokens and hand joint targets.
+HTTP evaluation clients run on CPU; the server owns the model GPUs. The
+simulation environment does not need the model framework. Outputs use the
+configurable `workspace` directory, which defaults to `./evaluation_runs/`.
+Model-service logs are saved in `workspace/model_service/<fingerprint>/server.log`.
+Planning remains available without loading a model or simulator:
+
+```sh
+python -m robocasa_eval plan --config examples/evaluation/http.json
+```
 
 ## Upstream RoboCasa
 
@@ -60,7 +74,7 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 
    ```sh
    cd ..
-   git clone https://github.com/robocasa/robocasa
+   git clone --branch agent/sonic-g1-followups https://github.com/Xucxname/robocasa.git
    cd robocasa
    pip install -e .
    pip install pre-commit; pre-commit install           # Optional: set up code formatter.

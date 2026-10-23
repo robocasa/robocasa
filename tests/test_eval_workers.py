@@ -65,7 +65,9 @@ class TrackingPolicy:
 
     def predict_batch(self, observations, contexts):
         for obs, context in zip(observations, contexts):
-            assert f"{self.namespace}:{obs['job_id']}" == context.episode_id
+            prefix = f"{self.namespace}:{obs['job_id']}:"
+            assert context.episode_id.startswith(prefix)
+            assert len(context.episode_id.removeprefix(prefix)) == 32
             assert self.active[context.episode_id] is context
         self.batches.append(tuple(contexts))
         # Different action lengths per concurrent episode; both shorter than 40.
@@ -140,8 +142,10 @@ def test_shared_policy_service_episode_ids_are_distinct_across_runs(setup_worker
     second_ids = {context.episode_id for context in second.started}
     assert len(first_ids) == len(second_ids) == 4
     assert first_ids.isdisjoint(second_ids)
-    assert first_ids == {f"{config['identity']}:{job['id']}" for job in jobs}
-    assert second_ids == {f"{second_config['identity']}:{job['id']}" for job in jobs}
+    assert {value.rsplit(":", 1)[0] for value in first_ids} == {
+        f"{config['identity']}:{job['id']}" for job in jobs}
+    assert {value.rsplit(":", 1)[0] for value in second_ids} == {
+        f"{second_config['identity']}:{job['id']}" for job in jobs}
     # Resume/result paths retain the existing per-run job identifier convention.
     assert {row["job_id"] for row in records(config)} == {job["id"] for job in jobs}
     assert {row["job_id"] for row in records(second_config)} == {job["id"] for job in jobs}
@@ -212,6 +216,32 @@ def test_interrupt_cleans_contexts_but_keeps_inflight_for_resume(setup_worker):
     assert not any(slot.chunks for slot in FakeSimulator.instances)
     assert signal.getsignal(signal.SIGTERM) == previous
     assert_lock_released(config)
+
+
+def test_resuming_pending_jobs_uses_fresh_model_sessions_with_same_scene_seeds(setup_worker, monkeypatch):
+    config, jobs, first = setup_worker
+    original = first.predict_batch
+    def interrupted(observations, contexts):
+        result = original(observations, contexts)
+        signal.getsignal(signal.SIGTERM)(signal.SIGTERM, None)
+        return result
+    first.predict_batch = interrupted
+    with pytest.raises(InterruptedError):
+        gpu_worker.run(config, 0, "cpu")
+    assert not records(config)
+    ended_ids = {context.episode_id for context in first.ended}
+    second = TrackingPolicy()
+    reset = second.reset
+    def reject_old_sessions(context):
+        assert context.episode_id not in ended_ids
+        reset(context)
+    second.reset = reject_old_sessions
+    monkeypatch.setattr(gpu_worker, "load_policy", lambda *a, **kw: second)
+    gpu_worker.run(config, 0, "cpu")
+    assert {row["job_id"] for row in records(config)} == {job["id"] for job in jobs}
+    assert {row["status"] for row in records(config)} == {"success"}
+    assert {(c.task, c.episode, c.seed) for c in first.started} <= {
+        (c.task, c.episode, c.seed) for c in second.started}
 
 
 def test_fatal_monitor_error_marks_active_episodes_and_closes_all(setup_worker, monkeypatch):

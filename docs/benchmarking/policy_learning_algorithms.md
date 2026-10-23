@@ -1,28 +1,38 @@
 # Policy Learning Algorithms
 
-This checkout uses the [shared Unitree G1 policy evaluator](./policy_evaluation.md)
-for model evaluation. It provides one task schedule, simulation-time budget,
-success definition, and result format across model adapters:
+This checkout evaluates models using the
+[shared Unitree G1 policy evaluator](./policy_evaluation.md). Run a model server
+on port 8000 in the model environment, then connect the simulation environment
+to that port. Both sides use a common observation/action protocol, task schedule,
+simulation-time budget, success definition, and result format.
 
 ```sh
-python -m robocasa_eval plan --config examples/evaluation/groot.json
-python -m robocasa_eval check --config xuchengxin/evaluation/model.json
-python -m robocasa_eval smoke --config xuchengxin/evaluation/model.json --envs 4 --full-episodes
-python -m robocasa_eval run --config xuchengxin/evaluation/model.json
-python -m robocasa_eval summarize --config xuchengxin/evaluation/model.json
+# Model environment: start the service and leave it running.
+python -m robocasa_eval serve --config examples/evaluation/server_groot.json \
+  --host 127.0.0.1 --port 8000 --devices cuda:0
+
+# Simulation environment, in a second terminal.
+python -m robocasa_eval plan --config examples/evaluation/http.json
+python -m robocasa_eval check --config examples/evaluation/http.json
+python -m robocasa_eval smoke --config examples/evaluation/http.json --envs 4 --full-episodes
+python -m robocasa_eval run --config examples/evaluation/http.json
+python -m robocasa_eval summarize --config examples/evaluation/http.json
 ```
 
-Create `model.json` from an [example configuration](../../examples/evaluation/)
-and fill in the checkpoint, runtime, and decoder paths first. Run these commands
-from the repository root. The default protocol is 50 tasks × 30 episodes, with
-40 seconds for atomic tasks and 180 seconds for composite tasks, measured in
-simulation time. A full-horizon smoke test is required before the formal run.
+Fill in the model and simulator paths in the
+[example configurations](../../examples/evaluation/) and set matching `policy.id`
+values before execution. Run these commands from the repository root. The
+default protocol is 50 tasks × 30 episodes, with 40 seconds for atomic tasks
+and 180 seconds for composite tasks, measured in simulation time. After a
+single-GPU full-horizon smoke, restart the service with `--devices cuda:{0..15}`
+in Bash to use 16 model GPUs behind the same port.
 
 The built-in GR00T adapter targets N1.7 Flow trained for G1 SONIC. Other VLA
-architectures, including Diffusion Policy and pi, require an adapter and a model
-trained for the same observation/action representation. The HTTP adapter uses
-this project's JSON bridge protocol; it does not speak the native Openpi
-WebSocket protocol. See the [adapter contract](./policy_evaluation.md#model-adapters).
+architectures, including Diffusion Policy and pi, can provide a Python factory
+to the shared server or implement the HTTP protocol. Models produce the same
+G1 SONIC action representation. The service uses JSON HTTP; existing native
+Openpi WebSocket servers need the corresponding protocol adapter. See the
+[adapter contract](./policy_evaluation.md#model-adapters).
 
 The remaining sections preserve the upstream RoboCasa training references:
 [Diffusion Policy](https://github.com/robocasa-benchmark/diffusion_policy),

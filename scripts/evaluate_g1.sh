@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: bash scripts/evaluate_g1.sh plan|check|smoke|run|summarize --config FILE [OPTIONS]
+# Usage: bash scripts/evaluate_g1.sh serve|plan|check|smoke|run|summarize --config FILE [OPTIONS]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"

@@ -3,13 +3,19 @@
 This is a small project-specific JSON protocol, not an OpenPI or GR00T server
 protocol. Implement a server shim to use an existing model service.
 
-All endpoints accept POST with Content-Type application/json. Every request and
-response contains ``"protocol": "robocasa-g1-v1"``. Endpoint suffixes are:
+The model opens one HTTP port; evaluation clients connect to that port. GET
+``/metadata`` identifies the loaded model, and ``/health`` reports readiness.
+POST requests use Content-Type application/json. Every request and response
+contains ``"protocol": "robocasa-g1-v1"``. Endpoint suffixes are:
 
-* /reset: request {protocol, context}; response {protocol, ok: true}.
+* /reset: request {protocol, context}; response {protocol, fingerprint, ok: true}.
 * /predict: request {protocol, observations: [...], contexts: [...]}; response
-  {protocol, actions: [...]}, with actions in the same order as contexts.
-* /end_episode: request {protocol, context}; response {protocol, ok: true}.
+  {protocol, fingerprint, actions: [...]}, with actions in the same order as contexts.
+* /end_episode: request {protocol, context}; response {protocol, fingerprint, ok: true}.
+
+Clients verified against /metadata send X-Robocasa-Model-Fingerprint on each
+request and verify the same fingerprint in each response. Legacy clients that
+omit an expected model identity can still communicate with unextended v1 peers.
 
 A context is EpisodeContext serialized as an object. Servers must isolate
 history by episode_id, not batch position or GPU slot. State survives changes in
@@ -42,12 +48,13 @@ import urllib.request
 
 import numpy as np
 
-from robocasa_eval.policy import BasePolicy, EpisodeContext, validate_action_batch
+from robocasa_eval.policy import ACTION_DIMS, BasePolicy, EpisodeContext, validate_action_batch
 
 
 PROTOCOL = "robocasa-g1-v1"
 MAX_MESSAGE_BYTES = 64 * 1024 * 1024
 _ARRAY_KEYS = {"__ndarray__", "dtype", "shape", "data"}
+FINGERPRINT_HEADER = "X-Robocasa-Model-Fingerprint"
 
 
 def encode_value(value):
@@ -140,36 +147,100 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         raise urllib.error.HTTPError(req.full_url, code, "Redirect rejected", headers, fp)
 
 
+def _connection(endpoint, timeout, auth_token_env):
+    if not isinstance(endpoint, str):
+        raise ValueError("HTTP policy endpoint must be a URL string.")
+    parsed = urllib.parse.urlsplit(endpoint)
+    if (
+        parsed.scheme not in {"http", "https"} or not parsed.netloc
+        or parsed.username or parsed.password or parsed.query or parsed.fragment
+    ):
+        raise ValueError("HTTP endpoint must be http(s), without userinfo, query, or fragment.")
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("HTTP timeout must be a positive finite number.")
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    if auth_token_env is not None:
+        if not isinstance(auth_token_env, str) or not auth_token_env:
+            raise ValueError("auth_token_env must name an environment variable.")
+        token = os.environ.get(auth_token_env)
+        if not token or any(character in token for character in "\r\n"):
+            raise ValueError("HTTP authentication environment variable is missing or invalid.")
+        headers["Authorization"] = "Bearer " + token
+    return endpoint.rstrip("/"), float(timeout), headers
+
+
+def _read_response(opener, request, timeout, suffix):
+    try:
+        with opener.open(request, timeout=timeout) as response:
+            if response.status != 200:
+                raise RuntimeError(f"HTTP policy {suffix} returned status {response.status}.")
+            raw = response.read(MAX_MESSAGE_BYTES + 1)
+    except urllib.error.HTTPError as error:
+        raise RuntimeError(f"HTTP policy {suffix} failed with status {error.code}.") from None
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        raise RuntimeError(f"HTTP policy {suffix} request failed.") from None
+    if len(raw) > MAX_MESSAGE_BYTES:
+        raise ValueError("HTTP response exceeds the message size limit.")
+    try:
+        result = decode_value(json.loads(raw, object_pairs_hook=_unique_object))
+    except (UnicodeError, ValueError, TypeError):
+        raise ValueError(f"HTTP policy {suffix} returned malformed JSON/array data.") from None
+    if not isinstance(result, dict) or result.get("protocol") != PROTOCOL:
+        raise ValueError(f"HTTP policy {suffix} returned an incompatible protocol.")
+    return result
+
+
+def validate_metadata(metadata):
+    """Validate the model identity published on the inference port."""
+    if not isinstance(metadata, dict) or metadata.get("protocol") != PROTOCOL:
+        raise ValueError("HTTP model metadata has an incompatible protocol.")
+    for key in ("model_id", "fingerprint"):
+        value = metadata.get(key)
+        if not isinstance(value, str) or not value.strip() or any(c in value for c in "\r\n"):
+            raise ValueError(f"HTTP model metadata requires a nonempty {key}.")
+    dims = metadata.get("action_dims")
+    if not isinstance(dims, dict) or dims != ACTION_DIMS or any(type(v) is not int for v in dims.values()):
+        raise ValueError("HTTP model metadata has incompatible G1 action dimensions.")
+    replicas = metadata.get("replicas")
+    if type(replicas) is not int or replicas < 1:
+        raise ValueError("HTTP model metadata replicas must be a positive integer.")
+    return metadata
+
+
+def fetch_metadata(endpoint, *, timeout=120, auth_token_env=None):
+    """Read the serving model identity without resetting or loading a policy."""
+    endpoint, timeout, headers = _connection(endpoint, timeout, auth_token_env)
+    request = urllib.request.Request(endpoint + "/metadata", headers=headers, method="GET")
+    result = _read_response(urllib.request.build_opener(_NoRedirect()), request, timeout, "/metadata")
+    return validate_metadata(result)
+
+
 class HttpPolicy(BasePolicy):
     """Synchronous batched HTTP client with explicit per-episode lifecycle."""
 
-    def __init__(self, *, endpoint, workspace, device, seed, timeout=120, auth_token_env=None):
-        if not isinstance(endpoint, str):
-            raise ValueError("HTTP policy endpoint must be a URL string.")
-        parsed = urllib.parse.urlsplit(endpoint)
-        if (
-            parsed.scheme not in {"http", "https"} or not parsed.netloc
-            or parsed.username or parsed.password or parsed.query or parsed.fragment
-        ):
-            raise ValueError("HTTP endpoint must be http(s), without userinfo, query, or fragment.")
-        if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
-            raise ValueError("HTTP timeout must be a positive finite number.")
-        self._endpoint = endpoint.rstrip("/")
+    def __init__(self, *, endpoint, workspace, device, seed, timeout=120, auth_token_env=None,
+                 model_id=None, fingerprint=None):
+        self._endpoint, self.timeout, self._headers = _connection(endpoint, timeout, auth_token_env)
         self.workspace = Path(workspace).expanduser().resolve()
         self.device = device
         self.seed = seed
-        self.timeout = float(timeout)
-        self._headers = {"Content-Type": "application/json", "Accept": "application/json"}
-        if auth_token_env is not None:
-            if not isinstance(auth_token_env, str) or not auth_token_env:
-                raise ValueError("auth_token_env must name an environment variable.")
-            token = os.environ.get(auth_token_env)
-            if not token or any(character in token for character in "\r\n"):
-                raise ValueError("HTTP authentication environment variable is missing or invalid.")
-            self._headers["Authorization"] = "Bearer " + token
         self._opener = urllib.request.build_opener(_NoRedirect())
         self._contexts = {}
         self._closed = False
+        self.metadata = None
+        self._fingerprint = None
+        if model_id is not None or fingerprint is not None:
+            for key, value in (("model_id", model_id), ("fingerprint", fingerprint)):
+                if value is not None and (not isinstance(value, str) or not value.strip()):
+                    raise ValueError(f"HTTP expected {key} must be a nonempty string.")
+            metadata = fetch_metadata(endpoint, timeout=timeout, auth_token_env=auth_token_env)
+            if model_id is not None and metadata["model_id"] != model_id:
+                raise ValueError("HTTP serving model_id does not match the configured model.")
+            if fingerprint is not None and metadata["fingerprint"] != fingerprint:
+                raise ValueError("HTTP serving fingerprint does not match the verified model.")
+            self.metadata = metadata
+            self._fingerprint = metadata["fingerprint"]
+            self._headers[FINGERPRINT_HEADER] = self._fingerprint
 
     def _request(self, suffix, payload):
         if self._closed:
@@ -183,23 +254,15 @@ class HttpPolicy(BasePolicy):
         request = urllib.request.Request(
             self._endpoint + suffix, data=body, headers=self._headers, method="POST"
         )
-        try:
-            with self._opener.open(request, timeout=self.timeout) as response:
-                if response.status != 200:
-                    raise RuntimeError(f"HTTP policy {suffix} returned status {response.status}.")
-                raw = response.read(MAX_MESSAGE_BYTES + 1)
-        except urllib.error.HTTPError as error:
-            raise RuntimeError(f"HTTP policy {suffix} failed with status {error.code}.") from None
-        except (urllib.error.URLError, TimeoutError, OSError, ValueError):
-            raise RuntimeError(f"HTTP policy {suffix} request failed.") from None
-        if len(raw) > MAX_MESSAGE_BYTES:
-            raise ValueError("HTTP response exceeds the message size limit.")
-        try:
-            result = decode_value(json.loads(raw, object_pairs_hook=_unique_object))
-        except (UnicodeError, ValueError, TypeError):
-            raise ValueError(f"HTTP policy {suffix} returned malformed JSON/array data.") from None
-        if not isinstance(result, dict) or result.get("protocol") != PROTOCOL:
-            raise ValueError(f"HTTP policy {suffix} returned an incompatible protocol.")
+        result = _read_response(self._opener, request, self.timeout, suffix)
+        if self._fingerprint is not None and result.get("fingerprint") != self._fingerprint:
+            raise ValueError("HTTP response fingerprint differs from the verified model.")
+        # Fingerprints extend the v1 response while retaining compatibility with
+        # older peers when a caller explicitly constructs an unpinned client.
+        if "fingerprint" in result:
+            value = result.pop("fingerprint")
+            if not isinstance(value, str) or not value:
+                raise ValueError("HTTP response fingerprint must be a nonempty string.")
         return result
 
     def _ack(self, suffix, context):
@@ -267,8 +330,9 @@ class HttpPolicy(BasePolicy):
             raise first_error
 
 
-def create_policy(*, device, seed, workspace, endpoint, timeout=120, auth_token_env=None):
+def create_policy(*, device, seed, workspace, endpoint, timeout=120, auth_token_env=None,
+                  model_id=None, fingerprint=None):
     return HttpPolicy(
         endpoint=endpoint, workspace=workspace, device=device, seed=seed,
-        timeout=timeout, auth_token_env=auth_token_env,
+        timeout=timeout, auth_token_env=auth_token_env, model_id=model_id, fingerprint=fingerprint,
     )

@@ -15,6 +15,7 @@ import sys
 import threading
 import time
 import traceback
+from uuid import uuid4
 
 from .evaluation import (DiskCheckCancelled, atomic_json, disk_preflight,
                         jobs_for, read_result, result_path, sim_environment)
@@ -212,10 +213,10 @@ def _run_locked(config, rank, device, output):
             slot.job, slot.observation = job, None
             slot.start_wall, slot.last_steps = time.monotonic(), 0
             slot.context = EpisodeContext(
-                # The run fingerprint includes its output/run namespace. Shared
-                # policy services must not merge histories from separate runs
-                # that evaluate the same task/episode. On-disk job IDs stay local.
-                episode_id=f"{config['identity']}:{job['id']}",
+                # A resumed pending job starts a fresh model session. Late HTTP
+                # requests from its interrupted attempt cannot touch this one.
+                # The on-disk job ID and scene seed remain unchanged.
+                episode_id=f"{config['identity']}:{job['id']}:{uuid4().hex}",
                 task=job["task"]["name"], episode=job["episode"],
                 seed=job["seed"], rank=rank, slot=slot.slot)
             try:

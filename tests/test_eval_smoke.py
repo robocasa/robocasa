@@ -11,7 +11,7 @@ from robocasa_eval import configuration, evaluation, gpu_worker, smoke
 
 @pytest.fixture
 def config(tmp_path):
-    return configuration.build_config({"workspace": str(tmp_path / "xuchengxin"),
+    return configuration.build_config({"workspace": str(tmp_path / "workspace"),
         "envs_per_gpu": 4}, environment={})[0]
 
 

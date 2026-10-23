@@ -334,6 +334,8 @@ def preflight(config, topo, require_gpu=False):
             raise ValueError(f"Missing {key}: configure the simulator environment and SONIC decoder")
     from .policy import resolve_factory
     resolve_factory(config["policy"]["factory"])
+    from .serving_configuration import bind_remote_policy
+    remote = bind_remote_policy(config)
     work = owned(Path(config["workspace"]) / "tmp/preflight", config["workspace"])
     work.mkdir(parents=True, exist_ok=True)
     result = subprocess.run([config["sim_python"], "-B", "-m", "robocasa_eval.sim_worker", "--check"],
@@ -356,7 +358,7 @@ def preflight(config, topo, require_gpu=False):
     config["runtime_identity"] = info["runtime_identity"]
     from .configuration import refresh_identity
     refresh_identity(config)
-    return dict(simulator=info, disk=quota,
+    return dict(simulator=info, disk=quota, model_service=remote,
                 cpu=dict(effective_cores=available_cpu_cores(),
                          simulator_processes=topo["local"] * config["envs_per_gpu"],
                          reserved_model_cores_per_gpu=config["cpu_reserved_per_gpu"]),

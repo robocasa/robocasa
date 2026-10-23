@@ -15,7 +15,7 @@ import sys
 from .evaluation import HERE, available_cpu_cores, digest, owned, topology
 
 DEFAULTS = {
-    "workspace": "./xuchengxin",
+    "workspace": "./evaluation_runs",
     "run_name": "g1-sonic50",
     "total_gpus": 16,
     "envs_per_gpu": "auto",
@@ -52,7 +52,7 @@ DEFAULTS = {
 # Run names, rank counts, and output locations may change after single-device smoke.
 GATE_KEYS = (
     "schema_version", "embodiment", "policy", "policy_identity", "code_sha256",
-    "runtime_sources", "runtime_identity", "decoder_sha256", "sim_python",
+    "runtime_sources", "runtime_identity", "remote_policy_identity", "decoder_sha256", "sim_python",
     "sim_root", "model_hz", "control_hz", "physics_dt", "execution_horizon",
     "atomic_seconds", "composite_seconds", "renderer", "camera_names",
     "camera_width", "camera_height", "layout_ids", "style_ids", "tasks",
@@ -176,11 +176,39 @@ def policy_identity(policy, verify_files, workspace=None):
     return result
 
 
+def normalize_policy(policy):
+    """Validate a model factory and resolve built-in model/artifact paths."""
+    policy = copy.deepcopy(policy)
+    if not isinstance(policy, dict) or set(policy) - {"factory", "id", "kwargs", "artifacts"}:
+        raise ValueError("policy accepts factory, id, kwargs, artifacts")
+    policy = dict(policy)
+    policy.setdefault("kwargs", {})
+    policy.setdefault("artifacts", [])
+    if not isinstance(policy.get("factory"), str) or not isinstance(policy.get("id"), str) or not policy["id"].strip():
+        raise ValueError("policy requires a factory and explicit immutable model id/revision")
+    if not isinstance(policy["kwargs"], dict) or set(policy["kwargs"]) & {"device", "seed", "workspace"}:
+        raise ValueError("policy.kwargs must be a mapping without device/seed/workspace overrides")
+    if not isinstance(policy["artifacts"], list) or any(not isinstance(p, str) for p in policy["artifacts"]):
+        raise ValueError("policy.artifacts must be a list of local file/directory paths")
+    # Paths are relative to the invoking working directory, consistently with the CLI.
+    policy["artifacts"] = [str(Path(p).expanduser().resolve()) for p in policy["artifacts"]]
+    if policy["factory"] in {"groot", "robocasa_eval.adapters.groot:create_policy"}:
+        for key in ("checkpoint", "repo"):
+            if policy["kwargs"].get(key):
+                policy["kwargs"][key] = str(Path(policy["kwargs"][key]).expanduser().resolve())
+    return policy
+
+
 def build_config(options=None, *, verify_files=False, environment=None):
     """Build a plan without importing a model, NumPy, MuJoCo, or PyTorch."""
     if options is not None and not isinstance(options, dict):
         raise ValueError("Evaluation options must be a mapping")
     options = copy.deepcopy(options or {})
+    for alias, canonical in (("num_workers", "total_gpus"), ("envs_per_worker", "envs_per_gpu")):
+        if alias in options:
+            if canonical in options and options[canonical] != options[alias]:
+                raise ValueError(f"Conflicting {alias} and {canonical}")
+            options[canonical] = options.pop(alias)
     unknown = set(options) - set(DEFAULTS)
     if unknown:
         raise ValueError(f"Unknown evaluation options: {sorted(unknown)}")
@@ -227,24 +255,7 @@ def build_config(options=None, *, verify_files=False, environment=None):
         count = _positive_int(raw["envs_per_gpu"], "envs_per_gpu")
         if count > 32:
             raise ValueError("envs_per_gpu must be <=32")
-    policy = raw["policy"]
-    if not isinstance(policy, dict) or set(policy) - {"factory", "id", "kwargs", "artifacts"}:
-        raise ValueError("policy accepts factory, id, kwargs, artifacts")
-    policy = dict(policy)
-    policy.setdefault("kwargs", {})
-    policy.setdefault("artifacts", [])
-    if not isinstance(policy.get("factory"), str) or not isinstance(policy.get("id"), str) or not policy["id"].strip():
-        raise ValueError("policy requires a factory and explicit immutable model id/revision")
-    if not isinstance(policy["kwargs"], dict) or set(policy["kwargs"]) & {"device", "seed", "workspace"}:
-        raise ValueError("policy.kwargs must be a mapping without device/seed/workspace overrides")
-    if not isinstance(policy["artifacts"], list) or any(not isinstance(p, str) for p in policy["artifacts"]):
-        raise ValueError("policy.artifacts must be a list of local file/directory paths")
-    # Paths are relative to the invoking working directory, consistently with the CLI.
-    policy["artifacts"] = [str(Path(p).expanduser().resolve()) for p in policy["artifacts"]]
-    if policy["factory"] in {"groot", "robocasa_eval.adapters.groot:create_policy"}:
-        for key in ("checkpoint", "repo"):
-            if policy["kwargs"].get(key):
-                policy["kwargs"][key] = str(Path(policy["kwargs"][key]).expanduser().resolve())
+    policy = normalize_policy(raw["policy"])
     manifest = load_tasks(raw["task_manifest"])
     config = dict(raw, schema_version=2, embodiment="unitree_g1_sonic",
                   workspace=str(root), output_dir=str(owned(root / "eval_results" / run, root)),
@@ -262,6 +273,7 @@ def build_config(options=None, *, verify_files=False, environment=None):
     manifest_path = Path(config["sim_root"]) / "source_manifest.json" if config["sim_root"] else None
     config["runtime_sources"] = json.loads(manifest_path.read_text()) if manifest_path and manifest_path.is_file() else None
     config["runtime_identity"] = None  # populated by a simulator-side import/source probe
+    config["remote_policy_identity"] = None  # populated from the model service at preflight
     config["decoder_sha256"] = None
     if verify_files:
         for key in ("sim_python", "decoder_path"):

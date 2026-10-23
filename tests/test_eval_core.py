@@ -16,7 +16,7 @@ from robocasa_eval import evaluation, gpu_worker
 
 @pytest.fixture
 def config(tmp_path):
-    workspace = tmp_path / "xuchengxin"
+    workspace = tmp_path / "workspace"
     return {
         "workspace": str(workspace),
         "output_dir": str(workspace / "eval_results" / "test-evaluation"),

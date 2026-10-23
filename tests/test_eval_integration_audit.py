@@ -14,7 +14,7 @@ from robocasa_eval.adapters.groot import runtime_identity
 
 @pytest.fixture
 def groot_assets(tmp_path):
-    workspace = tmp_path / "xuchengxin"
+    workspace = tmp_path / "workspace"
     checkpoint = tmp_path / "readonly-checkpoint"
     checkpoint.mkdir()
     (checkpoint / "config.json").write_text(json.dumps({
@@ -192,7 +192,7 @@ def test_runtime_structural_assets_invalidate_identity_without_hashing_large_mes
 
 
 def test_second_node_egl_uses_local_device_ordinals_and_one_common_run_identity(tmp_path):
-    options = {"workspace": str(tmp_path / "xuchengxin"), "total_gpus": 16,
+    options = {"workspace": str(tmp_path / "workspace"), "total_gpus": 16,
                "envs_per_gpu": 2, "renderer": "egl"}
     configs = []
     for node in (0, 1):
