@@ -1,5 +1,11 @@
 from robosuite.environments.base import make
 
+# Import optional SONIC G1 models so they are available through the robosuite robot registry.
+try:
+    import robosuite.models.robots.manipulators.sonic_g1_robot  # noqa: F401
+except ModuleNotFoundError:
+    pass
+
 # Manipulation environments
 from robocasa.environments.kitchen.kitchen import Kitchen
 from robocasa.environments.kitchen.composite.adding_ice_to_beverages.make_ice_lemonade import (
@@ -1002,15 +1008,25 @@ from robosuite.robots import ALL_ROBOTS
 
 import mujoco
 
-assert (
-    mujoco.__version__ == "3.3.1"
-), "MuJoCo version must be 3.3.1. Please run pip install mujoco==3.3.1"
+# NOTE (SONIC integration): robocasa upstream pins mujoco==3.3.1 / numpy==2.2.5, but
+# this venv intentionally runs mujoco 3.9.0 / numpy 1.26.4 because the native SONIC G1
+# robosuite port is validated against those (and against SONIC's base_sim). Downgrading
+# would break the SONIC stack, so these hard asserts are relaxed to warnings here.
+import warnings
+
+if mujoco.__version__ != "3.3.1":
+    warnings.warn(
+        f"robocasa was tuned for mujoco==3.3.1 but found {mujoco.__version__} "
+        "(running it for the SONIC G1 integration)."
+    )
 
 import numpy
 
-assert numpy.__version__ in [
-    "2.2.5",
-], "numpy version must be 2.2.5. Please install this version."
+if numpy.__version__ != "2.2.5":
+    warnings.warn(
+        f"robocasa was tuned for numpy==2.2.5 but found {numpy.__version__} "
+        "(running it for the SONIC G1 integration)."
+    )
 
 import robosuite
 
