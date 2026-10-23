@@ -436,8 +436,8 @@ from robocasa.environments.kitchen.composite.portioning_meals.distribute_chicken
 from robocasa.environments.kitchen.composite.portioning_meals.portion_fruit_bowl import (
     PortionFruitBowl,
 )
-from robocasa.environments.kitchen.composite.portioning_meals.portion_hot_dogs import (
-    PortionHotDogs,
+from robocasa.environments.kitchen.composite.portioning_meals.portion_peaches import (
+    PortionPeaches,
 )
 from robocasa.environments.kitchen.composite.portioning_meals.portion_in_tupperware import (
     PortionInTupperware,
@@ -769,6 +769,9 @@ from robocasa.environments.kitchen.composite.storing_leftovers.store_leftovers_i
 )
 from robocasa.environments.kitchen.composite.tidying_cabinets_and_drawers.drawer_utensil_sort import (
     DrawerUtensilSort,
+)
+from robocasa.environments.kitchen.composite.tidying_cabinets_and_drawers.drawer_cake_sort import (
+    DrawerCakeSort,
 )
 from robocasa.environments.kitchen.composite.tidying_cabinets_and_drawers.organize_cleaning_supplies import (
     OrganizeCleaningSupplies,

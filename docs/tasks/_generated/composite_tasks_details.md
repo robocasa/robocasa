@@ -1188,8 +1188,8 @@
           <td>Take the fruits from the plate on the dining counter and place two fruits in each bowl.</td>
         </tr>
         <tr>
-          <td><code>PortionHotDogs</code></td>
-          <td>Place one bun and one sausage from the bowl on each plate.</td>
+          <td><code>PortionPeaches</code></td>
+          <td>Place one peach from the bowl on each plate.</td>
         </tr>
         <tr>
           <td><code>PortionInTupperware</code></td>

@@ -226,7 +226,7 @@ if _has_module("nbsphinx"):
 master_doc = "index"
 
 # General information about the project.
-project = "RoboCasa"
+project = "RoboCasa for Unitree G1 Evaluation"
 copyright = "the RoboCasa core team, 2026"
 author = "the RoboCasa core team"
 

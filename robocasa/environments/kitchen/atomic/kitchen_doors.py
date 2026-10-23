@@ -142,7 +142,8 @@ class ManipulateLowerDoor(ManipulateDoor):
 
     def _load_model(self, *args, **kwargs):
         super()._load_model(*args, **kwargs)
-        self._place_robot()
+        if self._place_robot():
+            self._write_robot_base_pose_to_model()
 
     def _place_robot(self):
         x_ofs = (self.fxtr.width / 2) + self.X_OFS

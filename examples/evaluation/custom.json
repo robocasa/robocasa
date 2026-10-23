@@ -1,0 +1,28 @@
+{
+  "workspace": "./evaluation_runs",
+  "total_gpus": 16,
+  "envs_per_gpu": 4,
+  "episodes_per_task": 30,
+  "atomic_seconds": 40,
+  "composite_seconds": 180,
+  "execution_horizon": 20,
+  "sim_python": "./evaluation_runs/envs/REPLACE_WITH_SIM_ENV/bin/python",
+  "sim_root": null,
+  "decoder_path": "./evaluation_runs/models/REPLACE_WITH_SONIC_DECODER/model_decoder.onnx",
+  "renderer": "osmesa",
+  "camera_names": [
+    "ego_view"
+  ],
+  "task_manifest": null,
+  "run_name": "g1-sonic50-custom-30ep",
+  "policy": {
+    "factory": "robocasa_eval.examples.custom_policy:create_policy",
+    "id": "INTERFACE_TEMPLATE_ONLY_REPLACE_WITH_TRAINED_MODEL_ADAPTER",
+    "kwargs": {
+      "action_horizon": 20
+    },
+    "artifacts": [
+      "./evaluation_runs/checkpoints/REPLACE_WITH_CUSTOM_MODEL"
+    ]
+  }
+}
