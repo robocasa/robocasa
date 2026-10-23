@@ -1,6 +1,30 @@
-<h1 align="center">RoboCasa</h1>
+<h1 align="center">RoboCasa for Unitree G1 Evaluation</h1>
 <!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
 <img src="docs/images/readme.webp" width="100%" />
+
+This checkout adds a shared VLA evaluation runner for **Unitree G1 with SONIC**
+to RoboCasa. It provides model adapters, isolated simulation workers, dynamic
+inference batches, resumable episodes, and task success reports. The default
+benchmark contains **50 tasks × 30 episodes**: 25 seen atomic tasks, 15 seen
+composite tasks, and 10 unseen composite tasks.
+
+Start with the [Unitree G1 policy evaluation guide](docs/benchmarking/policy_evaluation.md).
+Planning uses only Python's standard library and does not load a model or the
+simulator:
+
+```sh
+python -m robocasa_eval plan --config examples/evaluation/groot.json
+```
+
+The examples put generated files under `./xuchengxin/`. Configure your model
+and simulation runtime, run `check`, and pass a single-GPU full-horizon `smoke`
+before starting a formal evaluation. GR00T N1.7 has a built-in adapter; other
+VLAs can use a custom Python adapter or the documented HTTP bridge. Models must
+produce the G1 SONIC action representation; a Panda or end-effector-action
+checkpoint is not directly compatible. The new shared runner still requires
+a real-model smoke test; the earlier 1,500-episode GROOT run used its predecessor.
+
+## Upstream RoboCasa
 
 **RoboCasa** is a large-scale simulation framework for training generally capable robots to perform everyday tasks. It was [originally released](https://robocasa.ai/assets/robocasa_rss24.pdf) in 2024 by UT Austin researchers. The latest iteration, **RoboCasa365**, builds upon the original release with significant new functionalities to support large-scale training and benchmarking in sim. Four pillars underlie RoboCasa365:
 - **Diverse tasks**: 365 tasks created with the guidance of large language models
