@@ -126,7 +126,7 @@ def download_and_extract_from_box(destination):
         base_datasets_path = Path(robocasa_path).parent / "datasets" / "v1.0"
     relative_path = ds_path.relative_to(base_datasets_path)
     # box_links_ds.json keys look like: pretrain/atomic/TaskName/20250820/lerobot.tar
-    tar_key = str(relative_path.parent / f"{relative_path.name}.tar")
+    tar_key = (relative_path.parent / f"{relative_path.name}.tar").as_posix()
 
     if tar_key not in BOX_LINKS_DS:
         print(colored(f"No Box link found for '{tar_key}' - skipping.", "red"))
