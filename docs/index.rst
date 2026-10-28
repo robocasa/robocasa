@@ -6,9 +6,10 @@
 RoboCasa for Unitree G1 Evaluation
 ==================================
 
-This fork provides a shared VLA evaluation workflow for Unitree G1 with SONIC.
-Start with :doc:`g1/evaluation` to launch a model server on
-port 8000, connect the simulator, and run the default 50-task benchmark.
+Start with the :doc:`Unitree G1 overview <g1/overview>` for the 50-task
+benchmark, 2,000 paired demonstrations, and release artifacts. The
+:doc:`evaluation guide <g1/evaluation>` explains how to launch a model server
+on port 8000, connect the simulator, and run the benchmark.
 
 The guides below cover simulation, datasets, and policy evaluation. See the
 `upstream RoboCasa project <https://robocasa.ai>`_ and the repository README
@@ -40,6 +41,7 @@ for attribution, licensing, and paper citations.
    :maxdepth: 1
    :caption: Unitree G1
 
+   g1/overview
    g1/tasks
    g1/datasets
    g1/data_collection
@@ -49,7 +51,7 @@ for attribution, licensing, and paper citations.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Introduction
+   :caption: RoboCasa reference: introduction
 
    introduction/overview
    introduction/installation
@@ -58,14 +60,14 @@ for attribution, licensing, and paper citations.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Tasks
+   :caption: RoboCasa reference: tasks
 
    tasks/atomic_tasks
    tasks/composite_tasks
 
 .. toctree::
    :maxdepth: 1
-   :caption: Datasets
+   :caption: RoboCasa reference: datasets
 
    datasets/datasets_overview
    datasets/using_datasets
@@ -74,7 +76,7 @@ for attribution, licensing, and paper citations.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Benchmarking
+   :caption: RoboCasa reference: policy learning
 
    benchmarking/benchmarking_overview
    benchmarking/policy_learning_algorithms
@@ -84,7 +86,7 @@ for attribution, licensing, and paper citations.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Assets
+   :caption: RoboCasa reference: assets
 
    assets/scenes
    assets/objects
@@ -92,7 +94,7 @@ for attribution, licensing, and paper citations.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Use Cases
+   :caption: RoboCasa reference: use cases
 
    use_cases/creating_datasets
    .. use_cases/creating_tasks
@@ -118,5 +120,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

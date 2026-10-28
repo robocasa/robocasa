@@ -1,6 +1,10 @@
-# RoboCasa SONIC VLA streaming: developer notes
+---
+orphan: true
+---
 
-The [G1 collection guide](g1/data_collection.md) contains the operator workflow and four terminal commands. This page describes the transport and recording lifecycle for debugging that integration.
+# SONIC collection streaming: developer notes
+
+The [G1 collection guide](../g1/data_collection.md) contains the operator workflow and four terminal commands. This page describes the transport and recording lifecycle for debugging that integration. Model evaluation uses the separate [HTTP service protocol](../g1/evaluation.md#http-communication-protocol).
 
 RoboCasa owns the MuJoCo clock. Its collector publishes robot state over DDS, receives SONIC joint commands and gains, and streams rendered images without moving rendering into the 200 Hz control loop. The SONIC exporter records the latent-action representation alongside those observations.
 

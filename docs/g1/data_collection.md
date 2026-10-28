@@ -143,4 +143,4 @@ After one save, inspect the files under the printed raw session directory and Le
 
 Keep the raw session, original exporter dataset, software revisions, controller/decoder identifiers, and validation reports together. Process into new output directories so the collection evidence remains available for later review.
 
-The [streaming developer notes](../SONIC_VLA_STREAMING.md) describe transport ports and lifecycle messages when debugging the integration.
+The [streaming developer notes](../developer/sonic_vla_streaming.md) describe transport ports and lifecycle messages when debugging the integration.
