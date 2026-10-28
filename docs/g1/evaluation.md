@@ -28,17 +28,19 @@ and conversion to this action representation.
 
 ## Prepare the two environments
 
+Start with [G1 installation](installation.md) for a new simulation setup,
+including compatible dependencies, robot and kitchen assets, rendering, and
+the SONIC decoder. Use the interpreter and decoder paths from that setup below.
+
 Run the following commands from the repository root. The public entry point is
 `python -m robocasa_eval`; `robocasa-eval`, `scripts/evaluate_g1.sh`, and
 `robocasa/scripts/evaluate.py` expose the same commands. The former
 `robocasa/utils/eval_utils.py` command also dispatches to this CLI. Its
 `create_eval_env` and `run_random_rollouts` helpers remain available.
 
-The **simulation environment** needs this checkout, RoboSuite, MuJoCo, ONNX
-Runtime, SONIC, its SDK/reset dependencies, the G1 assets, and the chosen renderer.
-Install the evaluation extra with `pip install -e '.[eval]'`. Set `sim_python`
-to its Python interpreter and `decoder_path` to the compatible SONIC
-`model_decoder.onnx`.
+Set `sim_python` to the prepared **simulation environment**'s Python interpreter
+and `decoder_path` to its compatible SONIC `model_decoder.onnx`. The installation
+guide includes this checkout's evaluation dependencies and the simulation runtime.
 
 Your existing **inference environment** remains responsible for loading and
 running the model. Expose the shared HTTP protocol from that service. If it needs

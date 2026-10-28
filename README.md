@@ -27,10 +27,12 @@ describes downloads, observations, actions, and episode alignment.
 
 ## Guides
 
-Start with the [release overview](docs/g1/overview.md).
+For a new setup, start with [G1 installation](docs/g1/installation.md).
+The [release overview](docs/g1/overview.md) describes the benchmark and workflows.
 
 | Guide | Contents |
 | --- | --- |
+| [G1 installation](docs/g1/installation.md) | Simulation environment, compatible dependencies, assets, and SONIC decoder |
 | [Tasks](docs/g1/tasks.md) | All 50 tasks, split membership, instructions, and success predicates |
 | [Datasets](docs/g1/datasets.md) | Fixed dataset version, download commands, and paired data schemas |
 | [Data collection](docs/g1/data_collection.md) | PICO/SONIC collection and synchronized HDF5/LeRobot recording |
@@ -48,13 +50,9 @@ Connect an existing inference service through HTTP. The service receives images,
 tokens plus two seven-joint hand targets. Its input preprocessing and output
 conversion must implement the [shared protocol](docs/g1/evaluation.md#http-communication-protocol).
 
-The simulation environment needs RoboSuite, MuJoCo, the G1 assets, SONIC, and
-its ONNX decoder. Install this checkout with
-`python -m pip install -e '.[eval]'` in that environment.
-The SonicG1-compatible RoboSuite dependency is
-[`Xucxname/robosuite` at `67c18a4c66fa7bca02258a8a6aee2abf29e5427f`](https://github.com/Xucxname/robosuite/tree/67c18a4c66fa7bca02258a8a6aee2abf29e5427f).
-See [environment preparation](docs/g1/evaluation.md#prepare-the-two-environments)
-and [runtime revisions](docs/g1/reproducibility.md) for the remaining dependencies.
+Follow [G1 installation](docs/g1/installation.md) to prepare the simulation
+environment, compatible dependencies, assets, and SONIC decoder. Then use the
+interpreter and decoder paths in the evaluation commands below.
 
 ## Evaluation quickstart
 

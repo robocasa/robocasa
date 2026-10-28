@@ -21,13 +21,15 @@ instructions, and implemented success conditions.
 
 ## Choose a workflow
 
+- [G1 installation](installation.md): prepare a new simulation environment, assets, and SONIC decoder.
 - [Datasets](datasets.md): download the released data and inspect its schema.
 - [Policy evaluation](evaluation.md): connect a model server and run the benchmark.
 - [Data collection](data_collection.md): collect paired HDF5 and LeRobot recordings.
 - [Dataset processing](dataset_processing.md): validate, clean, pair, and describe new collections.
 - [Release provenance](reproducibility.md): match simulation dependency versions and validate a deployment.
 
-For evaluation, connect an existing inference service to the simulator through
+After following the installation guide, connect an existing inference service
+to the simulator through
 **one HTTP port, 8000 by default**. Configure its endpoint, the simulation Python
 interpreter, and the SONIC decoder. The service receives images, a 46-dimensional
 robot state, and the task instruction; it returns a 64-dimensional SONIC motion

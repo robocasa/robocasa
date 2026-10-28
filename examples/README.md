@@ -4,6 +4,7 @@ Use these configurations with the [evaluation](../docs/g1/evaluation.md),
 [dataset processing](../docs/g1/dataset_processing.md), and
 [data collection](../docs/g1/data_collection.md) guides. Run commands from the
 repository root; relative configuration paths use that working directory.
+For a new simulation environment, follow [G1 installation](../docs/g1/installation.md).
 
 ## Inference services and evaluation
 
@@ -13,6 +14,7 @@ repository root; relative configuration paths use that working directory.
 | [evaluation/server_custom.json](evaluation/server_custom.json) | Optionally wrap a Python `module:function` adapter in the shared HTTP service. |
 | [evaluation/custom.json](evaluation/custom.json) | Load a custom Python adapter directly inside evaluation workers. |
 | [evaluation/runtime_versions.json](evaluation/runtime_versions.json) | Recorded simulator, decoder, asset, and dataset revisions. |
+| [evaluation/requirements-sim.txt](evaluation/requirements-sim.txt) | Pinned runtime dependencies for the dedicated G1 simulation environment. |
 
 Create a working evaluator configuration:
 

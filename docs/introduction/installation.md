@@ -4,9 +4,15 @@
   });
 </script>
 
-# Installation
+# Upstream installation reference
 
-RoboCasa works across all major computing platforms. The easiest way to set up is through the [Anaconda](https://www.anaconda.com/) package management system. Follow the instructions below to install:
+For **Unitree G1 with SONIC**, start with the dedicated
+[G1 installation guide](../g1/installation.md). It specifies the compatible
+simulation dependencies, G1 assets, and SONIC decoder for this checkout.
+
+The steps below are retained as a general upstream RoboCasa reference. Their
+default-branch checkouts do not specify the G1 dependency versions. They use the
+[Anaconda](https://www.anaconda.com/) package management system:
 1. Set up conda environment:
 
    ```sh
@@ -19,8 +25,10 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
 3. Clone and setup robosuite dependency:
 
    <div class="admonition warning">
-   <p class="admonition-title">Important!</p>
-   The latest version of RoboCasa uses the master branch of robosuite
+   <p class="admonition-title">Upstream reference</p>
+   This command clones the upstream robosuite default branch. For Unitree G1,
+   use the compatible fork and revision in the dedicated G1 installation guide
+   linked above.
    </div>
    
    ```sh
@@ -48,4 +56,3 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
    python -m robocasa.scripts.setup_macros              # Set up system variables.
    python -m robocasa.scripts.download_kitchen_assets   # Caution: Assets to be downloaded are around 10GB.
    ```
-

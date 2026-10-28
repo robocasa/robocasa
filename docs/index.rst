@@ -8,8 +8,9 @@ RoboCasa for Unitree G1 Evaluation
 
 Start with the :doc:`Unitree G1 overview <g1/overview>` for the 50-task
 benchmark, 2,000 paired demonstrations, and release artifacts. The
-:doc:`evaluation guide <g1/evaluation>` explains how to launch a model server
-on port 8000, connect the simulator, and run the benchmark.
+:doc:`G1 installation guide <g1/installation>` covers a new simulation setup.
+Then use the :doc:`evaluation guide <g1/evaluation>` to connect an inference
+service on port 8000 and run the benchmark.
 
 The guides below cover simulation, datasets, and policy evaluation. See the
 `upstream RoboCasa project <https://robocasa.ai>`_ and the repository README
@@ -42,6 +43,7 @@ for attribution, licensing, and paper citations.
    :caption: Unitree G1
 
    g1/overview
+   g1/installation
    g1/tasks
    g1/datasets
    g1/data_collection

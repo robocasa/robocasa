@@ -4,6 +4,9 @@ Record the dataset selection, simulator, inference-service fingerprint, and
 task-scoring configuration with the generated run manifest. This page records
 dataset versions, simulation dependencies, and deployment verification steps.
 
+For a new environment, follow [G1 installation](installation.md). The revision
+record below provides provenance for the recorded runtime and dataset versions.
+
 ## Dataset versions
 
 The public paired release is `Dawn-star/robocasa-sonic` at tag
@@ -45,14 +48,8 @@ camera, recording-event, and instruction-handshake integration described in
 that guide. Verify those capabilities in the collection checkout before
 recording; an evaluation dependency pin alone does not establish them.
 
-To prepare robosuite at the recorded revision in a new checkout:
-
-```bash
-git clone https://github.com/Xucxname/robosuite.git
-cd robosuite
-git checkout 67c18a4c66fa7bca02258a8a6aee2abf29e5427f
-python -m pip install -e .
-```
+The [G1 installation guide](installation.md) gives the dependency checkout and
+installation sequence, including the compatible robosuite revision.
 
 Use the current RoboCasa-G1 checkout for the public `robocasa_eval` package.
 The historical RoboCasa commit in the table identifies the earlier task and
@@ -62,8 +59,8 @@ the serving model instead of assuming they match this table.
 
 ## Validate a new deployment
 
-Follow [Evaluation](evaluation.md) from a new checkout and a prepared local GPU
-environment. Record the checkout commit and service fingerprint,
+Prepare the environment with [G1 installation](installation.md), then follow
+[Evaluation](evaluation.md). Record the checkout commit and service fingerprint,
 decoder hash, simulator identity, device type, and output directory.
 
 1. Run `plan` and `check` with your configured paths and a running model service.
