@@ -130,12 +130,7 @@ The ten rows marked **unseen** are `CupcakeCleanup`, `PastryDisplay`, `BoilEggs`
 `PrepareBroilingStation`, `BreadSetupSlicing`, `ClearCuttingBoard`,
 `OrganizeVegetables`, `DessertAssembly`, `MeatSkewerAssembly`, and `RotatePan`.
 All ten have a 180-second horizon and use the existing environments linked in
-the table. The English instructions and predicates above replace the provisional
-design descriptions as the public task reference.
-
-The [September 28 proposal](../G1_UNSEEN_COMPOSITE_TASKS.md) is retained as a
-historical archive. Its nine proposed `G1...` environments and `PreRinseStation`
-are not the official unseen set and are not a pending implementation list.
+the table. Their English instructions and success conditions are listed above.
 
 ## Implementation and historical-result notes
 
@@ -149,8 +144,7 @@ The documented predicates remain unchanged. In particular:
   its predicate. Other final-state tasks likewise do not automatically enforce
   every temporal word in their instruction.
 - `LoadDishwasher` currently requires both top-rack contact and a closed door.
-  It does not implement the additional ordered stages from the archived
-  `G1FullDishwasherLoad` proposal. `TiltPan` counts qualifying tilt updates but
+- `TiltPan` counts qualifying tilt updates but
   does not separately test that the final pan angle returns near its initial angle.
 
 The historical 1,500-episode GR00T evaluation contains **seven successes on the
