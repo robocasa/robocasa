@@ -224,10 +224,10 @@ def test_weighted_rank_allocation_and_coverage(config):
         assert {j["task"]["category"] for j in rows} == {"atomic", "composite"}
 
 
-def test_default_single_node_16_gpu_topology():
+def test_default_single_node_one_worker_topology():
     assert evaluation.topology({}) == {
-        "total": 16, "nodes": 1, "node_rank": 0, "local": 16,
-        "selected": list(range(16)),
+        "total": 1, "nodes": 1, "node_rank": 0, "local": 1,
+        "selected": [0],
     }
 
 

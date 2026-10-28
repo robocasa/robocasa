@@ -10,7 +10,8 @@ import pytest
 from robocasa_eval.cli import parser, read_options
 
 
-def test_endpoint_cli_plans_without_model_name_framework_or_network(tmp_path):
+@pytest.mark.parametrize("workers,envs", [(1, 1), (3, 1), (8, 1), (33, 1), (3, 4), (16, 4)])
+def test_endpoint_cli_plans_without_model_name_framework_or_network(tmp_path, workers, envs):
     root = Path(__file__).resolve().parents[1]
     destination = tmp_path / "not-created"
     script = '''
@@ -30,13 +31,17 @@ raise SystemExit(main(sys.argv[1:]))
                "plan", "--endpoint", "http://127.0.0.1:1/inference",
                "--sim-python", str(tmp_path / "sim/bin/python"),
                "--decoder-path", str(tmp_path / "decoder.onnx"),
-               "--workspace", str(destination), "--num-workers", "16", "--envs-per-worker", "4"]
+               "--workspace", str(destination), "--num-workers", str(workers),
+               "--envs-per-worker", str(envs)]
     result = subprocess.run(command, cwd=tmp_path, env=environment,
                             capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stderr
     report = json.loads(result.stdout)
     assert report["total_episodes"] == 1500
-    assert report["max_concurrent_environments"] == 64
+    assert report["max_concurrent_environments"] == workers * envs
+    assert report["topology"]["total"] == workers
+    assert len(report["rank_episode_counts"]) == workers
+    assert sum(report["rank_episode_counts"].values()) == 1500
     config = report["config"]
     assert config["policy"]["factory"] == "http"
     assert config["policy"]["id"] is None

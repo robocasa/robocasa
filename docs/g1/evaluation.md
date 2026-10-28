@@ -12,6 +12,10 @@ Python interpreter, and the SONIC decoder. The service and simulator can run
 in separate environments or on separate machines. The service is responsible
 for converting model inputs and outputs to the protocol below.
 
+Choose **N concurrent simulation environments** to fit your CPU, memory, and
+inference capacity. Evaluation concurrency and model-service GPU count are
+configured separately; multiple environments can share one model GPU.
+
 The default benchmark is **50 tasks × 30 episodes = 1,500 episodes**:
 
 | Task group | Tasks | Episodes | Simulation-time limit per episode |
@@ -132,8 +136,8 @@ the **same public port**.
 | `workspace`, `run_name` | Output/cache directory and name for this evaluation |
 | `policy.factory` | `http`, the default transport |
 | `policy.kwargs.endpoint`, `policy.kwargs.timeout` | Service URL and request timeout |
-| `num_workers` | HTTP evaluation worker count; model GPU devices are configured on the server |
-| `envs_per_worker` | Concurrent simulations per evaluation worker |
+| `num_workers` | Evaluation worker processes; default 1. HTTP model devices are configured on the server |
+| `envs_per_worker` | Concurrent simulations per worker; default 1, explicit range 1–32. `auto` chooses a count from available CPU capacity |
 | `device_prefix` | `cpu` for HTTP clients, which do not allocate model GPUs |
 | `episodes_per_task` | Default 30 |
 | `atomic_seconds`, `composite_seconds` | Default 40 and 180 simulation seconds |
@@ -141,6 +145,13 @@ the **same public port**.
 | `sim_python`, `sim_root`, `decoder_path` | Simulation interpreter, optional pinned runtime, and SONIC decoder |
 | `renderer`, `camera_names` | Rendering backend and observation cameras |
 | `task_manifest` | Optional task manifest; `null` uses the bundled benchmark |
+
+The concurrent environment limit is **N = `num_workers` × `envs_per_worker`**.
+Both the default configuration and supplied examples start with one environment.
+Set both counts explicitly to choose an exact limit; `plan` reports it as
+`max_concurrent_environments`. Each environment runs one episode at a time and
+takes another assigned episode when it finishes. Active environments decrease
+as workers exhaust their assigned episodes.
 
 Logs, reports, worker directories, temporary files, and caches use `workspace`.
 `disk_limit_bytes` controls evaluation workspace capacity and defaults to
@@ -185,7 +196,7 @@ smoke receipt.
 Changing the serving model, model device family (such as CPU to CUDA), adapter,
 simulator runtime, decoder, cameras, task manifest, or scoring protocol requires
 a new full-horizon smoke. Service replica count and evaluation worker count can
-change after the single-GPU test while the model and evaluation protocol stay
+change after the integration test while the model and evaluation protocol stay
 the same.
 
 ### Optionally wrap a Python inference adapter
@@ -209,34 +220,61 @@ fingerprint and optional replica information at `http://127.0.0.1:8000/metadata`
 Its optional `GET /health` route returns HTTP 200 with `ready: true` when ready,
 or HTTP 503 with `ready: false` otherwise.
 
-### Serve 16 GPUs through one port
+### Choose N concurrent environments
 
-For the optional wrapper, restart the service with all 16 devices after the
-single-GPU test. Bash expands `cuda:{0..15}` into the individual device arguments:
+For the HTTP workflow with the default CPU renderer (`osmesa`), choose any
+positive integer N that fits the available resources. The following example
+uses eight workers with one environment each; change `N` to your desired count:
 
 ```sh
-# Model environment: 16 model replicas, one listening port.
+N=8
+python -m robocasa_eval plan --config evaluation_runs/configs/evaluation.json \
+  --num-workers "$N" --envs-per-worker 1
+
+# Run after the full-horizon integration test above passes.
+python -m robocasa_eval run --config evaluation_runs/configs/evaluation.json \
+  --num-workers "$N" --envs-per-worker 1
+```
+
+Alternatively, group environments within workers. For example, three workers
+with four environments each provide **N = 12** concurrent environments:
+
+```sh
+python -m robocasa_eval run --config evaluation_runs/configs/evaluation.json \
+  --num-workers 3 --envs-per-worker 4
+```
+
+Persist the chosen values as `num_workers` and `envs_per_worker` in the JSON
+configuration, or pass the same CLI overrides when resuming. Each worker supports
+1–32 environments; use additional workers for larger totals. `--envs` controls
+only the smoke test's concurrency. The full-horizon smoke requires at least two
+environments, even when the subsequent evaluation uses N = 1.
+
+All HTTP workers connect to the same service endpoint. For the optional wrapper,
+choose the model devices independently, for example one GPU:
+
+```sh
 python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
-  --host 127.0.0.1 --port 8000 --devices cuda:{0..15}
+  --host 127.0.0.1 --port 8000 --devices cuda:0
 ```
 
-In the simulation environment, the example's `num_workers: 16` and
-`envs_per_worker: 4` create up to 64 simultaneous simulations. Every worker connects
-to the same endpoint, with the 16 worker ranks assigned across the 16 model
-replicas.
+To add model replicas, list the available devices, such as
+`--devices cuda:0 cuda:1`. The wrapper assigns workers across replicas and batches
+ready observations from their environments. Use at least as many evaluation
+workers as model replicas to send requests to every replica. All replicas share
+one listening port; the server's devices refer to GPUs on its own host.
 
-```sh
-bash scripts/evaluate_g1.sh run --config evaluation_runs/configs/evaluation.json \
-  --num-workers 16 --envs-per-worker 4
-```
+With `renderer: "egl"`, each local evaluation worker selects a rendering GPU by
+its local rank. Set the worker count per node to the number of rendering GPUs
+you want to use, and increase `envs_per_worker` to run multiple environments on
+each. These rendering GPUs are configured on the simulation host independently
+of the model service.
 
-For a smaller evaluation client, add `--num-workers 1` and choose a separate
-`--run-name`. This changes client concurrency; it does not change server devices. Use at least
-as many client workers as model replicas to exercise every serving GPU.
-For simulation workers across multiple nodes, use a shared evaluation workspace
-and the compatible `NNODES`, `GPUS_PER_NODE`, and `NODE_RANK` environment settings.
-All clients use the same model-service address. The server's `devices` refer to
-GPUs on its own host.
+For workers across multiple nodes, use a shared evaluation workspace and set
+`NNODES`, `NODE_RANK`, and `GPUS_PER_NODE`. In HTTP mode, the legacy
+`GPUS_PER_NODE` name specifies **worker processes per node**. Set `num_workers`
+to `NNODES × GPUS_PER_NODE`; N remains `num_workers × envs_per_worker` across
+all nodes.
 
 To resume an interrupted run, keep its configuration and `run_name`. Completed
 records with matching identity are reused. Increasing concurrency needs enough
@@ -246,9 +284,11 @@ CPU, memory, network bandwidth, and model serving capacity.
 
 For a model and evaluator in the same environment, `custom.json` provides an
 optional direct-adapter workflow. Each evaluation worker loads its own model
-on its selected GPU. The existing `total_gpus` and `envs_per_gpu` settings remain
-available for direct mode. Apply the same `check`, full-horizon `smoke`, `run`, and
-`summarize` commands to that configuration. The shared task and action protocol
+on its selected device. Set `num_workers` to the number of model devices and
+`envs_per_worker` to the environments sharing each model replica. The legacy
+`total_gpus` and `envs_per_gpu` names remain supported aliases. Apply the same
+`check`, full-horizon `smoke`, `run`, and `summarize` commands to that configuration.
+The shared task and action protocol
 is identical to the HTTP workflow.
 
 ## Model adapters

@@ -104,8 +104,9 @@ python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
 ```
 
 Replace the example factory's placeholder actions with the model's inference and
-action conversion before evaluation. Use `--devices cuda:{0..15}` in Bash for
-16 replicas. The [evaluation guide](docs/g1/evaluation.md) covers concurrency,
+action conversion before evaluation. Choose model devices with `--devices` and
+set concurrent environments with `--num-workers N --envs-per-worker 1`.
+The [evaluation guide](docs/g1/evaluation.md) covers concurrency,
 full-horizon validation, scoring, errors, and resume behavior.
 
 ## Credits

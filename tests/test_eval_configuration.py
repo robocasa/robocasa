@@ -42,6 +42,7 @@ raise SystemExit(main(['plan', '--workspace', sys.argv[1]]))
     assert result.returncode == 0, result.stderr
     report = json.loads(result.stdout)
     assert report["total_episodes"] == 1500
+    assert report["max_concurrent_environments"] == 1
     assert sum(report["rank_episode_counts"].values()) == 1500
     assert report["config"]["policy_identity"]["verified"] is False
     assert report["config"]["policy"] == {

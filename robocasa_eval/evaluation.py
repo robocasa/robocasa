@@ -67,7 +67,7 @@ def available_cpu_cores(cgroup_root=Path("/sys/fs/cgroup")):
 
 def topology(env):
     """Support one launcher per node as well as pre-spawned distributed workers."""
-    total = integer(env, "TOTAL_GPUS", 16)
+    total = integer(env, "TOTAL_GPUS", 1)
     if "LOCAL_RANK" in env:
         local = integer(env, "LOCAL_WORLD_SIZE", 0)
         rank = integer(env, "RANK", -1, 0)

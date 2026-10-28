@@ -330,7 +330,7 @@ The full-horizon smoke covers atomic and composite tasks with 40- and
 resolve integration errors before launching the benchmark. A passed test
 creates the receipt required by `run`. Reports and logs use the configured
 workspace under `outputs/`. Follow [Evaluation](evaluation.md) for full runs,
-16-GPU inference serving, concurrency, and resume settings.
+configurable parallel environments, model serving, and resume settings.
 
 ## Rendering and common setup errors
 

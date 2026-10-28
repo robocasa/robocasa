@@ -18,8 +18,8 @@ from .evaluation import HERE, available_cpu_cores, digest, owned, topology
 DEFAULTS = {
     "workspace": "./evaluation_runs",
     "run_name": "g1-sonic50",
-    "total_gpus": 16,
-    "envs_per_gpu": "auto",
+    "total_gpus": 1,
+    "envs_per_gpu": 1,
     "episodes_per_task": 30,
     "atomic_seconds": 40,
     "composite_seconds": 180,
