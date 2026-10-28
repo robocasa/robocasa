@@ -87,7 +87,7 @@ Do not pair files by their position in a directory listing or assume the source 
 
 ## LeRobot schema
 
-The published dataset retains collection telemetry in addition to the features used by the baseline. Read each task's `meta/info.json` for stored shapes and types, and `meta/modality.json` for the named model inputs. The baseline consumes **46 state values** and predicts **78 action values**.
+The published dataset contains the state and action fields used by the shared G1 evaluation protocol, together with collection telemetry. Read each task's `meta/info.json` for stored shapes and types, and `meta/modality.json` for named features. The evaluation protocol uses **46 state values** and **78 action values**.
 
 ### State
 
@@ -104,7 +104,7 @@ The 43-element `observation.state` stores joint positions in radians in this ord
 | `state.right_hand` | `observation.state` | `36:43` | 7 |
 | `state.projected_gravity` | `observation.projected_gravity` | `0:3` | 3 |
 
-Projected gravity is the unit downward vector expressed in the robot base frame. The 46-dimensional input is formed from the named fields; `observation.state` alone is 43-dimensional. Additional stored values, including wrist poses and root orientation, are available for analysis but are not part of this baseline state input.
+Projected gravity is the unit downward vector expressed in the robot base frame. The 46-dimensional evaluation state combines the named joint fields with projected gravity; `observation.state` alone is 43-dimensional. Additional stored values, including wrist poses and root orientation, are available for analysis.
 
 ### Actions
 
@@ -120,7 +120,15 @@ Hand state and action ordering differ. Each hand's **state** is index finger (2 
 
 ### Images, instructions, and rates
 
-The released camera keys are `observation.images.ego_view`, `observation.images.left_wrist`, and `observation.images.right_wrist`. They contain 640 × 480 RGB videos. The baseline used the ego view; consumers can select other views through their model configuration. The task text is read through `task_index` and `meta/tasks.jsonl`.
+The released videos are 640 × 480 RGB. Their camera keys correspond to these evaluator aliases:
+
+| Dataset camera key | Evaluation `camera_names` entry |
+| --- | --- |
+| `observation.images.ego_view` | `ego_view` |
+| `observation.images.left_wrist` | `left_wrist` |
+| `observation.images.right_wrist` | `wrist_view` |
+
+The evaluation configuration defaults to `camera_names: ["ego_view"]`. Add the wrist-camera aliases to receive those views, and map the resulting observations to the inference service's inputs. The task text is read through `task_index` and `meta/tasks.jsonl`. See the [observation contract](evaluation.md#observation-contract) for the evaluation message format.
 
 | Clock | Rate | Interpretation |
 | --- | ---: | --- |

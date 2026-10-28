@@ -77,7 +77,7 @@ Use an environment with the video and Parquet dependencies:
 
 Inspect `replay_report.json` for missing files, shapes, non-finite values, frame counts, timestamps, and video reliability. `--check-only` still decodes videos for validation; it does not write preview videos. To create a synchronized preview, run the command with a new output directory and omit `--check-only`.
 
-Confirm the dataset includes a real 64-dimensional `action.motion_token` and two 7-dimensional hand-command fields. Shape validity alone cannot prove these are meaningful SONIC targets; retain the exporter/controller provenance and inspect representative trajectories. The baseline [state and action mapping](datasets.md#lerobot-schema) differs from the HDF5 converter's WBC representation.
+Confirm the dataset includes a real 64-dimensional `action.motion_token` and two 7-dimensional hand-command fields. Shape validity alone cannot prove these are meaningful SONIC targets; retain the exporter/controller provenance and inspect representative trajectories. The published LeRobot [state and action mapping](datasets.md#lerobot-schema) uses SONIC latent and hand targets; the HDF5 converter exports WBC joint commands.
 
 ## 3. Plan the pairing before applying cleanup
 
@@ -178,7 +178,7 @@ MUJOCO_GL=egl "$SIM_PYTHON" \
 
 At 200 Hz source and 50 Hz target, the converter selects every fourth recorded action-aligned state and re-renders images. Check the source recording rate before overriding it, especially if collection used a non-default `--record-freq`. Camera metadata records virtual wrist-camera injection when the original model lacks those cameras.
 
-The converter writes `action.wbc` / `action` as the recorded 43-dimensional command, with its own state layout and `meta/conversion_warnings.json`. It does not recover the real 64-dimensional latent or reproduce the live exporter's complete schema. Its optional zero-filled motion-token field is a placeholder and is unsuitable as SONIC latent supervision. Use the paired live exporter records for the 78-dimensional baseline action target.
+The converter writes `action.wbc` / `action` as the recorded 43-dimensional command, with its own state layout and `meta/conversion_warnings.json`. It does not recover the real 64-dimensional latent or reproduce the live exporter's complete schema. Its optional zero-filled motion-token field is a placeholder and is unsuitable as SONIC latent supervision. Use the paired live exporter records for the 78-dimensional SONIC latent and hand targets used by the shared evaluation protocol.
 
 ## Review before publication
 

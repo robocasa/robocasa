@@ -3,7 +3,7 @@
 The Unitree G1 benchmark contains **50 tasks: 25 seen atomic, 15 seen composite,
 and 10 unseen composite**. The authoritative names, categories, and splits are
 in [`robocasa_eval/tasks50.json`](https://github.com/Xucxname/robocasa/blob/3055b5e6a9f35ff664749311de59c9653c1bb051/robocasa_eval/tasks50.json). The
-`benchmark40_v1_20261013` demonstration release contains the 40 seen tasks,
+paired demonstration release, [`benchmark40-v1-hdf5-20261022`](datasets.md), contains the 40 seen tasks,
 with 50 demonstrations per task (2,000 total). The 10 unseen tasks are evaluation
 tasks, not additional training demonstrations in that release. “Unseen” is
 relative to this 40-task training set; it makes no claim about foundation-model
@@ -34,11 +34,9 @@ fixture helper rather than a new geometric test. A selected **active burner**
 means stove contact, distance to that burner, and its knob being on, as checked
 by [`check_obj_location_on_stove`](https://github.com/Xucxname/robocasa/blob/3055b5e6a9f35ff664749311de59c9653c1bb051/robocasa/models/fixtures/stove.py#L194).
 
-The last column records local G1 adaptations and release-specific details that
-matter when comparing with RoboCasa365. It does not claim an exhaustive diff
-against every upstream revision. All rows use the G1 embodiment and its shared
-placement/control integration; task-specific differences are called out where
-the source establishes them.
+The last column records G1 adaptations and release-specific details. All rows
+use the G1 embodiment and its shared placement/control integration;
+task-specific behavior is described alongside each success condition.
 
 ## Official 50-task list
 
