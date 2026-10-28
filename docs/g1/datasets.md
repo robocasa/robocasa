@@ -120,15 +120,15 @@ Hand state and action ordering differ. Each hand's **state** is index finger (2 
 
 ### Images, instructions, and rates
 
-The released videos are 640 × 480 RGB. Their camera keys correspond to these evaluator aliases:
+The released videos are 640 × 480 RGB. Their camera keys correspond to these canonical evaluation names:
 
 | Dataset camera key | Evaluation `camera_names` entry |
 | --- | --- |
 | `observation.images.ego_view` | `ego_view` |
 | `observation.images.left_wrist` | `left_wrist` |
-| `observation.images.right_wrist` | `wrist_view` |
+| `observation.images.right_wrist` | `right_wrist` |
 
-The evaluation configuration defaults to `camera_names: ["ego_view"]`. Add the wrist-camera aliases to receive those views, and map the resulting observations to the inference service's inputs. The task text is read through `task_index` and `meta/tasks.jsonl`. See the [observation contract](evaluation.md#observation-contract) for the evaluation message format.
+The evaluation configuration defaults to `camera_names: ["ego_view"]`. Add `left_wrist` and `right_wrist` to receive those views, and map the resulting observations to the inference service's inputs. The task text is read through `task_index` and `meta/tasks.jsonl`. See the [observation contract](evaluation.md#observation-contract) for a three-camera configuration and the evaluation message format.
 
 | Clock | Rate | Interpretation |
 | --- | ---: | --- |

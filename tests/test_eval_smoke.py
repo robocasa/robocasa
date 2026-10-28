@@ -67,7 +67,7 @@ def test_full_smoke_preserves_limits_and_authorizes_sixteen_gpus(config, fake_ex
     assert config["total_gpus"] == 16
 
 
-@pytest.mark.parametrize("field,value", [("camera_names", ["ego_view", "wrist_view"]),
+@pytest.mark.parametrize("field,value", [("camera_names", ["ego_view", "right_wrist"]),
     ("decoder_sha256", "different-decoder"), ("execution_horizon", 10),
     ("composite_seconds", 150), ("runtime_identity", {"simulator": "changed"}),
     ("policy_identity", {"model": "different-model"})])

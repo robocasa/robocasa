@@ -300,9 +300,18 @@ Each observation contains:
 
 The state contains **46 values**: 43 joint positions and 3 projected-gravity
 values. State arrays are unnormalized `float32`. The default view is `ego_view`;
-available calibrated aliases also include `left_wrist` and `wrist_view`.
-`wrist_view` is the right wrist camera, stored as `observation.images.right_wrist`
-in the released dataset. See the [camera mapping](datasets.md#images-instructions-and-rates).
+the wrist-camera names are `left_wrist` and `right_wrist`. To request all three:
+
+```json
+{
+  "camera_names": ["ego_view", "left_wrist", "right_wrist"]
+}
+```
+
+Legacy configurations using `wrist_view` are normalized to `right_wrist`; returned
+observations use `video["right_wrist"]` for that camera. See the
+[dataset camera mapping](datasets.md#images-instructions-and-rates).
+
 Model-specific resizing, history stacking, language tokenization, and
 normalization belong in the adapter. Privileged object state and success
 signals are not model observations.

@@ -148,6 +148,41 @@ def test_anonymous_service_connects_using_only_endpoint_and_action_contract(tmp_
         assert not pool.active
 
 
+def test_three_camera_http_observations_preserve_names_and_pixels(tmp_path, monkeypatch):
+    obs = observation()
+    pixels = np.arange(4 * 5 * 3, dtype=np.uint8).reshape(4, 5, 3)
+    obs["video"] = {
+        "ego_view": pixels.copy(),
+        "left_wrist": pixels + np.uint8(64),
+        "right_wrist": (pixels + np.uint8(128))[:, :, ::-1],
+    }
+    received = []
+    with running_server() as (_, pool, endpoint):
+        predict = pool.predict_batch
+
+        def capture(observations, contexts):
+            received.extend(observations)
+            return predict(observations, contexts)
+
+        monkeypatch.setattr(pool, "predict_batch", capture)
+        client = HttpPolicy(endpoint=endpoint, workspace=tmp_path, device="cpu", seed=0, timeout=3)
+        try:
+            client.reset(context())
+            client.predict_batch([obs], [context()])
+            assert len(received) == 1
+            images = received[0]["video"]
+            assert set(images) == {"ego_view", "left_wrist", "right_wrist"}
+            assert "wrist_view" not in images
+            for name, expected in obs["video"].items():
+                assert images[name].dtype == np.uint8
+                assert images[name].shape == expected.shape
+                np.testing.assert_array_equal(images[name], expected)
+            client.end_episode(context())
+        finally:
+            client.close()
+        assert not pool.active
+
+
 @pytest.mark.parametrize("ignore_header", [False, True])
 def test_anonymous_client_refuses_changed_inference_revision(tmp_path, ignore_header):
     declared = {key: value for key, value in metadata().items() if key != "model_id"}

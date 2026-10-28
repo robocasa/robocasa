@@ -58,6 +58,8 @@ raise SystemExit(main(['plan', '--workspace', sys.argv[1]]))
     {"atomic_seconds": float("nan")}, {"composite_seconds": float("inf")},
     {"atomic_seconds": 0.015}, {"camera_names": [[]]}, {"camera_names": []},
     {"camera_names": ["ego_view", "ego_view"]}, {"camera_names": ["external"]},
+    {"camera_names": ["right_wrist", "wrist_view"]},
+    {"camera_names": ["wrist_view", "right_wrist"]},
     {"renderer": []}, {"layout_ids": None}, {"style_ids": True},
     {"camera_width": 4096, "camera_height": 4096, "camera_names": ["ego_view"]},
     {"policy": {"factory": ""}},
@@ -68,6 +70,18 @@ raise SystemExit(main(['plan', '--workspace', sys.argv[1]]))
 def test_reject_invalid_options(options, update):
     with pytest.raises(ValueError):
         build(dict(options, **update))
+
+
+def test_right_wrist_and_legacy_alias_share_canonical_run_identity(options):
+    names = ["ego_view", "left_wrist", "right_wrist"]
+    canonical = build(dict(options, camera_names=names))
+    legacy_options = dict(options, camera_names=["ego_view", "left_wrist", "wrist_view"])
+    before = copy.deepcopy(legacy_options)
+    legacy = build(legacy_options)
+    assert legacy_options == before
+    assert legacy["camera_names"] == names
+    assert legacy == canonical
+    assert conf.gate_protocol(legacy) == conf.gate_protocol(canonical)
 
 
 def test_options_are_not_mutated_and_custom_factory_kwargs_stay_opaque(options):

@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import sys
 
+from .cameras import normalize_camera_names
 from .evaluation import HERE, available_cpu_cores, digest, owned, topology
 
 DEFAULTS = {
@@ -227,11 +228,9 @@ def build_config(options=None, *, verify_files=False, environment=None):
             raise ValueError(f"{key} must be an exact multiple of 1/50 second")
     if raw["renderer"] not in ("osmesa", "egl"):
         raise ValueError("renderer must be osmesa or egl")
-    cameras = raw["camera_names"]
-    if (not isinstance(cameras, list) or not cameras
-            or any(not isinstance(c, str) or c not in {"ego_view", "left_wrist", "wrist_view"} for c in cameras)
-            or len(set(cameras)) != len(cameras)):
-        raise ValueError("camera_names must select unique supported G1 cameras")
+    if not isinstance(raw["camera_names"], list):
+        raise ValueError("camera_names must be a list")
+    cameras = raw["camera_names"] = normalize_camera_names(raw["camera_names"])
     if raw["camera_width"] * raw["camera_height"] * 3 * len(cameras) > 24 * 1024**2:
         raise ValueError("Camera images exceed the 32 MiB simulator IPC frame budget")
     for key in ("layout_ids", "style_ids"):

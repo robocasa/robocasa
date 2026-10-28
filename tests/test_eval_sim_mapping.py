@@ -20,12 +20,47 @@ class SimMappingTest(unittest.TestCase):
         self.assertEqual(cameras, {"ego_view": CAMERAS["ego_view"]})
         self.assertEqual((height, width), (480, 640))
         self.assertEqual(camera_configuration({"camera_names": list(CAMERAS)})[0], CAMERAS)
-        for bad in ([], "ego_view", ["missing"], ["ego_view", "ego_view"]):
+        for bad in ([], "ego_view", ["missing"], ["ego_view", "ego_view"],
+                    ["right_wrist", "wrist_view"], ["wrist_view", "right_wrist"], [[]]):
             with self.assertRaises(ValueError):
                 camera_configuration({"camera_names": bad})
         for bad in (0, -2, True, 480.5, "480"):
             with self.assertRaises(ValueError):
                 camera_configuration({"camera_height": bad})
+
+    def test_three_camera_observations_use_dataset_names_and_correct_images(self):
+        # Reuse the renderer's buffer to catch mislabeled cameras and missing copies.
+        pixels = {"robot0_head_camera": 11, "robot0_left_wrist_camera": 22,
+                  "robot0_right_wrist_camera": 33}
+
+        class Renderer:
+            def __init__(self):
+                self.buffer = np.empty((4, 5, 3), dtype=np.uint8)
+
+            def update_scene(self, data, *, camera, scene_option):
+                self.buffer.fill(pixels[camera])
+
+            def render(self):
+                return self.buffer
+
+        for right_name in ("right_wrist", "wrist_view"):
+            with self.subTest(right_name=right_name):
+                backend = SonicRoboCasaEnv.__new__(SonicRoboCasaEnv)
+                backend._cameras, _, _ = camera_configuration({
+                    "camera_names": ["ego_view", "left_wrist", right_name],
+                })
+                backend.render = Renderer()
+                backend.env = SimpleNamespace(sim=SimpleNamespace(data=SimpleNamespace(_data=None)))
+                backend._scene_option = None
+                backend._instruction = "Open the drawer."
+                backend._motor_state = lambda: (
+                    np.zeros(29), np.zeros(29), np.zeros(7), np.zeros(7),
+                    np.zeros(3), np.array([0., 0., -1.]),
+                )
+                observation = backend._observation()
+                self.assertEqual(list(observation["video"]), ["ego_view", "left_wrist", "right_wrist"])
+                for name, value in (("ego_view", 11), ("left_wrist", 22), ("right_wrist", 33)):
+                    np.testing.assert_array_equal(observation["video"][name], np.full((4, 5, 3), value, dtype=np.uint8))
 
     def test_hand_names_and_inverse(self):
         motor_names = ["thumb0", "thumb1", "thumb2", "index0", "index1", "middle0", "middle1"]

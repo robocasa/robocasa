@@ -16,15 +16,12 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from .cameras import CAMERAS, normalize_camera_names
+
 
 SIM_HZ = 200
 POLICY_HZ = 50
 SUBSTEPS = SIM_HZ // POLICY_HZ
-CAMERAS = {
-    "ego_view": "robot0_head_camera",
-    "left_wrist": "robot0_left_wrist_camera",
-    "wrist_view": "robot0_right_wrist_camera",
-}
 # Live exporter / Pinocchio *state* is index-first. The action fields contain
 # teleop hand commands and already use thumb-first SONIC / DDS motor order.
 HAND_MOTOR_TO_DATASET = np.array([3, 4, 5, 6, 0, 1, 2])
@@ -33,11 +30,7 @@ HAND_DATASET_TO_MOTOR = np.argsort(HAND_MOTOR_TO_DATASET)
 
 def camera_configuration(config: Mapping) -> tuple[dict[str, str], int, int]:
     """Select policy observations independently of optional video recording."""
-    names = config.get("camera_names", ["ego_view"])
-    if (not isinstance(names, (list, tuple)) or not names
-            or any(not isinstance(name, str) or name not in CAMERAS for name in names)
-            or len(set(names)) != len(names)):
-        raise ValueError(f"camera_names must be a nonempty unique list drawn from {list(CAMERAS)}")
+    names = normalize_camera_names(config.get("camera_names", ["ego_view"]))
     dimensions = [config.get("camera_height", 480), config.get("camera_width", 640)]
     if any(isinstance(value, bool) or not isinstance(value, (int, np.integer))
            or value <= 0 for value in dimensions):
