@@ -38,15 +38,12 @@ PYTHONPATH="$SONIC_ROOT" python -m pytest -q \
   gear_sonic/tests/test_episode_instruction_subscriber.py
 ```
 
-Validation for this bundle applied the patch to an isolated snapshot of the
-pinned source, checked Python syntax, and passed all 16 focused tests. It did not
-validate a live PICO headset, compile the controller, or run a complete four-process
-recording session. Preserve the base commit and patch SHA-256 with collection
-provenance.
+After the focused tests, verify a complete four-process recording session
+using the [collection guide](../../docs/g1/data_collection.md). Preserve the
+base commit and patch SHA-256 with collection provenance.
 
-This patch was extracted from the local RoboCasa collection integration on
-2026-10-28. It is distributed as a RoboCasa companion patch; the full integration
-has not been established as an upstream SONIC commit. Source code remains under
+This bundle is distributed as a RoboCasa companion patch for the pinned
+SONIC revision. Source code remains under
 the upstream Apache-2.0 terms described in its
 [`LICENSE`](https://github.com/NVlabs/GR00T-WholeBodyControl/blob/a9d20b2ac0949244d94461a1a3263f38c5027c4a/LICENSE).
 Existing source headers are retained. No model weights or binaries are included.

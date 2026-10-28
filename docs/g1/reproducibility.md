@@ -2,8 +2,8 @@
 
 The dataset selection, simulator, inference adapter, and task scoring form one
 reproducible experiment. Record their revisions along with the checkpoint and
-the generated run manifest. This page distinguishes the completed historical
-baseline from validation of the public evaluation entry point.
+the generated run manifest. This page records dataset versions, runtime
+dependencies, the baseline protocol, and deployment verification steps.
 
 ## Dataset versions
 
@@ -63,10 +63,9 @@ the serving model instead of assuming they match this table.
 
 ## GROOT model environment
 
-The SDK checkout inspected for the public entry point is
-`NVIDIA/Isaac-GR00T` at
-`ab88b50c718f6528e1df9dcbaf75865d1b604760`. Its working tree was clean and the
-commit includes `UNITREE_G1_SONIC`. Training implementation and model-specific
+Use `NVIDIA/Isaac-GR00T` at
+`ab88b50c718f6528e1df9dcbaf75865d1b604760`, which includes
+`UNITREE_G1_SONIC`. Training implementation and model-specific
 configuration belong in that SDK; `robocasa_eval/adapters/groot.py` supplies
 the interface to this repository's shared evaluation protocol.
 
@@ -107,58 +106,6 @@ do not establish that the model performed the requested manipulation in 5 ms.
 Interpretation notes stay in Markdown, while the original result counts and
 data remain unchanged.
 
-## Public data-tool validation
-
-On 2026-10-28, the public tools were checked against the released `CheesyBread`
-episode 0 and its paired raw recording `ep_1785323382_3171391` at the October 22
-dataset revision. The 155,527,560-byte HDF5 matched its published SHA-256:
-`3c7ba2aec2054f79298d9e589a31bed7b3fd556b95fc90bd34081fd93c7fbb02`.
-
-- Recorded-state replay inspected 6,506 HDF5 states at 652 checkpoints and found
-  both an earlier success and success at the last available state. Its source
-  was `ep_demo.hdf5/aligned_states`; the original NPZ terminal-state sidecar was
-  unavailable, so this is not a check of the collection's complete terminal state.
-- LeRobot validation checked 1,573 rows, 31 fields, and decoded all three
-  640 × 480, 50 fps videos.
-- A separate, explicitly custom one-task / one-pair sample passed metadata
-  `build` and `verify`, covering 10 files and 164,479,616 bytes.
-- The 10 input files retained their SHA-256 values and modification times.
-
-This validates one real pair and the public metadata workflow. It does not
-replace validation of all 2,000 demonstrations or test action-dynamics replay.
-The companion [SONIC collection patch](https://github.com/Xucxname/robocasa/tree/agent/sonic-g1-followups/examples/sonic)
-also applied successfully to a full clean snapshot of its pinned source and
-passed 16 focused tests. A live PICO collection session remains a separate
-station check.
-
-## Public model-service validation
-
-On 2026-10-28, code revision
-[`0085151a6a1948db048d2d48c2b8eb2dbbb4c9cc`](https://github.com/Xucxname/robocasa/tree/0085151a6a1948db048d2d48c2b8eb2dbbb4c9cc)
-was validated with the real step-100,000 checkpoint on one **PPU-ZW810E, 96 GiB**.
-The model environment used PyTorch 2.6.0, Transformers 4.57.3, and SDPA attention.
-The simulator used Python 3.12.3, MuJoCo 3.3.1, ONNX Runtime 1.23.2, and OSMesa.
-All 21 files in the deployed `robocasa_eval` package matched that code revision.
-
-The public `check` command passed with all 50 tasks registered. Two simultaneous
-environments then completed a 100-step smoke each. Two independent HTTP clients
-also issued overlapping requests using fresh simulator observations; both
-received finite 40-step actions with dimensions 64 / 7 / 7 and executed a
-20-step chunk in their own environments.
-
-The full-horizon smoke completed with no runtime errors or pending episodes:
-
-| Task | Simulation limit | Outcome | Simulation elapsed | Wall elapsed |
-| --- | ---: | --- | ---: | ---: |
-| CloseDishwasher | 40 s | Native success | 4.20 s | 25.0 s |
-| CoolBakedCake | 180 s | Normal timeout | 180.00 s | 443.7 s |
-
-The timeout is an unsuccessful episode under the native scoring rule, with
-normal evaluator completion. These two episodes validate integration and the
-time limits; they do not replace the completed 1,500-episode baseline above.
-The concurrency probe validates independent clients. It does not establish
-16-device throughput or prove that their requests were merged into one batch.
-
 ## Validate a new deployment
 
 Follow [Evaluation](evaluation.md) from a new checkout and a prepared local GPU
@@ -171,9 +118,6 @@ decoder hash, simulator identity, device type, and output directory.
 4. Inspect episode errors, service logs, simulator logs, and the smoke receipt.
 5. Expand model replicas and client workers, then run the desired benchmark.
 
-Automated CPU transport tests and the historical baseline serve different
-purposes. Report a new HTTP-service or hardware validation only with its own
-completed run artifacts. A missing checkpoint or unavailable runtime is a
-deployment prerequisite, not a measured policy failure. Publishing the GROOT
-checkpoint location and compatible training SDK/configuration remains part of
-the model release handoff.
+Keep the verification reports with the evaluation run. Include the model
+checkpoint identifier, runtime revisions, task manifest, seeds, and scoring
+protocol when sharing benchmark results.
