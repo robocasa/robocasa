@@ -314,6 +314,9 @@ def sim_environment(config, rank=0):
     if config["renderer"] == "osmesa":
         env["CUDA_VISIBLE_DEVICES"] = ""
         env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+        # Avoid the LLVM full-optimization crash observed in geometry JIT with
+        # system OSMesa. Keep explicit compiler overrides local to this worker.
+        env.setdefault("NUMBA_OPT", "0")
         # Keep accelerator library overrides out of the CPU simulator process.
         mesa = runtime / "mesa/usr/lib/x86_64-linux-gnu" if runtime else None
         env["LD_LIBRARY_PATH"] = str(mesa) if mesa and mesa.is_dir() else ""

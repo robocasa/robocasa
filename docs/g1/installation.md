@@ -227,7 +227,14 @@ python -m robocasa.scripts.setup_macros
 ```
 
 `setup_macros` creates the local macro configuration; assets remain under the
-installed RoboCasa source tree. Configure a single evaluator worker with two
+installed RoboCasa source tree. The evaluator's OSMesa subprocesses default to
+`NUMBA_OPT=0`, keeping JIT compilation enabled while avoiding an LLVM optimizer
+crash reproduced during scene placement in a clean Ubuntu 24.04 installation.
+An explicit `NUMBA_OPT` setting takes precedence. The diagnostic records the
+effective compiler settings and package versions in the runtime identity;
+changing them requires a new smoke test.
+
+Configure a single evaluator worker with two
 concurrent environments for the first integration test:
 
 ```bash
@@ -284,8 +291,9 @@ PY
 ```
 
 The final JSON should report `tasks_registered: 50`, `render_probe: "passed"`,
-and `sonic_reset_dependency: "passed"`. This checks decoder loading, task
-registration, SDK imports, and a small render. The next step exercises real
+`geometry_probe: "passed"`, and `sonic_reset_dependency: "passed"`. This checks
+decoder loading, task registration, SDK imports, a small render, and the
+matrix-to-quaternion computation used during scene placement. The next step exercises real
 kitchen scenes and the connected policy.
 
 ## 7. Connect inference and run the first episodes
@@ -330,6 +338,7 @@ workspace under `outputs/`. Follow [Evaluation](evaluation.md) for full runs,
 | `gear_sonic` or `unitree_sdk2py` cannot import | Check the SONIC `.pth`, vendored SDK editable install, and active Python environment. |
 | CycloneDDS cannot be located | Export the absolute `CYCLONEDDS_HOME` from step 3 before installing the Python binding or running evaluation. |
 | OSMesa or OpenGL cannot create a context | Install the system `libosmesa6` library; set renderer variables before Python starts. The evaluator clears inherited accelerator library overrides for its CPU simulator. |
+| Simulator exits during scene placement with an LLVM optimization fault | Check the worker's `simulator.log`. Remove an inherited `NUMBA_OPT` override to use the OSMesa default of `0`, then rerun the diagnostic in a new process. |
 | A kitchen mesh or texture is missing | Complete all six asset groups and check the extraction roots in step 4. |
 | Decoder input/output shapes do not match | Use the exact decoder revision and SHA-256 from step 5. |
 | HTTP connection fails or metadata is rejected | Check the service URL and the shared protocol in the evaluation guide. |

@@ -93,6 +93,17 @@ def send(stream, value):
     stream.flush()
 
 
+def compiler_identity():
+    """Bind effective JIT settings, including the distinct Numba 'max' mode."""
+    import llvmlite
+    import numba
+
+    return {"numba": numba.__version__, "llvmlite": llvmlite.__version__,
+            "optimization_level": int(numba.config.OPT),
+            "is_opt_max": bool(numba.config.OPT.is_opt_max),
+            "jit_disabled": bool(numba.config.DISABLE_JIT)}
+
+
 def check(config):
     import importlib
     import importlib.util
@@ -130,6 +141,13 @@ def check(config):
         assert image.shape == (32, 32, 3)
     finally:
         renderer.close()
+    # Scene placement JIT-compiles this conversion after importing the render
+    # stack. A tiny render alone does not exercise that native compiler path.
+    from robosuite.utils.transform_utils import mat2quat
+    quaternion = np.asarray(mat2quat(np.eye(3)))
+    if (quaternion.shape != (4,) or not np.isfinite(quaternion).all()
+            or not np.allclose(np.abs(quaternion), [0., 0., 0., 1.], atol=1e-6, rtol=1e-6)):
+        raise ValueError("Geometry preflight returned an invalid identity unit quaternion")
     sources = {}
     for name in ("robocasa", "robosuite", "gear_sonic", "robosuite_models"):
         module = importlib.import_module(name)
@@ -141,10 +159,12 @@ def check(config):
         "sources": sources,
         "versions": {"python": sys.version, "numpy": np.__version__,
                      "mujoco": mujoco.__version__, "onnxruntime": onnxruntime.__version__},
+        "compiler": compiler_identity(),
     }
     print(json.dumps(dict(tasks_registered=len(config["tasks"]), renderer=config["renderer"],
                           decoder=str(Path(config["decoder_path"])), render_probe="passed",
-                          sonic_reset_dependency="passed", runtime_identity=runtime_identity)))
+                          geometry_probe="passed", sonic_reset_dependency="passed",
+                          runtime_identity=runtime_identity)))
 
 
 def main():
