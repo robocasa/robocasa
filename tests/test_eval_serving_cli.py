@@ -82,3 +82,37 @@ def test_serve_subprocess_predicts_and_stops_cleanly(tmp_path):
     with socket.socket() as connection:
         connection.settimeout(1)
         assert connection.connect_ex(("127.0.0.1", port)) != 0
+
+
+def test_initialization_cause_is_logged_without_service_credential(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    workspace = tmp_path / "workspace"
+    module = tmp_path / "broken_policy.py"
+    module.write_text(
+        "import os\n"
+        "def create_policy(**kwargs):\n"
+        "    raise FileNotFoundError('Missing processor fixture; credential=' "
+        "+ os.environ['POLICY_TEST_TOKEN'])\n"
+    )
+    token = "test-only-service-credential-123"
+    config = tmp_path / "service.json"
+    config.write_text(json.dumps(dict(
+        workspace=str(workspace), devices=["cpu"], port=8000,
+        minimum_free_bytes=0, auth_token_env="POLICY_TEST_TOKEN",
+        policy={"factory": "broken_policy:create_policy", "id": "broken-cli-fixture"},
+    )))
+    result = subprocess.run(
+        [sys.executable, "-B", "-m", "robocasa_eval", "serve", "--config", str(config)],
+        cwd=tmp_path,
+        env=dict(os.environ, PYTHONPATH=os.pathsep.join((str(root), str(tmp_path))),
+                 PYTHONDONTWRITEBYTECODE="1", POLICY_TEST_TOKEN=token),
+        capture_output=True, text=True, timeout=20,
+    )
+    assert result.returncode == 1
+    logs = list((workspace / "model_service").glob("*/server.log"))
+    assert len(logs) == 1, result.stderr
+    diagnostic = logs[0].read_text()
+    assert "FileNotFoundError: Missing processor fixture" in diagnostic
+    assert "Policy initialization failed on cpu" in diagnostic
+    assert "[redacted]" in diagnostic
+    assert token not in diagnostic + result.stdout + result.stderr

@@ -4,16 +4,15 @@
    contain the root `toctree` directive.
 
 RoboCasa for Unitree G1 Evaluation
-=================================
+==================================
 
 This fork provides a shared VLA evaluation workflow for Unitree G1 with SONIC.
-Start with :doc:`benchmarking/policy_evaluation` to launch a model server on
+Start with :doc:`g1/evaluation` to launch a model server on
 port 8000, connect the simulator, and run the default 50-task benchmark.
 
-The simulator, upstream training references, and original RoboCasa365
-documentation are retained below. See the `upstream RoboCasa project
-<https://robocasa.ai>`_ and the repository README for attribution, licensing,
-and paper citations.
+The guides below cover simulation, datasets, and policy evaluation. See the
+`upstream RoboCasa project <https://robocasa.ai>`_ and the repository README
+for attribution, licensing, and paper citations.
 
 .. raw:: html
 
@@ -36,6 +35,17 @@ and paper citations.
        margin: 0.25rem 0 !important;
      }
    </style>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Unitree G1
+
+   g1/tasks
+   g1/datasets
+   g1/data_collection
+   g1/dataset_processing
+   g1/evaluation
+   g1/reproducibility
 
 .. toctree::
    :maxdepth: 1
@@ -67,7 +77,6 @@ and paper citations.
    :caption: Benchmarking
 
    benchmarking/benchmarking_overview
-   benchmarking/policy_evaluation
    benchmarking/policy_learning_algorithms
    benchmarking/multitask_learning
    benchmarking/foundation_model_learning

@@ -72,6 +72,27 @@ def test_options_are_not_mutated_when_resolving_groot_paths(options):
     assert Path(config["policy"]["kwargs"]["checkpoint"]).is_absolute()
 
 
+def test_simulator_interpreter_retains_virtualenv_packages(options, tmp_path):
+    import venv
+    sim_env = tmp_path / "sim-env"
+    venv.EnvBuilder(with_pip=False, symlinks=True).create(sim_env)
+    interpreter = sim_env / "bin" / "python"
+    assert interpreter.is_symlink()
+    site = sim_env / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "site-packages"
+    (site / "sim_env_marker.py").write_text("VALUE = 'simulator-only-package'\n")
+    config = build(dict(options, sim_python=str(interpreter)))
+    environment = dict(os.environ, PYTHONPATH="", PYTHONDONTWRITEBYTECODE="1")
+    environment.pop("PYTHONHOME", None)
+    result = subprocess.run(
+        [config["sim_python"], "-B", "-c",
+         "import json, sys, sim_env_marker; print(json.dumps([sys.prefix, sim_env_marker.VALUE]))"],
+        env=environment, capture_output=True, text=True, timeout=15,
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == [str(sim_env), "simulator-only-package"]
+    assert config["sim_python"] == str(interpreter)
+
+
 def test_declared_model_and_bytes_change_fingerprint(options, tmp_path):
     model = tmp_path / "weights.bin"
     decoder = tmp_path / "decoder.onnx"

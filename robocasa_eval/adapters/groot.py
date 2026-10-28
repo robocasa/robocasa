@@ -9,11 +9,14 @@ receding horizon. Hand action arrays retain the SDK's thumb-first order.
 from __future__ import annotations
 
 import importlib
+import hashlib
 import json
 import os
 from pathlib import Path
 import random
+import shutil
 import sys
+import tempfile
 
 import numpy as np
 
@@ -81,7 +84,7 @@ def _configure_offline(root: Path) -> Path:
 
 def _processor_snapshot(model_name: str, hub: Path) -> tuple[Path, str | None]:
     """Resolve exactly the local/offline processor snapshot used at inference."""
-    model_dir = Path(model_name)
+    model_dir = Path(model_name).expanduser()
     revision = None
     if model_dir.is_dir():
         snapshot = model_dir.resolve()
@@ -105,6 +108,146 @@ def _processor_snapshot(model_name: str, hub: Path) -> tuple[Path, str | None]:
 def _check_processor_cache(model_name: str, hub: Path) -> Path:
     """Fail before model allocation when the VLM tokenizer cache is absent."""
     return _processor_snapshot(model_name, hub)[0]
+
+
+def _weight_files(folder: Path) -> list[Path]:
+    """Check local Hugging Face weights without importing a model framework."""
+    for filename, indexed in (
+        ("model.safetensors", False),
+        ("model.safetensors.index.json", True),
+        ("pytorch_model.bin", False),
+        ("pytorch_model.bin.index.json", True),
+    ):
+        candidate = folder / filename
+        if not candidate.is_file():
+            continue
+        if not indexed:
+            return [candidate]
+        weight_map = _json(candidate).get("weight_map")
+        if not isinstance(weight_map, dict) or not weight_map:
+            raise ValueError(f"Invalid local weight index: {candidate}")
+        shards = list(weight_map.values())
+        if any(not isinstance(name, str) or not name or Path(name).is_absolute()
+               or ".." in Path(name).parts for name in shards):
+            raise ValueError(f"Invalid local weight shard path in {candidate}")
+        shards = set(shards)
+        missing = [name for name in sorted(shards) if not (folder / name).is_file()]
+        if missing:
+            raise FileNotFoundError(f"Offline model weights missing in {folder}: {missing}")
+        return [candidate, *(folder / name for name in sorted(shards))]
+    raise FileNotFoundError(
+        f"Offline model weights missing in {folder}. Prepare the complete Cosmos "
+        "snapshot, including pretrained model weights, before launching evaluation."
+    )
+
+
+def _model_alias_name(model_name: str, snapshot: Path) -> Path:
+    """Keep the SDK's repository-name dispatch working with a local path."""
+    candidates = [model_name]
+    parts = Path(model_name).parts
+    for owner, name in zip(parts, parts[1:]):
+        if (owner == "nvidia" and name.startswith("Cosmos-Reason2")) or (
+            owner == "Qwen" and name.startswith("Qwen3-VL")
+        ):
+            candidates.append(f"{owner}/{name}")
+    for parent in snapshot.parents:
+        if parent.name.startswith("models--"):
+            candidates.append(parent.name[len("models--"):].replace("--", "/"))
+    candidates.append(_json(snapshot / "config.json").get("_name_or_path", ""))
+    for candidate in candidates:
+        if not isinstance(candidate, str):
+            continue
+        parts = candidate.split("/")
+        if len(parts) == 2 and all(
+            part not in {"", ".", ".."}
+            and all(char.isalnum() or char in "-_." for char in part)
+            for part in parts
+        ):
+            return Path(*parts)
+    return Path("local-model")
+
+
+def _prepare_inference_checkpoint(checkpoint: Path, workspace: Path, hub: Path) -> Path:
+    """Make a private load view whose base-model references are fully local.
+
+    GR00T loads its own config and processor config from model_path. Rewriting
+    copies avoids tokenizer Hub metadata probes while preserving the original
+    checkpoint and the SDK. Only this view's JSON files are writable outputs;
+    other inference files are links used for reading by the SDK.
+    """
+    checkpoint = checkpoint.resolve()
+    workspace = workspace.resolve()
+    processor_relative = Path("processor_config.json")
+    if not (checkpoint / processor_relative).is_file():
+        processor_relative = Path("processor/processor_config.json")
+    config_paths = (Path("config.json"), processor_relative)
+    configs = [_json(checkpoint / path) for path in config_paths]
+    references = [configs[0], configs[1]["processor_kwargs"]]
+    resolved = []
+    for reference in references:
+        model_name = reference.get("model_name")
+        if not isinstance(model_name, str) or not model_name:
+            raise ValueError("GROOT model and processor model_name must be nonempty strings.")
+        snapshot, revision = _processor_snapshot(model_name, hub)
+        _weight_files(snapshot)
+        resolved.append({"model_name": model_name, "snapshot": str(snapshot), "revision": revision})
+
+    weights = _weight_files(checkpoint)
+    parent = workspace / "cache" / "groot_inference"
+    if not parent.resolve().is_relative_to(workspace):
+        raise ValueError(f"Inference checkpoint cache escapes workspace: {parent}")
+    parent.mkdir(parents=True, exist_ok=True)
+    view = Path(tempfile.mkdtemp(prefix="checkpoint-", dir=parent))
+    try:
+        for role, reference, resolution in zip(("model", "processor"), references, resolved):
+            snapshot = Path(resolution["snapshot"])
+            alias = view / "base_models" / role / _model_alias_name(
+                resolution["model_name"], snapshot)
+            alias.parent.mkdir(parents=True, exist_ok=True)
+            alias.symlink_to(snapshot, target_is_directory=True)
+            # Do not resolve this alias: the SDK selects its backbone using
+            # substrings such as "nvidia/Cosmos-Reason2" in model_name.
+            reference["model_name"] = str(alias)
+            resolution["load_path"] = str(alias)
+        # Root inference metadata and weights are small links. Training-state
+        # directories (global_step*, optimizer, etc.) are never traversed.
+        training_prefixes = ("optimizer", "scheduler", "rng_state", "trainer_state",
+                             "training_args", "scaler", "global_step", "globalstep")
+        files = {path for path in checkpoint.iterdir() if path.is_file()
+                 and path.name != "inference_view.json"
+                 and not path.name.startswith(training_prefixes)}
+        files.update(weights)
+        if processor_relative.parent != Path("."):
+            files.update(path for path in (checkpoint / "processor").rglob("*")
+                         if path.is_file() and not any(
+                             part.startswith(training_prefixes)
+                             for part in path.relative_to(checkpoint).parts))
+        for source in sorted(files):
+            relative = source.relative_to(checkpoint)
+            if relative in config_paths:
+                continue
+            target = view / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(source)
+        for relative, config in zip(config_paths, configs):
+            target = view / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+        provenance = {
+            "original_checkpoint": str(checkpoint),
+            "original_config_sha256": {
+                str(relative): hashlib.sha256((checkpoint / relative).read_bytes()).hexdigest()
+                for relative in config_paths
+            },
+            "base_model": resolved[0],
+            "processor_model": resolved[1],
+        }
+        (view / "inference_view.json").write_text(
+            json.dumps(provenance, indent=2) + "\n", encoding="utf-8")
+    except BaseException:
+        shutil.rmtree(view)
+        raise
+    return view
 
 
 def runtime_identity(*, checkpoint, workspace, repo=None) -> dict:
@@ -269,14 +412,15 @@ class GrootPolicy(BasePolicy):
         config, processor = _validate_checkpoint(self.checkpoint, inference_steps)
         self.workspace = Path(workspace).expanduser().resolve()
         hub = _configure_offline(self.workspace)
-        _check_processor_cache(processor["model_name"], hub)
+        self.inference_checkpoint = _prepare_inference_checkpoint(
+            self.checkpoint, self.workspace, hub)
         self.torch, policy_class = _import_runtime(repo)
         random.seed(seed)
         np.random.seed(seed)
         self.torch.manual_seed(seed)
         self.policy = policy_class(
             embodiment_tag="UNITREE_G1_SONIC",
-            model_path=str(self.checkpoint),
+            model_path=str(self.inference_checkpoint),
             device=device,
             strict=True,
         )

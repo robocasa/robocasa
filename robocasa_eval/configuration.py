@@ -266,7 +266,10 @@ def build_config(options=None, *, verify_files=False, environment=None):
                   video_recording=False,
                   metric_definition="First native task reward > 0 within simulation-time horizon; all planned episodes remain in denominator",
                   rng_note="Scene seeds are stable per episode. Model stochasticity may depend on rank and dynamic batch ordering.")
-    for key in ("sim_python", "sim_root", "decoder_path", "task_manifest"):
+    # A virtualenv interpreter often symlinks to the system binary. Resolving
+    # that link loses pyvenv.cfg and launches Python without the sim packages.
+    config["sim_python"] = str(Path(raw["sim_python"]).expanduser().absolute()) if raw["sim_python"] else None
+    for key in ("sim_root", "decoder_path", "task_manifest"):
         config[key] = str(Path(raw[key]).expanduser().resolve()) if raw[key] else None
     config["policy_identity"] = policy_identity(policy, verify_files, workspace=root)
     config["code_sha256"] = {str(p.relative_to(HERE)): sha256_file(p) for p in sorted(HERE.rglob("*.py"))}

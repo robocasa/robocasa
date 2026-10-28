@@ -14,6 +14,8 @@ import json
 import os
 import sys
 import importlib.util
+from pathlib import Path
+import shutil
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -197,6 +199,8 @@ if _has_module("recommonmark"):
     extensions.append("recommonmark")  # legacy markdown support
 elif _has_module("myst_parser"):
     extensions.append("myst_parser")
+    # Resolve Markdown links to headings in other documentation pages.
+    myst_heading_anchors = 4
 
 if _has_module("nbsphinx"):
     extensions.append("nbsphinx")
@@ -362,3 +366,17 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [(master_doc, "robocasa", "RoboCasa Documentation", [author], 1)]
+
+
+def _copy_g1_task_reference(app, exception):
+    """Keep the task table's JSON download beside the rendered G1 pages."""
+    if exception is not None or app.builder.format != "html":
+        return
+    source = Path(app.srcdir) / "g1" / "task_reference.json"
+    destination = Path(app.outdir) / "g1" / "task_reference.json"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, destination)
+
+
+def setup(app):
+    app.connect("build-finished", _copy_g1_task_reference)

@@ -10,7 +10,7 @@ success reports. The default benchmark contains **50 tasks × 30 episodes**:
 25 seen atomic tasks, 15 seen composite tasks, and 10 unseen composite tasks.
 
 Configure the model and simulator paths using the
-[Unitree G1 policy evaluation guide](docs/benchmarking/policy_evaluation.md), then
+[Unitree G1 policy evaluation guide](docs/g1/evaluation.md), then
 start the two processes from the repository root:
 
 ```sh
@@ -38,6 +38,13 @@ Planning remains available without loading a model or simulator:
 python -m robocasa_eval plan --config examples/evaluation/http.json
 ```
 
+The released dataset contains **2,000 paired demonstrations across 40 seen
+tasks**. The 10 unseen tasks have no released demonstrations. Start with the
+[dataset download and schema](docs/g1/datasets.md),
+[50-task reference](docs/g1/tasks.md), [data collection](docs/g1/data_collection.md),
+and [data processing](docs/g1/dataset_processing.md) guides. Use the fixed
+revisions in [release provenance](docs/g1/reproducibility.md) for the G1 runtime.
+
 ## Upstream RoboCasa
 
 **RoboCasa** is a large-scale simulation framework for training generally capable robots to perform everyday tasks. It was [originally released](https://robocasa.ai/assets/robocasa_rss24.pdf) in 2024 by UT Austin researchers. The latest iteration, **RoboCasa365**, builds upon the original release with significant new functionalities to support large-scale training and benchmarking in sim. Four pillars underlie RoboCasa365:
@@ -63,11 +70,12 @@ RoboCasa works across all major computing platforms. The easiest way to set up i
    ```sh
    conda activate robocasa
    ```
-3. Clone and setup robosuite dependency (**important: use the master branch!**):
+3. Clone the SonicG1-compatible robosuite dependency at the verified revision:
 
    ```sh
-   git clone https://github.com/ARISE-Initiative/robosuite
+   git clone https://github.com/Xucxname/robosuite.git
    cd robosuite
+   git checkout 67c18a4c66fa7bca02258a8a6aee2abf29e5427f
    pip install -e .
    ```
 4. Clone and setup this repo:

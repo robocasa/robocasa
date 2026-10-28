@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "verified_on": "2026-10-20",
+  "scope": "Historical G1 simulator and decoder used by the completed step100000 baseline; not a claim that the public HTTP transport was validated on that date.",
+  "repositories": {
+    "robocasa": {
+      "url": "https://github.com/robocasa/robocasa.git",
+      "commit": "de7fff3e0a5a1a8fd76f861f1a93c6dc2b0f3b54"
+    },
+    "robosuite": {
+      "url": "https://github.com/Xucxname/robosuite.git",
+      "commit": "67c18a4c66fa7bca02258a8a6aee2abf29e5427f"
+    },
+    "robosuite_models": {
+      "url": "https://github.com/ARISE-Initiative/robosuite_models.git",
+      "commit": "2d63a6b4319bda772420daf10594ce0de5bd793d"
+    },
+    "sonic": {
+      "url": "https://github.com/NVlabs/GR00T-WholeBodyControl.git",
+      "commit": "a9d20b2ac0949244d94461a1a3263f38c5027c4a"
+    }
+  },
+  "decoder": {
+    "repo_id": "nvidia/GEAR-SONIC",
+    "filename": "model_decoder.onnx",
+    "revision": "6733128a3d8a523b1418b06bca3cdf61c8b0987f",
+    "sha256": "c7241a123eaa36b5d64bad19540efde93cac1ad443bd4572fd12ca99898118ed",
+    "size": 40900688,
+    "source": "official Hugging Face release; not tracked in the GitHub code repository"
+  },
+  "cyclonedds": {
+    "url": "https://github.com/eclipse-cyclonedds/cyclonedds.git",
+    "verified_commit": "9995905bce6c4cf9f740d6438bbf7fcfd1c83dfd",
+    "version": "0.10.2"
+  },
+  "datasets": {
+    "repo_id": "Dawn-star/robocasa-sonic",
+    "revision": "ee964e43b35aed036319d494219d7377e58c7669",
+    "tag": "benchmark40-v1-hdf5-20261022",
+    "layout_version": 2,
+    "selection_revision": "0e216ce0e4555dc3233d08900503b9be59fd1b7b"
+  },
+  "asset_revisions": {
+    "robocasa_repo_id": "robocasa/robocasa-assets",
+    "robocasa_revision": "1b92c3d02ca4354984fec961357db0bff7b32166",
+    "nvidia_repo_id": "nvidia/PhysicalAI-Robotics-Manipulation-Objects-Kitchen-MJCF",
+    "nvidia_revision": "420a04af939c34873e6839a586b70844baf28aab"
+  },
+  "groot_inference_dependencies": {
+    "source_checked_on": "2026-10-28",
+    "sdk": {
+      "url": "https://github.com/NVIDIA/Isaac-GR00T.git",
+      "commit": "ab88b50c718f6528e1df9dcbaf75865d1b604760",
+      "working_tree": "clean",
+      "embodiment": "UNITREE_G1_SONIC"
+    },
+    "backbone": {
+      "repo_id": "nvidia/Cosmos-Reason2-2B",
+      "revision": "9ce19a195e423419c349abfc86fd07178b230561",
+      "weight_file": "model.safetensors",
+      "weight_bytes": 4877470304
+    },
+    "note": "The SDK initializes the pretrained backbone before restoring fine-tuned weights. Prepare the full offline snapshot; the adapter resolves local load paths without editing the source checkpoint."
+  }
+}

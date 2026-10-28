@@ -96,7 +96,20 @@ def run_service(options):
                 def encoding(self):
                     return self.stream.encoding
             with redirect_stdout(Tee(sys.stdout)), redirect_stderr(Tee(sys.stderr)):
-                serve(config, metadata)
+                try:
+                    serve(config, metadata)
+                except Exception as error:
+                    # Initialization happens before the HTTP handler can log
+                    # model errors. Preserve its cause in the workspace log.
+                    import traceback
+                    diagnostic = "".join(traceback.format_exception(
+                        type(error), error, error.__traceback__))
+                    token_name = config.get("auth_token_env")
+                    token = os.environ.get(token_name) if token_name else None
+                    if token:
+                        diagnostic = diagnostic.replace(token, "[redacted]")
+                    print(f"Model service failed:\n{diagnostic}", file=sys.stderr)
+                    raise
                 print("Model service stopped.", file=sys.stderr, flush=True)
     finally:
         os.chdir(previous)

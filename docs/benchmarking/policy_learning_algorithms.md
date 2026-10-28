@@ -1,7 +1,7 @@
 # Policy Learning Algorithms
 
 This checkout evaluates models using the
-[shared Unitree G1 policy evaluator](./policy_evaluation.md). Run a model server
+[shared Unitree G1 policy evaluator](../g1/evaluation.md). Run a model server
 on port 8000 in the model environment, then connect the simulation environment
 to that port. Both sides use a common observation/action protocol, task schedule,
 simulation-time budget, success definition, and result format.
@@ -20,7 +20,7 @@ python -m robocasa_eval summarize --config examples/evaluation/http.json
 ```
 
 Fill in the model and simulator paths in the
-[example configurations](../../examples/evaluation/) and set matching `policy.id`
+[example configurations](https://github.com/Xucxname/robocasa/tree/agent/sonic-g1-followups/examples/evaluation/) and set matching `policy.id`
 values before execution. Run these commands from the repository root. The
 default protocol is 50 tasks × 30 episodes, with 40 seconds for atomic tasks
 and 180 seconds for composite tasks, measured in simulation time. After a
@@ -32,7 +32,7 @@ architectures, including Diffusion Policy and pi, can provide a Python factory
 to the shared server or implement the HTTP protocol. Models produce the same
 G1 SONIC action representation. The service uses JSON HTTP; existing native
 Openpi WebSocket servers need the corresponding protocol adapter. See the
-[adapter contract](./policy_evaluation.md#model-adapters).
+[adapter contract](../g1/evaluation.md#model-adapters).
 
 The remaining sections preserve the upstream RoboCasa training references:
 [Diffusion Policy](https://github.com/robocasa-benchmark/diffusion_policy),
@@ -56,7 +56,7 @@ pip install -e .
 
 ### Key files
 - Training: [train.py](https://github.com/robocasa-benchmark/diffusion_policy/blob/main/train.py)
-- G1 evaluation: [shared policy evaluator](./policy_evaluation.md)
+- G1 evaluation: [shared policy evaluator](../g1/evaluation.md)
 
 ### Experiment workflow
 ```
@@ -90,7 +90,7 @@ pip install -e packages/openpi-client/
 
 ### Key files
 - Training: [scripts/train.py](https://github.com/robocasa-benchmark/openpi/blob/main/scripts/train.py)
-- G1 evaluation: [shared policy evaluator](./policy_evaluation.md)
+- G1 evaluation: [shared policy evaluator](../g1/evaluation.md)
 - Setting up configs: [src/openpi/training/config.py](https://github.com/robocasa-benchmark/openpi/blob/main/src/openpi/training/config.py)
 
 ### Experiment workflow
@@ -125,7 +125,7 @@ pip install --no-build-isolation flash-attn==2.7.1.post4
 
 ### Key files
 - Training: [scripts/gr00t_finetune.py](https://github.com/robocasa-benchmark/Isaac-GR00T/blob/main/scripts/gr00t_finetune.py)
-- G1 evaluation: [shared policy evaluator](./policy_evaluation.md), including the N1.7 Flow adapter
+- G1 evaluation: [shared policy evaluator](../g1/evaluation.md), including the N1.7 Flow adapter
 
 ### Experiment workflow
 ```

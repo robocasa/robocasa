@@ -1,131 +1,34 @@
-# RoboCasa SONIC VLA Streaming
+# RoboCasa SONIC VLA streaming: developer notes
 
-This path lets the RoboCasa SONIC collector produce the same ZMQ streams that
-`gear_sonic/scripts/run_data_exporter.py` expects during real-world VLA
-collection. RoboCasa remains the owner of the MuJoCo clock and the DDS-driven
-SONIC controller remains unchanged.
+The [G1 collection guide](g1/data_collection.md) contains the operator workflow and four terminal commands. This page describes the transport and recording lifecycle for debugging that integration.
 
-## What it publishes
+RoboCasa owns the MuJoCo clock. Its collector publishes robot state over DDS, receives SONIC joint commands and gains, and streams rendered images without moving rendering into the 200 Hz control loop. The SONIC exporter records the latent-action representation alongside those observations.
 
-Running `robocasa/scripts/collect_sonic_demos.py --vla-stream` adds four VLA
-integration pieces:
+## Transport
 
-- A camera stream on port `5555` using SONIC's `ImageMessageSchema`.
-- A subscriber for VR/PICO `manager_state` toggles on port `5556`.
-- A keyboard publisher on port `5580` so local collector hotkeys can keep
-  `run_data_exporter.py` in sync.
-- A state-style metadata publisher on port `5581` that forwards the exact
-  instruction sampled for the current RoboCasa episode.
+`robocasa/scripts/collect_sonic_demos.py --vla-stream` enables the following integration:
 
-The instruction is captured once after each successful reset. A `ready` state
-is repeated on port `5581`; pressing record changes it to a versioned `start`
-attempt carrying the same episode ID and instruction. The exporter waits for
-that start metadata before entering `RECORDING`, then locks the text before the
-episode's first frame.
-For object-dependent tasks such as `LoadDishwasher`, a generated instruction
-like `Pick up the cup and bowl ...` therefore becomes the LeRobot task label
-automatically. `--task-prompt` remains a fallback for an older collector, a
-missing/blank task instruction, or non-RoboCasa collection.
+| Port | Publisher | Consumer | Contents |
+| ---: | --- | --- | --- |
+| 5555 | RoboCasa | SONIC exporter | Cameras using SONIC's `ImageMessageSchema` |
+| 5556 | PICO manager | SONIC controller, collector, exporter | Pose/planner inputs and `manager_state` events |
+| 5557 | SONIC controller | SONIC exporter | State and configuration streams |
+| 5580 | RoboCasa | SONIC exporter | Keyboard recording synchronization |
+| 5581 | RoboCasa | SONIC exporter | Sampled episode instruction and recording attempt metadata |
 
-Default camera settings match the real VLA path: `robot0_head_camera` is
-published as `ego_view` at `640x480`, `30 Hz`, with the MuJoCo image vertically
-flipped. Collision geoms are hidden and visual geoms are rendered.
+The controller must publish its exporter telemetry (the documented command uses `--output-type zmq`) in addition to the simulation DDS interface. The exporter must implement the RoboCasa instruction protocol and the requested camera schema. Check the installed SONIC version's CLI and capabilities before a collection session.
 
-The image renderer runs in a separate process. The 200 Hz collection loop only
-copies the latest MuJoCo state into a bounded queue, so image streaming is not in
-the control-loop critical path.
+The default single camera is `robot0_head_camera`, published as `ego_view` at 640 × 480 and 30 Hz. The collector currently defaults to **no vertical flip**; the public three-camera command makes that setting explicit. Collision geoms are hidden and visual geoms are rendered. Inspect a preview whenever changing a renderer or camera configuration.
 
-During startup, the controller startup band remains enabled, but its orientation
-reference is the reset/spawn pelvis pose so fixture-facing spawn yaw is not
-pulled back toward the world frame.
-Recording remains blocked until that real command arrives, so saved demos still
-contain real SONIC gains and q-star targets.
+A separate image process renders camera frames. The collector copies the latest MuJoCo state into a bounded queue, keeping rendering outside the control-loop critical path. Camera publication is independent of the exporter's 50 Hz sampling and video timeline.
 
-## VR workflow terminals
+## Instruction handshake
 
-Run these in separate terminals for RoboCasa VR collection. This mirrors the
-manual VR workflow in `dc_ft_docs.md`, except RoboCasa replaces
-`gear_sonic/scripts/run_sim_loop.py` as the MuJoCo simulator and camera
-publisher. Do not start both sim loops at the same time.
+After a successful reset, the collector captures the sampled episode metadata and instruction once. A `ready` message is repeated on port 5581. A record event creates a versioned `start` attempt carrying the same episode ID and instruction. The exporter waits for the matching start metadata and locks the text before recording the first frame.
 
-### 1. Start RoboCasa collection with VLA streaming
+For an object-dependent task such as `LoadDishwasher`, the instruction can name the actual sampled objects. The exporter should use that text as the LeRobot task label. `--task-prompt` is a fallback for a missing instruction or an exporter configuration without live synchronization.
 
-Use an interactive display for real collection. Do not set `MUJOCO_GL=egl` for
-normal VR collection because the collector viewer is interactive.
-
-```bash
-cd /home/amaddukuri/Projects/robocasa-dev-sonic-vla
-/home/amaddukuri/Projects/GR00T-WholeBodyControl/.venv_sim/bin/python \
-  robocasa/scripts/collect_sonic_demos.py \
-  --environment Kitchen \
-  --layout -1 \
-  --robot SonicG1 \
-  --out /tmp/sonic_robocasa_demos \
-  --vla-stream
-```
-
-This process owns the RoboCasa MuJoCo sim, publishes DDS lowstate/odometry to
-the SONIC controller, receives DDS lowcmd actions back from the controller, and
-publishes simulated ego camera frames for the exporter on port `5555`.
-
-### 2. Start the SONIC controller
-
-This follows the C++ deployment terminal from `dc_ft_docs.md`: source the deploy
-environment, use `zmq_manager` input, and pass `sim` as the final mode argument.
-
-```bash
-cd /home/amaddukuri/Projects/GR00T-WholeBodyControl/gear_sonic_deploy
-source scripts/setup_env.sh
-./deploy.sh --input-type zmq_manager sim
-# Wait until you see "Init done"
-```
-
-The `zmq_manager` input subscribes to the PICO manager stream on port `5556`;
-the trailing `sim` selects the sim/DDS backend instead of the real robot backend.
-
-### 3. Start the PICO manager
-
-```bash
-cd /home/amaddukuri/Projects/GR00T-WholeBodyControl
-source .venv_teleop/bin/activate
-python gear_sonic/scripts/pico_manager_thread_server.py --manager
-```
-
-The PICO manager publishes VR pose/planner inputs and `manager_state` recording
-toggles on port `5556`. Keep this process running for both teleop control and
-episode start/save/discard events.
-
-Each streamed `pose` message remains a complete sliding window of five PICO
-frames. SONIC merges that window by `frame_index`; latest-only transport means
-the newest complete window, not a one-frame pose. The exporter uses independent
-latest-only subscribers for `pose`, `planner`, and `manager_state`, so those
-topics cannot replace one another in a shared conflated queue.
-
-`manager_state` repeats a manager session ID, monotonic event counters, and the
-last event timestamps. This allows the collector and exporter to discard stale
-continuous state after a long save/reset while still observing a one-frame
-start/save/discard button edge. These fields affect recording lifecycle only;
-they are not part of SONIC's policy observation.
-
-### 4. Start the VLA exporter
-
-```bash
-cd /home/amaddukuri/Projects/GR00T-WholeBodyControl
-source .venv_data_collection/bin/activate
-python gear_sonic/scripts/run_data_exporter.py \
-  --task-prompt "<fallback task prompt>" \
-  --dataset-name <dataset_name> \
-  --root-output-dir /tmp/sonic_vla_exports \
-  --no-text-to-speech
-```
-
-The exporter consumes the RoboCasa `ego_view` camera stream on port `5555`, the
-VR/PICO stream on port `5556`, SONIC state/config streams from the controller
-on port `5557`, keyboard sync on port `5580`, and RoboCasa episode instructions
-on port `5581`.
-
-Before recording, confirm that the exporter prints both lines below. The second
-line is the task text that will be written to each frame in that episode:
+Check that the compatible exporter reports the episode ID and matched instruction at ready/start/recording transitions. Example log messages from the integration are:
 
 ```text
 [EpisodeInstruction] ready: <session:sequence> attempt=0 -> <sampled instruction>
@@ -133,11 +36,13 @@ line is the task text that will be written to each frame in that episode:
 [EpisodeInstruction] recording task from RoboCasa <session:sequence>: <sampled instruction>
 ```
 
-Common overrides:
+Collector overrides include:
 
-```bash
+```text
 --vla-camera-name robot0_head_camera
 --vla-camera-key ego_view
+--vla-camera-names robot0_head_camera robot0_left_wrist_camera robot0_right_wrist_camera
+--vla-camera-keys ego_view left_wrist right_wrist
 --vla-camera-width 640
 --vla-camera-height 480
 --vla-camera-hz 30
@@ -147,78 +52,34 @@ Common overrides:
 --no-vla-instruction-sync
 ```
 
-Exporter-side overrides are `--instruction-zmq-host`,
-`--instruction-zmq-port`, `--instruction-wait-timeout`, and
-`--no-sync-robocasa-instruction`. Use the last option with an older RoboCasa
-collector that does not publish port `5581`; the existing `--task-prompt` is
-then used immediately.
+Supply the plural camera-name and key lists together, with equal lengths and unique keys. The singular settings describe the single-camera case. Exporter versions with the instruction integration expose `--instruction-zmq-host`, `--instruction-zmq-port`, `--instruction-wait-timeout`, and `--sync-robocasa-instruction`; consult that checkout's help for the supported interface.
 
-## Navigation target annotation
+## Recording events and resets
 
-`NavigateKitchen` collection shows a yellow outline, downward arrow, and target
-name in the interactive RoboCasa window by default. The annotation follows the
-newly sampled target after `k`/`x` resets and viewer recreation. The normal
-`./collect_sonic.sh NavigateKitchen` workflow enables it automatically; when
-calling `collect_sonic_demos.py` directly, `--no-nav-target-marker` disables it.
+The local collector keys are `c` to start, `k` to save, `x` to discard, and `b` to toggle the startup elastic band. VR/PICO sends `toggle_data_collection` (start when idle, save when recording) and `toggle_data_abort` (discard). The collector's keyboard forwarding translates local events into the exporter's recording lifecycle.
 
-These decorations exist only in the passive viewer's `user_scn` and text
-overlay. They do not modify simulation geoms, materials, sites, XML, states, or
-the camera publisher's render scene. The head/left-wrist/right-wrist images
-sent to the exporter, LeRobot videos, and raw replay data remain unannotated.
+`manager_state` includes a manager session ID, monotonic event counters, and event timestamps. This lets consumers discard stale continuous state after a long save/reset while retaining a short start/save/discard button edge. These fields control recording lifecycle; they are not model observations.
 
-## Navigation success criterion
+Each streamed `pose` message contains a complete sliding window of five PICO frames. SONIC merges the window by `frame_index`. Independent latest-only subscribers for `pose`, `planner`, and `manager_state` prevent one topic from replacing another in a conflated queue.
 
-Navigation succeeds when the robot is within 25 cm of the target base placement
-in the horizontal plane and its yaw error is at most about 11.48 degrees. For
-SonicG1, this position and heading are measured at the pelvis. This is the
-task-level criterion in `NavigateKitchen._check_success()`, shared by live
-collection, policy evaluation, and offline raw replay; it is not a cleanup-only
-tolerance. The distance is to the target base placement, not the fixture surface.
+The startup elastic band's orientation reference is the reset/spawn pelvis pose, so a fixture-facing spawn is not pulled toward world-frame yaw. Recording waits for a real SONIC command and valid gains. Press `b` to release the band once the controller balances the robot.
 
-## Episode controls
+After save/discard, `[sonic-timing]` logs separate finalization, environment reset, and source/instruction setup. The collector resynchronizes the wall-clock deadline when the next episode is ready. It does not try to catch up deadlines that elapsed during a hard reset. Saving an episode retains it for later validation; it does not evaluate task success.
 
-Local collector hotkeys still work:
+## Navigation annotation
 
-- `c`: start recording in RoboCasa and notify the exporter.
-- `k`: save the RoboCasa episode and notify the exporter to stop/save.
-- `x`: discard the RoboCasa episode and notify the exporter to abort.
-- `b`: toggle the startup elastic band after SONIC is balancing.
+`NavigateKitchen` shows a target outline, arrow, and name in the interactive viewer by default. Pass `--no-nav-target-marker` to disable it. The marker follows the sampled target after resets and viewer recreation.
 
-VR/PICO `manager_state` toggles are also consumed:
+The decoration exists only in the passive viewer's scene and overlay. It does not change model XML, simulation state, or the camera publisher's render scene. Exported videos remain unannotated.
 
-- `toggle_data_collection`: start when idle, save when recording.
-- `toggle_data_abort`: discard the current episode.
+Task success uses `NavigateKitchen._check_success()`: for SonicG1, the pelvis must be within 25 cm of the target base placement in the horizontal plane, with heading cosine at least 0.98 (yaw error at most about 11.48 degrees). The distance is to the target base placement, not the fixture surface. This criterion is shared by collection, evaluation, and recorded-state replay.
 
-After `k` or `x`, `[sonic-timing]` lines split the transition into finalize,
-environment reset, and source/instruction phases. The collection clock is
-resynchronized when the new episode is ready, so the 200 Hz loop does not try
-to catch up wall-clock deadlines that expired during a hard reset. Camera
-publication remains `640x480` at `30 Hz`.
+## Validation
 
-## Real-time check
-
-The renderer was tested on a hard scene with `DivideBuffetTrays`, layout `25`,
-style `11`, at `200 Hz` control. Baseline paced collection and VLA-streamed
-collection both held `RTF = 1.0` and achieved `200 Hz`; the VLA process
-published frames at the requested camera rate without blocking the sim loop.
-
-## Smoke tests
-
-Focused unit tests:
+Run the focused RoboCasa streaming tests from the repository root in the simulation environment:
 
 ```bash
-cd /home/amaddukuri/Projects/robocasa-dev
-MUJOCO_GL=egl /home/amaddukuri/Projects/GR00T-WholeBodyControl/.venv_sim/bin/python \
-  -m pytest tests/test_sonic_vla_streaming.py -q
+MUJOCO_GL=egl python -m pytest tests/test_sonic_vla_streaming.py -q
 ```
 
-Exporter smoke test shape:
-
-1. Start mock VR/PICO `manager_state` messages on port `5556`.
-2. Start `gear_sonic/scripts/run_data_exporter.py`.
-3. Start `collect_sonic_demos.py --vla-stream`.
-4. Toggle start/save and verify the exporter writes
-   `observation.images.ego_view` videos.
-
-The latest local smoke test wrote two exporter episodes with `98` total frames
-and `observation.images.ego_view` videos.
+For an integration test, start the four processes using the public collection guide, record one short attempt, and verify the raw HDF5, three exporter videos, metadata schema, matched instruction, and raw/exporter pairing. Check sustained `[real-time]` output near RTF 1 at the requested control frequency, and inspect the transition logs around save/reset. A unit-test result alone does not verify the installed SONIC exporter, hardware input, or live timing.

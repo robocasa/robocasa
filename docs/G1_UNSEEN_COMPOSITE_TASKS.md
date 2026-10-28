@@ -1,30 +1,32 @@
-# G1 RoboCasa：组合未见任务待发布清单
+# G1 unseen composite tasks: reference and historical archive
 
-确认日期：2026-10-08。用户已确定下列 10 个任务作为即将发布的组合未见任务集（`unseen_composite_tasks`）。
-状态：**待发布**；此处记录发布范围，不代表数据已上传或发布完成。
+The official benchmark reference is now [Unitree G1 Tasks](g1/tasks.md), including
+the [ten unseen composite tasks](g1/tasks.md#unseen-composite-tasks), their English
+instructions, implemented success conditions, and 180-second evaluation horizons.
+The authoritative 50-task list is [`robocasa_eval/tasks50.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa_eval/tasks50.json).
 
-| 序号 | 任务 |
-| --- | --- |
-| 1 | CupcakeCleanup |
-| 2 | PastryDisplay |
-| 3 | BoilEggs |
-| 4 | PrepareBroilingStation |
-| 5 | BreadSetupSlicing |
-| 6 | ClearCuttingBoard |
-| 7 | OrganizeVegetables |
-| 8 | DessertAssembly |
-| 9 | MeatSkewerAssembly |
-| 10 | RotatePan |
+The ten unseen environments selected on **2026-10-08** are the ten entries marked
+`unseen` in that manifest. They are existing benchmark environments. Their
+inclusion in evaluation does not mean that demonstrations for them are part of
+the 40-task training-data release. `JuiceFruitReamer` is outside this benchmark.
 
-本清单取代下方 2026-09-28 的推荐方案，作为本轮发布范围。
-`JuiceFruitReamer` 不在本轮发布范围内。
-本任务集与此前 40 个已采集任务分开记录，评测结果单独统计；此前提供的中途评测数据不作为最终发布结果。
+## Archived proposal — 2026-09-28, superseded
 
-## 历史设计方案（已被上述清单取代）
+**The material below is a historical design record, not the current task list,
+implementation backlog, evaluation protocol, or dataset inventory.** Its proposed
+nine `G1...` environments and `PreRinseStation` were superseded by the October 8
+selection. They must not be presented as official tasks awaiting development.
+The historical 2,286-episode cleaning snapshot is also distinct from the released
+40 × 50 = 2,000 demonstrations. Historical recommendations and source descriptions
+below may differ from the current code; the linked [Tasks page](g1/tasks.md) is
+the current source-backed reference. In particular, the archived description of
+`LoadDishwasher` must not override its current door-closure requirement.
 
-核对日期：2026-09-28。状态：任务设计，尚未实现新增环境或进行 G1 可执行性测试。
+以下保留 2026-09-28 的中文历史方案；其中“推荐”“待实现”“优先实现”等表述仅描述当时的设计，不是本轮交付要求。
 
-## 设计依据与范围
+核对日期：2026-09-28。历史状态：任务设计，当时尚未实现新增环境或进行 G1 可执行性测试。
+
+### 设计依据与范围
 
 当前 NAS 已清洗数据包含 **25 个原子任务、15 个组合任务，共 2,286 条成功 episode**。
 数量来自 NAS `cleaned` 数据集的 `meta/info.json`，动作和对象语义通过 `meta/tasks.jsonl`
@@ -48,7 +50,7 @@
 [组合任务目录](https://robocasa.ai/docs/build/html/tasks/composite_tasks.html)。
 任务的具体操作以本地实际执行的源码和已采集数据为准；网页上的分类标签不等于完整成功判据。
 
-## 推荐的 10 个任务
+### 推荐的 10 个任务
 
 下表的难度是设计预估，尚未通过 rollout 测量。
 
@@ -67,13 +69,13 @@
 
 其中 2 是空间目标组合，其余主要测试顺序、前置条件或流程延长。报告结果时应保留这种区别。
 
-## 各任务的 prompt、初始化与判据
+### 各任务的 prompt、初始化与判据
 
 以下自定义判据为实施规格，尚未修改现有任务的 `_check_success()`。
 所有涉及搬放的最终状态均应检查释放物体、合理支撑及未掉落。
 “历史事件”只记录已经发生的阶段；“终点状态”必须在任务结束时仍然满足。
 
-### 1. G1PositionSpoutAndStackBowls
+#### 1. G1PositionSpoutAndStackBowls
 
 **英文 prompt**：Turn the sink spout to the left, then stack both bowls in the sink.
 
@@ -82,9 +84,9 @@
 - 终点状态：`get_handle_state()["spout_ori"] == "left"`；两只碗都在水槽内，任一碗稳定套在另一碗中；两手离开物体。
 - 未见之处：将转动出水口和已有叠碗流程连接，要求完成叠放后仍保留指定出水口方向。
 - 不需要开水流或模拟清洗效果；转动出水口和开关水流是不同的操作。
-- 实现参考：[kitchen_sink.py](../robocasa/environments/kitchen/atomic/kitchen_sink.py) 的 `TurnSinkSpout` 和 [stack_bowls.py](../robocasa/environments/kitchen/composite/washing_dishes/stack_bowls.py)。
+- 实现参考：[kitchen_sink.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/atomic/kitchen_sink.py) 的 `TurnSinkSpout` 和 [stack_bowls.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/washing_dishes/stack_bowls.py)。
 
-### 2. PreRinseStation
+#### 2. PreRinseStation
 
 **英文 prompt 示例**：Place the mug in the left basin and the bowl in the right basin of the sink.
 
@@ -94,9 +96,9 @@
 - 现有实现通过 `sink.get_obj_basin_loc()` 和两个 `gripper_obj_far()` 判断成功；不要求开水龙头。
 - 官方环境默认采样 `receptacle` / `stackable` 广泛类别。本方案建议限制为已采集的马克杯、碗及其实例，这是评测采样配置约束，原始默认配置不会自动满足。
 - 必须遵循该任务的 `EXCLUDE_STYLES`，并检查合法双槽样式是否出现在训练中；新样式结果另报。
-- 实现参考：[pre_rinse_station.py](../robocasa/environments/kitchen/composite/washing_dishes/pre_rinse_station.py)。
+- 实现参考：[pre_rinse_station.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/washing_dishes/pre_rinse_station.py)。
 
-### 3. G1SelectCupAndCloseDrawer
+#### 3. G1SelectCupAndCloseDrawer
 
 **英文 prompt 模板**：Open the {left/right} drawer, take out the {larger/smaller} measuring cup and place it on the counter, then close the drawer.
 
@@ -105,9 +107,9 @@
 - 终点状态：正确量杯在台面；另一量杯仍在抽屉；抽屉关闭。
 - 未见之处：已有选杯任务在量杯到台面后即可成功，这里增加依赖前段完成的收尾操作。
 - 关抽屉的训练覆盖来自 `DrawerCakeSort`，当前清单没有独立的 `CloseDrawer` 数据集。
-- 实现参考：[choose_measuring_cup.py](../robocasa/environments/kitchen/composite/measuring_ingredients/choose_measuring_cup.py) 和 [kitchen_drawer.py](../robocasa/environments/kitchen/atomic/kitchen_drawer.py)。
+- 实现参考：[choose_measuring_cup.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/measuring_ingredients/choose_measuring_cup.py) 和 [kitchen_drawer.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/atomic/kitchen_drawer.py)。
 
-### 4. G1LoadMixerAndCloseHead
+#### 4. G1LoadMixerAndCloseHead
 
 **英文 prompt**：Place the bread and cheese in the stand mixer bowl, then close the mixer head.
 
@@ -116,9 +118,9 @@
 - 终点状态：两件配料都通过 `check_item_in_bowl()`；机头关闭，参照现有 `CloseStandMixerHead` 的归一化位置 `< 0.01`。
 - 未见之处：单配料入碗与单独合机头组合为多配料准备流程。
 - 本任务目标到准备完毕为止；不包含尚未采集的旋钮启动、搅拌结果或烹饪状态。
-- 实现参考：[kitchen_stand_mixer.py](../robocasa/environments/kitchen/atomic/kitchen_stand_mixer.py) 和 `PickPlaceCounterToStandMixer`。
+- 实现参考：[kitchen_stand_mixer.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/atomic/kitchen_stand_mixer.py) 和 `PickPlaceCounterToStandMixer`。
 
-### 5. G1ClearCounterAndWipe
+#### 5. G1ClearCounterAndWipe
 
 **英文 prompt**：Move the mug and bowl from the counter into the sink, then use the sponge to wipe the cleared counter and put the sponge down.
 
@@ -127,9 +129,9 @@
 - 终点状态：餐具仍在水槽；擦拭达到阈值；海绵放回台面并释放。
 - 初始采用 `WipeTable` 的尺度：握住海绵并接触台面时，记录至少 5 个相隔至少 2 cm 的接触位置，接触位置的包围范围对角线至少 10 cm。只累计目标清空区域内的位置。
 - 未见之处：增加“先清出工作区域，再使用工具”的因果依赖。提前在其他位置擦过不应直接满足本任务。
-- 实现参考：[wipe_table.py](../robocasa/environments/kitchen/composite/sanitizing_surface/wipe_table.py)。
+- 实现参考：[wipe_table.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/sanitizing_surface/wipe_table.py)。
 
-### 6. G1LoadShakeAndServeFood
+#### 6. G1LoadShakeAndServeFood
 
 **英文 prompt**：Place the mushroom from the plate into the pan. Lift and gently shake the pan, put it back on the stove, then place the mushroom in the bowl.
 
@@ -139,9 +141,9 @@
 - 终点状态：蘑菇在目标碗，碗在台面，锅在原炉灶位置，手已松开。
 - 蘑菇已经盛出，因此终点不能再要求“蘑菇仍在锅里”；该条件属于前序事件。
 - 使用与来源任务一致的控制频率；不额外要求火候或熟度。当前 `ShakePan` 在初始化时已设置炉灶状态，不能据此认定模型会开火。
-- 实现参考：[shake_pan.py](../robocasa/environments/kitchen/composite/sauteing_vegetables/shake_pan.py) 及两个 stove pick-place 类。
+- 实现参考：[shake_pan.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/sauteing_vegetables/shake_pan.py) 及两个 stove pick-place 类。
 
-### 7. G1ServeCroissantAndResetToasterOven
+#### 7. G1ServeCroissantAndResetToasterOven
 
 **英文 prompt**：Open the toaster oven, pull out the rack, place the croissant on the plate, push the rack fully back in, and close the door.
 
@@ -150,9 +152,9 @@
 - 终点状态：可颂在盘内；盘子在台面；目标架位置 `<= 0.05`；门关闭。
 - 拉出事件参照 `SlideToasterOvenRack` 的位置 `>= 0.95`。若样式有上下架，prompt 和判据必须指向同一架。
 - 未见之处：已有 `ServeWarmCroissant` 的终点主要检查可颂在盘内；这里追加“推架、关门”并检查完整链条。
-- 实现参考：[serve_warm_croissant.py](../robocasa/environments/kitchen/composite/toasting_bread/serve_warm_croissant.py)、[kitchen_toaster_oven.py](../robocasa/environments/kitchen/atomic/kitchen_toaster_oven.py)、[kitchen_doors.py](../robocasa/environments/kitchen/atomic/kitchen_doors.py)。
+- 实现参考：[serve_warm_croissant.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/toasting_bread/serve_warm_croissant.py)、[kitchen_toaster_oven.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/atomic/kitchen_toaster_oven.py)、[kitchen_doors.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/atomic/kitchen_doors.py)。
 
-### 8. G1FullDishwasherLoad
+#### 8. G1FullDishwasherLoad
 
 **英文 prompt**：Open the dishwasher, pull out the top rack, load the cup and bowl from the counter, push the rack fully in, and close the door.
 
@@ -162,9 +164,9 @@
 - 拉出事件参照 `SlideDishwasherRack` 的位置 `>= 0.95`；门关闭沿用已采集任务的判据。
 - 未见之处：已有 `LoadDishwasher` 在 reset 中预先打开门并拉出架，这里要求策略从关闭状态完成整个流程。
 - 重点试跑：G1 站位是否避开下翻门、装有餐具的架能否顺畅推入，餐具是否在推架后仍稳定。
-- 实现参考：[prepare_dishwasher.py](../robocasa/environments/kitchen/composite/loading_dishwasher/prepare_dishwasher.py)、[load_dishwasher.py](../robocasa/environments/kitchen/composite/loading_dishwasher/load_dishwasher.py)、`SlideDishwasherRack`。
+- 实现参考：[prepare_dishwasher.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/loading_dishwasher/prepare_dishwasher.py)、[load_dishwasher.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/loading_dishwasher/load_dishwasher.py)、`SlideDishwasherRack`。
 
-### 9. G1CoolAndPackCake
+#### 9. G1CoolAndPackCake
 
 **英文 prompt 模板**：Take the cake out of the oven and place it on the plate. Close the oven door, then put the cake in the lunch box that contains the {hot dog/kebab skewer}.
 
@@ -175,9 +177,9 @@
 - “蛋糕曾在盘中”应记录为历史事件，不能把 `CoolBakedCake` 与 `PackDessert` 的终点判据直接做 AND。
 - 基线使用一个餐盒，匹配当前 `PackDessert` 的场景结构。增加两个不同配菜的餐盒可作为后续目标选择扩展，不能宣称已有数据已经包含这一干扰项配置。
 - 名称中的冷却沿用任务语义，不引入未建模的温度或冷却时长判定。
-- 实现参考：[cool_baked_cake.py](../robocasa/environments/kitchen/composite/baking/cool_baked_cake.py) 和 `PackDessert`。
+- 实现参考：[cool_baked_cake.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/composite/baking/cool_baked_cake.py) 和 `PackDessert`。
 
-### 10. G1NavigateAndOpenFridgeDrawer
+#### 10. G1NavigateAndOpenFridgeDrawer
 
 **英文 prompt**：Go to the fridge, open its door, and fully open the inner drawer.
 
@@ -188,9 +190,9 @@
 - 导航达标是历史事件，后续操作时允许机器人为开门调整站位。
 - 未见之处：现有 `OpenFridgeDrawer` 在 reset 时已完全打开冰箱门；这里把导航、开外门与内部抽屉操作连接起来。
 - 仅选择存在相应内部抽屉的冰箱样式，遵循现有 `EXCLUDE_STYLES`；基础版本不搬运物体，也不引入持物行走。
-- 实现参考：[kitchen_navigate.py](../robocasa/environments/kitchen/atomic/kitchen_navigate.py)、`OpenFridge`、`OpenFridgeDrawer`。
+- 实现参考：[kitchen_navigate.py](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/robocasa/environments/kitchen/atomic/kitchen_navigate.py)、`OpenFridge`、`OpenFridgeDrawer`。
 
-## 评测与实现建议
+### 评测与实现建议
 
 1. **冻结训练集与测试定义。** 用最终训练 manifest 确认上述来源数据确实进入训练。10 个完整组合任务的遥操作示范、策略轨迹及其自动切片均不加入该训练版本；新对象、新布局结果单独报告。
 2. **先验证场景能执行。** 每任务做少量独立工程试跑，检查 G1 够得着、门和架不碰撞、物体容纳关系合理。工程种子和正式评测种子分开，冻结规则后再评分。
@@ -206,7 +208,7 @@
 优先实现 **3、5、6、8、10**：分别检查目标选择后收尾、工具使用前置条件、动态锅操作、较长装载流程和移动操作衔接。
 其余任务用于补足空间调整后叠放、双目标空间绑定、多配料、小烤箱复位及中间容器转换。
 
-## 未纳入本轮的候选及原因
+### 未纳入本轮的候选及原因
 
 - `MakeCheesecakeFilling` 还要求旋转速度旋钮启动机器，超出了当前“放入碗 + 合机头”的已采集范围。
 - `ClearReceptaclesForCleaning`、`RinseBowls` 等要求开水；`TurnSinkSpout` 的左右转动出水口不能替代开关水流。
@@ -217,7 +219,7 @@
 - “大型烤箱放两种食物后关门”需要检查伸出的架能否收回；现有 `PickPlaceCounterToOven` 初始化会拉架，而已采集的 `SlideToasterOvenRack` 操作的是小烤箱。暂不把两者视为同一个已覆盖操作。
 - `PrepareDishwasher` 的“开门 + 拉架”适合用作任务 8 的短流程诊断，不另外占用本轮 10 个名额。
 
-## 已采集清洗集快照
+### 已采集清洗集快照
 
 NAS 原始成功数据根目录：
 `/volume1/unitree_ly_robocasa_data/datasets/raw/accepted/{atomic_tasks,composite_tasks}`。
@@ -225,10 +227,11 @@ NAS 原始成功数据根目录：
 本次数量与指令核对目录：
 `/volume1/unitree_ly_robocasa_data/datasets/lerobot/{atomic_tasks,composite_tasks}/cleaned/robocasa_<Task>_g1_3cam/meta/`。
 
-新加入的 CloseOven 和 NavigateKitchen 状态另见
-[本地发布报告](../datasets/log/new_tasks_release_20260928/report.md)。清洗集已在 NAS 并不代表该集合已全部发布到 Hugging Face。
+当时新加入的 CloseOven 和 NavigateKitchen 状态还曾引用本地发布报告
+`datasets/log/new_tasks_release_20260928/report.md`；该历史报告不随本指南分发。
+清洗集已在 NAS 并不代表该集合已全部发布到 Hugging Face。
 
-### 原子任务：25 个，1,486 条
+#### 原子任务：25 个，1,486 条
 
 | 任务 | 成功 episode |
 | --- | ---: |
@@ -258,7 +261,7 @@ NAS 原始成功数据根目录：
 | TurnOnToaster | 51 |
 | TurnSinkSpout | 54 |
 
-### 组合任务：15 个，800 条
+#### 组合任务：15 个，800 条
 
 | 任务 | 成功 episode |
 | --- | ---: |
