@@ -232,7 +232,9 @@ installed RoboCasa source tree. The evaluator's OSMesa subprocesses default to
 crash reproduced during scene placement in a clean Ubuntu 24.04 installation.
 An explicit `NUMBA_OPT` setting takes precedence. The diagnostic records the
 effective compiler settings and package versions in the runtime identity;
-changing them requires a new smoke test.
+changing them requires a new smoke test. Compiler caches are separated by the
+worker's Numba settings so diagnostics do not reuse code built with different
+optimization settings.
 
 Configure a single evaluator worker with two
 concurrent environments for the first integration test:

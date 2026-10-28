@@ -2,6 +2,7 @@
 import copy
 import os
 import sys
+from pathlib import Path
 from types import ModuleType, SimpleNamespace
 
 import pytest
@@ -32,6 +33,30 @@ def test_explicit_compiler_setting_remains_an_operator_choice(config, monkeypatc
     environment = evaluation.sim_environment(dict(config, renderer=renderer))
     assert environment["NUMBA_OPT"] == requested
     assert os.environ["NUMBA_OPT"] == requested
+
+
+def test_compiler_changes_do_not_reuse_previous_cache(config, monkeypatch):
+    monkeypatch.delenv("NUMBA_OPT", raising=False)
+    initial = evaluation.sim_environment(config)
+    cache = Path(initial["NUMBA_CACHE_DIR"])
+    cache.mkdir(parents=True)
+    (cache / "previous-compiled-binary").write_bytes(b"previous settings")
+    monkeypatch.setenv("NUMBA_OPT", "3")
+    changed = evaluation.sim_environment(config)
+    assert changed["NUMBA_CACHE_DIR"] != initial["NUMBA_CACHE_DIR"]
+    assert not (Path(changed["NUMBA_CACHE_DIR"]) / "previous-compiled-binary").exists()
+    monkeypatch.delenv("NUMBA_OPT")
+    assert evaluation.sim_environment(config)["NUMBA_CACHE_DIR"] == str(cache)
+    assert (cache / "previous-compiled-binary").is_file()
+
+
+def test_worker_cache_namespace_ignores_existing_cache_location(tmp_path):
+    environment = {"NUMBA_OPT": "0", "NUMBA_CACHE_DIR": "old-location"}
+    before = evaluation.compiler_cache_path(tmp_path, environment)
+    environment["NUMBA_CACHE_DIR"] = "new-location"
+    assert evaluation.compiler_cache_path(tmp_path, environment) == before
+    environment["NUMBA_DISABLE_JIT"] = "1"
+    assert evaluation.compiler_cache_path(tmp_path, environment) != before
 
 
 @pytest.fixture

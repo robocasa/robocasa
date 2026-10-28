@@ -17,6 +17,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from .cameras import CAMERAS, normalize_camera_names
+from .evaluation import compiler_cache_path
 
 
 SIM_HZ = 200
@@ -148,6 +149,8 @@ class SonicRoboCasaEnv:
             "MPLCONFIGDIR": "cache/matplotlib",
         }.items():
             target = self.work_dir / subdir
+            if key == "NUMBA_CACHE_DIR":
+                target = compiler_cache_path(target, os.environ)
             target.mkdir(parents=True, exist_ok=True)
             os.environ[key] = str(target)
         os.environ["PYTHONDONTWRITEBYTECODE"] = "1"

@@ -18,6 +18,7 @@ def test_check_counts_selected_tasks_and_records_loaded_runtime(tmp_path, monkey
     modules = {}
     for name in ("mujoco", "onnxruntime", "robocasa", "robosuite", "gear_sonic",
                  "robosuite_models", "robosuite.environments", "robosuite.environments.base",
+                 "robosuite.utils", "robosuite.utils.transform_utils",
                  "gear_sonic.utils", "gear_sonic.utils.mujoco_sim",
                  "gear_sonic.utils.mujoco_sim.unitree_sdk2py_bridge"):
         module = ModuleType(name)
@@ -35,6 +36,16 @@ def test_check_counts_selected_tasks_and_records_loaded_runtime(tmp_path, monkey
     modules["mujoco"].Renderer = lambda *a, **kw: SimpleNamespace(
         update_scene=lambda data: None, render=lambda: np.zeros((32, 32, 3), np.uint8),
         close=lambda: closed.append(True))
+    geometry_inputs = []
+
+    def mat2quat(matrix):
+        geometry_inputs.append(matrix.copy())
+        return np.array([0., 0., 0., 1.])
+
+    modules["robosuite.utils.transform_utils"].mat2quat = mat2quat
+    compiler = {"numba": "test-numba", "llvmlite": "test-llvmlite",
+                "optimization_level": 0, "is_opt_max": False, "jit_disabled": False}
+    monkeypatch.setattr(sim_worker, "compiler_identity", lambda: compiler)
     monkeypatch.setattr(importlib.util, "find_spec", lambda name: object())
     monkeypatch.setattr(sonic_decoder, "SonicDecoder", lambda *a, **kw: object())
     monkeypatch.setattr(configuration, "source_tree_identity", lambda root: {"sha256": "frozen-source"})
@@ -44,6 +55,10 @@ def test_check_counts_selected_tasks_and_records_loaded_runtime(tmp_path, monkey
     assert report["tasks_registered"] == 2
     assert report["runtime_identity"]["versions"]["numpy"] == np.__version__
     assert report["runtime_identity"]["versions"]["onnxruntime"] == "test-version"
+    assert report["runtime_identity"]["compiler"] == compiler
+    assert report["geometry_probe"] == "passed"
+    assert len(geometry_inputs) == 1
+    np.testing.assert_array_equal(geometry_inputs[0], np.eye(3))
     sources = report["runtime_identity"]["sources"]
     assert set(sources) == {"robocasa", "robosuite", "gear_sonic", "robosuite_models"}
     assert sources["robocasa"]["source"] == {"sha256": "frozen-source"}

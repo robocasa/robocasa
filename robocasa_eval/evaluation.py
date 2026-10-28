@@ -295,6 +295,14 @@ def prepare_workspace(config):
     sys.dont_write_bytecode = True
 
 
+def compiler_cache_path(root, environment):
+    # Numba's cache key omits optimization settings. Partition worker caches so
+    # a changed compiler configuration cannot silently load an older binary.
+    settings = {key: value for key, value in environment.items()
+                if key.startswith("NUMBA_") and key != "NUMBA_CACHE_DIR"}
+    return Path(root) / digest(settings)[:16]
+
+
 def sim_environment(config, rank=0):
     env = dict(os.environ)
     root = Path(config["workspace"])
@@ -325,6 +333,7 @@ def sim_environment(config, rank=0):
         env["MUJOCO_EGL_DEVICE_ID"] = str(rank % config.get("gpus_per_node", config["total_gpus"]))
     if runtime and (runtime / "cyclonedds/install").is_dir():
         env["CYCLONEDDS_HOME"] = str(runtime / "cyclonedds/install")
+    env["NUMBA_CACHE_DIR"] = str(compiler_cache_path(env["NUMBA_CACHE_DIR"], env))
     return env
 
 

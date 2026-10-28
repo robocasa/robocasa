@@ -17,7 +17,7 @@ import time
 import traceback
 from uuid import uuid4
 
-from .evaluation import (DiskCheckCancelled, atomic_json, disk_preflight,
+from .evaluation import (DiskCheckCancelled, atomic_json, compiler_cache_path, disk_preflight,
                         jobs_for, read_result, result_path, sim_environment)
 from .sim_worker import receive, send
 from .policy import EpisodeContext, load_policy, validate_action_batch
@@ -83,7 +83,8 @@ class Simulator:
         self.proc = None
         try:
             env = sim_environment(config, rank)
-            env["NUMBA_CACHE_DIR"] = str(Path(config["workspace"]) / "cache/numba-eval" / f"gpu-{rank}-env-{slot}")
+            env["NUMBA_CACHE_DIR"] = str(compiler_cache_path(
+                Path(config["workspace"]) / "cache/numba-eval" / f"gpu-{rank}-env-{slot}", env))
             Path(env["NUMBA_CACHE_DIR"]).mkdir(parents=True, exist_ok=True)
             self.proc = subprocess.Popen(
                 [config["sim_python"], "-B", "-m", "robocasa_eval.sim_worker"],
