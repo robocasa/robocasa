@@ -1,0 +1,1161 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-29",
+  "task_source_commit": "2b5bf40398b386cf7e6ebefd7acf7ddf5c559b04",
+  "task_manifest": "robocasa_eval/tasks50.json",
+  "release_id": "benchmark40_v1_20261013",
+  "task_manifest_sha256": "e213fed83e6ee5fd6006c64aaa608b163f99ca0eabb4de9660c95186c905abb8",
+  "description": "Documentation reference only; does not alter task selection or success predicates.",
+  "tasks": [
+    {
+      "name": "BoilCorn",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place both pieces of corn from the plate into the saucepan. Then place the lid on the saucepan to start boiling the corn.",
+      "success_summary": "Both corn pieces in the saucepan; saucepan on the selected active burner; lid on saucepan; far(lid).",
+      "g1_or_release_note": "Current tolerances: burner distance < 0.15 m, lid receptacle threshold 0.05 m; burner starts on.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/boiling/boil_corn.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/boiling/boil_corn.py",
+        "line": 46,
+        "owner": "BoilCorn"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/boiling/boil_corn.py",
+        "line": 123,
+        "owner": "BoilCorn"
+      }
+    },
+    {
+      "name": "BreadAndCheese",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place the bread and cheese on the cutting board.",
+      "success_summary": "Both food objects on the cutting board; far(obj), the first food object.",
+      "g1_or_release_note": "Checks the first food object's hand distance, not both food objects.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/snack_preparation/bread_and_cheese.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/snack_preparation/bread_and_cheese.py",
+        "line": 29,
+        "owner": "BreadAndCheese"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/snack_preparation/bread_and_cheese.py",
+        "line": 80,
+        "owner": "BreadAndCheese"
+      }
+    },
+    {
+      "name": "CheesyBread",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Pick up the wedge of cheese and place it on the slice of bread to prepare a simple cheese on bread dish.",
+      "success_summary": "Bread remains on its cutting board; cheese contacts bread; far(cheese).",
+      "g1_or_release_note": "Atomic in this release. Bread starts on a cutting board and uses scale 1.5.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1709
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1730,
+        "owner": "CheesyBread"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1783,
+        "owner": "CheesyBread"
+      }
+    },
+    {
+      "name": "ChooseMeasuringCup",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Open the {left/right} drawer and place the {larger/smaller} measuring cup on the counter.",
+      "success_summary": "Selected cup contacts the counter, other cup does not; far(selected cup).",
+      "g1_or_release_note": "Drawer closing is not part of this task's success predicate. Fresh G1 MJCF uses the selected drawer-side robot anchor.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/measuring_ingredients/choose_measuring_cup.py",
+        "line": 5
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/measuring_ingredients/choose_measuring_cup.py",
+        "line": 20,
+        "owner": "ChooseMeasuringCup"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/measuring_ingredients/choose_measuring_cup.py",
+        "line": 74,
+        "owner": "ChooseMeasuringCup"
+      }
+    },
+    {
+      "name": "CleanBlenderJug",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Take the blender jug and place it in the sink to prepare it for cleaning.",
+      "success_summary": "Jug inside the sink; far(jug).",
+      "g1_or_release_note": "Placement prepares for cleaning; no washing or water-flow requirement.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/cleaning_appliances/clean_blender_jug.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/cleaning_appliances/clean_blender_jug.py",
+        "line": 26,
+        "owner": "CleanBlenderJug"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/cleaning_appliances/clean_blender_jug.py",
+        "line": 57,
+        "owner": "CleanBlenderJug"
+      }
+    },
+    {
+      "name": "CloseDishwasher",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Close the {dishwasher} door.",
+      "success_summary": "Dishwasher fixture reports is_closed(env).",
+      "g1_or_release_note": "Shared door-task predicate; fixture-specific closure threshold.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 310
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 30,
+        "owner": "ManipulateDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 62,
+        "owner": "ManipulateDoor"
+      }
+    },
+    {
+      "name": "CloseElectricKettleLid",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Close the lid of the electric kettle.",
+      "success_summary": "Normalized electric-kettle lid state <= 0.01.",
+      "g1_or_release_note": "Lid position only; no kettle activation requirement.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_electric_kettle.py",
+        "line": 36
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_electric_kettle.py",
+        "line": 54,
+        "owner": "CloseElectricKettleLid"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_electric_kettle.py",
+        "line": 63,
+        "owner": "CloseElectricKettleLid"
+      }
+    },
+    {
+      "name": "CloseFridge",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Close the {fridge} {door/doors}.",
+      "success_summary": "Fridge fixture reports is_closed(env).",
+      "g1_or_release_note": "Door wording depends on the sampled fridge; placement is fridge-type dependent.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 252
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 30,
+        "owner": "ManipulateDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 62,
+        "owner": "ManipulateDoor"
+      }
+    },
+    {
+      "name": "CloseFridgeDrawer",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Fully close the fridge drawer.",
+      "success_summary": "Fridge-compartment drawer at index -1 passes is_closed(th=0.05).",
+      "g1_or_release_note": "SonicG1 default initial offset: 0.05 m backward in the robot frame.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 424
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 440,
+        "owner": "CloseFridgeDrawer"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 493,
+        "owner": "CloseFridgeDrawer"
+      }
+    },
+    {
+      "name": "CloseOven",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Close the {oven} door.",
+      "success_summary": "Oven fixture reports is_closed(env).",
+      "g1_or_release_note": "Shared drop-down-door task; fixture-specific closure threshold.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 292
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 30,
+        "owner": "ManipulateDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 62,
+        "owner": "ManipulateDoor"
+      }
+    },
+    {
+      "name": "CloseStandMixerHead",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Close the stand mixer head.",
+      "success_summary": "Normalized mixer-head state < 0.01.",
+      "g1_or_release_note": "Head closure only; mixing is not required.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_stand_mixer.py",
+        "line": 36
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_stand_mixer.py",
+        "line": 50,
+        "owner": "CloseStandMixerHead"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_stand_mixer.py",
+        "line": 59,
+        "owner": "CloseStandMixerHead"
+      }
+    },
+    {
+      "name": "CloseToasterOvenDoor",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Close the toaster oven door.",
+      "success_summary": "Toaster oven reports is_closed(env).",
+      "g1_or_release_note": "Door state only; rack motion is a separate task.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 351
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 372,
+        "owner": "CloseToasterOvenDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 381,
+        "owner": "CloseToasterOvenDoor"
+      }
+    },
+    {
+      "name": "CoffeeServeMug",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Pick the {mug} from under the coffee machine dispenser and place it on the counter.",
+      "success_summary": "Target object contacts the counter; far(object).",
+      "g1_or_release_note": "Uses machine_to_counter behavior; no brewing requirement.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_coffee.py",
+        "line": 118
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_coffee.py",
+        "line": 28,
+        "owner": "PickPlaceCoffee"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_coffee.py",
+        "line": 92,
+        "owner": "PickPlaceCoffee"
+      }
+    },
+    {
+      "name": "CoolBakedCake",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Take the baked cake out of the oven and place it on the plate for cooling. Then close the oven door.",
+      "success_summary": "Cake on plate; plate contacts counter; oven closed; far(cake).",
+      "g1_or_release_note": "No temperature or elapsed cooling-time test.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/cool_baked_cake.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/cool_baked_cake.py",
+        "line": 26,
+        "owner": "CoolBakedCake"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/cool_baked_cake.py",
+        "line": 67,
+        "owner": "CoolBakedCake"
+      }
+    },
+    {
+      "name": "DrawerCakeSort",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Open the drawer, place both cakes inside it, then close the drawer.",
+      "success_summary": "Both cakes inside the drawer and off all counters; far(each cake); drawer closed.",
+      "g1_or_release_note": "Included in the 15 seen composites. Both cakes sample a 0.15 m-deep outer-edge band. Fresh G1 MJCF uses the selected drawer-side robot anchor.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/tidying_cabinets_and_drawers/drawer_cake_sort.py",
+        "line": 5
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/tidying_cabinets_and_drawers/drawer_cake_sort.py",
+        "line": 23,
+        "owner": "DrawerCakeSort"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/tidying_cabinets_and_drawers/drawer_cake_sort.py",
+        "line": 56,
+        "owner": "DrawerCakeSort"
+      }
+    },
+    {
+      "name": "DryDishes",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Pick the cup and bowl from the sink and place them on the counter for drying.",
+      "success_summary": "Cup and bowl contact the target counter; far(each).",
+      "g1_or_release_note": "No moisture or elapsed drying-time test.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/dry_dishes.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/dry_dishes.py",
+        "line": 30,
+        "owner": "DryDishes"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/dry_dishes.py",
+        "line": 92,
+        "owner": "DryDishes"
+      }
+    },
+    {
+      "name": "DumpLeftovers",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Dump the {leftovers} from the bowl so the bowl can be washed. Place the bowl in the sink after clearing the leftovers.",
+      "success_summary": "Both leftover1 and leftover2 outside the bowl; bowl inside sink; far(bowl).",
+      "g1_or_release_note": "Both leftovers are checked independently; earlier revisions repeated the leftover1 test.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/dump_leftovers.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/dump_leftovers.py",
+        "line": 27,
+        "owner": "DumpLeftovers"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/dump_leftovers.py",
+        "line": 95,
+        "owner": "DumpLeftovers"
+      }
+    },
+    {
+      "name": "LoadDishwasher",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Pick up the {cup} and {bowl} from the counter, place them in the dishwasher, and close the dishwasher door.",
+      "success_summary": "Both dishes contact the top rack; dishwasher door closed at th=0.05.",
+      "g1_or_release_note": "Door/rack start open/out; dish sampling shifts 0.15 m left; bowl scale 0.5. Door closure is required.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/loading_dishwasher/load_dishwasher.py",
+        "line": 5
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/loading_dishwasher/load_dishwasher.py",
+        "line": 33,
+        "owner": "LoadDishwasher"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/loading_dishwasher/load_dishwasher.py",
+        "line": 149,
+        "owner": "LoadDishwasher"
+      }
+    },
+    {
+      "name": "NavigateKitchen",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Navigate to the {target fixture}.",
+      "success_summary": "Horizontal distance to target base placement <= 0.25 m and yaw cosine >= 0.98.",
+      "g1_or_release_note": "SonicG1/SonicG1Fixed use pelvis (base fallback); other robots use mobilebase0_base.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_navigate.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_navigate.py",
+        "line": 121,
+        "owner": "NavigateKitchen"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_navigate.py",
+        "line": 130,
+        "owner": "NavigateKitchen"
+      }
+    },
+    {
+      "name": "OpenDishwasher",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Open the {dishwasher} door.",
+      "success_summary": "Dishwasher fixture reports is_open(env).",
+      "g1_or_release_note": "Shared drop-down-door predicate; fixture-specific opening threshold.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 300
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 30,
+        "owner": "ManipulateDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 62,
+        "owner": "ManipulateDoor"
+      }
+    },
+    {
+      "name": "OpenDrawer",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Open the {left/right} drawer.",
+      "success_summary": "Every normalized joint position returned for the drawer is >= 0.95.",
+      "g1_or_release_note": "Target drawer side comes from episode initialization; fresh G1 MJCF uses the matching robot anchor.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 196
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 124,
+        "owner": "ManipulateDrawer"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 173,
+        "owner": "ManipulateDrawer"
+      }
+    },
+    {
+      "name": "OpenFridge",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Open the {fridge} {door/doors}.",
+      "success_summary": "Fridge fixture reports is_open(env).",
+      "g1_or_release_note": "Door wording depends on the sampled fridge; placement is fridge-type dependent.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 229
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 30,
+        "owner": "ManipulateDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 62,
+        "owner": "ManipulateDoor"
+      }
+    },
+    {
+      "name": "OpenFridgeDrawer",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Fully open the fridge drawer.",
+      "success_summary": "Fridge-compartment drawer at index -1 passes is_open(th=0.70).",
+      "g1_or_release_note": "Targets the internal drawer, not the external door.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 349
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 365,
+        "owner": "OpenFridgeDrawer"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 418,
+        "owner": "OpenFridgeDrawer"
+      }
+    },
+    {
+      "name": "OpenToasterOvenDoor",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Open the toaster oven door.",
+      "success_summary": "Toaster oven reports is_open(env).",
+      "g1_or_release_note": "Door state only; rack motion is a separate task.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 318
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 339,
+        "owner": "OpenToasterOvenDoor"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_doors.py",
+        "line": 347,
+        "owner": "OpenToasterOvenDoor"
+      }
+    },
+    {
+      "name": "PackDessert",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Add the {dessert} to the tupperware that contains the {cooked food}.",
+      "success_summary": "Cooked food and dessert in the same target tupperware; far(dessert).",
+      "g1_or_release_note": "Atomic in this release. Tupperware scale is (2.5, 2.5, 1.25); cooked food starts inside.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1893
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1912,
+        "owner": "PackDessert"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1960,
+        "owner": "PackDessert"
+      }
+    },
+    {
+      "name": "PickPlaceCounterToOven",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Place the {object} on the {top/bottom} rack of the oven.",
+      "success_summary": "Object in oven tray; tray contacts the selected rack; far(object).",
+      "g1_or_release_note": "Top/bottom wording is omitted for a single-level oven.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 725
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 748,
+        "owner": "PickPlaceCounterToOven"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 802,
+        "owner": "PickPlaceCounterToOven"
+      }
+    },
+    {
+      "name": "PickPlaceCounterToSink",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Pick the {object} from the counter and place it in the sink.",
+      "success_summary": "Object inside sink using partial_check=True; far(object).",
+      "g1_or_release_note": "The implemented containment check explicitly allows partial containment.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 254
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 282,
+        "owner": "PickPlaceCounterToSink"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 352,
+        "owner": "PickPlaceCounterToSink"
+      }
+    },
+    {
+      "name": "PickPlaceCounterToStandMixer",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Place the {object} in the stand mixer bowl.",
+      "success_summary": "Mixer check_item_in_bowl(object) passes; far(object).",
+      "g1_or_release_note": "No head-closure or mixer-activation requirement.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1248
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1267,
+        "owner": "PickPlaceCounterToStandMixer"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 1298,
+        "owner": "PickPlaceCounterToStandMixer"
+      }
+    },
+    {
+      "name": "PickPlaceCounterToStove",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Pick the {object} from the plate and place it in the {pan}.",
+      "success_summary": "Object in target pan with receptacle threshold 0.07 m; far(object).",
+      "g1_or_release_note": "SonicG1 explicitly places the source container on the counter's front side.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 811
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 834,
+        "owner": "PickPlaceCounterToStove"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 898,
+        "owner": "PickPlaceCounterToStove"
+      }
+    },
+    {
+      "name": "PickPlaceStoveToCounter",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Pick the {object} from the {source container} and place it {in/on} the {target container}.",
+      "success_summary": "Object in target container with receptacle threshold 0.07 m; far(object).",
+      "g1_or_release_note": "Success does not separately test target-container contact with the counter.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 912
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 932,
+        "owner": "PickPlaceStoveToCounter"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_pick_place.py",
+        "line": 990,
+        "owner": "PickPlaceStoveToCounter"
+      }
+    },
+    {
+      "name": "PortionPeaches",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place one peach from the bowl on each plate.",
+      "success_summary": "Exactly one of the two peaches on each plate; far(each peach).",
+      "g1_or_release_note": "Canonical G1 task replaces PortionHotDogs: two peaches, two plates, bowl scale (1.5, 1.5, 1).",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/portioning_meals/portion_peaches.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/portioning_meals/portion_peaches.py",
+        "line": 54,
+        "owner": "PortionPeaches"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/portioning_meals/portion_peaches.py",
+        "line": 142,
+        "owner": "PortionPeaches"
+      }
+    },
+    {
+      "name": "ServeWarmCroissant",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Take out the warm croissant from the {top/bottom} rack of the toaster oven and place it on the plate.",
+      "success_summary": "Croissant on plate; far(croissant).",
+      "g1_or_release_note": "Single-level ovens omit rack level; no door-reset or heat-state requirement.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/toasting_bread/serve_warm_croissant.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/toasting_bread/serve_warm_croissant.py",
+        "line": 33,
+        "owner": "ServeWarmCroissant"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/toasting_bread/serve_warm_croissant.py",
+        "line": 84,
+        "owner": "ServeWarmCroissant"
+      }
+    },
+    {
+      "name": "ShakePan",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Grip the pan handle, lift and shake it lightly to move the {vegetable} inside the pan. Place the pan back down on the stove once finished.",
+      "success_summary": "At least 25 qualifying movement updates; vegetable in pan; pan on selected active burner within 0.15 m.",
+      "g1_or_release_note": "Movement update means pan displacement > 0.001 m while food is inside; no grasp/lift test.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/sauteing_vegetables/shake_pan.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/sauteing_vegetables/shake_pan.py",
+        "line": 42,
+        "owner": "ShakePan"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/sauteing_vegetables/shake_pan.py",
+        "line": 90,
+        "owner": "ShakePan"
+      }
+    },
+    {
+      "name": "SlideDishwasherRack",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Fully slide the top dishwasher rack {out/in}.",
+      "success_summary": "Normalized top-rack position >= 0.95 for out, or <= 0.05 for in.",
+      "g1_or_release_note": "SonicG1 default initial offset: 0.50 m left in the robot frame.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 304
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 324,
+        "owner": "SlideDishwasherRack"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
+        "line": 340,
+        "owner": "SlideDishwasherRack"
+      }
+    },
+    {
+      "name": "SlideToasterOvenRack",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Fully slide the toaster oven {top/bottom} {rack/tray} {out/in}.",
+      "success_summary": "Selected-level movable rack/tray position >= 0.95 for out, or <= 0.05 for in.",
+      "g1_or_release_note": "Instruction follows fixture rack/tray type and level; level is omitted when not applicable.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_toaster_oven.py",
+        "line": 78
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_toaster_oven.py",
+        "line": 101,
+        "owner": "SlideToasterOvenRack"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_toaster_oven.py",
+        "line": 136,
+        "owner": "SlideToasterOvenRack"
+      }
+    },
+    {
+      "name": "StackBowlsInSink",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Stack the bowls in the sink.",
+      "success_summary": "Both bowls inside sink; either bowl in the other; far(each bowl).",
+      "g1_or_release_note": "Either stacking order is accepted.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/stack_bowls.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/stack_bowls.py",
+        "line": 25,
+        "owner": "StackBowlsInSink"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/washing_dishes/stack_bowls.py",
+        "line": 78,
+        "owner": "StackBowlsInSink"
+      }
+    },
+    {
+      "name": "TiltPan",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Tilt the pan slightly to move the {vegetable} inside the pan. Place the pan back down on the stove once finished.",
+      "success_summary": "At least 12 updates with quaternion-derived angle > 0.3 rad and food inside; food remains in pan; pan on selected active burner within 0.15 m.",
+      "g1_or_release_note": "The final predicate does not impose a separate return-to-level angle threshold.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/sauteing_vegetables/tilt_pan.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/sauteing_vegetables/tilt_pan.py",
+        "line": 42,
+        "owner": "TiltPan"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/sauteing_vegetables/tilt_pan.py",
+        "line": 94,
+        "owner": "TiltPan"
+      }
+    },
+    {
+      "name": "TurnOnToaster",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Push down the lever of the toaster to turn it on.",
+      "success_summary": "turned_on is true for the slot touching the bread, falling back to slot 0.",
+      "g1_or_release_note": "Checks the toaster's state, not toast color or elapsed heating time.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_toaster.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_toaster.py",
+        "line": 20,
+        "owner": "TurnOnToaster"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_toaster.py",
+        "line": 55,
+        "owner": "TurnOnToaster"
+      }
+    },
+    {
+      "name": "TurnSinkSpout",
+      "category": "atomic",
+      "split": "seen",
+      "horizon_seconds": 40,
+      "instruction_example_or_template": "Turn the sink spout to the {left/right}.",
+      "success_summary": "Sink spout_ori equals the requested behavior.",
+      "g1_or_release_note": "Spout direction only; no water-flow requirement.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_sink.py",
+        "line": 122
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_sink.py",
+        "line": 148,
+        "owner": "TurnSinkSpout"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/atomic/kitchen_sink.py",
+        "line": 210,
+        "owner": "TurnSinkSpout"
+      }
+    },
+    {
+      "name": "WipeTable",
+      "category": "composite",
+      "split": "seen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Pick up the sponge from the counter and wipe the counter by gripping it and pressing it against the surface. Once finished, release the sponge.",
+      "success_summary": "At least 5 grasped counter-contact positions >= 0.02 m apart, bounding-box diagonal >= 0.10 m, then far(sponge, 0.15 m).",
+      "g1_or_release_note": "Dex3 grasp helper uses hand-object contact instead of Panda finger-position comparisons.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/sanitizing_surface/wipe_table.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/sanitizing_surface/wipe_table.py",
+        "line": 27,
+        "owner": "WipeTable"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/sanitizing_surface/wipe_table.py",
+        "line": 62,
+        "owner": "WipeTable"
+      }
+    },
+    {
+      "name": "CupcakeCleanup",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Move the fresh-baked cupcake off the tray onto the counter, and place the bowl used for mixing into the sink.",
+      "success_summary": "Cupcake contacts target counter; bowl inside sink; far(cupcake) and far(bowl).",
+      "g1_or_release_note": "Unseen composite; both final placements must hold together.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/cupcake_cleanup.py",
+        "line": 6
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/cupcake_cleanup.py",
+        "line": 31,
+        "owner": "CupcakeCleanup"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/cupcake_cleanup.py",
+        "line": 75,
+        "owner": "CupcakeCleanup"
+      }
+    },
+    {
+      "name": "PastryDisplay",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place the pastries on the plates.",
+      "success_summary": "Two pastries on different plates, either assignment; far(each pastry).",
+      "g1_or_release_note": "Unseen composite; plate assignment is interchangeable.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/pastry_display.py",
+        "line": 6
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/pastry_display.py",
+        "line": 27,
+        "owner": "PastryDisplay"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/baking/pastry_display.py",
+        "line": 102,
+        "owner": "PastryDisplay"
+      }
+    },
+    {
+      "name": "BoilEggs",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place both eggs from the plate into the saucepan with boiling water.",
+      "success_summary": "Both eggs in saucepan; saucepan on selected active burner; far(saucepan).",
+      "g1_or_release_note": "Unseen composite; uses stove helper's 0.08 m default burner threshold.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/boiling/boil_eggs.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/boiling/boil_eggs.py",
+        "line": 39,
+        "owner": "BoilEggs"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/boiling/boil_eggs.py",
+        "line": 112,
+        "owner": "BoilEggs"
+      }
+    },
+    {
+      "name": "PrepareBroilingStation",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Pick up the tongs from the counter and place them near the plate next to the oven.",
+      "success_summary": "Tongs and plate each contact a counter; their XY distance < 0.30 m; far(tongs).",
+      "g1_or_release_note": "Fresh samples require XY separation >= 0.40 m before settling; same-counter placement remains allowed. Success predicate unchanged.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/broiling_fish/prepare_broiling_station.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/broiling_fish/prepare_broiling_station.py",
+        "line": 34,
+        "owner": "PrepareBroilingStation"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/broiling_fish/prepare_broiling_station.py",
+        "line": 99,
+        "owner": "PrepareBroilingStation"
+      }
+    },
+    {
+      "name": "BreadSetupSlicing",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place all breads on the cutting board.",
+      "success_summary": "Every sampled bread on the board; far(obj_0) only.",
+      "g1_or_release_note": "Unseen composite; num_bread is stored in episode references; no slicing test.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/bread_setup_slicing.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/bread_setup_slicing.py",
+        "line": 29,
+        "owner": "BreadSetupSlicing"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/bread_setup_slicing.py",
+        "line": 82,
+        "owner": "BreadSetupSlicing"
+      }
+    },
+    {
+      "name": "ClearCuttingBoard",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Clear the non-vegetable object off the cutting board and place the vegetables onto it.",
+      "success_summary": "Both vegetables on the board; non-vegetable off the board; far(board).",
+      "g1_or_release_note": "Unseen composite; the distance check targets the board, not each moved object.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/clear_cutting_board.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/clear_cutting_board.py",
+        "line": 27,
+        "owner": "ClearCuttingBoard"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/clear_cutting_board.py",
+        "line": 83,
+        "owner": "ClearCuttingBoard"
+      }
+    },
+    {
+      "name": "OrganizeVegetables",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place the {vegetable 1} and the {vegetable 2} on separate cutting boards.",
+      "success_summary": "Vegetables on different cutting boards, either assignment.",
+      "g1_or_release_note": "Unseen composite; no hand-distance condition in this predicate.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/organize_vegetables.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/organize_vegetables.py",
+        "line": 27,
+        "owner": "OrganizeVegetables"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/chopping_food/organize_vegetables.py",
+        "line": 111,
+        "owner": "OrganizeVegetables"
+      }
+    },
+    {
+      "name": "DessertAssembly",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Place the {container} with {dessert} and the cupcake onto the tray.",
+      "success_summary": "First dessert remains in its container; that container and cupcake on tray; far(tray).",
+      "g1_or_release_note": "Unseen composite; preserves the nested dessert/container relationship.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/clearing_table/dessert_assembly.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/clearing_table/dessert_assembly.py",
+        "line": 30,
+        "owner": "DessertAssembly"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/clearing_table/dessert_assembly.py",
+        "line": 98,
+        "owner": "DessertAssembly"
+      }
+    },
+    {
+      "name": "MeatSkewerAssembly",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Move the kebab skewers from the plate to the oven tray for oven preparation.",
+      "success_summary": "Both skewers on oven tray; tray contacts dining counter; far(each skewer).",
+      "g1_or_release_note": "Unseen composite; oven insertion or cooking is not required.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/filling_serving_dishes/meat_skewer_assembly.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/filling_serving_dishes/meat_skewer_assembly.py",
+        "line": 28,
+        "owner": "MeatSkewerAssembly"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/filling_serving_dishes/meat_skewer_assembly.py",
+        "line": 93,
+        "owner": "MeatSkewerAssembly"
+      }
+    },
+    {
+      "name": "RotatePan",
+      "category": "composite",
+      "split": "unseen",
+      "horizon_seconds": 180,
+      "instruction_example_or_template": "Rotate the pan to help distribute the heat more evenly.",
+      "success_summary": "Pan has exceeded 15 degrees of yaw change from its first check; pan contacts stove; meat remains inside; far(pan).",
+      "g1_or_release_note": "Unseen composite; rotation is latched, so the final yaw need not remain beyond 15 degrees.",
+      "class_source": {
+        "path": "robocasa/environments/kitchen/composite/frying/rotate_pan.py",
+        "line": 4
+      },
+      "instruction_source": {
+        "path": "robocasa/environments/kitchen/composite/frying/rotate_pan.py",
+        "line": 41,
+        "owner": "RotatePan"
+      },
+      "success_source": {
+        "path": "robocasa/environments/kitchen/composite/frying/rotate_pan.py",
+        "line": 77,
+        "owner": "RotatePan"
+      }
+    }
+  ]
+}

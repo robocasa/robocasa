@@ -669,6 +669,20 @@ def check_obj_grasped(env, obj_name, threshold=0.035):
     obj = env.objects[obj_name]
     robot = env.robots[0]
 
+    if "right" in robot.gripper:
+        gripper = robot.gripper["right"]
+    else:
+        raise AttributeError("Gripper dictionary does not contain a 'right' key.")
+
+    # The original predicate was written for Panda's two-finger gripper. Sonic's
+    # Dex3 hand has seven joints with mixed closing directions, so applying the
+    # same scalar qpos comparison would reject valid grasps. Dex3 also exposes
+    # collision geoms for the complete hand, making contact the compatible signal
+    # for these tasks (the loose 0.6 / 0.99 thresholds used by the wiping tasks
+    # already make the Panda closure check effectively contact-only).
+    if any("right_hand_" in joint for joint in gripper.joints):
+        return env.check_contact(gripper, obj)
+
     gripper_joints = ["gripper0_right_finger_joint1", "gripper0_right_finger_joint2"]
     gripper_joint_positions = [
         env.sim.data.qpos[env.sim.model.get_joint_qpos_addr(joint)]
@@ -676,11 +690,6 @@ def check_obj_grasped(env, obj_name, threshold=0.035):
     ]
 
     gripper_closed = all(pos < threshold for pos in gripper_joint_positions)
-
-    if "right" in robot.gripper:
-        gripper = robot.gripper["right"]
-    else:
-        raise AttributeError("Gripper dictionary does not contain a 'right' key.")
 
     return env.check_contact(gripper, obj) and gripper_closed
 

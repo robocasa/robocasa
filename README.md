@@ -1,120 +1,130 @@
-<h1 align="center">RoboCasa</h1>
-<!-- ![alt text](https://github.com/UT-Austin-RPL/maple/blob/web/src/overview.png) -->
-<img src="docs/images/readme.webp" width="100%" />
+<h1 align="center">RoboCasa for Unitree G1 Evaluation</h1>
 
-**RoboCasa** is a large-scale simulation framework for training generally capable robots to perform everyday tasks. It was [originally released](https://robocasa.ai/assets/robocasa_rss24.pdf) in 2024 by UT Austin researchers. The latest iteration, **RoboCasa365**, builds upon the original release with significant new functionalities to support large-scale training and benchmarking in sim. Four pillars underlie RoboCasa365:
-- **Diverse tasks**: 365 tasks created with the guidance of large language models
-- **Diverse assets**: including 2,500+ kitchen scenes and 3,200+ 3D objects
-- **High-quality demonstrations**: including 600+ hours of human demonstrations in addition to 1,600+ hours of robot datasets created with automated trajectory tools
-- **Benchmarking support**: popular policy learning methods including Diffusion Policy, pi, and GR00T
+Collect paired demonstrations and evaluate vision-language-action (VLA) models
+on **Unitree G1 with SONIC** in RoboCasa. This repository provides task
+definitions, collection and data-processing tools, and a shared evaluation
+interface for model services.
 
+## Benchmark and dataset
 
-This guide contains information about installation and setup. Please refer to the following resources for additional information:
+| Task group | Tasks | Released demonstrations | Evaluation episodes |
+| --- | ---: | ---: | ---: |
+| Seen atomic | 25 | 1,250 | 750 |
+| Seen composite | 15 | 750 | 450 |
+| Unseen composite | 10 | 0 | 300 |
+| **Total** | **50** | **2,000** | **1,500** |
 
-[**[Home page]**](https://robocasa.ai) &ensp; [**[Documentation]**](https://robocasa.ai/docs/introduction/overview.html) &ensp; [**[RoboCasa365 Paper]**](https://robocasa.ai/assets/robocasa365_iclr26.pdf) &ensp; [**[Original RoboCasa Paper]**](https://robocasa.ai/assets/robocasa_rss24.pdf)
+Each of the **40 seen tasks has 50 paired HDF5 and LeRobot demonstrations**.
+The 10 unseen tasks are reserved for evaluation. The default evaluation runs
+30 episodes per task, with simulation-time limits of 40 seconds for atomic
+tasks and 180 seconds for composite tasks.
 
--------
-## Installation
-RoboCasa works across all major computing platforms. The easiest way to set up is through the [Anaconda](https://www.anaconda.com/) package management system. Follow the instructions below to install:
-1. Set up conda environment:
+Download the fixed dataset release from
+[Dawn-star/robocasa-sonic at `benchmark40-v1-hdf5-20261022`](https://huggingface.co/datasets/Dawn-star/robocasa-sonic/tree/benchmark40-v1-hdf5-20261022).
+It contains `hdf5/`, `lerobot/`, and pairing metadata. Both data formats retain
+the atomic/composite task grouping; the [dataset guide](docs/g1/datasets.md)
+describes downloads, observations, actions, and episode alignment.
 
-   ```sh
-   conda create -c conda-forge -n robocasa python=3.11
-   ```
-2. Activate conda environment:
-   ```sh
-   conda activate robocasa
-   ```
-3. Clone and setup robosuite dependency (**important: use the master branch!**):
+## Guides
 
-   ```sh
-   git clone https://github.com/ARISE-Initiative/robosuite
-   cd robosuite
-   pip install -e .
-   ```
-4. Clone and setup this repo:
+For a new setup, start with [G1 installation](docs/g1/installation.md).
+The [release overview](docs/g1/overview.md) describes the benchmark and workflows.
 
-   ```sh
-   cd ..
-   git clone https://github.com/robocasa/robocasa
-   cd robocasa
-   pip install -e .
-   pip install pre-commit; pre-commit install           # Optional: set up code formatter.
+| Guide | Contents |
+| --- | --- |
+| [G1 installation](docs/g1/installation.md) | Simulation environment, compatible dependencies, assets, and SONIC decoder |
+| [Tasks](docs/g1/tasks.md) | All 50 tasks, split membership, instructions, and success predicates |
+| [Datasets](docs/g1/datasets.md) | Fixed dataset version, download commands, and paired data schemas |
+| [Data collection](docs/g1/data_collection.md) | PICO/SONIC collection and synchronized HDF5/LeRobot recording |
+| [Data processing](docs/g1/dataset_processing.md) | Replay, validation, selection, alignment, and release tools |
+| [Policy evaluation](docs/g1/evaluation.md) | Model service, shared VLA interface, concurrent evaluation, and reports |
+| [Release provenance](docs/g1/reproducibility.md) | Simulation dependency revisions and deployment validation |
 
-   (optional: if running into issues with numba/numpy, run: conda install -c numba numba=0.56.4 -y)
-   ```
-5. Install the package and download assets:
-   ```sh
-   python -m robocasa.scripts.setup_macros              # Set up system variables.
-   python -m robocasa.scripts.download_kitchen_assets   # Caution: Assets to be downloaded are around 10GB.
-   ```
+The [examples index](examples/README.md) lists the evaluation configurations,
+dataset release configuration, and SONIC collection patch.
 
--------
-## Basic Usage
+## Prepare evaluation
 
-### Gym wrapper
-You can create environments using gym wrappers and run rollouts:
-```py
-import gymnasium as gym
-import robocasa
-from robocasa.utils.env_utils import run_random_rollouts
+Connect an existing inference service through HTTP. The service receives images,
+46-dimensional robot state, and the task instruction, and returns SONIC motion
+tokens plus two seven-joint hand targets. Its input preprocessing and output
+conversion must implement the [shared protocol](docs/g1/evaluation.md#http-communication-protocol).
 
-env = gym.make(
-    "robocasa/PickPlaceCounterToCabinet",
-    split="pretrain", # use 'pretrain' or 'target' kitchen scenes and objects
-    seed=0 # seed environment as needed. set seed=None to run unseeded
-)
+Follow [G1 installation](docs/g1/installation.md) to prepare the simulation
+environment, compatible dependencies, assets, and SONIC decoder. Then use the
+interpreter and decoder paths in the evaluation commands below.
 
-# run rollouts with random actions and save video
-run_random_rollouts(
-    env, num_rollouts=3, num_steps=100, video_path="/tmp/test.mp4"
-)
+## Evaluation quickstart
+
+From the repository root, create a working evaluator configuration:
+
+```sh
+mkdir -p evaluation_runs/configs
+cp examples/evaluation/http.json evaluation_runs/configs/evaluation.json
 ```
 
-### Play back sample demonstrations of tasks
-**(Mac users: for these scripts, prepend the "python" command with "mj": `mjpython ...`)**
+Set `sim_python` and `decoder_path` to the prepared simulator interpreter and
+SONIC decoder. Set `policy.kwargs.endpoint` to the running inference service,
+or pass `--endpoint` on the command line. The default address is
+`http://127.0.0.1:8000`.
 
-Select a task and play back a sample demonstration for the selected task:
-```
-python -m robocasa.demos.demo_tasks
-```
-
-### Explore kitchen scenes
-Explore 2500+ kitchen scenes:
-```
-python -m robocasa.demos.demo_kitchen_scenes
+```sh
+python -m robocasa_eval plan --config evaluation_runs/configs/evaluation.json
+python -m robocasa_eval check --config evaluation_runs/configs/evaluation.json
+python -m robocasa_eval smoke --config evaluation_runs/configs/evaluation.json \
+  --envs 4 --full-episodes
+python -m robocasa_eval run --config evaluation_runs/configs/evaluation.json
 ```
 
-### Explore library of 2500+ objects
-View and interact with both human-designed and AI-generated objects:
-```
-python -m robocasa.demos.demo_objects
-```
-Note: By default, this demo shows objaverse objects. To view AI-generated objects, add the flag `--obj_types aigen`.
+For a configuration-free invocation, pass the three settings directly:
 
-### Teleoperate the robot
-Control the robot directly, either through a keyboard controller or spacemouse. This script renders the robot semi-translucent in order to minimize occlusions and enable better visibility.
+```sh
+python -m robocasa_eval plan \
+  --endpoint http://127.0.0.1:8000 \
+  --sim-python ./evaluation_runs/envs/sim/bin/python \
+  --decoder-path ./evaluation_runs/models/sonic/model_decoder.onnx
 ```
-python -m robocasa.demos.demo_teleop
+
+Use the same options with `check`, `smoke`, and `run`, replacing the local paths
+with your prepared interpreter and decoder.
+
+The service uses **one port**, 8000 by default. Evaluation workers connect to the
+same endpoint for concurrent episodes. Reports, logs, and caches use the
+configurable `workspace`, defaulting to `./evaluation_runs/`; interrupted runs
+can be resumed. `plan` resolves the schedule without loading the simulator.
+
+If a model needs an HTTP wrapper, implement the `module:function` factory shown
+in [the adapter guide](docs/g1/evaluation.md#model-adapters) and configure
+`examples/evaluation/server_custom.json`. The optional `serve` command supports
+batching and multiple GPU replicas behind one endpoint:
+
+```sh
+python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
+  --host 127.0.0.1 --port 8000 --devices cuda:0
 ```
-Note: If using SpaceMouse, you may need to modify the product ID to your appropriate model, setting `SPACEMOUSE_PRODUCT_ID` in `robocasa/macros_private.py`.
 
--------
-## Tasks, datasets, policy learning, and additional use cases
-Please refer to the [documentation page](https://robocasa.ai/docs/introduction/overview.html) for information about tasks, datasets, benchmarking, and more.
+Replace the example factory's placeholder actions with the model's inference and
+action conversion before evaluation. Choose model devices with `--devices` and
+set concurrent environments with `--num-workers N --envs-per-worker 1`.
+The [evaluation guide](docs/g1/evaluation.md) covers concurrency,
+full-horizon validation, scoring, errors, and resume behavior.
 
--------
-## Releases
-* [2/18/2026] **v1.0**: RoboCasa365 release, with 365 tasks, 2500+ kitchen scenes, 2200+ hours of robot demonstration data, and benchmarking support.
-* [10/31/2024] **v0.2**: using RoboSuite `v1.5` as the backend, with improved support for custom robot composition, composite controllers, more teleoperation devices, photo-realistic rendering.
+## Credits
 
--------
+This project builds on [RoboCasa](https://robocasa.ai),
+[RoboSuite](https://github.com/ARISE-Initiative/robosuite),
+[NVIDIA SONIC](https://github.com/NVlabs/GR00T-WholeBodyControl), and the
+[Unitree G1](https://www.unitree.com/g1) robot platform. See the
+[upstream RoboCasa documentation](https://robocasa.ai/docs/introduction/overview.html)
+for general simulator features. The SONIC collection integration and its
+upstream license are described in [the companion patch guide](examples/sonic/README.md).
+
 ## License
+
 Code: [MIT License](https://opensource.org/license/mit)
 
 Assets and Datasets: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en)
- 
--------
+
 ## Citation
 
 **RoboCasa365:**
@@ -137,3 +147,4 @@ Assets and Datasets: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/dee
   booktitle={Robotics: Science and Systems (RSS)},
   year={2024}
 }
+```

@@ -1,4 +1,18 @@
 # Overview of Benchmarking
+
+## Unitree G1 evaluation in this fork
+
+Use the [shared Unitree G1 evaluator](../g1/evaluation.md) for this repository's
+G1 SONIC benchmark: **50 tasks × 30 episodes**, with 40-second atomic and
+180-second composite simulation-time limits. Its seen/unseen task split and
+single-device smoke requirements are defined in that guide.
+
+The remaining sections describe the original upstream RoboCasa365 training
+benchmark. Its scenario counts and `pretrain`/`target` split terminology are
+separate from the G1 protocol above.
+
+## Upstream training settings
+
 We evaluate learning across three distinct settings:
 - **Multi-task learning**: studies large-scale pretraining from diverse human demonstrations across many tasks
 - **Foundation model learning** builds on this by fine-tuning pretrained models to master specific target tasks, including both seen and unseen task compositions.
@@ -23,4 +37,3 @@ For each benchmarking experiment we specify the specific task set and split to e
 For all experiments, we randomly sample 50 scenarios to run evaluation rollouts on.
 For each rollout, we recieve a binary task success signal for whether the task is successfully completed.
 We report average task success rates across these 50 rollouts. 
-

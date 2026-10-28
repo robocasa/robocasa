@@ -3,8 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to RoboCasa's documentation!
-===============================
+RoboCasa for Unitree G1 Evaluation
+==================================
+
+Start with the :doc:`Unitree G1 overview <g1/overview>` for the 50-task
+benchmark, 2,000 paired demonstrations, and release artifacts. The
+:doc:`G1 installation guide <g1/installation>` covers a new simulation setup.
+Then use the :doc:`evaluation guide <g1/evaluation>` to connect an inference
+service on port 8000 and run the benchmark.
+
+The guides below cover simulation, datasets, and policy evaluation. See the
+`upstream RoboCasa project <https://robocasa.ai>`_ and the repository README
+for attribution, licensing, and paper citations.
 
 .. raw:: html
 
@@ -30,7 +40,20 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Introduction
+   :caption: Unitree G1
+
+   g1/overview
+   g1/installation
+   g1/tasks
+   g1/datasets
+   g1/data_collection
+   g1/dataset_processing
+   g1/evaluation
+   g1/reproducibility
+
+.. toctree::
+   :maxdepth: 1
+   :caption: RoboCasa reference: introduction
 
    introduction/overview
    introduction/installation
@@ -39,14 +62,14 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Tasks
+   :caption: RoboCasa reference: tasks
 
    tasks/atomic_tasks
    tasks/composite_tasks
 
 .. toctree::
    :maxdepth: 1
-   :caption: Datasets
+   :caption: RoboCasa reference: datasets
 
    datasets/datasets_overview
    datasets/using_datasets
@@ -55,7 +78,7 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Benchmarking
+   :caption: RoboCasa reference: policy learning
 
    benchmarking/benchmarking_overview
    benchmarking/policy_learning_algorithms
@@ -65,7 +88,7 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Assets
+   :caption: RoboCasa reference: assets
 
    assets/scenes
    assets/objects
@@ -73,7 +96,7 @@ Welcome to RoboCasa's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Use Cases
+   :caption: RoboCasa reference: use cases
 
    use_cases/creating_datasets
    .. use_cases/creating_tasks
@@ -99,5 +122,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

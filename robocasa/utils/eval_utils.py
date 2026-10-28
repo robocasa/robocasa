@@ -1,15 +1,13 @@
-from robocasa.utils.dataset_registry import (
-    ATOMIC_TASK_DATASETS,
-    COMPOSITE_TASK_DATASETS,
-)
-from robocasa.scripts.playback_dataset import get_env_metadata_from_dataset
-from robosuite import load_controller_config
-import os
-import robosuite
-import imageio
-import numpy as np
-from tqdm import tqdm
-from termcolor import colored
+"""Compatibility helpers for older RoboCasa callers.
+
+Model evaluation is implemented in :mod:`robocasa_eval`. The helpers below
+retain the legacy raw-RoboSuite interface; random rollouts are a demo, not a
+benchmark policy. Heavy dependencies are imported only inside these helpers.
+"""
+
+from copy import deepcopy
+from pathlib import Path
+import sys
 
 
 def create_eval_env(
@@ -31,7 +29,21 @@ def create_eval_env(
     randomize_cameras=False,
     layout_and_style_ids=((1, 1), (2, 2), (4, 4), (6, 9), (7, 10)),
 ):
-    controller_configs = load_controller_config(default_controller=controllers)
+    import robosuite
+    from robosuite.controllers import (
+        load_composite_controller_config,
+        load_part_controller_config,
+    )
+
+    robot_name = robots if isinstance(robots, str) else robots[0]
+    controller_configs = load_composite_controller_config(robot=robot_name)
+    part_controller = load_part_controller_config(default_controller=controllers)
+    for name, old_part in controller_configs["body_parts"].items():
+        if name in {"left", "right"}:
+            new_part = deepcopy(part_controller)
+            if "gripper" in old_part:
+                new_part["gripper"] = deepcopy(old_part["gripper"])
+            controller_configs["body_parts"][name] = new_part
 
     env_kwargs = dict(
         env_name=env_name,
@@ -59,6 +71,12 @@ def create_eval_env(
 
 
 def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
+    """Keep the legacy raw-RoboSuite random-action demo API for existing callers."""
+    import imageio
+    import numpy as np
+    from tqdm import tqdm
+    from termcolor import colored
+
     video_writer = None
     if video_path is not None:
         video_writer = imageio.get_writer(video_path, fps=20)
@@ -91,12 +109,14 @@ def run_random_rollouts(env, num_rollouts, num_steps, video_path=None):
     return info
 
 
+def main():
+    """Route the former evaluation script to the shared model evaluator."""
+    if __package__ in (None, ""):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from robocasa_eval.cli import main as evaluate
+
+    return evaluate()
+
+
 if __name__ == "__main__":
-    # select random task to run rollouts for
-    env_name = np.random.choice(
-        list(ATOMIC_TASK_DATASETS) + list(COMPOSITE_TASK_DATASETS)
-    )
-    env = create_eval_env(env_name=env_name)
-    info = run_random_rollouts(
-        env, num_rollouts=3, num_steps=100, video_path="/tmp/test.mp4"
-    )
+    raise SystemExit(main())

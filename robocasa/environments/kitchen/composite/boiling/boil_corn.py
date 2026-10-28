@@ -13,6 +13,11 @@ class BoilCorn(Kitchen):
         2. Place the lid on the saucepan to start boiling
     """
 
+    # Keep the semantic requirements (contact, selected burner, burner on),
+    # while tolerating small shifts caused by placing the corn and lid.
+    SAUCEPAN_BURNER_THRESHOLD = 0.15
+    LID_ON_SAUCEPAN_THRESHOLD = 0.05
+
     def __init__(self, stove_id=FixtureType.STOVE, *args, **kwargs):
         self.stove_id = stove_id
         super().__init__(*args, **kwargs)
@@ -116,14 +121,21 @@ class BoilCorn(Kitchen):
         return cfgs
 
     def _check_success(self):
-        saucepan_loc = self.stove.check_obj_location_on_stove(self, "saucepan")
+        saucepan_loc = self.stove.check_obj_location_on_stove(
+            self,
+            "saucepan",
+            threshold=self.SAUCEPAN_BURNER_THRESHOLD,
+        )
         saucepan_on_burner = saucepan_loc == self.knob
 
         corn1_in_pot = OU.check_obj_in_receptacle(self, "corn1", "saucepan")
         corn2_in_pot = OU.check_obj_in_receptacle(self, "corn2", "saucepan")
 
         lid_on_saucepan = OU.check_obj_in_receptacle(
-            self, "saucepan_auxiliary", "saucepan", th=0.02
+            self,
+            "saucepan_auxiliary",
+            "saucepan",
+            th=self.LID_ON_SAUCEPAN_THRESHOLD,
         )
 
         gripper_far = OU.gripper_obj_far(self, obj_name="saucepan_auxiliary")

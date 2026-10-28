@@ -1,0 +1,929 @@
+diff --git a/gear_sonic/scripts/pico_manager_thread_server.py b/gear_sonic/scripts/pico_manager_thread_server.py
+--- a/gear_sonic/scripts/pico_manager_thread_server.py
++++ b/gear_sonic/scripts/pico_manager_thread_server.py
+@@ -1900,6 +1900,15 @@
+     vr3pt_parent_mode = StreamMode.PLANNER
+     prev_toggle_dc = False
+     prev_toggle_da = False
++    # Continuous manager state may be conflated by consumers. Persist event
++    # counters in every sample so a one-frame button pulse remains observable
++    # after a slow simulator/exporter resumes reading.
++    manager_session_id = time.time_ns()
++    manager_message_sequence = 0
++    toggle_dc_sequence = 0
++    toggle_da_sequence = 0
++    toggle_dc_event_monotonic = 0.0
++    toggle_da_event_monotonic = 0.0
+     try:
+         prev_ax_pressed = False
+         prev_by_pressed = False
+@@ -2045,16 +2054,44 @@
+             toggle_da = toggle_da_tmp and not prev_toggle_da
+             prev_toggle_dc = toggle_dc_tmp
+             prev_toggle_da = toggle_da_tmp
++            if toggle_dc:
++                toggle_dc_sequence += 1
++                toggle_dc_event_monotonic = time.monotonic()
++            if toggle_da:
++                toggle_da_sequence += 1
++                toggle_da_event_monotonic = time.monotonic()
+             socket.send(
+                 pack_pose_message(
+                     {
+                         "stream_mode": np.array([current_mode.value], dtype=np.int32),
+                         "toggle_data_collection": np.array([toggle_dc], dtype=bool),
+                         "toggle_data_abort": np.array([toggle_da], dtype=bool),
++                        "manager_session_id": np.array(
++                            [manager_session_id], dtype=np.int64
++                        ),
++                        "manager_message_sequence": np.array(
++                            [manager_message_sequence], dtype=np.int64
++                        ),
++                        "toggle_data_collection_sequence": np.array(
++                            [toggle_dc_sequence], dtype=np.int64
++                        ),
++                        "toggle_data_abort_sequence": np.array(
++                            [toggle_da_sequence], dtype=np.int64
++                        ),
++                        "toggle_data_collection_event_monotonic": np.array(
++                            [toggle_dc_event_monotonic], dtype=np.float64
++                        ),
++                        "toggle_data_abort_event_monotonic": np.array(
++                            [toggle_da_event_monotonic], dtype=np.float64
++                        ),
++                        "manager_timestamp_monotonic": np.array(
++                            [time.monotonic()], dtype=np.float64
++                        ),
+                     },
+                     topic="manager_state",
+                 )
+             )
++            manager_message_sequence += 1
+ 
+             prev_ax_pressed = ax_pressed
+             prev_by_pressed = by_pressed
+diff --git a/gear_sonic/scripts/run_data_exporter.py b/gear_sonic/scripts/run_data_exporter.py
+--- a/gear_sonic/scripts/run_data_exporter.py
++++ b/gear_sonic/scripts/run_data_exporter.py
+@@ -5,6 +5,7 @@
+   1. Robot state  -> ZMQ SUB on ``g1_debug`` topic (port 5557, from C++ zmq_output_handler)
+   2. SMPL pose    -> ZMQ SUB on ``pose`` topic     (port 5556, from pico_manager_thread_server)
+   3. Camera       -> ZMQ/TCP via ComposedCameraClientSensor
++  4. RoboCasa task instruction -> ZMQ SUB on port 5581 (optional; CLI prompt is fallback)
+ 
+ Robot config (``script_config`` in info.json) is read from the ``robot_config``
+ ZMQ topic re-published every ~2 s by the C++ process.  If the config is not
+@@ -40,6 +41,12 @@
+ )
+ from gear_sonic.camera.composed_camera import ComposedCameraClientSensor
+ from gear_sonic.utils.data_collection.episode_state import EpisodeState
++from gear_sonic.utils.data_collection.episode_instruction_subscriber import (
++    EpisodeStartGate,
++    EpisodeTaskPromptState,
++    ZMQEpisodeInstructionSubscriber,
++    resolve_recording_command,
++)
+ from gear_sonic.utils.data_collection.keyboard_subscriber import ZMQKeyboardSubscriber
+ from gear_sonic.utils.data_collection.telemetry import Telemetry
+ from gear_sonic.utils.data_collection.text_to_speech import TextToSpeech
+@@ -49,6 +56,16 @@
+     poll_robot_config_zmq,
+ )
+ 
++SONIC_STREAM_TOPICS = ("pose", "planner", "manager_state")
++MANAGER_EVENT_SEQUENCE_FIELDS = {
++    "toggle_data_collection": "toggle_data_collection_sequence",
++    "toggle_data_abort": "toggle_data_abort_sequence",
++}
++MANAGER_EVENT_TIMESTAMP_FIELDS = {
++    "toggle_data_collection": "toggle_data_collection_event_monotonic",
++    "toggle_data_abort": "toggle_data_abort_event_monotonic",
++}
++
+ # ---------------------------------------------------------------------------
+ # Config
+ # ---------------------------------------------------------------------------
+@@ -63,7 +80,7 @@
+     """Dataset name (auto-generated if creating new)."""
+ 
+     task_prompt: str = "demo"
+-    """Language task prompt."""
++    """Fallback language task prompt when no live RoboCasa instruction is received."""
+ 
+     root_output_dir: str = "outputs"
+     """Root output directory."""
+@@ -92,6 +109,18 @@
+ 
+     state_zmq_port: int = 5557
+     """ZMQ port for robot state (same socket as robot_config topic)."""
++
++    sync_robocasa_instruction: bool = True
++    """Use RoboCasa's sampled per-episode instruction when available."""
++
++    instruction_zmq_host: str = "localhost"
++    """ZMQ host for RoboCasa episode-instruction metadata."""
++
++    instruction_zmq_port: int = 5581
++    """ZMQ port for RoboCasa episode-instruction metadata."""
++
++    instruction_wait_timeout: float = 1.0
++    """Seconds to wait before using the CLI fallback with a legacy collector."""
+ 
+     # Robot config
+     robot_config_timeout: float = 0
+@@ -212,6 +241,7 @@
+       - ``pose`` topic            -> SMPL pose (smpl_joints, body_quat_w, hand_joints, ...)
+       - ``planner`` topic         -> planner commands (vr_position, vr_orientation, ...)
+       - ``manager_state`` topic   -> current stream mode + toggle flags
++      - RoboCasa instruction      -> per-episode task label (optional)
+       - Camera client             -> ego-view images
+     """
+ 
+@@ -227,6 +257,10 @@
+         sonic_data_zmq_port: int = 5556,
+         state_zmq_host: str = "localhost",
+         state_zmq_port: int = 5557,
++        sync_robocasa_instruction: bool = True,
++        instruction_zmq_host: str = "localhost",
++        instruction_zmq_port: int = 5581,
++        instruction_wait_timeout: float = 1.0,
+     ):
+         self.text_to_speech = text_to_speech
+         self.frequency = frequency
+@@ -236,6 +270,17 @@
+ 
+         self._episode_state = EpisodeState()
+         self._keyboard_listener = ZMQKeyboardSubscriber()
++        self._task_prompt_state = EpisodeTaskPromptState(data_exporter.task)
++        self._sync_robocasa_instruction = sync_robocasa_instruction
++        self._episode_start_gate = EpisodeStartGate(instruction_wait_timeout)
++        self._instruction_listener = (
++            ZMQEpisodeInstructionSubscriber(
++                host=instruction_zmq_host,
++                port=instruction_zmq_port,
++            )
++            if sync_robocasa_instruction
++            else None
++        )
+ 
+         self._image_subscriber = ComposedCameraClientSensor(server_ip=camera_host, port=camera_port)
+ 
+@@ -249,6 +294,9 @@
+ 
+         self._manager_toggle_dc = False
+         self._manager_toggle_da = False
++        self._manager_session_id = None
++        self._manager_event_sequences = {}
++        self._manager_message_age_ms = None
+ 
+         self._state_subscriber = ZMQStateSubscriber(
+             host=state_zmq_host,
+@@ -256,23 +304,32 @@
+         )
+ 
+         self._sonic_zmq_ctx = None
+-        self._sonic_zmq_socket = None
++        self._sonic_zmq_sockets = {}
++        self._sonic_subscribed_at_monotonic = time.monotonic()
+         try:
+             self._sonic_zmq_ctx = zmq.Context()
+-            self._sonic_zmq_socket = self._sonic_zmq_ctx.socket(zmq.SUB)
+-            self._sonic_zmq_socket.connect(f"tcp://{sonic_data_zmq_host}:{sonic_data_zmq_port}")
+-            self._sonic_zmq_socket.setsockopt(zmq.RCVTIMEO, 100)
+-            self._sonic_zmq_socket.setsockopt(zmq.CONFLATE, 0)
+-            self._sonic_zmq_socket.setsockopt(zmq.RCVHWM, 20)
+-            self._sonic_zmq_socket.setsockopt_string(zmq.SUBSCRIBE, "pose")
+-            self._sonic_zmq_socket.setsockopt_string(zmq.SUBSCRIBE, "planner")
+-            self._sonic_zmq_socket.setsockopt_string(zmq.SUBSCRIBE, "manager_state")
++            endpoint = f"tcp://{sonic_data_zmq_host}:{sonic_data_zmq_port}"
++            for topic in SONIC_STREAM_TOPICS:
++                socket = self._sonic_zmq_ctx.socket(zmq.SUB)
++                # Each topic has its own socket so conflate never lets a small
++                # manager_state sample replace a complete five-frame pose packet.
++                socket.setsockopt(zmq.CONFLATE, 1)
++                socket.setsockopt(zmq.RCVHWM, 1)
++                socket.setsockopt(zmq.LINGER, 0)
++                socket.setsockopt_string(zmq.SUBSCRIBE, topic)
++                socket.connect(endpoint)
++                self._sonic_zmq_sockets[topic] = socket
+             time.sleep(0.5)
+             print(f"[Sonic] Connected to ZMQ at {sonic_data_zmq_host}:{sonic_data_zmq_port}")
+-            print("[Sonic] Subscribed to: pose, planner, manager_state")
++            print("[Sonic] Subscribed latest-only to: pose, planner, manager_state")
+         except Exception as e:
+             print(f"[Sonic] Warning: Failed to initialize ZMQ subscriber: {e}")
+-            self._sonic_zmq_socket = None
++            for socket in self._sonic_zmq_sockets.values():
++                socket.close()
++            self._sonic_zmq_sockets = {}
++            if self._sonic_zmq_ctx is not None:
++                self._sonic_zmq_ctx.term()
++                self._sonic_zmq_ctx = None
+ 
+         self.telemetry = Telemetry(window_size=100)
+         self.sonic_timing_monitor = TimingThresholdMonitor(
+@@ -307,16 +364,48 @@
+ 
+     def _check_recording_commands(self):
+         """Check keyboard + ZMQ toggle flags for recording commands."""
++        self._poll_episode_instruction()
+         key = self._keyboard_listener.read_msg()
+ 
+-        if self._manager_toggle_da:
+-            key = "x"
+-            self._manager_toggle_da = False
+-        elif self._manager_toggle_dc:
+-            key = "c"
+-            self._manager_toggle_dc = False
++        key = resolve_recording_command(
++            key,
++            manager_toggle=self._manager_toggle_dc,
++            manager_abort=self._manager_toggle_da,
++        )
++        self._manager_toggle_da = False
++        self._manager_toggle_dc = False
++
++        if self._episode_start_gate.waiting:
++            if key == "x":
++                self._episode_start_gate.cancel()
++                self._print_and_say("Cancelled pending recording start", say=False)
++                return
++            decision = self._episode_start_gate.decision(
++                self._task_prompt_state,
++                time.monotonic(),
++            )
++            if decision is not None:
++                self._begin_recording(use_live_instruction=decision == "live")
++            return
+ 
+         if key == "c":
++            if self._episode_state.get_state() == self._episode_state.IDLE:
++                if not self._sync_robocasa_instruction:
++                    self._begin_recording(use_live_instruction=False)
++                    return
++                self._episode_start_gate.request(time.monotonic())
++                decision = self._episode_start_gate.decision(
++                    self._task_prompt_state,
++                    time.monotonic(),
++                )
++                if decision is not None:
++                    self._begin_recording(use_live_instruction=decision == "live")
++                else:
++                    self._print_and_say(
++                        "Recording requested; waiting for RoboCasa start instruction",
++                        say=False,
++                    )
++                return
+             self._episode_state.change_state()
+             if self._episode_state.get_state() == self._episode_state.RECORDING:
+                 self._initial_yaw = None
+@@ -334,24 +423,63 @@
+                 self._initial_yaw = None
+                 self._print_and_say("Discarded episode", blocking=False)
+ 
++    def _poll_episode_instruction(self):
++        """Cache new metadata without changing the prompt of a recording episode."""
++        if self._instruction_listener is None:
++            return
++        message = self._instruction_listener.read_latest()
++        if message is None or not self._task_prompt_state.observe(message):
++            return
++        if message.event == "ready":
++            status = "ready"
++        elif self._episode_state.get_state() == self._episode_state.RECORDING:
++            status = "queued start"
++        else:
++            status = "start matched"
++        prompt = message.instruction or "<CLI --task-prompt fallback>"
++        print(
++            f"[EpisodeInstruction] {status}: {message.episode_id} "
++            f"attempt={message.attempt} -> {prompt}"
++        )
++
++    def _begin_recording(self, *, use_live_instruction: bool):
++        if use_live_instruction:
++            prompt, message = self._task_prompt_state.activate_start()
++        else:
++            prompt, message = self._task_prompt_state.activate_fallback()
++        self.data_exporter.task = prompt
++        if message is None:
++            source = "CLI --task-prompt (legacy/no live RoboCasa start metadata)"
++        elif message.instruction is None:
++            source = (
++                f"CLI --task-prompt (RoboCasa {message.episode_id} had no instruction)"
++            )
++        else:
++            source = f"RoboCasa {message.episode_id}"
++        self._episode_state.change_state()
++        self._initial_yaw = None
++        print(f"[EpisodeInstruction] recording task from {source}: {prompt}")
++        self._print_and_say(
++            f"Started recording {self.current_episode_index}",
++            blocking=False,
++        )
++
+     def _poll_sonic_zmq_messages(self):
+-        """Poll ZMQ for pose, planner, and manager_state messages (non-blocking)."""
+-        if self._sonic_zmq_socket is None:
++        """Read at most the latest complete packet for each SONIC topic."""
++        if not self._sonic_zmq_sockets:
+             return
+ 
+-        max_polls = 20
+-        for _ in range(max_polls):
++        handlers = {
++            "manager_state": self._handle_manager_state,
++            "planner": self._handle_planner_message,
++            "pose": self._handle_pose_message,
++        }
++        for topic, socket in self._sonic_zmq_sockets.items():
+             try:
+-                raw = self._sonic_zmq_socket.recv(zmq.NOBLOCK)
++                raw = socket.recv(zmq.NOBLOCK)
+             except zmq.Again:
+-                break
+-
+-            if raw.startswith(b"manager_state"):
+-                self._handle_manager_state(raw)
+-            elif raw.startswith(b"planner"):
+-                self._handle_planner_message(raw)
+-            elif raw.startswith(b"pose"):
+-                self._handle_pose_message(raw)
++                continue
++            handlers[topic](raw)
+ 
+     def _handle_manager_state(self, raw: bytes) -> None:
+         try:
+@@ -362,10 +490,47 @@
+         if "stream_mode" in data:
+             self.current_stream_mode = int(data["stream_mode"].flat[0])
+ 
+-        if self._extract_bool(data, "toggle_data_collection"):
+-            self._manager_toggle_dc = True
+-        if self._extract_bool(data, "toggle_data_abort"):
+-            self._manager_toggle_da = True
++        session_id = self._extract_scalar(data, "manager_session_id", int)
++        session_changed = (
++            session_id is not None
++            and self._manager_session_id is not None
++            and session_id != self._manager_session_id
++        )
++        if session_id is not None:
++            self._manager_session_id = session_id
++
++        for event_name, sequence_field in MANAGER_EVENT_SEQUENCE_FIELDS.items():
++            sequence = self._extract_scalar(data, sequence_field, int)
++            pulse = self._extract_bool(data, event_name)
++            if sequence is None:
++                triggered = pulse
++            else:
++                previous = self._manager_event_sequences.get(sequence_field)
++                if previous is None or session_changed:
++                    event_timestamp = self._extract_scalar(
++                        data, MANAGER_EVENT_TIMESTAMP_FIELDS[event_name], float
++                    )
++                    triggered = pulse or (
++                        event_timestamp is not None
++                        and event_timestamp >= self._sonic_subscribed_at_monotonic
++                    )
++                else:
++                    triggered = sequence != previous
++                self._manager_event_sequences[sequence_field] = sequence
++
++            if not triggered:
++                continue
++            if event_name == "toggle_data_collection":
++                self._manager_toggle_dc = True
++            elif event_name == "toggle_data_abort":
++                self._manager_toggle_da = True
++
++        sent_at = self._extract_scalar(data, "manager_timestamp_monotonic", float)
++        self._manager_message_age_ms = (
++            max(0.0, (time.monotonic() - sent_at) * 1000.0)
++            if sent_at is not None
++            else None
++        )
+ 
+     def _handle_planner_message(self, raw: bytes) -> None:
+         try:
+@@ -510,6 +675,20 @@
+             return bool(val.flat[0])
+         return bool(val)
+ 
++    @staticmethod
++    def _extract_scalar(data: dict, key: str, cast):
++        value = data.get(key)
++        if value is None:
++            return None
++        if isinstance(value, np.ndarray):
++            if value.size == 0:
++                return None
++            value = value.flat[0]
++        try:
++            return cast(value)
++        except (TypeError, ValueError, OverflowError):
++            return None
++
+     def _log_latency_periodic(
+         self,
+         sonic_latency_ms: float | None = None,
+@@ -520,6 +699,8 @@
+             parts = []
+             if sonic_latency_ms is not None:
+                 parts.append(f"Sonic Pose: {sonic_latency_ms:.1f}ms")
++            if self._manager_message_age_ms is not None:
++                parts.append(f"Manager: {self._manager_message_age_ms:.1f}ms")
+             if parts:
+                 print(f"[Latency] {', '.join(parts)}")
+ 
+@@ -602,6 +783,7 @@
+             "observation.state": whole_q,
+             "observation.eef_state": observation_eef_state,
+             "action.wbc": whole_action_wbc,
++            "task": self._task_prompt_state.active_prompt,
+         }
+ 
+         self._add_cpp_state_features(frame_data, proprio)
+@@ -844,7 +1026,12 @@
+             self._state_subscriber.close()
+         except Exception:
+             pass
+-        for sock in [self._sonic_zmq_socket]:
++        if self._instruction_listener is not None:
++            try:
++                self._instruction_listener.close()
++            except Exception:
++                pass
++        for sock in self._sonic_zmq_sockets.values():
+             if sock is not None:
+                 try:
+                     sock.close()
+@@ -950,6 +1137,10 @@
+         sonic_data_zmq_port=config.sonic_zmq_port,
+         state_zmq_host=config.state_zmq_host,
+         state_zmq_port=config.state_zmq_port,
++        sync_robocasa_instruction=config.sync_robocasa_instruction,
++        instruction_zmq_host=config.instruction_zmq_host,
++        instruction_zmq_port=config.instruction_zmq_port,
++        instruction_wait_timeout=config.instruction_wait_timeout,
+     )
+     data_collector.run()
+ 
+diff --git a/gear_sonic/utils/data_collection/episode_instruction_subscriber.py b/gear_sonic/utils/data_collection/episode_instruction_subscriber.py
+new file mode 100644
+--- /dev/null
++++ b/gear_sonic/utils/data_collection/episode_instruction_subscriber.py
+@@ -0,0 +1,246 @@
++"""RoboCasa per-episode instruction metadata over ZMQ."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++import json
++
++import zmq
++
++
++DEFAULT_EPISODE_INSTRUCTION_PORT = 5581
++EPISODE_INSTRUCTION_MESSAGE_TYPE = "robocasa_episode_instruction"
++EPISODE_INSTRUCTION_PROTOCOL_VERSION = 1
++
++
++def resolve_recording_command(
++    key: str | None,
++    *,
++    manager_toggle: bool,
++    manager_abort: bool,
++) -> str | None:
++    """Merge local and VR controls with deterministic abort-first priority."""
++    if manager_abort or key == "x":
++        return "x"
++    if manager_toggle or key == "c":
++        return "c"
++    return key
++
++
++@dataclass(frozen=True)
++class EpisodeInstructionMessage:
++    """Validated instruction snapshot for one sampled RoboCasa episode."""
++
++    episode_id: str
++    sequence: int
++    event: str
++    attempt: int
++    instruction: str | None
++    captured_at: float
++    sent_at: float
++
++    @property
++    def identity(self) -> tuple[str, int, str, int]:
++        return self.episode_id, self.sequence, self.event, self.attempt
++
++    @property
++    def episode_identity(self) -> tuple[str, int]:
++        return self.episode_id, self.sequence
++
++
++def decode_episode_instruction_message(raw: bytes | str) -> EpisodeInstructionMessage:
++    """Decode and validate the versioned RoboCasa instruction message."""
++    if isinstance(raw, bytes):
++        raw = raw.decode("utf-8")
++    if not isinstance(raw, str):
++        raise TypeError("episode instruction message must be bytes or str")
++
++    payload = json.loads(raw)
++    if not isinstance(payload, dict):
++        raise ValueError("episode instruction payload must be a JSON object")
++    if payload.get("type") != EPISODE_INSTRUCTION_MESSAGE_TYPE:
++        raise ValueError("unexpected episode instruction message type")
++    if payload.get("version") != EPISODE_INSTRUCTION_PROTOCOL_VERSION:
++        raise ValueError("unsupported episode instruction protocol version")
++
++    episode_id = payload.get("episode_id")
++    sequence = payload.get("sequence")
++    event = payload.get("event")
++    attempt = payload.get("attempt")
++    instruction = payload.get("instruction")
++    if not isinstance(episode_id, str) or not episode_id.strip():
++        raise ValueError("episode_id must be a non-empty string")
++    if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0:
++        raise ValueError("sequence must be a non-negative integer")
++    if event not in {"ready", "start"}:
++        raise ValueError("event must be 'ready' or 'start'")
++    if isinstance(attempt, bool) or not isinstance(attempt, int) or attempt < 0:
++        raise ValueError("attempt must be a non-negative integer")
++    if event == "ready" and attempt != 0:
++        raise ValueError("ready messages must use attempt 0")
++    if event == "start" and attempt == 0:
++        raise ValueError("start messages must use a positive attempt")
++    if instruction is not None:
++        if not isinstance(instruction, str):
++            raise ValueError("instruction must be a string or null")
++        instruction = instruction.strip() or None
++
++    try:
++        captured_at = float(payload["captured_at"])
++        sent_at = float(payload["sent_at"])
++    except (KeyError, TypeError, ValueError) as exc:
++        raise ValueError("captured_at and sent_at must be numeric") from exc
++
++    return EpisodeInstructionMessage(
++        episode_id=episode_id.strip(),
++        sequence=sequence,
++        event=event,
++        attempt=attempt,
++        instruction=instruction,
++        captured_at=captured_at,
++        sent_at=sent_at,
++    )
++
++
++class EpisodeTaskPromptState:
++    """Lock a task prompt for an episode and queue newer metadata for the next."""
++
++    def __init__(self, fallback_prompt: str):
++        if not isinstance(fallback_prompt, str):
++            raise TypeError("fallback_prompt must be a string")
++        fallback_prompt = fallback_prompt.strip()
++        self.fallback_prompt = fallback_prompt
++        self.active_prompt = fallback_prompt
++        self.active_message: EpisodeInstructionMessage | None = None
++        self.latest_message: EpisodeInstructionMessage | None = None
++        self.pending_start: EpisodeInstructionMessage | None = None
++        self._current_episode_identity: tuple[str, int] | None = None
++        self._consumed_start_identities: set[tuple[str, int, str, int]] = set()
++
++    @property
++    def has_live_metadata(self) -> bool:
++        return self.latest_message is not None
++
++    @property
++    def has_pending_start(self) -> bool:
++        return self.pending_start is not None
++
++    def observe(self, message: EpisodeInstructionMessage) -> bool:
++        if self.latest_message is not None and message.identity == self.latest_message.identity:
++            return False
++        if message.event == "ready":
++            self.latest_message = message
++            if message.episode_identity != self._current_episode_identity:
++                self._current_episode_identity = message.episode_identity
++                if (
++                    self.pending_start is not None
++                    and self.pending_start.episode_identity != message.episode_identity
++                ):
++                    self.pending_start = None
++            return True
++        if message.episode_identity != self._current_episode_identity:
++            # CONFLATE may replace a short-lived ready message with this full
++            # start state. A start is self-contained, so it can safely advance
++            # the current episode and clear any unmatched older attempt.
++            self._current_episode_identity = message.episode_identity
++            self.pending_start = None
++        self.latest_message = message
++        if message.identity in self._consumed_start_identities:
++            return False
++        self.pending_start = message
++        return True
++
++    def activate_start(self) -> tuple[str, EpisodeInstructionMessage]:
++        message = self.pending_start
++        if message is None:
++            raise RuntimeError("no pending RoboCasa start metadata")
++        self.pending_start = None
++        self.active_prompt = message.instruction or self.fallback_prompt
++        self.active_message = message
++        self._consumed_start_identities.add(message.identity)
++        return self.active_prompt, message
++
++    def activate_fallback(self) -> tuple[str, None]:
++        self.active_prompt = self.fallback_prompt
++        self.active_message = None
++        return self.active_prompt, None
++
++
++class EpisodeStartGate:
++    """Wait for start metadata, but preserve fallback for a legacy collector."""
++
++    def __init__(self, fallback_timeout: float = 1.0):
++        if fallback_timeout < 0:
++            raise ValueError("fallback_timeout must be non-negative")
++        self.fallback_timeout = float(fallback_timeout)
++        self.waiting_since: float | None = None
++
++    @property
++    def waiting(self) -> bool:
++        return self.waiting_since is not None
++
++    def request(self, now: float) -> None:
++        if not self.waiting:
++            self.waiting_since = float(now)
++
++    def cancel(self) -> None:
++        self.waiting_since = None
++
++    def decision(self, prompt_state: EpisodeTaskPromptState, now: float) -> str | None:
++        if not self.waiting:
++            return None
++        if prompt_state.has_pending_start:
++            self.cancel()
++            return "live"
++        # Once a versioned message has arrived, do not silently pair a live
++        # RoboCasa episode with the CLI fallback. The repeated start heartbeat
++        # will release this gate when the matching attempt arrives.
++        if prompt_state.has_live_metadata:
++            return None
++        assert self.waiting_since is not None
++        if float(now) - self.waiting_since >= self.fallback_timeout:
++            self.cancel()
++            return "fallback"
++        return None
++
++
++class ZMQEpisodeInstructionSubscriber:
++    """Receive the latest repeated RoboCasa episode-instruction state."""
++
++    def __init__(
++        self,
++        port: int = DEFAULT_EPISODE_INSTRUCTION_PORT,
++        host: str = "localhost",
++    ):
++        self._ctx = zmq.Context()
++        self._socket = self._ctx.socket(zmq.SUB)
++        self._socket.setsockopt_string(zmq.SUBSCRIBE, "")
++        self._socket.setsockopt(zmq.CONFLATE, 1)
++        self._socket.setsockopt(zmq.RCVTIMEO, 0)
++        self._socket.connect(f"tcp://{host}:{port}")
++        self._closed = False
++        print(f"[EpisodeInstruction] Connected to tcp://{host}:{port}")
++
++    def read_latest(self) -> EpisodeInstructionMessage | None:
++        try:
++            raw = self._socket.recv(zmq.NOBLOCK)
++        except zmq.Again:
++            return None
++        try:
++            return decode_episode_instruction_message(raw)
++        except (TypeError, UnicodeDecodeError, ValueError) as exc:
++            print(f"[EpisodeInstruction] Ignoring invalid message: {exc}")
++            return None
++
++    def close(self):
++        if self._closed:
++            return
++        self._closed = True
++        self._socket.close()
++        self._ctx.term()
++
++    def __del__(self):
++        try:
++            self.close()
++        except Exception:
++            pass
+diff --git a/gear_sonic/tests/test_episode_instruction_subscriber.py b/gear_sonic/tests/test_episode_instruction_subscriber.py
+new file mode 100644
+--- /dev/null
++++ b/gear_sonic/tests/test_episode_instruction_subscriber.py
+@@ -0,0 +1,202 @@
++import json
++
++import pytest
++
++from gear_sonic.utils.data_collection.episode_instruction_subscriber import (
++    EPISODE_INSTRUCTION_MESSAGE_TYPE,
++    EPISODE_INSTRUCTION_PROTOCOL_VERSION,
++    EpisodeStartGate,
++    EpisodeTaskPromptState,
++    decode_episode_instruction_message,
++    resolve_recording_command,
++)
++
++
++def _message(
++    episode_id: str,
++    sequence: int,
++    instruction: str | None,
++    *,
++    event: str = "ready",
++    attempt: int = 0,
++):
++    return json.dumps(
++        {
++            "type": EPISODE_INSTRUCTION_MESSAGE_TYPE,
++            "version": EPISODE_INSTRUCTION_PROTOCOL_VERSION,
++            "episode_id": episode_id,
++            "sequence": sequence,
++            "event": event,
++            "attempt": attempt,
++            "instruction": instruction,
++            "captured_at": 1.0,
++            "sent_at": 2.0,
++        }
++    )
++
++
++def test_decode_episode_instruction_message():
++    message = decode_episode_instruction_message(
++        _message("session:000001", 1, "  Pick up the cup and bowl.  ")
++    )
++
++    assert message.episode_id == "session:000001"
++    assert message.sequence == 1
++    assert message.event == "ready"
++    assert message.attempt == 0
++    assert message.instruction == "Pick up the cup and bowl."
++    assert message.episode_identity == ("session:000001", 1)
++
++
++@pytest.mark.parametrize(
++    "raw",
++    [
++        "not-json",
++        "[]",
++        json.dumps({"type": "wrong", "version": 1}),
++        _message("session", -1, "task"),
++        _message("session", 0, 123),
++        _message("session", 0, "task", event="start", attempt=0),
++        _message("session", 0, "task", event="ready", attempt=1),
++    ],
++)
++def test_decode_episode_instruction_rejects_invalid_messages(raw):
++    with pytest.raises((TypeError, ValueError, json.JSONDecodeError)):
++        decode_episode_instruction_message(raw)
++
++
++def test_task_prompt_is_locked_per_episode_and_new_prompt_is_deferred():
++    state = EpisodeTaskPromptState("CLI fallback")
++    ready_a = decode_episode_instruction_message(_message("session:000000", 0, "Task A"))
++    episode_a = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A", event="start", attempt=1)
++    )
++    ready_b = decode_episode_instruction_message(_message("session:000001", 1, "Task B"))
++    episode_b = decode_episode_instruction_message(
++        _message("session:000001", 1, "Task B", event="start", attempt=1)
++    )
++
++    assert state.observe(ready_a)
++    assert not state.has_pending_start
++    assert state.observe(episode_a)
++    assert state.activate_start() == ("Task A", episode_a)
++    assert state.active_prompt == "Task A"
++    assert not state.observe(episode_a)
++
++    assert state.observe(ready_b)
++    assert state.observe(episode_b)
++    assert state.active_prompt == "Task A"
++    assert state.activate_start() == ("Task B", episode_b)
++    assert state.active_prompt == "Task B"
++
++    assert state.activate_fallback() == ("CLI fallback", None)
++    assert not state.observe(episode_b)
++
++
++def test_new_start_attempt_can_retry_the_same_episode():
++    state = EpisodeTaskPromptState("CLI fallback")
++    ready_a = decode_episode_instruction_message(_message("session:000000", 0, "Task A"))
++    start_a = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A", event="start", attempt=1)
++    )
++    retry_a = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A", event="start", attempt=2)
++    )
++
++    assert state.observe(ready_a)
++    assert state.observe(start_a)
++    assert state.activate_start() == ("Task A", start_a)
++    assert state.observe(retry_a)
++    assert state.activate_start() == ("Task A", retry_a)
++
++
++def test_missing_live_instruction_uses_cli_fallback():
++    state = EpisodeTaskPromptState("CLI fallback")
++    no_instruction = decode_episode_instruction_message(
++        _message("session:000002", 2, None, event="start", attempt=1)
++    )
++
++    assert state.observe(no_instruction)
++    assert state.activate_start() == ("CLI fallback", no_instruction)
++
++
++def test_start_gate_waits_for_live_start_metadata_without_fallback():
++    state = EpisodeTaskPromptState("CLI fallback")
++    gate = EpisodeStartGate(fallback_timeout=1.0)
++    ready = decode_episode_instruction_message(_message("session:000000", 0, "Task A"))
++    start = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A", event="start", attempt=1)
++    )
++
++    state.observe(ready)
++    gate.request(now=0.0)
++    assert gate.decision(state, now=2.0) is None
++    state.observe(start)
++    assert gate.decision(state, now=2.1) == "live"
++
++
++def test_start_gate_falls_back_only_for_legacy_collector():
++    state = EpisodeTaskPromptState("CLI fallback")
++    gate = EpisodeStartGate(fallback_timeout=1.0)
++
++    gate.request(now=10.0)
++    assert gate.decision(state, now=10.9) is None
++    assert gate.decision(state, now=11.0) == "fallback"
++
++
++def test_new_ready_drops_unmatched_start_from_previous_episode():
++    state = EpisodeTaskPromptState("CLI fallback")
++    gate = EpisodeStartGate(fallback_timeout=1.0)
++    start_a = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A", event="start", attempt=1)
++    )
++    ready_b = decode_episode_instruction_message(
++        _message("session:000001", 1, "Task B")
++    )
++    start_b = decode_episode_instruction_message(
++        _message("session:000001", 1, "Task B", event="start", attempt=1)
++    )
++
++    assert state.observe(start_a)
++    assert state.has_pending_start
++    assert state.observe(ready_b)
++    assert not state.has_pending_start
++    gate.request(now=0.0)
++    assert gate.decision(state, now=2.0) is None
++    assert state.observe(start_b)
++    assert gate.decision(state, now=2.1) == "live"
++    assert state.activate_start() == ("Task B", start_b)
++
++
++def test_new_start_advances_episode_when_conflate_drops_ready():
++    state = EpisodeTaskPromptState("CLI fallback")
++    gate = EpisodeStartGate(fallback_timeout=1.0)
++    ready_a = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A")
++    )
++    start_a = decode_episode_instruction_message(
++        _message("session:000000", 0, "Task A", event="start", attempt=1)
++    )
++    start_b = decode_episode_instruction_message(
++        _message("session:000001", 1, "Task B", event="start", attempt=1)
++    )
++
++    assert state.observe(ready_a)
++    assert state.observe(start_a)
++    assert state.activate_start() == ("Task A", start_a)
++    gate.request(now=0.0)
++    assert state.observe(start_b)
++    assert gate.decision(state, now=0.1) == "live"
++    assert state.activate_start() == ("Task B", start_b)
++
++
++def test_recording_command_priority_is_abort_then_toggle():
++    assert resolve_recording_command(
++        "c", manager_toggle=False, manager_abort=True
++    ) == "x"
++    assert resolve_recording_command(
++        "x", manager_toggle=True, manager_abort=False
++    ) == "x"
++    assert resolve_recording_command(
++        None, manager_toggle=True, manager_abort=False
++    ) == "c"

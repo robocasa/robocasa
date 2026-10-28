@@ -12,6 +12,9 @@ class PrepareBroilingStation(Kitchen):
     """
 
     EXCLUDE_LAYOUTS = Kitchen.OVEN_EXCLUDED_LAYOUTS
+    # Leave 10 cm beyond the success radius for reset-time object settling.
+    MIN_INITIAL_XY_DISTANCE = 0.40
+    MAX_PLACEMENT_ATTEMPTS = 100
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,6 +76,25 @@ class PrepareBroilingStation(Kitchen):
         )
 
         return cfgs
+
+    def _sample_object_placements(self):
+        # Recorded episodes load their metadata before reset_from_xml_string.
+        # Preserve that reconstruction path as well as deterministic XML resets.
+        if self.deterministic_reset or "object_cfgs" in self._ep_meta:
+            return super()._sample_object_placements()
+
+        for _ in range(self.MAX_PLACEMENT_ATTEMPTS):
+            placements = super()._sample_object_placements()
+            tongs_xy = np.asarray(placements["tongs"][0])[:2]
+            plate_xy = np.asarray(placements["plate"][0])[:2]
+            if np.linalg.norm(tongs_xy - plate_xy) >= self.MIN_INITIAL_XY_DISTANCE:
+                return placements
+
+        # Let Kitchen retry scene construction instead of accepting a solved pair.
+        raise PlacementError(
+            "Cannot initialize PrepareBroilingStation with tongs and plate "
+            f"at least {self.MIN_INITIAL_XY_DISTANCE:.2f} m apart"
+        )
 
     def _check_success(self):
         gripper_far = OU.gripper_obj_far(self, obj_name="tongs")

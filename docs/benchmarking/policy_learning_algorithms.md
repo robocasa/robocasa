@@ -1,6 +1,41 @@
 # Policy Learning Algorithms
 
-We provide official support for benchmarking the following policy learning algorithms: [Diffusion Policy](https://github.com/robocasa-benchmark/diffusion_policy), [Openpi](https://github.com/robocasa-benchmark/openpi), and [GR00T](https://github.com/robocasa-benchmark/Isaac-GR00T).
+Use the [shared Unitree G1 policy evaluator](../g1/evaluation.md) to connect an
+existing inference service over HTTP, on port 8000 by default. The service
+implements the common image/state/language input and SONIC action protocol;
+the evaluator manages the task schedule, simulation budgets, and reports.
+
+```sh
+# Simulation environment: replace the interpreter and decoder paths.
+python -m robocasa_eval plan \
+  --endpoint http://127.0.0.1:8000 \
+  --sim-python ./evaluation_runs/envs/sim/bin/python \
+  --decoder-path ./evaluation_runs/models/sonic/model_decoder.onnx
+```
+
+The same three options apply to `check`, `smoke`, and `run`. For repeated use,
+set these values in [the HTTP example](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/http.json),
+then run:
+
+```sh
+python -m robocasa_eval check --config examples/evaluation/http.json
+python -m robocasa_eval smoke --config examples/evaluation/http.json --envs 4 --full-episodes
+python -m robocasa_eval run --config examples/evaluation/http.json
+python -m robocasa_eval summarize --config examples/evaluation/http.json
+```
+
+Run commands from the repository root. The default evaluation covers 50 tasks ×
+30 episodes, with 40-second atomic and 180-second composite limits measured in
+simulation time. The optional `serve` wrapper accepts a Python `module:function`
+adapter and can place multiple GPU replicas behind the same endpoint. See the
+[adapter and concurrency guide](../g1/evaluation.md#model-adapters) for input
+preprocessing, action conversion, and lifecycle requirements.
+
+The remaining sections preserve the upstream RoboCasa training references:
+[Diffusion Policy](https://github.com/robocasa-benchmark/diffusion_policy),
+[Openpi](https://github.com/robocasa-benchmark/openpi), and
+[GR00T](https://github.com/robocasa-benchmark/Isaac-GR00T). Their original training
+recipes and robot embodiments are separate from the G1 evaluation protocol.
 
 -------
 ## Diffusion Policy
@@ -18,7 +53,7 @@ pip install -e .
 
 ### Key files
 - Training: [train.py](https://github.com/robocasa-benchmark/diffusion_policy/blob/main/train.py)
-- Evaluation: [eval_robocasa.py](https://github.com/robocasa-benchmark/diffusion_policy/blob/main/eval_robocasa.py)
+- G1 evaluation: [shared policy evaluator](../g1/evaluation.md)
 
 ### Experiment workflow
 ```
@@ -27,16 +62,10 @@ python train.py \
 --config-name=train_diffusion_transformer_bs192 \
 task=robocasa/<dataset-soup>
 
-# Evaluate model
-python eval_robocasa.py \
---checkpoint <checkpoint-path> \
---task_set <task-set> \
---split <split>
-
-# Report evaluation results
-python diffusion_policy/scripts/get_eval_stats.py \
---dir <outputs-dir>
 ```
+
+After training a compatible G1 SONIC policy, implement its inference adapter
+and use the shared evaluator above.
 
 
 -------
@@ -58,7 +87,7 @@ pip install -e packages/openpi-client/
 
 ### Key files
 - Training: [scripts/train.py](https://github.com/robocasa-benchmark/openpi/blob/main/scripts/train.py)
-- Evaluation: [scripts/serve_policy.py](https://github.com/robocasa-benchmark/openpi/blob/main/scripts/serve_policy.py) and [examples/robocasa/main.py](https://github.com/robocasa-benchmark/openpi/blob/main/examples/robocasa/main.py)
+- G1 evaluation: [shared policy evaluator](../g1/evaluation.md)
 - Setting up configs: [src/openpi/training/config.py](https://github.com/robocasa-benchmark/openpi/blob/main/src/openpi/training/config.py)
 
 ### Experiment workflow
@@ -68,24 +97,11 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=1.0 python scripts/train.py \
 <dataset-soup> \
 --exp-name=<exp-name>
 
-# evaluate model
-# part a: start inference server
-python scripts/serve_policy.py \
---port=8000 policy:checkpoint \
---policy.config=<dataset-soup> \
---policy.dir=<checkpoint-path>
-
-# part b: run evals on server
-python examples/robocasa/main.py \
---args.port 8000 \
---args.task_set <task-set> \
---args.split <split> \
---args.log_dir <checkpoint-path>
-
-# report evaluation results
-python examples/robocasa/get_eval_stats.py \
---dir <checkpoint-path>
 ```
+
+A pi inference service needs a Python adapter or a bridge implementing the
+shared evaluator's HTTP contract; changing only a native server URL is not
+sufficient.
 
 -------
 ## GR00T
@@ -106,7 +122,7 @@ pip install --no-build-isolation flash-attn==2.7.1.post4
 
 ### Key files
 - Training: [scripts/gr00t_finetune.py](https://github.com/robocasa-benchmark/Isaac-GR00T/blob/main/scripts/gr00t_finetune.py)
-- Evaluation: [scripts/run_eval.py](https://github.com/robocasa-benchmark/Isaac-GR00T/blob/main/scripts/run_eval.py)
+- G1 evaluation: [shared HTTP policy evaluator](../g1/evaluation.md)
 
 ### Experiment workflow
 ```
@@ -116,13 +132,7 @@ python scripts/gr00t_finetune.py \
 --dataset_soup <dataset-soup> \
 --max_steps <num-training-steps>
 
-# evaluate model
-python scripts/run_eval.py \
---model_path <checkpoint-path> \
---task_set <task-set> \
---split <split>
-
-# report evaluation results
-python gr00t/eval/get_eval_stats.py \
---dir <checkpoint-path>
 ```
+
+The upstream training recipe above is retained as a reference. Serving its
+outputs in G1 evaluation requires the shared observation and action contract.
