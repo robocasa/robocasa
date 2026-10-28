@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-10-28",
-  "task_source_commit": "3055b5e6a9f35ff664749311de59c9653c1bb051",
+  "reviewed_on": "2026-10-29",
+  "task_source_commit": "2b5bf40398b386cf7e6ebefd7acf7ddf5c559b04",
   "task_manifest": "robocasa_eval/tasks50.json",
   "release_id": "benchmark40_v1_20261013",
   "task_manifest_sha256": "e213fed83e6ee5fd6006c64aaa608b163f99ca0eabb4de9660c95186c905abb8",
@@ -83,7 +83,7 @@
       "horizon_seconds": 180,
       "instruction_example_or_template": "Open the {left/right} drawer and place the {larger/smaller} measuring cup on the counter.",
       "success_summary": "Selected cup contacts the counter, other cup does not; far(selected cup).",
-      "g1_or_release_note": "Drawer closing is not part of this task's success predicate.",
+      "g1_or_release_note": "Drawer closing is not part of this task's success predicate. Fresh G1 MJCF uses the selected drawer-side robot anchor.",
       "class_source": {
         "path": "robocasa/environments/kitchen/composite/measuring_ingredients/choose_measuring_cup.py",
         "line": 5
@@ -201,16 +201,16 @@
       "g1_or_release_note": "SonicG1 default initial offset: 0.05 m backward in the robot frame.",
       "class_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 423
+        "line": 424
       },
       "instruction_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 439,
+        "line": 440,
         "owner": "CloseFridgeDrawer"
       },
       "success_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 492,
+        "line": 493,
         "owner": "CloseFridgeDrawer"
       }
     },
@@ -336,7 +336,7 @@
       "horizon_seconds": 180,
       "instruction_example_or_template": "Open the drawer, place both cakes inside it, then close the drawer.",
       "success_summary": "Both cakes inside the drawer and off all counters; far(each cake); drawer closed.",
-      "g1_or_release_note": "Included in the 15 seen composites. Both cakes sample a 0.15 m-deep outer-edge band.",
+      "g1_or_release_note": "Included in the 15 seen composites. Both cakes sample a 0.15 m-deep outer-edge band. Fresh G1 MJCF uses the selected drawer-side robot anchor.",
       "class_source": {
         "path": "robocasa/environments/kitchen/composite/tidying_cabinets_and_drawers/drawer_cake_sort.py",
         "line": 5
@@ -381,8 +381,8 @@
       "split": "seen",
       "horizon_seconds": 180,
       "instruction_example_or_template": "Dump the {leftovers} from the bowl so the bowl can be washed. Place the bowl in the sink after clearing the leftovers.",
-      "success_summary": "leftover1 outside bowl, bowl inside sink, and far(bowl); current code repeats the leftover1 test.",
-      "g1_or_release_note": "The second leftover is not checked by the current predicate; see implementation notes below.",
+      "success_summary": "Both leftover1 and leftover2 outside the bowl; bowl inside sink; far(bowl).",
+      "g1_or_release_note": "Both leftovers are checked independently; earlier revisions repeated the leftover1 test.",
       "class_source": {
         "path": "robocasa/environments/kitchen/composite/washing_dishes/dump_leftovers.py",
         "line": 4
@@ -474,19 +474,19 @@
       "horizon_seconds": 40,
       "instruction_example_or_template": "Open the {left/right} drawer.",
       "success_summary": "Every normalized joint position returned for the drawer is >= 0.95.",
-      "g1_or_release_note": "Target drawer side comes from episode initialization.",
+      "g1_or_release_note": "Target drawer side comes from episode initialization; fresh G1 MJCF uses the matching robot anchor.",
       "class_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 195
+        "line": 196
       },
       "instruction_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 123,
+        "line": 124,
         "owner": "ManipulateDrawer"
       },
       "success_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 172,
+        "line": 173,
         "owner": "ManipulateDrawer"
       }
     },
@@ -523,16 +523,16 @@
       "g1_or_release_note": "Targets the internal drawer, not the external door.",
       "class_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 348
+        "line": 349
       },
       "instruction_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 364,
+        "line": 365,
         "owner": "OpenFridgeDrawer"
       },
       "success_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 417,
+        "line": 418,
         "owner": "OpenFridgeDrawer"
       }
     },
@@ -776,16 +776,16 @@
       "g1_or_release_note": "SonicG1 default initial offset: 0.50 m left in the robot frame.",
       "class_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 303
+        "line": 304
       },
       "instruction_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 323,
+        "line": 324,
         "owner": "SlideDishwasherRack"
       },
       "success_source": {
         "path": "robocasa/environments/kitchen/atomic/kitchen_drawer.py",
-        "line": 339,
+        "line": 340,
         "owner": "SlideDishwasherRack"
       }
     },
@@ -1003,19 +1003,19 @@
       "horizon_seconds": 180,
       "instruction_example_or_template": "Pick up the tongs from the counter and place them near the plate next to the oven.",
       "success_summary": "Tongs and plate each contact a counter; their XY distance < 0.30 m; far(tongs).",
-      "g1_or_release_note": "Unseen composite; predicate contains no movement-history requirement.",
+      "g1_or_release_note": "Fresh samples require XY separation >= 0.40 m before settling; same-counter placement remains allowed. Success predicate unchanged.",
       "class_source": {
         "path": "robocasa/environments/kitchen/composite/broiling_fish/prepare_broiling_station.py",
         "line": 4
       },
       "instruction_source": {
         "path": "robocasa/environments/kitchen/composite/broiling_fish/prepare_broiling_station.py",
-        "line": 31,
+        "line": 34,
         "owner": "PrepareBroilingStation"
       },
       "success_source": {
         "path": "robocasa/environments/kitchen/composite/broiling_fish/prepare_broiling_station.py",
-        "line": 77,
+        "line": 99,
         "owner": "PrepareBroilingStation"
       }
     },

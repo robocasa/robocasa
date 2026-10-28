@@ -94,7 +94,7 @@ class DumpLeftovers(Kitchen):
 
     def _check_success(self):
         leftover1_off_bowl = not OU.check_obj_in_receptacle(self, "leftover1", "bowl")
-        leftover2_off_bowl = not OU.check_obj_in_receptacle(self, "leftover1", "bowl")
+        leftover2_off_bowl = not OU.check_obj_in_receptacle(self, "leftover2", "bowl")
         leftovers_dumped = leftover1_off_bowl and leftover2_off_bowl
 
         bowl_in_sink = OU.obj_inside_of(self, "bowl", self.sink)

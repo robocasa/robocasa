@@ -825,9 +825,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         object_placements = None
         for attempt in range(1):
             try:
-                object_placements = self.placement_initializer.sample(
-                    placed_objects=self.fxtr_placements
-                )
+                object_placements = self._sample_object_placements()
             except PlacementError as e:
                 if macros.VERBOSE:
                     print("Placement error for objects")
@@ -849,6 +847,10 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
 
         self._write_robot_base_pose_to_model()
         self.robot_geom_ids = None
+
+    def _sample_object_placements(self):
+        """Sample object poses before choosing the robot's placement anchor."""
+        return self.placement_initializer.sample(placed_objects=self.fxtr_placements)
 
     def _write_robot_base_pose_to_model(self):
         """Write the final task-selected base pose into the robot MJCF model."""
