@@ -29,7 +29,6 @@ STATE_DIMS = {
 }
 ACTION_DIMS = {"motion_token": 64, "left_hand_joints": 7, "right_hand_joints": 7}
 POLICY_ALIASES = {
-    "groot": "robocasa_eval.adapters.groot:create_policy",
     "http": "robocasa_eval.adapters.http:create_policy",
 }
 
@@ -174,8 +173,8 @@ def resolve_factory(factory_spec: str):
 def load_policy(config: Mapping[str, Any], *, device: str, seed: int) -> BasePolicy:
     """Lazily construct a configured policy; importing this module needs no GPU.
 
-    config must define a workspace and a policy mapping. policy.factory is a
-    built-in alias or ``importable.module:function``; policy.kwargs holds only
+    config must define a workspace and a policy mapping. policy.factory defaults
+    to ``http`` or can be ``importable.module:function``; policy.kwargs holds only
     adapter options. Every factory receives device, seed, and the resolved
     workspace explicitly. A duck-typed implementation may provide the four
     lifecycle methods without subclassing BasePolicy.
@@ -188,19 +187,22 @@ def load_policy(config: Mapping[str, Any], *, device: str, seed: int) -> BasePol
     unknown = set(policy_config) - {"factory", "kwargs", "id", "artifacts"}
     if unknown:
         raise ValueError(f"Unknown policy configuration fields: {sorted(unknown)}")
-    factory_spec = policy_config.get("factory")
+    factory_spec = policy_config.get("factory", "http")
     kwargs = policy_config.get("kwargs", {})
     if not isinstance(kwargs, Mapping) or any(not isinstance(key, str) for key in kwargs):
         raise ValueError("policy.kwargs must be a mapping with string keys.")
     reserved = {"device", "seed", "workspace"} & set(kwargs)
     if reserved:
         raise ValueError(f"policy.kwargs cannot override {', '.join(sorted(reserved))}.")
+    kwargs = dict(kwargs)
+    if isinstance(factory_spec, str) and factory_spec in {"http", "robocasa_eval.adapters.http:create_policy"}:
+        kwargs.setdefault("endpoint", "http://127.0.0.1:8000")
     workspace = config.get("workspace")
     if not isinstance(workspace, (str, Path)) or not str(workspace).strip():
         raise ValueError("An explicit config.workspace directory is required.")
     workspace = Path(workspace).expanduser().resolve()
     factory = resolve_factory(factory_spec)
-    policy = factory(device=device, seed=seed, workspace=workspace, **dict(kwargs))
+    policy = factory(device=device, seed=seed, workspace=workspace, **kwargs)
     for name in ("reset", "predict_batch", "end_episode", "close"):
         if not callable(getattr(policy, name, None)):
             close = getattr(policy, "close", None)

@@ -36,14 +36,14 @@ DEFAULTS = {
     "camera_height": 480,
     "layout_ids": -1,
     "style_ids": None,
-    "device_prefix": "cuda",
+    "device_prefix": "cpu",
     "disk_limit_bytes": 2_000_000_000_000,
     "minimum_free_bytes": 10 * 1024**3,
     "task_manifest": None,
     "policy": {
-        "factory": "robocasa_eval.examples.custom_policy:create_policy",
-        "id": "replace-with-your-model-revision",
-        "kwargs": {},
+        "factory": "http",
+        "id": None,
+        "kwargs": {"endpoint": "http://127.0.0.1:8000"},
         "artifacts": [],
     },
 }
@@ -149,11 +149,10 @@ def _positive_int(value, name, minimum=1):
 
 def policy_identity(policy, verify_files, workspace=None):
     factory = policy["factory"]
-    aliases = {"groot": "robocasa_eval.adapters.groot:create_policy",
-               "http": "robocasa_eval.adapters.http:create_policy"}
+    aliases = {"http": "robocasa_eval.adapters.http:create_policy"}
     target = aliases.get(factory, factory)
     if not re.fullmatch(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*:[A-Za-z_]\w*", target):
-        raise ValueError("policy.factory must be groot, http, or module:function")
+        raise ValueError("policy.factory must be http or module:function")
     result = {"id": policy["id"], "factory": target, "verified": verify_files}
     if not verify_files:
         return result
@@ -163,39 +162,34 @@ def policy_identity(policy, verify_files, workspace=None):
     if spec is None or spec.origin is None or not Path(spec.origin).is_file():
         raise ValueError(f"Cannot locate policy factory module: {module}")
     result["adapter_source"] = {"path": spec.origin, "sha256": sha256_file(spec.origin)}
-    paths = list(policy["artifacts"])
-    if factory == "groot" or target == aliases["groot"]:
-        checkpoint = policy["kwargs"].get("checkpoint")
-        if not checkpoint:
-            raise ValueError("GROOT adapter requires policy.kwargs.checkpoint")
-        paths.append(checkpoint)
-        from .adapters.groot import runtime_identity
-        result["runtime"] = runtime_identity(checkpoint=checkpoint, workspace=workspace,
-                                              repo=policy["kwargs"].get("repo"))
-    result["artifacts"] = [artifact_identity(p) for p in sorted(set(paths))]
+    result["artifacts"] = [artifact_identity(p) for p in sorted(set(policy["artifacts"]))]
     return result
 
 
 def normalize_policy(policy):
-    """Validate a model factory and resolve built-in model/artifact paths."""
+    """Default to the HTTP service; keep custom factory options opaque."""
     policy = copy.deepcopy(policy)
     if not isinstance(policy, dict) or set(policy) - {"factory", "id", "kwargs", "artifacts"}:
         raise ValueError("policy accepts factory, id, kwargs, artifacts")
     policy = dict(policy)
+    policy.setdefault("factory", "http")
+    policy.setdefault("id", None)
     policy.setdefault("kwargs", {})
     policy.setdefault("artifacts", [])
-    if not isinstance(policy.get("factory"), str) or not isinstance(policy.get("id"), str) or not policy["id"].strip():
-        raise ValueError("policy requires a factory and explicit immutable model id/revision")
-    if not isinstance(policy["kwargs"], dict) or set(policy["kwargs"]) & {"device", "seed", "workspace"}:
-        raise ValueError("policy.kwargs must be a mapping without device/seed/workspace overrides")
+    if not isinstance(policy["factory"], str) or not policy["factory"].strip():
+        raise ValueError("policy.factory must be http or module:function")
+    if policy["id"] is not None and (not isinstance(policy["id"], str) or not policy["id"].strip()):
+        raise ValueError("policy.id must be null or a nonempty revision string")
+    if (not isinstance(policy["kwargs"], dict)
+            or any(not isinstance(key, str) for key in policy["kwargs"])
+            or set(policy["kwargs"]) & {"device", "seed", "workspace"}):
+        raise ValueError("policy.kwargs must use string keys without device/seed/workspace overrides")
     if not isinstance(policy["artifacts"], list) or any(not isinstance(p, str) for p in policy["artifacts"]):
         raise ValueError("policy.artifacts must be a list of local file/directory paths")
     # Paths are relative to the invoking working directory, consistently with the CLI.
     policy["artifacts"] = [str(Path(p).expanduser().resolve()) for p in policy["artifacts"]]
-    if policy["factory"] in {"groot", "robocasa_eval.adapters.groot:create_policy"}:
-        for key in ("checkpoint", "repo"):
-            if policy["kwargs"].get(key):
-                policy["kwargs"][key] = str(Path(policy["kwargs"][key]).expanduser().resolve())
+    if policy["factory"] in {"http", "robocasa_eval.adapters.http:create_policy"}:
+        policy["kwargs"].setdefault("endpoint", "http://127.0.0.1:8000")
     return policy
 
 

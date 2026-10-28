@@ -25,14 +25,15 @@ instructions, and implemented success conditions.
 - [Policy evaluation](evaluation.md): connect a model server and run the benchmark.
 - [Data collection](data_collection.md): collect paired HDF5 and LeRobot recordings.
 - [Dataset processing](dataset_processing.md): validate, clean, pair, and describe new collections.
-- [Release provenance](reproducibility.md): match dependency versions and inspect the GROOT baseline.
+- [Release provenance](reproducibility.md): match simulation dependency versions and validate a deployment.
 
-For evaluation, prepare the model and simulation environments described in
-the evaluation guide using the recorded dependency revisions. The model
-opens **one port, 8000 by default**, and simulation clients connect to it.
-The same service supports multiple model replicas and concurrent episodes.
-GR00T N1.7 has a built-in adapter; other models can implement the shared
-Python adapter or HTTP protocol.
+For evaluation, connect an existing inference service to the simulator through
+**one HTTP port, 8000 by default**. Configure its endpoint, the simulation Python
+interpreter, and the SONIC decoder. The service receives images, a 46-dimensional
+robot state, and the task instruction; it returns a 64-dimensional SONIC motion
+token and two seven-joint hand targets. Implement the shared HTTP protocol, or
+use the optional Python adapter to convert model inputs and outputs. Multiple
+service replicas and concurrent simulation episodes use the same endpoint.
 
 ## Release artifacts
 
@@ -43,11 +44,9 @@ Python adapter or HTTP protocol.
 | Original HDF5 recordings | Dataset `hdf5/`, with the same task groups and paired raw episode IDs |
 | Pair mappings and checksums | Dataset `metadata/benchmark40_v1/`; selection qualifications in `DATA_NOTES.md` |
 | Evaluation and data-tool examples | [Examples index](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/README.md) |
-| Baseline results | `examples/evaluation/baseline_results.json`, including all 50 per-task results |
 
 The [download guide](datasets.md#download) provides fixed-revision commands for
-one task or the full dataset. See [GROOT results and protocol](reproducibility.md#completed-groot-baseline)
-for the baseline scores. HDF5 stores recorded simulation states and WBC
+one task or the full dataset. HDF5 stores recorded simulation states and WBC
 commands; the paired live LeRobot export contains the SONIC motion-token
 training targets. Use the documented [state and action schema](datasets.md#lerobot-schema)
 when preparing a model.
@@ -58,7 +57,7 @@ when preparing a model.
 | --- | --- |
 | `docs/g1/` | User guides, task reference, and release provenance |
 | `docs/developer/` | Collection transport and debugging details |
-| `examples/evaluation/` | Model-service and evaluator configurations, dependency pins, and baseline results |
+| `examples/evaluation/` | Inference-service and evaluator configurations and simulation dependency pins |
 | `examples/datasets/` | Release metadata configuration |
 | `examples/sonic/` | Companion collection patch for the pinned SONIC source |
 | `robocasa_eval/` | Shared model service, simulator evaluation, reporting, and release metadata tools |

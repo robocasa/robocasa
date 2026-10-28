@@ -12,7 +12,7 @@ from .evaluation import digest
 
 DEFAULTS = {
     "workspace": "./evaluation_runs", "host": "127.0.0.1", "port": 8000,
-    "devices": ["cuda:0"], "seed": 20261020, "max_batch_size": 32,
+    "devices": ["cpu"], "seed": 20261020, "max_batch_size": 32,
     "batch_wait_ms": 5, "request_timeout_seconds": 120,
     "read_timeout_seconds": 30, "max_request_bytes": 64 * 1024**2,
     "max_active_episodes": 4096, "idle_session_seconds": 600,
@@ -76,13 +76,15 @@ def service_metadata(config):
         "max_batch_size", "batch_wait_ms",
     )}
     identity["device_families"] = sorted({device.split(":", 1)[0] for device in config["devices"]})
-    return dict(protocol=PROTOCOL, model_id=config["policy"]["id"],
-                fingerprint=digest(identity), action_dims=dict(ACTION_DIMS),
-                replicas=len(config["devices"]))
+    metadata = dict(protocol=PROTOCOL, fingerprint=digest(identity),
+                    action_dims=dict(ACTION_DIMS), replicas=len(config["devices"]))
+    if config["policy"].get("id") is not None:
+        metadata["model_id"] = config["policy"]["id"]
+    return metadata
 
 
 def bind_remote_policy(config):
-    """Pin a live model service before any rollout and require the same model later."""
+    """Pin a live inference revision before rollouts, without requiring a name."""
     policy = config["policy"]
     if policy["factory"] not in {"http", "robocasa_eval.adapters.http:create_policy"}:
         return None
@@ -90,16 +92,20 @@ def bind_remote_policy(config):
     kwargs = policy["kwargs"]
     if not kwargs.get("endpoint"):
         raise ValueError("HTTP evaluation requires policy.kwargs.endpoint")
-    expected_model = kwargs.get("model_id", policy["id"])
-    if expected_model != policy["id"]:
+    explicit_id = policy.get("id")
+    expected_model = kwargs.get("model_id", explicit_id)
+    if explicit_id is not None and expected_model != explicit_id:
         raise ValueError("HTTP model_id must match policy.id")
     metadata = fetch_metadata(kwargs["endpoint"], timeout=kwargs.get("timeout", 120),
                               auth_token_env=kwargs.get("auth_token_env"))
-    if metadata["model_id"] != expected_model:
+    if expected_model is not None and metadata.get("model_id") != expected_model:
         raise ValueError("Model service identity does not match policy.id")
     if kwargs.get("fingerprint") not in (None, metadata["fingerprint"]):
-        raise ValueError("Model service fingerprint changed; use the intended model service")
+        raise ValueError("Inference service fingerprint changed; use the intended service")
     config["remote_policy_identity"] = {key: metadata[key] for key in
-        ("protocol", "model_id", "fingerprint", "action_dims")}
-    kwargs.update(model_id=expected_model, fingerprint=metadata["fingerprint"])
+        ("protocol", "fingerprint", "action_dims")}
+    if expected_model is not None:
+        config["remote_policy_identity"]["model_id"] = expected_model
+        kwargs["model_id"] = expected_model
+    kwargs["fingerprint"] = metadata["fingerprint"]
     return metadata

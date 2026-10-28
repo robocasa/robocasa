@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "verified_on": "2026-10-20",
-  "scope": "Historical G1 simulator and decoder used by the completed step100000 baseline; not a claim that the public HTTP transport was validated on that date.",
+  "scope": "Recorded G1 simulator and decoder dependency revisions. Evaluation fingerprints the actual installed runtime and connected inference service.",
   "repositories": {
     "robocasa": {
       "url": "https://github.com/robocasa/robocasa.git",
@@ -45,21 +45,5 @@
     "robocasa_revision": "1b92c3d02ca4354984fec961357db0bff7b32166",
     "nvidia_repo_id": "nvidia/PhysicalAI-Robotics-Manipulation-Objects-Kitchen-MJCF",
     "nvidia_revision": "420a04af939c34873e6839a586b70844baf28aab"
-  },
-  "groot_inference_dependencies": {
-    "source_checked_on": "2026-10-28",
-    "sdk": {
-      "url": "https://github.com/NVIDIA/Isaac-GR00T.git",
-      "commit": "ab88b50c718f6528e1df9dcbaf75865d1b604760",
-      "working_tree": "clean",
-      "embodiment": "UNITREE_G1_SONIC"
-    },
-    "backbone": {
-      "repo_id": "nvidia/Cosmos-Reason2-2B",
-      "revision": "9ce19a195e423419c349abfc86fd07178b230561",
-      "weight_file": "model.safetensors",
-      "weight_bytes": 4877470304
-    },
-    "note": "The SDK initializes the pretrained backbone before restoring fine-tuned weights. Prepare the full offline snapshot; the adapter resolves local load paths without editing the source checkpoint."
   }
 }

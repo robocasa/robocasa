@@ -1,9 +1,8 @@
 # Release provenance and validation
 
-The dataset selection, simulator, inference adapter, and task scoring form one
-reproducible experiment. Record their revisions along with the checkpoint and
-the generated run manifest. This page records dataset versions, runtime
-dependencies, the baseline protocol, and deployment verification steps.
+Record the dataset selection, simulator, inference-service fingerprint, and
+task-scoring configuration with the generated run manifest. This page records
+dataset versions, simulation dependencies, and deployment verification steps.
 
 ## Dataset versions
 
@@ -21,8 +20,8 @@ the same LeRobot files and adds their paired HDF5 recordings. See
 
 ## Historical runtime revisions
 
-These revisions were recorded during the 2026-10-20 real-model validation and
-the completed baseline. They are also available as the machine-readable
+These simulation dependency revisions were recorded on 2026-10-20. They are
+also available as the machine-readable
 [runtime version record](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/runtime_versions.json).
 
 | Component | Repository | Commit or revision |
@@ -61,55 +60,10 @@ simulator source; it predates the public model-serving CLI. The evaluator
 fingerprints the source actually imported by `sim_python`, the decoder, and
 the serving model instead of assuming they match this table.
 
-## GROOT model environment
-
-Use `NVIDIA/Isaac-GR00T` at
-`ab88b50c718f6528e1df9dcbaf75865d1b604760`, which includes
-`UNITREE_G1_SONIC`. Training implementation and model-specific
-configuration belong in that SDK; `robocasa_eval/adapters/groot.py` supplies
-the interface to this repository's shared evaluation protocol.
-
-The checkpoint uses `nvidia/Cosmos-Reason2-2B` revision
-`9ce19a195e423419c349abfc86fd07178b230561`. Its full offline snapshot includes
-the 4,877,470,304-byte `model.safetensors` file as well as processor/tokenizer
-files. These are required during SDK initialization even when the fine-tuned
-checkpoint is available. See [model environment setup](evaluation.md) for the
-workspace-local loading view and cache requirements. The fine-tuned checkpoint
-itself is a separate model artifact, not part of the dataset release.
-
-## Completed GROOT baseline
-
-The final report was updated on **2026-10-20 14:22:32 Asia/Shanghai**. It used
-the trained GROOT N1.7 Flow checkpoint at step 100,000 and the earlier direct
-adapter. The run completed all 1,500 episodes with no runtime errors.
-
-| Group | Success / planned | Success rate |
-| --- | ---: | ---: |
-| All 50 tasks | 485 / 1,500 | 32.33% |
-| Seen 40 tasks | 445 / 1,200 | 37.08% |
-| Unseen 10 composite tasks | 40 / 300 | 13.33% |
-| Seen 25 atomic tasks | 312 / 750 | 41.60% |
-| Seen 15 composite tasks | 133 / 450 | 29.56% |
-
-The [baseline result record](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/baseline_results.json)
-contains the run identity, original timestamp, all 50 per-task results, and
-the execution protocol. The model used the current ego image, current 46-D
-state, and sampled task instruction; it predicted 40 action steps and executed
-up to 20 before replanning. Its 50 Hz action clock and 200 Hz physics clock
-are separate from inference wall time.
-
-Seven successes occurred at the first physics step (0.005 simulation seconds):
-six `PrepareBroilingStation` episodes (1, 11, 18, 21, 24, 27) and
-`DumpLeftovers` episode 21. These remain included in the frozen native score.
-See [task predicate notes](tasks.md) for the state conditions; these observations
-do not establish that the model performed the requested manipulation in 5 ms.
-Interpretation notes stay in Markdown, while the original result counts and
-data remain unchanged.
-
 ## Validate a new deployment
 
 Follow [Evaluation](evaluation.md) from a new checkout and a prepared local GPU
-environment. Record the checkout commit, model ID and service fingerprint,
+environment. Record the checkout commit and service fingerprint,
 decoder hash, simulator identity, device type, and output directory.
 
 1. Run `plan` and `check` with your configured paths and a running model service.
@@ -118,6 +72,6 @@ decoder hash, simulator identity, device type, and output directory.
 4. Inspect episode errors, service logs, simulator logs, and the smoke receipt.
 5. Expand model replicas and client workers, then run the desired benchmark.
 
-Keep the verification reports with the evaluation run. Include the model
-checkpoint identifier, runtime revisions, task manifest, seeds, and scoring
-protocol when sharing benchmark results.
+Keep the verification reports with the evaluation run. Include the serving
+implementation and artifact revisions, runtime revisions, task manifest, seeds,
+and scoring protocol when sharing benchmark results.

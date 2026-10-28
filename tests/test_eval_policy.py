@@ -1,9 +1,7 @@
-"""CPU-only regression tests for public policy boundaries and model adapters."""
+"""CPU-only regression tests for public policy boundaries and HTTP transport."""
 
-from contextlib import nullcontext
-from dataclasses import FrozenInstanceError, asdict, replace
+from dataclasses import FrozenInstanceError, replace
 import json
-from pathlib import Path
 import sys
 from types import ModuleType, SimpleNamespace
 import urllib.error
@@ -17,6 +15,13 @@ from robocasa_eval.policy import (
 )
 from robocasa_eval.adapters.http import PROTOCOL, HttpPolicy, decode_value, encode_value
 from robocasa_eval.examples.custom_policy import ExamplePolicy
+
+
+@pytest.fixture
+def service_metadata(monkeypatch):
+    metadata = {"protocol": PROTOCOL, "fingerprint": "test-fingerprint", "action_dims": ACTION_DIMS}
+    monkeypatch.setattr("robocasa_eval.adapters.http.fetch_metadata", lambda *args, **kwargs: metadata)
+    return metadata
 
 
 def context(episode=0, slot=0):
@@ -134,6 +139,7 @@ def test_factory_receives_explicit_workspace_and_only_its_kwargs(tmp_path, monke
 
 
 @pytest.mark.parametrize("policy", [
+    {"factory": None}, {"factory": []},
     {"factory": "missing-colon"}, {"factory": "abc:def:ghi"},
     {"factory": "x:y", "kwargs": {"workspace": "/tmp"}},
     {"factory": "x:y", "kwargs": {"device": "cuda:3"}},
@@ -145,14 +151,14 @@ def test_factory_rejects_ambiguous_or_reserved_config(tmp_path, policy):
         load_policy({"workspace": str(tmp_path), "policy": policy}, device="cpu", seed=0)
 
 
-def test_http_factory_is_lazy_and_does_not_import_gpu_runtime(tmp_path, monkeypatch):
+def test_http_factory_is_lazy_and_does_not_import_gpu_runtime(tmp_path, monkeypatch, service_metadata):
     import robocasa_eval.policy as policy_module
     imported = []
     original = policy_module.importlib.import_module
 
     def guarded_import(name, *args, **kwargs):
         imported.append(name)
-        assert not name.startswith(("torch", "gr00t", "mujoco", "robocasa."))
+        assert not name.startswith(("torch", "mujoco", "robocasa."))
         return original(name, *args, **kwargs)
 
     monkeypatch.setattr(policy_module.importlib, "import_module", guarded_import)
@@ -164,17 +170,23 @@ def test_http_factory_is_lazy_and_does_not_import_gpu_runtime(tmp_path, monkeypa
     policy.close()
 
 
+def test_policy_factory_defaults_to_http_without_model_name(tmp_path, service_metadata):
+    policy = load_policy({"workspace": str(tmp_path), "policy": {}}, device="cpu", seed=0)
+    assert isinstance(policy, HttpPolicy)
+    assert policy._fingerprint == service_metadata["fingerprint"]
+    policy.close()
+
+
 def test_resolve_builtin_factories_does_not_load_models(monkeypatch):
     import robocasa_eval.policy as policy_module
     original = policy_module.importlib.import_module
 
     def guarded_import(name, *args, **kwargs):
-        assert not name.startswith(("torch", "gr00t", "mujoco", "robocasa."))
+        assert not name.startswith(("torch", "mujoco", "robocasa."))
         return original(name, *args, **kwargs)
 
     monkeypatch.setattr(policy_module.importlib, "import_module", guarded_import)
     assert resolve_factory("http").__module__ == "robocasa_eval.adapters.http"
-    assert resolve_factory("groot").__module__ == "robocasa_eval.adapters.groot"
 
 
 def test_http_array_roundtrip_preserves_images_noncontiguous_arrays_and_endianness():
@@ -217,6 +229,8 @@ class FakeResponse:
     status = 200
 
     def __init__(self, value=None, raw=None):
+        if isinstance(value, dict) and value.get("protocol") == PROTOCOL:
+            value = dict(value, fingerprint="test-fingerprint")
         self.raw = raw if raw is not None else json.dumps(encode_value(value)).encode()
 
     def read(self, size):
@@ -264,7 +278,7 @@ class StatefulServer:
         return FakeResponse({"protocol": PROTOCOL, "actions": results})
 
 
-def test_http_lifecycle_retains_context_when_batches_reorder_and_slot_is_reused(tmp_path):
+def test_http_lifecycle_retains_context_when_batches_reorder_and_slot_is_reused(tmp_path, service_metadata):
     client = HttpPolicy(endpoint="http://localhost/prefix", workspace=tmp_path, device="cpu", seed=1, timeout=3)
     server = StatefulServer()
     client._opener = server
@@ -292,13 +306,13 @@ def test_http_lifecycle_retains_context_when_batches_reorder_and_slot_is_reused(
 
 
 @pytest.mark.parametrize("raw", [
-    b'{"protocol":"robocasa-g1-v1","ok":true,"ok":false}',
-    b'{"protocol":"another-protocol","ok":true}',
-    b'{"protocol":"robocasa-g1-v1","ok":"true"}',
-    b'{"protocol":"robocasa-g1-v1","ok":true,"extra":true}',
+    b'{"protocol":"robocasa-g1-v1","fingerprint":"test-fingerprint","ok":true,"ok":false}',
+    b'{"protocol":"another-protocol","fingerprint":"test-fingerprint","ok":true}',
+    b'{"protocol":"robocasa-g1-v1","fingerprint":"test-fingerprint","ok":"true"}',
+    b'{"protocol":"robocasa-g1-v1","fingerprint":"test-fingerprint","ok":true,"extra":true}',
     b'not JSON',
 ])
-def test_http_requires_strict_protocol_and_acknowledgement(tmp_path, raw):
+def test_http_requires_strict_protocol_and_acknowledgement(tmp_path, raw, service_metadata):
     client = HttpPolicy(endpoint="http://localhost", workspace=tmp_path, device="cpu", seed=0)
     client._opener = SimpleNamespace(open=lambda *a, **k: FakeResponse(raw=raw))
     with pytest.raises(ValueError):
@@ -306,7 +320,7 @@ def test_http_requires_strict_protocol_and_acknowledgement(tmp_path, raw):
     assert client._contexts == {context().episode_id: context()}
 
 
-def test_http_failed_reset_can_still_clean_up_remote_history(tmp_path):
+def test_http_failed_reset_can_still_clean_up_remote_history(tmp_path, service_metadata):
     client = HttpPolicy(endpoint="http://localhost", workspace=tmp_path, device="cpu", seed=0)
     requests = []
 
@@ -325,7 +339,7 @@ def test_http_failed_reset_can_still_clean_up_remote_history(tmp_path):
     assert requests == ["http://localhost/reset", "http://localhost/end_episode"]
 
 
-def test_http_failure_does_not_expose_endpoint_or_authentication(tmp_path, monkeypatch):
+def test_http_failure_does_not_expose_endpoint_or_authentication(tmp_path, monkeypatch, service_metadata):
     secret = "private-credential"
     monkeypatch.setenv("TEST_VLA_SECRET", secret)
     client = HttpPolicy(endpoint="https://localhost/private-model", workspace=tmp_path, device="cpu", seed=0,
@@ -343,76 +357,3 @@ def test_http_failure_does_not_expose_endpoint_or_authentication(tmp_path, monke
     with pytest.raises(RuntimeError, match="request failed"):
         client.close()
     assert "Authorization" not in client._headers
-
-
-def test_groot_adapter_keeps_original_modalities_batch_layout_and_sdk_actions():
-    from robocasa_eval.adapters.groot import ACTION_HORIZON, LANGUAGE_KEY, GrootPolicy
-    received = {}
-    generated = {
-        key: np.arange(2 * ACTION_HORIZON * dim, dtype=np.float32).reshape(2, ACTION_HORIZON, dim)
-        for key, dim in ACTION_DIMS.items()
-    }
-
-    def get_action(batch):
-        received.update(batch)
-        return generated, {}
-
-    policy = GrootPolicy.__new__(GrootPolicy)
-    policy.torch = SimpleNamespace(inference_mode=nullcontext)
-    policy.policy = SimpleNamespace(get_action=get_action)
-    observations = [observation(), observation()]
-    observations[1]["language"] = "Close the oven."
-    results = policy.predict_batch(observations, [context(0), context(1)])
-    assert received["video"]["ego_view"].shape == (2, 1, 6, 8, 3)
-    assert received["video"]["ego_view"].dtype == np.uint8
-    assert received["language"][LANGUAGE_KEY] == [["Open the drawer."], ["Close the oven."]]
-    for key, dim in STATE_DIMS.items():
-        assert received["state"][key].shape == (2, 1, dim)
-        np.testing.assert_array_equal(received["state"][key][1, 0], observations[1]["state"][key])
-    for sample, output in enumerate(results):
-        for key in ACTION_DIMS:
-            np.testing.assert_array_equal(output[key], generated[key][sample])
-            assert not np.shares_memory(output[key], generated[key])
-    with pytest.raises(ValueError, match="batch length"):
-        policy.predict_batch(observations, [context()])
-    generated["motion_token"][0, -1, 0] = np.nan
-    with pytest.raises(ValueError, match="non-finite"):
-        policy.predict_batch(observations, [context(0), context(1)])
-    policy.close()
-    with pytest.raises(RuntimeError, match="closed"):
-        policy.predict_batch([], [])
-
-
-def test_groot_cache_configuration_contains_all_generated_paths(tmp_path, monkeypatch):
-    from robocasa_eval.adapters.groot import _configure_offline
-    # Restore process globals after testing; no GPU or SDK import is needed.
-    import os
-    import tempfile
-    monkeypatch.setattr(os, "environ", os.environ.copy())
-    monkeypatch.setattr(sys, "dont_write_bytecode", sys.dont_write_bytecode)
-    monkeypatch.setattr(tempfile, "tempdir", tempfile.tempdir)
-    os.environ["HF_HOME"] = "/unrelated/cache"
-    os.environ["HF_HUB_CACHE"] = "/unrelated/hub"
-    os.environ["TRANSFORMERS_CACHE"] = "/unrelated/transformers"
-    hub = _configure_offline(tmp_path.resolve())
-    assert hub == tmp_path / "cache" / "huggingface" / "hub"
-    for name in ("HF_HOME", "HF_HUB_CACHE", "HUGGINGFACE_HUB_CACHE", "TRANSFORMERS_CACHE",
-                 "HF_ASSETS_CACHE", "HF_DATASETS_CACHE", "XDG_CACHE_HOME", "TORCH_HOME", "TRITON_CACHE_DIR", "TMPDIR"):
-        assert Path(os.environ[name]).is_relative_to(tmp_path)
-        assert Path(os.environ[name]).is_dir()
-    assert os.environ["HF_HUB_OFFLINE"] == "1"
-    assert tempfile.gettempdir() == str(tmp_path / "tmp")
-
-
-def test_groot_reuses_existing_workspace_tokenizer_cache(tmp_path, monkeypatch):
-    from robocasa_eval.adapters.groot import _configure_offline
-    import os
-    import tempfile
-    monkeypatch.setattr(os, "environ", os.environ.copy())
-    monkeypatch.setattr(sys, "dont_write_bytecode", sys.dont_write_bytecode)
-    monkeypatch.setattr(tempfile, "tempdir", tempfile.tempdir)
-    prepared_cache = tmp_path / "weights" / "hub"
-    monkeypatch.setenv("HF_HUB_CACHE", str(prepared_cache))
-    assert _configure_offline(tmp_path.resolve()) == prepared_cache
-    assert os.environ["HUGGINGFACE_HUB_CACHE"] == str(prepared_cache)
-    assert os.environ["TRANSFORMERS_CACHE"] == str(prepared_cache)

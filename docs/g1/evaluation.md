@@ -7,9 +7,10 @@ and decoder revisions are recorded in [Release provenance](reproducibility.md).
 Evaluate VLA models through a shared **Unitree G1 + SONIC** simulation protocol.
 The model runs as a service on **one port, 8000 by default**; the evaluator
 connects to that service and manages tasks, simulation, timeouts, and reports.
-The model and simulator can run in separate Conda environments or on separate
-machines, following the model-server → simulation-client workflow used by the
-RoboCasa Openpi evaluation scripts.
+Connect an existing inference service by setting its endpoint, the simulation
+Python interpreter, and the SONIC decoder. The service and simulator can run
+in separate environments or on separate machines. The service is responsible
+for converting model inputs and outputs to the protocol below.
 
 The default benchmark is **50 tasks × 30 episodes = 1,500 episodes**:
 
@@ -33,31 +34,16 @@ Run the following commands from the repository root. The public entry point is
 `robocasa/utils/eval_utils.py` command also dispatches to this CLI. Its
 `create_eval_env` and `run_random_rollouts` helpers remain available.
 
-The **model environment** needs this checkout, NumPy, and the dependencies of
-the selected model adapter. For GROOT, install the compatible GR00T SDK and
-PyTorch here. The server loads the checkpoint and receives observations through
-HTTP; it does not load the simulator or SONIC decoder.
-
-For the GROOT N1.7 SDK, prepare the complete offline Cosmos backbone snapshot
-requested by the checkpoint's `processor_config.json`, including its pretrained
-weights, configuration, and tokenizer, in the model workspace's Hugging Face
-cache. This SDK initializes the backbone before restoring the fine-tuned
-checkpoint, so a tokenizer-only cache is insufficient. The adapter uses offline
-mode and does not download missing files during service startup.
-
-The adapter creates a small inference view under `workspace/cache/groot_inference/`:
-copies of the model and processor configurations refer to that local snapshot,
-while weights and normalization files are linked for reading. The original
-checkpoint stays unchanged. Each view retains `inference_view.json` with the
-source configuration hashes and resolved snapshot, avoiding tokenizer Hub
-metadata requests during offline loading.
-
 The **simulation environment** needs this checkout, RoboSuite, MuJoCo, ONNX
 Runtime, SONIC, its SDK/reset dependencies, the G1 assets, and the chosen renderer.
-Install the evaluation extra with `pip install -e '.[eval]'`. This environment
-uses the HTTP client and does not need PyTorch or the GR00T SDK. Set `sim_python`
+Install the evaluation extra with `pip install -e '.[eval]'`. Set `sim_python`
 to its Python interpreter and `decoder_path` to the compatible SONIC
 `model_decoder.onnx`.
+
+Your existing **inference environment** remains responsible for loading and
+running the model. Expose the shared HTTP protocol from that service. If it needs
+a wrapper, the optional `serve` command loads an importable Python adapter;
+prepare this checkout, NumPy, and that adapter's dependencies in its environment.
 
 With `sim_root` set, simulation workers use the pinned runtime checkouts and
 source manifest under that directory. With `sim_root: null`, they use packages
@@ -71,54 +57,59 @@ Planning needs only Python's standard library and creates no output files:
 python -m robocasa_eval plan --config examples/evaluation/http.json
 ```
 
-## Configure the model server and evaluator
+## Configure the evaluator
 
 | Example | Purpose |
 | --- | --- |
-| [`server_groot.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/server_groot.json) | Serve a GROOT N1.7 Flow checkpoint trained for G1 SONIC |
-| [`http.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/http.json) | Connect the evaluator to the model server on port 8000 |
-| [`server_custom.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/server_custom.json) | Run the custom adapter interface template as a service |
-| [`groot.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/groot.json) | Run GROOT directly inside evaluation workers |
-| [`custom.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/custom.json) | Run a custom Python adapter directly |
+| [`http.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/http.json) | Connect the evaluator to an existing inference service on port 8000 |
+| [`server_custom.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/server_custom.json) | Optionally wrap a Python adapter in the shared service |
+| [`custom.json`](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/custom.json) | Run a Python adapter directly inside evaluation workers |
 
-Create separate working configurations for the model service and evaluator:
+Create a working evaluator configuration:
 
 ```sh
 mkdir -p evaluation_runs/configs
-cp examples/evaluation/server_groot.json evaluation_runs/configs/server.json
 cp examples/evaluation/http.json evaluation_runs/configs/evaluation.json
 ```
 
-In `server.json`, set the checkpoint and GR00T repository paths and a descriptive,
-immutable `policy.id`. In `evaluation.json`, set the simulation interpreter and
-SONIC decoder paths, and use the **same `policy.id`** as the server. Its
-`policy.kwargs.endpoint` points to `http://127.0.0.1:8000` for a local service.
-On separate machines, start the server with `--host 0.0.0.0` and set the
-endpoint to `http://MODEL_SERVER_IP:8000`.
+Set `sim_python` and `decoder_path` to the prepared simulation interpreter and
+SONIC decoder. Set `policy.kwargs.endpoint` to the service address, defaulting
+to `http://127.0.0.1:8000`. The CLI can override that address:
 
-Paths in these configurations are resolved from the invoking working directory.
-Custom factory kwargs pass through unchanged; use absolute paths for custom
-model files, since evaluation workers run inside their output directory. List
-extra model files or directories in `policy.artifacts` to fingerprint their
-contents.
+```sh
+python -m robocasa_eval check --config evaluation_runs/configs/evaluation.json \
+  --endpoint http://127.0.0.1:8000
+```
 
-GROOT checkpoint files, resolved processor/tokenizer configuration, configured
-SDK source, and key inference dependency versions are fingerprinted by the
-model server. The evaluator fetches its metadata, verifies `policy.id`, and
-binds the run to the reported fingerprint. A changed serving model requires a
-new smoke test and run identity.
+You can also supply the three connection settings without a configuration file:
+
+```sh
+python -m robocasa_eval plan \
+  --endpoint http://127.0.0.1:8000 \
+  --sim-python ./evaluation_runs/envs/sim/bin/python \
+  --decoder-path ./evaluation_runs/models/sonic/model_decoder.onnx
+```
+
+Use the same settings with `check`, `smoke`, and `run`. Replace the two local
+paths with the prepared interpreter and decoder.
+
+Paths in configurations are resolved from the invoking working directory.
+The evaluator fetches service metadata and binds the run to its `fingerprint`.
+A changed serving implementation or model requires a new smoke test and run
+identity. The service should derive that fingerprint from its implementation,
+configuration, and model artifacts.
 
 Simulator fingerprints cover imported source/configuration files, lightweight
 robot and scene descriptions, and recorded package versions. Large mesh and
 texture versions remain part of the prepared simulation runtime.
 
-### Model service settings
+### Optional service-wrapper settings
 
 | Field | Meaning |
 | --- | --- |
 | `workspace` | Writable output/cache directory; default `./evaluation_runs` |
-| `policy.factory` | `groot` or an importable `module:function` |
-| `policy.id`, `policy.kwargs`, `policy.artifacts` | Model revision, constructor options, and additional files to fingerprint |
+| `policy.factory` | Importable Python `module:function` |
+| `policy.kwargs`, `policy.artifacts` | Adapter constructor options and model files/directories to fingerprint |
 | `host`, `port` | Listening address; defaults `127.0.0.1`, `8000` |
 | `devices` | Model replica devices, for example `["cuda:0", "cuda:1"]` |
 | `max_batch_size`, `batch_wait_ms` | Per-replica dynamic batching limit and collection window; defaults 32 and 5 ms |
@@ -137,8 +128,7 @@ the **same public port**.
 | Field | Meaning |
 | --- | --- |
 | `workspace`, `run_name` | Output/cache directory and name for this evaluation |
-| `policy.factory` | `http` for the service-based workflow |
-| `policy.id` | Model ID expected from the service |
+| `policy.factory` | `http`, the default transport |
 | `policy.kwargs.endpoint`, `policy.kwargs.timeout` | Service URL and request timeout |
 | `num_workers` | HTTP evaluation worker count; model GPU devices are configured on the server |
 | `envs_per_worker` | Concurrent simulations per evaluation worker |
@@ -156,38 +146,23 @@ Logs, reports, worker directories, temporary files, and caches use `workspace`.
 existing data is preserved. Custom adapters keep generated files and caches
 inside the workspace supplied to their factory.
 
-## Start the service and evaluate
+## Connect and evaluate
 
-**Terminal 1, model environment:** start one model replica on one GPU.
-
-```sh
-python -m robocasa_eval serve --config evaluation_runs/configs/server.json \
-  --host 127.0.0.1 --port 8000 --devices cuda:0
-```
-
-Keep the service running while the simulation client performs its checks and
-evaluation. Model-service stdout and stderr are mirrored to the terminal and
-`workspace/model_service/<fingerprint>/server.log`; the same directory contains
-the resolved `config.json` and `metadata.json`. The service exposes its model
-identity and replica information at `http://127.0.0.1:8000/metadata`.
-`GET /health` returns HTTP 200 with `ready: true` while the model pool is ready,
-or HTTP 503 with `ready: false` when it is unavailable.
-
-**Terminal 2, simulation environment:** plan, check, and exercise the model
-connection before running the benchmark.
+Keep the inference service running while the simulation client performs its
+checks and evaluation. From the simulation environment:
 
 ```sh
-# Resolve the schedule without loading a model or simulator.
+# Resolve the schedule without loading the simulator.
 python -m robocasa_eval plan --config evaluation_runs/configs/evaluation.json
 
-# Check the running service identity, simulation imports, decoder, and rendering.
+# Check service metadata, simulation imports, decoder, and rendering.
 python -m robocasa_eval check --config evaluation_runs/configs/evaluation.json
 
 # Short integration probe.
 python -m robocasa_eval smoke --config evaluation_runs/configs/evaluation.json \
   --envs 4 --steps 100
 
-# Full-horizon integration test, with the one-GPU service still running.
+# Full-horizon integration test with concurrent environments.
 python -m robocasa_eval smoke --config evaluation_runs/configs/evaluation.json \
   --envs 4 --full-episodes \
   --tasks CloseDishwasher OpenDrawer CoolBakedCake CupcakeCleanup
@@ -205,20 +180,41 @@ and task timeout are both completed smoke outcomes; integration errors must be
 resolved before a formal run. A short probe does not create the full-horizon
 smoke receipt.
 
-Changing the model, model device family (such as CPU to CUDA), adapter,
+Changing the serving model, model device family (such as CPU to CUDA), adapter,
 simulator runtime, decoder, cameras, task manifest, or scoring protocol requires
-a new full-horizon smoke. Service replica count
-and evaluation worker count can change after the single-GPU test while the
-model and evaluation protocol stay the same.
+a new full-horizon smoke. Service replica count and evaluation worker count can
+change after the single-GPU test while the model and evaluation protocol stay
+the same.
+
+### Optionally wrap a Python inference adapter
+
+Set `policy.factory` in `server_custom.json` to your importable `module:function`.
+Use `policy.kwargs` for constructor options and `policy.artifacts` for actual
+model files whose contents contribute to the service fingerprint. Factory kwargs
+pass through unchanged; use absolute model-file paths because workers run in
+their output directories. The supplied factory is an interface template whose
+placeholder predictions must be replaced with real inference and action conversion.
+
+```sh
+python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
+  --host 127.0.0.1 --port 8000 --devices cuda:0
+```
+
+The wrapper's stdout and stderr are mirrored to the terminal and
+`workspace/model_service/<fingerprint>/server.log`; that directory also contains
+the resolved `config.json` and `metadata.json`. The service exposes its
+fingerprint and optional replica information at `http://127.0.0.1:8000/metadata`.
+Its optional `GET /health` route returns HTTP 200 with `ready: true` when ready,
+or HTTP 503 with `ready: false` otherwise.
 
 ### Serve 16 GPUs through one port
 
-After the single-GPU test, restart the service with all 16 devices. Bash expands
-`cuda:{0..15}` into the individual device arguments:
+For the optional wrapper, restart the service with all 16 devices after the
+single-GPU test. Bash expands `cuda:{0..15}` into the individual device arguments:
 
 ```sh
 # Model environment: 16 model replicas, one listening port.
-python -m robocasa_eval serve --config evaluation_runs/configs/server.json \
+python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
   --host 127.0.0.1 --port 8000 --devices cuda:{0..15}
 ```
 
@@ -246,8 +242,8 @@ CPU, memory, network bandwidth, and model serving capacity.
 
 ### Direct model adapters
 
-For a model and evaluator in the same environment, `groot.json` and `custom.json`
-retain the direct-adapter workflow. Each evaluation worker loads its own model
+For a model and evaluator in the same environment, `custom.json` provides an
+optional direct-adapter workflow. Each evaluation worker loads its own model
 on its selected GPU. The existing `total_gpus` and `envs_per_gpu` settings remain
 available for direct mode. Apply the same `check`, full-horizon `smoke`, `run`, and
 `summarize` commands to that configuration. The shared task and action protocol
@@ -300,7 +296,8 @@ Each observation contains:
 | `state.projected_gravity` | 3 values |
 | `language` | Plain task instruction string sampled for the episode |
 
-State arrays are unnormalized `float32`. The default view is `ego_view`;
+The state contains **46 values**: 43 joint positions and 3 projected-gravity
+values. State arrays are unnormalized `float32`. The default view is `ego_view`;
 available calibrated aliases also include `left_wrist` and `wrist_view`.
 Model-specific resizing, history stacking, language tokenization, and
 normalization belong in the adapter. Privileged object state and success
@@ -327,27 +324,13 @@ decoder history and closed-loop motor observations remain inside each isolated
 simulation worker. The model-specific inference rate can vary through chunk
 length without changing the physical scoring horizon.
 
-### Built-in GROOT adapter
-
-Set `policy.factory` to `"groot"` and provide `checkpoint`, `repo`, and
-`inference_steps` in `policy.kwargs`. This adapter validates the N1.7 Flow,
-UNITREE_G1_SONIC processor, normalization statistics, and trained action
-horizon. Model files and preprocessing assets must already be available; it
-uses workspace-local caches and does not download missing assets during a run.
-
-The current GROOT adapter uses process-seeded Flow noise. Scene seeds are
-stable, but dynamic batch membership can change model RNG draws. Do not claim
-bitwise-identical trajectories across different worker/concurrency settings.
-
 ### HTTP communication protocol
 
-The built-in `serve` command implements **`robocasa-g1-v1`**. A different model
-framework can reuse this server by providing a Python factory, or implement the
-same HTTP endpoints. This follows the separate model-server / simulator-client
-workflow; its wire format is JSON HTTP rather than Openpi's native WebSocket
-format.
+An existing inference service implements **`robocasa-g1-v1`** with the four
+routes below. The optional `serve` wrapper implements the same JSON HTTP
+protocol for a Python adapter.
 
-Set evaluator `policy.factory` to `"http"`. Its kwargs are `endpoint`, optional
+HTTP is the default evaluator transport. Its kwargs are `endpoint`, optional
 `timeout` (seconds), and optional `auth_token_env`, which names an environment
 variable containing a bearer token for an authenticated service. Credentials
 remain outside configuration files.
@@ -357,11 +340,13 @@ provides these routes on the configured single port:
 
 | Method and endpoint | Request fields besides `protocol` | Response |
 | --- | --- | --- |
-| `GET /metadata` | None | `model_id`, `fingerprint`, `action_dims`, and `replicas` |
-| `GET /health` | None | Metadata plus `ready`; HTTP 200 when ready, HTTP 503 otherwise |
+| `GET /metadata` | None | `protocol`, `fingerprint`, and `action_dims`; `replicas` is optional |
 | `POST /reset` | `context` | `ok: true` |
 | `POST /predict` | `observations`, `contexts` | `actions`, in matching input order |
 | `POST /end_episode` | `context` | `ok: true` |
+
+A service may also expose `GET /health`; the optional wrapper provides this
+readiness route. It is not one of the four required protocol endpoints.
 
 Every JSON response also contains the serving model's `fingerprint`. The
 evaluator checks `/metadata` during preflight and sends

@@ -28,7 +28,7 @@ def test_plan_needs_only_stdlib_and_creates_no_files(options, tmp_path):
 import importlib.abc, sys
 class DenyFrameworks(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, *args):
-        if fullname.split('.')[0] in {'numpy', 'torch', 'mujoco', 'robocasa', 'gr00t'}:
+        if fullname.split('.')[0] in {'numpy', 'torch', 'mujoco', 'robocasa'}:
             raise AssertionError('Plan imported ' + fullname)
 sys.meta_path.insert(0, DenyFrameworks())
 from robocasa_eval.cli import main
@@ -44,6 +44,11 @@ raise SystemExit(main(['plan', '--workspace', sys.argv[1]]))
     assert report["total_episodes"] == 1500
     assert sum(report["rank_episode_counts"].values()) == 1500
     assert report["config"]["policy_identity"]["verified"] is False
+    assert report["config"]["policy"] == {
+        "factory": "http", "id": None,
+        "kwargs": {"endpoint": "http://127.0.0.1:8000"}, "artifacts": [],
+    }
+    assert report["config"]["device_prefix"] == "cpu"
     assert not destination.exists()
 
 
@@ -55,7 +60,8 @@ raise SystemExit(main(['plan', '--workspace', sys.argv[1]]))
     {"camera_names": ["ego_view", "ego_view"]}, {"camera_names": ["external"]},
     {"renderer": []}, {"layout_ids": None}, {"style_ids": True},
     {"camera_width": 4096, "camera_height": 4096, "camera_names": ["ego_view"]},
-    {"policy": {"factory": "groot"}},
+    {"policy": {"factory": ""}},
+    {"policy": {"id": ""}}, {"policy": {"id": "   "}}, {"policy": {"id": 1}},
     {"policy": {"factory": "not_a_factory", "id": "v1"}},
     {"policy": {"factory": "http", "id": "v1", "kwargs": {"device": "cuda:2"}}},
 ])
@@ -64,12 +70,27 @@ def test_reject_invalid_options(options, update):
         build(dict(options, **update))
 
 
-def test_options_are_not_mutated_when_resolving_groot_paths(options):
-    options["policy"] = {"factory": "groot", "id": "test", "kwargs": {"checkpoint": "./relative"}}
+def test_options_are_not_mutated_and_custom_factory_kwargs_stay_opaque(options):
+    options["policy"] = {
+        "factory": "some_package:create_policy", "kwargs": {"checkpoint": "./relative", "repo": "some/repo"},
+        "artifacts": ["./declared-artifact"],
+    }
     before = copy.deepcopy(options)
     config = build(options)
     assert options == before
-    assert Path(config["policy"]["kwargs"]["checkpoint"]).is_absolute()
+    assert config["policy"]["kwargs"] == before["policy"]["kwargs"]
+    assert Path(config["policy"]["artifacts"][0]).is_absolute()
+    assert config["policy"]["id"] is None
+
+
+@pytest.mark.parametrize("policy", [{}, {"kwargs": {"endpoint": "http://127.0.0.1:9000"}},
+    {"factory": "http"}, {"factory": "robocasa_eval.adapters.http:create_policy"}])
+def test_service_configuration_does_not_require_model_type_or_revision(options, policy):
+    config = build(dict(options, policy=policy))
+    assert config["policy"]["id"] is None
+    assert config["policy_identity"]["factory"] == "robocasa_eval.adapters.http:create_policy"
+    assert config["policy"]["kwargs"]["endpoint"] == policy.get("kwargs", {}).get(
+        "endpoint", "http://127.0.0.1:8000")
 
 
 def test_simulator_interpreter_retains_virtualenv_packages(options, tmp_path):
@@ -99,10 +120,11 @@ def test_declared_model_and_bytes_change_fingerprint(options, tmp_path):
     model.write_bytes(b"first-weights")
     decoder.write_bytes(b"decoder-fixture")
     options.update(decoder_path=str(decoder), sim_python=sys.executable,
-                   policy={"factory": "robocasa_eval.examples.custom_policy:create_policy",
-                           "id": "generic-model-v1", "artifacts": [str(model)]})
+                   policy={"artifacts": [str(model)]})
     first = build(options, verify_files=True)
     assert first["policy_identity"]["artifacts"][0]["sha256"] == conf.sha256_file(model)
+    assert first["policy_identity"]["id"] is None
+    assert "runtime" not in first["policy_identity"]
     model.write_bytes(b"other-weights")
     changed = build(options, verify_files=True)
     assert first["identity"] != changed["identity"]

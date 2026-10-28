@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One model per GPU, asynchronous CPU simulators, dynamic inference microbatches."""
+"""Evaluation worker with concurrent simulators and batched inference requests."""
 from __future__ import annotations
 
 import argparse

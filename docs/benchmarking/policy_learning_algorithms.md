@@ -1,38 +1,35 @@
 # Policy Learning Algorithms
 
-This checkout evaluates models using the
-[shared Unitree G1 policy evaluator](../g1/evaluation.md). Run a model server
-on port 8000 in the model environment, then connect the simulation environment
-to that port. Both sides use a common observation/action protocol, task schedule,
-simulation-time budget, success definition, and result format.
+Use the [shared Unitree G1 policy evaluator](../g1/evaluation.md) to connect an
+existing inference service over HTTP, on port 8000 by default. The service
+implements the common image/state/language input and SONIC action protocol;
+the evaluator manages the task schedule, simulation budgets, and reports.
 
 ```sh
-# Model environment: start the service and leave it running.
-python -m robocasa_eval serve --config examples/evaluation/server_groot.json \
-  --host 127.0.0.1 --port 8000 --devices cuda:0
+# Simulation environment: replace the interpreter and decoder paths.
+python -m robocasa_eval plan \
+  --endpoint http://127.0.0.1:8000 \
+  --sim-python ./evaluation_runs/envs/sim/bin/python \
+  --decoder-path ./evaluation_runs/models/sonic/model_decoder.onnx
+```
 
-# Simulation environment, in a second terminal.
-python -m robocasa_eval plan --config examples/evaluation/http.json
+The same three options apply to `check`, `smoke`, and `run`. For repeated use,
+set these values in [the HTTP example](https://github.com/Xucxname/robocasa/blob/agent/sonic-g1-followups/examples/evaluation/http.json),
+then run:
+
+```sh
 python -m robocasa_eval check --config examples/evaluation/http.json
 python -m robocasa_eval smoke --config examples/evaluation/http.json --envs 4 --full-episodes
 python -m robocasa_eval run --config examples/evaluation/http.json
 python -m robocasa_eval summarize --config examples/evaluation/http.json
 ```
 
-Fill in the model and simulator paths in the
-[example configurations](https://github.com/Xucxname/robocasa/tree/agent/sonic-g1-followups/examples/evaluation/) and set matching `policy.id`
-values before execution. Run these commands from the repository root. The
-default protocol is 50 tasks × 30 episodes, with 40 seconds for atomic tasks
-and 180 seconds for composite tasks, measured in simulation time. After a
-single-GPU full-horizon smoke, restart the service with `--devices cuda:{0..15}`
-in Bash to use 16 model GPUs behind the same port.
-
-The built-in GR00T adapter targets N1.7 Flow trained for G1 SONIC. Other VLA
-architectures, including Diffusion Policy and pi, can provide a Python factory
-to the shared server or implement the HTTP protocol. Models produce the same
-G1 SONIC action representation. The service uses JSON HTTP; existing native
-Openpi WebSocket servers need the corresponding protocol adapter. See the
-[adapter contract](../g1/evaluation.md#model-adapters).
+Run commands from the repository root. The default evaluation covers 50 tasks ×
+30 episodes, with 40-second atomic and 180-second composite limits measured in
+simulation time. The optional `serve` wrapper accepts a Python `module:function`
+adapter and can place multiple GPU replicas behind the same endpoint. See the
+[adapter and concurrency guide](../g1/evaluation.md#model-adapters) for input
+preprocessing, action conversion, and lifecycle requirements.
 
 The remaining sections preserve the upstream RoboCasa training references:
 [Diffusion Policy](https://github.com/robocasa-benchmark/diffusion_policy),
@@ -125,7 +122,7 @@ pip install --no-build-isolation flash-attn==2.7.1.post4
 
 ### Key files
 - Training: [scripts/gr00t_finetune.py](https://github.com/robocasa-benchmark/Isaac-GR00T/blob/main/scripts/gr00t_finetune.py)
-- G1 evaluation: [shared policy evaluator](../g1/evaluation.md), including the N1.7 Flow adapter
+- G1 evaluation: [shared HTTP policy evaluator](../g1/evaluation.md)
 
 ### Experiment workflow
 ```
@@ -137,5 +134,5 @@ python scripts/gr00t_finetune.py \
 
 ```
 
-The upstream N1.5 training recipe above is retained as a reference. It is not
-the N1.7 G1 checkpoint format expected by the built-in evaluation adapter.
+The upstream training recipe above is retained as a reference. Serving its
+outputs in G1 evaluation requires the shared observation and action contract.

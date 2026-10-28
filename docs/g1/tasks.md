@@ -132,7 +132,7 @@ The ten rows marked **unseen** are `CupcakeCleanup`, `PastryDisplay`, `BoilEggs`
 All ten have a 180-second horizon and use the existing environments linked in
 the table. Their English instructions and success conditions are listed above.
 
-## Implementation and historical-result notes
+## Implementation notes
 
 The documented predicates remain unchanged. In particular:
 
@@ -146,13 +146,6 @@ The documented predicates remain unchanged. In particular:
 - `LoadDishwasher` currently requires both top-rack contact and a closed door.
 - `TiltPan` counts qualifying tilt updates but
   does not separately test that the final pan angle returns near its initial angle.
-
-The historical 1,500-episode GR00T evaluation contains **seven successes on the
-first physics step: six `PrepareBroilingStation` episodes and one `DumpLeftovers`
-episode**. These remain in the original results and aggregates. This is a
-documented limitation of that run; this documentation does not remove episodes,
-change success labels, or publish a rescored baseline. See the
-[evaluation guide](evaluation.md) for the historical run and protocol.
 
 [`task_reference.json`](task_reference.json) is a machine-readable companion
 for checking the 50 names, categories, splits, horizons, and source locations.

@@ -81,9 +81,9 @@ class Pool:
 
 
 @contextmanager
-def running_server(**options):
+def running_server(*, declared_metadata=None, **options):
     pool = Pool()
-    server = make_server(pool, metadata(), port=0, **options)
+    server = make_server(pool, metadata() if declared_metadata is None else declared_metadata, port=0, **options)
     thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True)
     thread.start()
     endpoint = "http://127.0.0.1:" + str(server.server_address[1])
@@ -129,6 +129,58 @@ def test_real_port_metadata_readiness_and_model_identity_handshake(tmp_path):
         assert result[0]["motion_token"].shape == (1, 64)
         policy.end_episode(context())
         policy.close()
+        assert not pool.active
+
+
+def test_anonymous_service_connects_using_only_endpoint_and_action_contract(tmp_path):
+    declared = {key: value for key, value in metadata().items() if key not in {"model_id", "replicas"}}
+    with running_server(declared_metadata=declared) as (_, pool, endpoint):
+        policy = HttpPolicy(endpoint=endpoint, workspace=tmp_path, device="cpu", seed=0, timeout=3)
+        assert policy.metadata == declared
+        assert policy._headers[FINGERPRINT_HEADER] == declared["fingerprint"]
+        policy.reset(context())
+        result = policy.predict_batch([observation()], [context()])
+        assert {key: value.shape for key, value in result[0].items()} == {
+            key: (1, dim) for key, dim in ACTION_DIMS.items()}
+        policy.end_episode(context())
+        policy.close()
+        assert [call[0] for call in pool.calls] == ["reset", "predict", "end"]
+        assert not pool.active
+
+
+@pytest.mark.parametrize("ignore_header", [False, True])
+def test_anonymous_client_refuses_changed_inference_revision(tmp_path, ignore_header):
+    declared = {key: value for key, value in metadata().items() if key != "model_id"}
+    with running_server(declared_metadata=declared) as (server, pool, endpoint):
+        policy = HttpPolicy(endpoint=endpoint, workspace=tmp_path, device="cpu", seed=0, timeout=3)
+        policy.reset(context())
+        server.metadata["fingerprint"] = "changed-inference-revision"
+        if ignore_header:
+            del policy._headers[FINGERPRINT_HEADER]
+        error_type, message = (ValueError, "response fingerprint") if ignore_header else (RuntimeError, "status 409")
+        with pytest.raises(error_type, match=message):
+            policy.predict_batch([observation()], [context()])
+        with pytest.raises(error_type, match=message):
+            policy.close()
+        assert policy._closed
+        assert [call[0] for call in pool.calls] == (["reset", "predict", "end"] if ignore_header else ["reset"])
+
+
+@pytest.mark.parametrize("shape", [(1, 63), (1, 65), (64,), (0, 64)])
+def test_anonymous_service_rejects_incompatible_action_shapes(tmp_path, shape):
+    declared = {key: value for key, value in metadata().items() if key != "model_id"}
+    with running_server(declared_metadata=declared) as (_, pool, endpoint):
+        client = HttpPolicy(endpoint=endpoint, workspace=tmp_path, device="cpu", seed=0, timeout=3)
+        client.reset(context())
+        def invalid_actions(*args):
+            result = {key: np.zeros((1, dim), dtype=np.float32) for key, dim in ACTION_DIMS.items()}
+            result["motion_token"] = np.zeros(shape, dtype=np.float32)
+            return [result]
+        pool.predict_batch = invalid_actions
+        with pytest.raises(RuntimeError, match="status 500"):
+            client.predict_batch([observation()], [context()])
+        client.end_episode(context())
+        client.close()
         assert not pool.active
 
 

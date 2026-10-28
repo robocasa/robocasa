@@ -112,6 +112,85 @@ def assert_lock_released(config):
         fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 
+@pytest.mark.parametrize("failure", [None, "shape", "revision"])
+def test_anonymous_http_service_runs_concurrent_episodes_and_reports_failures(setup_worker, monkeypatch, failure):
+    import threading
+
+    from robocasa_eval import evaluation
+    from robocasa_eval.adapters.http import PROTOCOL
+    from robocasa_eval.examples.custom_policy import ExamplePolicy
+    from robocasa_eval.policy import STATE_DIMS, load_policy
+    from robocasa_eval.serving_configuration import bind_remote_policy
+    from robocasa_eval.serving_http import make_server
+
+    config, jobs, _ = setup_worker
+    config["tasks"] = [jobs[0]["task"]]
+    requests = []
+
+    class Inference(ExamplePolicy):
+        def predict_batch(self, observations, contexts):
+            requests.append([context.episode for context in contexts])
+            actions = super().predict_batch(observations, contexts)
+            if any(context.episode >= 2 for context in contexts):
+                if failure == "shape":
+                    actions[0]["motion_token"] = np.zeros((3, 63), np.float32)
+                elif failure == "revision":
+                    server.metadata["fingerprint"] = "b" * 64
+            return actions
+
+    class ObservedSimulator(FakeSimulator):
+        def call(self, request):
+            super().call(request)
+            result = self.future.result()
+            result["observation"] = {
+                "video": {"ego_view": np.zeros((4, 5, 3), np.uint8)},
+                "state": {key: np.zeros(dim, np.float32) for key, dim in STATE_DIMS.items()},
+                "language": "Complete the task.",
+            }
+            if result.get("finished"):
+                result["success"] = self.job["episode"] % 2 == 0
+
+    pool = Inference(device="cpu", seed=7, workspace=config["workspace"], action_horizon=3)
+    server = make_server(pool, {"protocol": PROTOCOL, "fingerprint": "a" * 64,
+                                "action_dims": dict(ACTION_DIMS)}, port=0)
+    thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": .01}, daemon=True)
+    thread.start()
+    try:
+        config["policy"] = {"factory": "http", "kwargs": {
+            "endpoint": f"http://127.0.0.1:{server.server_address[1]}", "timeout": 3}}
+        bind_remote_policy(config)
+        assert "model_id" not in config["remote_policy_identity"]
+        monkeypatch.setattr(gpu_worker, "load_policy", load_policy)
+        monkeypatch.setattr(gpu_worker, "Simulator", ObservedSimulator)
+        monkeypatch.setattr(evaluation, "jobs_for", lambda _: jobs)
+        if failure == "revision":
+            with pytest.raises(RuntimeError, match="Worker cleanup failed"):
+                gpu_worker.run(config, 0, "cpu")
+        else:
+            gpu_worker.run(config, 0, "cpu")
+        report = evaluation.summarize(config)
+        group = report["groups"]["all"]
+        assert group["planned"] == 4 and group["pending"] == 0
+        assert group["success"] == (2 if failure is None else 1)
+        assert group["timeout"] == (2 if failure is None else 1)
+        assert group["error"] == (0 if failure is None else 2)
+        assert group["success_rate_planned"] == (0.5 if failure is None else 0.25)
+        assert report["scorable_complete"] is (failure is None)
+        assert any(len(batch) == 2 for batch in requests)
+        assert all(slot.closed for slot in FakeSimulator.instances)
+        assert (Path(config["output_dir"]) / "episodes.csv").is_file()
+        # Terminal results are preserved without contacting inference again.
+        count = len(requests)
+        gpu_worker.run(config, 0, "cpu")
+        assert len(requests) == count
+        assert_lock_released(config)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+        assert not thread.is_alive()
+
+
 def test_dynamic_batch_preserves_episode_history_and_short_chunks(setup_worker):
     config, jobs, policy = setup_worker
     gpu_worker.run(config, 0, "cpu")

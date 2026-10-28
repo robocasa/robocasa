@@ -36,47 +36,39 @@ Start with the [release overview](docs/g1/overview.md).
 | [Data collection](docs/g1/data_collection.md) | PICO/SONIC collection and synchronized HDF5/LeRobot recording |
 | [Data processing](docs/g1/dataset_processing.md) | Replay, validation, selection, alignment, and release tools |
 | [Policy evaluation](docs/g1/evaluation.md) | Model service, shared VLA interface, concurrent evaluation, and reports |
-| [Release provenance](docs/g1/reproducibility.md) | Runtime revisions, model dependencies, and the completed GROOT baseline |
+| [Release provenance](docs/g1/reproducibility.md) | Simulation dependency revisions and deployment validation |
 
 The [examples index](examples/README.md) lists the evaluation configurations,
 dataset release configuration, and SONIC collection patch.
 
-## Prepare the evaluation environments
+## Prepare evaluation
 
-Use separate environments for the **model service** and **simulation client**.
-The model environment needs the selected VLA's dependencies and checkpoint.
+Connect an existing inference service through HTTP. The service receives images,
+46-dimensional robot state, and the task instruction, and returns SONIC motion
+tokens plus two seven-joint hand targets. Its input preprocessing and output
+conversion must implement the [shared protocol](docs/g1/evaluation.md#http-communication-protocol).
+
 The simulation environment needs RoboSuite, MuJoCo, the G1 assets, SONIC, and
-its ONNX decoder. Install the evaluation package from this checkout with
-`python -m pip install -e '.[eval]'` in the simulation environment.
-
+its ONNX decoder. Install this checkout with
+`python -m pip install -e '.[eval]'` in that environment.
 The SonicG1-compatible RoboSuite dependency is
 [`Xucxname/robosuite` at `67c18a4c66fa7bca02258a8a6aee2abf29e5427f`](https://github.com/Xucxname/robosuite/tree/67c18a4c66fa7bca02258a8a6aee2abf29e5427f).
-Follow [environment preparation](docs/g1/evaluation.md#prepare-the-two-environments)
-and [runtime revisions](docs/g1/reproducibility.md) for the remaining dependency,
-decoder, and offline model-cache requirements.
+See [environment preparation](docs/g1/evaluation.md#prepare-the-two-environments)
+and [runtime revisions](docs/g1/reproducibility.md) for the remaining dependencies.
 
 ## Evaluation quickstart
 
-From the repository root, create working configurations:
+From the repository root, create a working evaluator configuration:
 
 ```sh
 mkdir -p evaluation_runs/configs
-cp examples/evaluation/server_groot.json evaluation_runs/configs/server.json
 cp examples/evaluation/http.json evaluation_runs/configs/evaluation.json
 ```
 
-Set the checkpoint and GR00T SDK paths in `server.json`; set `sim_python` and
-`decoder_path` in `evaluation.json`. Use the same `policy.id` in both files.
-The [evaluation guide](docs/g1/evaluation.md) describes all settings.
-
-Start the GROOT N1.7 model service in the model environment:
-
-```sh
-python -m robocasa_eval serve --config evaluation_runs/configs/server.json \
-  --host 127.0.0.1 --port 8000 --devices cuda:0
-```
-
-In another terminal, use the simulation environment to connect and evaluate:
+Set `sim_python` and `decoder_path` to the prepared simulator interpreter and
+SONIC decoder. Set `policy.kwargs.endpoint` to the running inference service,
+or pass `--endpoint` on the command line. The default address is
+`http://127.0.0.1:8000`.
 
 ```sh
 python -m robocasa_eval plan --config evaluation_runs/configs/evaluation.json
@@ -86,15 +78,37 @@ python -m robocasa_eval smoke --config evaluation_runs/configs/evaluation.json \
 python -m robocasa_eval run --config evaluation_runs/configs/evaluation.json
 ```
 
-The model exposes **one port**, 8000 by default. Set `--devices cuda:{0..15}`
-in Bash to serve 16 GPU replicas behind it, and configure client worker and
-environment counts to run concurrent episodes. The service batches inference
-requests. Reports, logs, and caches use the configurable `workspace`, defaulting
-to `./evaluation_runs/`; interrupted evaluations can be resumed.
+For a configuration-free invocation, pass the three settings directly:
 
-GROOT N1.7 has a built-in adapter. Other VLAs can implement the shared Python
-adapter or HTTP protocol, producing SONIC motion tokens and G1 hand joint
-targets. `plan` works without loading a model or simulator.
+```sh
+python -m robocasa_eval plan \
+  --endpoint http://127.0.0.1:8000 \
+  --sim-python ./evaluation_runs/envs/sim/bin/python \
+  --decoder-path ./evaluation_runs/models/sonic/model_decoder.onnx
+```
+
+Use the same options with `check`, `smoke`, and `run`, replacing the local paths
+with your prepared interpreter and decoder.
+
+The service uses **one port**, 8000 by default. Evaluation workers connect to the
+same endpoint for concurrent episodes. Reports, logs, and caches use the
+configurable `workspace`, defaulting to `./evaluation_runs/`; interrupted runs
+can be resumed. `plan` resolves the schedule without loading the simulator.
+
+If a model needs an HTTP wrapper, implement the `module:function` factory shown
+in [the adapter guide](docs/g1/evaluation.md#model-adapters) and configure
+`examples/evaluation/server_custom.json`. The optional `serve` command supports
+batching and multiple GPU replicas behind one endpoint:
+
+```sh
+python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
+  --host 127.0.0.1 --port 8000 --devices cuda:0
+```
+
+Replace the example factory's placeholder actions with the model's inference and
+action conversion before evaluation. Use `--devices cuda:{0..15}` in Bash for
+16 replicas. The [evaluation guide](docs/g1/evaluation.md) covers concurrency,
+full-horizon validation, scoring, errors, and resume behavior.
 
 ## Credits
 

@@ -9,12 +9,14 @@ import sys
 import time
 
 import numpy as np
+import pytest
 
 from robocasa_eval.adapters.http import HttpPolicy, fetch_metadata
 from robocasa_eval.policy import ACTION_DIMS, EpisodeContext, STATE_DIMS
 
 
-def test_serve_subprocess_predicts_and_stops_cleanly(tmp_path):
+@pytest.mark.parametrize("service_name", [None, "cli-interface-fixture"])
+def test_serve_subprocess_predicts_and_stops_cleanly(tmp_path, service_name):
     root = Path(__file__).resolve().parents[1]
     workspace = tmp_path / "workspace"
     workspace.mkdir()
@@ -22,12 +24,13 @@ def test_serve_subprocess_predicts_and_stops_cleanly(tmp_path):
         reservation.bind(("127.0.0.1", 0))
         port = reservation.getsockname()[1]
     config = tmp_path / "service.json"
+    policy = {"factory": "robocasa_eval.examples.custom_policy:create_policy",
+              "kwargs": {"action_horizon": 3}}
+    if service_name is not None:
+        policy["id"] = service_name
     config.write_text(json.dumps(dict(
         workspace=str(workspace), devices=["cpu"], port=port,
-        minimum_free_bytes=0, policy={
-            "factory": "robocasa_eval.examples.custom_policy:create_policy",
-            "id": "cli-interface-fixture", "kwargs": {"action_horizon": 3},
-        },
+        minimum_free_bytes=0, policy=policy,
     )))
     endpoint = f"http://127.0.0.1:{port}"
     environment = dict(os.environ, PYTHONPATH=str(root), PYTHONDONTWRITEBYTECODE="1")
@@ -47,12 +50,16 @@ def test_serve_subprocess_predicts_and_stops_cleanly(tmp_path):
                 except RuntimeError:
                     assert time.monotonic() < deadline, console.read_text()
                     time.sleep(0.05)
-            assert metadata["model_id"] == "cli-interface-fixture"
+            if service_name is None:
+                assert "model_id" not in metadata
+            else:
+                assert metadata["model_id"] == service_name
             assert metadata["replicas"] == 1
             client = HttpPolicy(
                 endpoint=endpoint, workspace=workspace, device="cpu", seed=7,
-                model_id=metadata["model_id"], fingerprint=metadata["fingerprint"],
+                model_id=service_name,
             )
+            assert client.metadata["fingerprint"] == metadata["fingerprint"]
             context = EpisodeContext("cli-attempt-1", "PickPlace", 0, 7, 0, 0)
             try:
                 client.reset(context)

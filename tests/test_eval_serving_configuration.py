@@ -30,6 +30,15 @@ def test_model_service_configuration_needs_no_simulator_assets(service_options):
     assert metadata["action_dims"] == dict(motion_token=64, left_hand_joints=7, right_hand_joints=7)
 
 
+def test_service_without_name_publishes_revision_and_contract(service_options):
+    del service_options["policy"]["id"]
+    config = serving.build_server_config(service_options, verify_files=True)
+    metadata = serving.service_metadata(config)
+    assert "model_id" not in metadata
+    assert len(metadata["fingerprint"]) == 64
+    assert metadata["action_dims"] == dict(motion_token=64, left_hand_joints=7, right_hand_joints=7)
+
+
 @pytest.mark.parametrize("update", [{"port": 0}, {"port": 65536}, {"port": True},
     {"devices": []}, {"devices": ["cuda:0", "cuda:0"]}, {"devices": [[]]},
     {"devices": ["cuda"]}, {"request_timeout_seconds": float("nan")},
@@ -98,6 +107,34 @@ def test_remote_model_mismatch_fails_before_rollouts(service_options, tmp_path, 
     metadata = serving.service_metadata(serving.build_server_config(service_options))
     metadata["model_id"] = "wrong-model"
     monkeypatch.setattr(http, "fetch_metadata", lambda *a, **kw: metadata)
+    with pytest.raises(ValueError, match="does not match"):
+        serving.bind_remote_policy(client_config(tmp_path))
+
+
+def test_anonymous_remote_service_binds_revision_without_model_names(service_options, tmp_path, monkeypatch):
+    from robocasa_eval.adapters import http
+    del service_options["policy"]["id"]
+    metadata = serving.service_metadata(serving.build_server_config(service_options))
+    metadata.pop("replicas")
+    monkeypatch.setattr(http, "fetch_metadata", lambda *a, **kw: dict(metadata))
+    config = configuration.build_config(dict(workspace=str(tmp_path / "client"),
+        policy={"kwargs": {"endpoint": "http://127.0.0.1:8000"}}), environment={})[0]
+    serving.bind_remote_policy(config)
+    assert config["policy"]["kwargs"]["fingerprint"] == metadata["fingerprint"]
+    assert "model_id" not in config["policy"]["kwargs"]
+    assert "model_id" not in config["remote_policy_identity"]
+    expected_gate = configuration.gate_protocol(config)
+    metadata["fingerprint"] = "new-inference-revision"
+    with pytest.raises(ValueError, match="fingerprint changed"):
+        serving.bind_remote_policy(config)
+    assert configuration.gate_protocol(config) == expected_gate
+
+
+def test_explicit_legacy_id_rejected_when_service_has_no_name(service_options, tmp_path, monkeypatch):
+    from robocasa_eval.adapters import http
+    del service_options["policy"]["id"]
+    metadata = serving.service_metadata(serving.build_server_config(service_options))
+    monkeypatch.setattr(http, "fetch_metadata", lambda *a, **kw: dict(metadata))
     with pytest.raises(ValueError, match="does not match"):
         serving.bind_remote_policy(client_config(tmp_path))
 

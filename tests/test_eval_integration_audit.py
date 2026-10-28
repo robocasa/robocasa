@@ -1,156 +1,34 @@
-"""Independent provenance and multi-node integration regressions; no GPU required."""
+"""Generic artifact provenance and multi-node regressions; no GPU required."""
 
-import copy
-import json
-import os
-from pathlib import Path
 import sys
 
 import pytest
 
 from robocasa_eval import configuration as conf, evaluation
-from robocasa_eval.adapters.groot import runtime_identity
 
 
-@pytest.fixture
-def groot_assets(tmp_path):
-    workspace = tmp_path / "workspace"
-    checkpoint = tmp_path / "readonly-checkpoint"
-    checkpoint.mkdir()
-    (checkpoint / "config.json").write_text(json.dumps({
-        "model_type": "Gr00tN1d7", "action_horizon": 40, "num_inference_timesteps": 4,
-    }))
-    (checkpoint / "model.safetensors").write_bytes(b"test-only-complete-checkpoint")
-    model_name = "test/processor"
-    (checkpoint / "processor_config.json").write_text(json.dumps({
-        "processor_kwargs": {"model_name": model_name},
-    }))
-    hub = workspace / "weights" / "hub"
-    cache_repo = hub / "models--test--processor"
-    revision = "a" * 40
-    snapshot = cache_repo / "snapshots" / revision
-    snapshot.mkdir(parents=True)
-    (cache_repo / "refs").mkdir()
-    (cache_repo / "refs" / "main").write_text(revision)
-    for name in ("config.json", "tokenizer_config.json", "tokenizer.json"):
-        (snapshot / name).write_text(json.dumps({"fixture": name, "version": 1}))
-    (snapshot / "chat_template.jinja").write_text("{{ messages }}")
-    (snapshot / "processing_custom.py").write_text("PROCESSOR_VERSION = 1\n")
-    (snapshot / "vocabulary.bin").write_bytes(b"binary-tokenizer-vocabulary")
-    (snapshot / "pytorch_model-00001-of-00004.bin").write_bytes(b"unused-base-weights")
-    sdk = tmp_path / "sdk"
-    package = sdk / "gr00t"
-    (package / "policy").mkdir(parents=True)
-    (package / "__init__.py").write_text("raise AssertionError('provenance imported the SDK')\n")
-    (package / "policy" / "gr00t_policy.py").write_text("MODEL_IMPLEMENTATION_VERSION = 1\n")
+def test_declared_artifact_change_invalidates_real_smoke_receipt(tmp_path):
+    artifact = tmp_path / "processor.json"
+    artifact.write_text('{"scale": 1}')
     decoder = tmp_path / "decoder.onnx"
-    decoder.write_bytes(b"test-only-decoder")
-    return dict(workspace=workspace, checkpoint=checkpoint, repo=sdk,
-                snapshot=snapshot, cache_repo=cache_repo, decoder=decoder)
-
-
-def identity(assets, *, repo=True):
-    return runtime_identity(
-        checkpoint=assets["checkpoint"], workspace=assets["workspace"],
-        repo=assets["repo"] if repo else None,
-    )
-
-
-def build_groot_config(assets):
-    config, _ = conf.build_config({
-        "workspace": str(assets["workspace"]), "envs_per_gpu": 2,
-        "decoder_path": str(assets["decoder"]), "sim_python": sys.executable,
-        "policy": {"factory": "groot", "id": "groot-audit-v1", "kwargs": {
-            "checkpoint": str(assets["checkpoint"]), "repo": str(assets["repo"]),
-        }},
-    }, verify_files=True, environment={})
-    return config
-
-
-def test_groot_provenance_uses_actual_cache_and_does_not_import_or_write(groot_assets):
-    before_environment = dict(os.environ)
-    before_files = sorted(str(p) for p in groot_assets["workspace"].rglob("*"))
-    data = identity(groot_assets)
-    processor = data["processor"]
-    assert processor["snapshot"] == str(groot_assets["snapshot"])
-    assert processor["revision"] == "a" * 40
-    assert {"config.json", "tokenizer_config.json", "tokenizer.json", "chat_template.jinja",
-            "processing_custom.py", "vocabulary.bin"} <= set(processor["files"])
-    assert "pytorch_model-00001-of-00004.bin" not in processor["files"]
-    assert data["implementation"]["source_files"] >= 2
-    assert dict(os.environ) == before_environment
-    assert sorted(str(p) for p in groot_assets["workspace"].rglob("*")) == before_files
-
-
-@pytest.mark.parametrize("filename", ["tokenizer.json", "chat_template.jinja", "processing_custom.py", "vocabulary.bin"])
-def test_actual_processor_assets_are_content_fingerprinted(groot_assets, filename):
-    before = identity(groot_assets)
-    (groot_assets["snapshot"] / filename).write_bytes(b"new processor content")
-    after = identity(groot_assets)
-    assert before["processor"]["sha256"] != after["processor"]["sha256"]
-    assert before["implementation"] == after["implementation"]
-
-
-def test_moving_processor_main_reference_invalidates_provenance(groot_assets):
-    import shutil
-    before = identity(groot_assets)
-    new_snapshot = groot_assets["snapshot"].parent / ("b" * 40)
-    shutil.copytree(groot_assets["snapshot"], new_snapshot)
-    (groot_assets["cache_repo"] / "refs" / "main").write_text("b" * 40)
-    after = identity(groot_assets)
-    assert before["processor"]["sha256"] == after["processor"]["sha256"]
-    assert before != after
-    assert after["processor"]["revision"] == "b" * 40
-
-
-def test_installed_groot_source_is_hashed_without_importing_package(groot_assets, monkeypatch):
-    monkeypatch.syspath_prepend(str(groot_assets["repo"]))
-    monkeypatch.delitem(sys.modules, "gr00t", raising=False)
-    before = identity(groot_assets, repo=False)
-    assert "gr00t" not in sys.modules
-    (groot_assets["repo"] / "gr00t" / "policy" / "gr00t_policy.py").write_text("MODEL_IMPLEMENTATION_VERSION = 2\n")
-    after = identity(groot_assets, repo=False)
-    assert before["implementation"]["source_sha256"] != after["implementation"]["source_sha256"]
-    assert "gr00t" not in sys.modules
-
-
-def test_groot_processor_change_invalidates_real_smoke_receipt(groot_assets):
-    original = build_groot_config(groot_assets)
-    receipt = evaluation.smoke_receipt_path(original)
-    evaluation.atomic_json(receipt, {
+    decoder.write_bytes(b"decoder-fixture")
+    options = {
+        "workspace": str(tmp_path / "workspace"), "envs_per_gpu": 2,
+        "decoder_path": str(decoder), "sim_python": sys.executable,
+        "policy": {"artifacts": [str(artifact)]},
+    }
+    original, _ = conf.build_config(options, verify_files=True, environment={})
+    evaluation.atomic_json(evaluation.smoke_receipt_path(original), {
         "status": "passed", "full_horizons": True,
         "protocol": conf.gate_protocol(original), "tested_environment_count": 4,
         "tested_categories": ["atomic", "composite"],
     })
     assert evaluation.require_smoke(original)["status"] == "passed"
-    (groot_assets["snapshot"] / "tokenizer.json").write_text('{"changed": true}')
-    changed = build_groot_config(groot_assets)
+    artifact.write_text('{"scale": 2}')
+    changed, _ = conf.build_config(options, verify_files=True, environment={})
     assert changed["identity"] != original["identity"]
     with pytest.raises(ValueError, match="smoke"):
         evaluation.require_smoke(changed)
-
-
-def test_model_dependency_versions_invalidate_gate_without_framework_import(groot_assets, monkeypatch):
-    import importlib.metadata
-    versions = {"numpy": "2.2.5", "torch": "2.7.0", "transformers": "4.56.0"}
-
-    def metadata_version(name):
-        if name not in versions:
-            raise importlib.metadata.PackageNotFoundError(name)
-        return versions[name]
-
-    monkeypatch.setattr(importlib.metadata, "version", metadata_version)
-    before = build_groot_config(groot_assets)
-    runtime = before["policy_identity"]["runtime"]
-    assert runtime["versions"] == {
-        "python": sys.version, "numpy": "2.2.5", "torch": "2.7.0",
-        "transformers": "4.56.0", "tokenizers": None, "accelerate": None,
-        "safetensors": None, "huggingface_hub": None,
-    }
-    versions["transformers"] = "4.57.0"
-    after = build_groot_config(groot_assets)
-    assert before["identity"] != after["identity"]
-    assert conf.gate_protocol(before) != conf.gate_protocol(after)
 
 
 def test_artifact_identity_covers_nested_directory_symlinks(tmp_path):

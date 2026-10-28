@@ -1,10 +1,11 @@
 """HTTP transport for the RoboCasa G1 policy protocol (version 1).
 
-This is a small project-specific JSON protocol, not an OpenPI or GR00T server
-protocol. Implement a server shim to use an existing model service.
+This JSON protocol connects an inference service to the simulator independently
+of the service's model architecture or inference framework.
 
 The model opens one HTTP port; evaluation clients connect to that port. GET
-``/metadata`` identifies the loaded model, and ``/health`` reports readiness.
+``/metadata`` describes the action contract and inference revision;
+``/health`` reports readiness.
 POST requests use Content-Type application/json. Every request and response
 contains ``"protocol": "robocasa-g1-v1"``. Endpoint suffixes are:
 
@@ -13,9 +14,9 @@ contains ``"protocol": "robocasa-g1-v1"``. Endpoint suffixes are:
   {protocol, fingerprint, actions: [...]}, with actions in the same order as contexts.
 * /end_episode: request {protocol, context}; response {protocol, fingerprint, ok: true}.
 
-Clients verified against /metadata send X-Robocasa-Model-Fingerprint on each
-request and verify the same fingerprint in each response. Legacy clients that
-omit an expected model identity can still communicate with unextended v1 peers.
+Clients read /metadata automatically, send X-Robocasa-Model-Fingerprint on each
+request and verify the same fingerprint in each response. A model name is not
+required. The fingerprint must change whenever the inference behavior changes.
 
 A context is EpisodeContext serialized as an object. Servers must isolate
 history by episode_id, not batch position or GPU slot. State survives changes in
@@ -29,8 +30,8 @@ JSON numeric lists also work for action arrays. Non-finite numbers are forbidden
 Import encode_value/decode_value to implement a compatible Python server.
 
 The server returns denormalized, absolute G1 SONIC motion tokens and hand
-positions in the same thumb-first order as the local GROOT adapter. An EEF,
-Panda, or differently embodied policy requires an explicit action adapter.
+positions in thumb-first order. Services with a different native action space
+must convert their output to this simulator action contract.
 """
 
 from __future__ import annotations
@@ -191,24 +192,27 @@ def _read_response(opener, request, timeout, suffix):
 
 
 def validate_metadata(metadata):
-    """Validate the model identity published on the inference port."""
+    """Validate the inference revision and simulator action contract."""
     if not isinstance(metadata, dict) or metadata.get("protocol") != PROTOCOL:
-        raise ValueError("HTTP model metadata has an incompatible protocol.")
-    for key in ("model_id", "fingerprint"):
+        raise ValueError("HTTP service metadata has an incompatible protocol.")
+    string_fields = ["fingerprint"]
+    if "model_id" in metadata:
+        string_fields.append("model_id")
+    for key in string_fields:
         value = metadata.get(key)
         if not isinstance(value, str) or not value.strip() or any(c in value for c in "\r\n"):
-            raise ValueError(f"HTTP model metadata requires a nonempty {key}.")
+            raise ValueError(f"HTTP service metadata requires a nonempty {key}.")
     dims = metadata.get("action_dims")
     if not isinstance(dims, dict) or dims != ACTION_DIMS or any(type(v) is not int for v in dims.values()):
-        raise ValueError("HTTP model metadata has incompatible G1 action dimensions.")
+        raise ValueError("HTTP service metadata has incompatible G1 action dimensions.")
     replicas = metadata.get("replicas")
-    if type(replicas) is not int or replicas < 1:
-        raise ValueError("HTTP model metadata replicas must be a positive integer.")
+    if "replicas" in metadata and (type(replicas) is not int or replicas < 1):
+        raise ValueError("HTTP service metadata replicas must be a positive integer.")
     return metadata
 
 
 def fetch_metadata(endpoint, *, timeout=120, auth_token_env=None):
-    """Read the serving model identity without resetting or loading a policy."""
+    """Read the inference contract without resetting or loading a policy."""
     endpoint, timeout, headers = _connection(endpoint, timeout, auth_token_env)
     request = urllib.request.Request(endpoint + "/metadata", headers=headers, method="GET")
     result = _read_response(urllib.request.build_opener(_NoRedirect()), request, timeout, "/metadata")
@@ -227,20 +231,18 @@ class HttpPolicy(BasePolicy):
         self._opener = urllib.request.build_opener(_NoRedirect())
         self._contexts = {}
         self._closed = False
-        self.metadata = None
-        self._fingerprint = None
-        if model_id is not None or fingerprint is not None:
-            for key, value in (("model_id", model_id), ("fingerprint", fingerprint)):
-                if value is not None and (not isinstance(value, str) or not value.strip()):
-                    raise ValueError(f"HTTP expected {key} must be a nonempty string.")
-            metadata = fetch_metadata(endpoint, timeout=timeout, auth_token_env=auth_token_env)
-            if model_id is not None and metadata["model_id"] != model_id:
-                raise ValueError("HTTP serving model_id does not match the configured model.")
-            if fingerprint is not None and metadata["fingerprint"] != fingerprint:
-                raise ValueError("HTTP serving fingerprint does not match the verified model.")
-            self.metadata = metadata
-            self._fingerprint = metadata["fingerprint"]
-            self._headers[FINGERPRINT_HEADER] = self._fingerprint
+        for key, value in (("model_id", model_id), ("fingerprint", fingerprint)):
+            if value is not None and (not isinstance(value, str) or not value.strip()
+                                      or any(c in value for c in "\r\n")):
+                raise ValueError(f"HTTP expected {key} must be a nonempty string.")
+        metadata = fetch_metadata(endpoint, timeout=timeout, auth_token_env=auth_token_env)
+        if model_id is not None and metadata.get("model_id") != model_id:
+            raise ValueError("HTTP serving model_id does not match the configured model.")
+        if fingerprint is not None and metadata["fingerprint"] != fingerprint:
+            raise ValueError("HTTP serving fingerprint does not match the verified service.")
+        self.metadata = metadata
+        self._fingerprint = metadata["fingerprint"]
+        self._headers[FINGERPRINT_HEADER] = self._fingerprint
 
     def _request(self, suffix, payload):
         if self._closed:
@@ -255,14 +257,9 @@ class HttpPolicy(BasePolicy):
             self._endpoint + suffix, data=body, headers=self._headers, method="POST"
         )
         result = _read_response(self._opener, request, self.timeout, suffix)
-        if self._fingerprint is not None and result.get("fingerprint") != self._fingerprint:
-            raise ValueError("HTTP response fingerprint differs from the verified model.")
-        # Fingerprints extend the v1 response while retaining compatibility with
-        # older peers when a caller explicitly constructs an unpinned client.
-        if "fingerprint" in result:
-            value = result.pop("fingerprint")
-            if not isinstance(value, str) or not value:
-                raise ValueError("HTTP response fingerprint must be a nonempty string.")
+        if result.get("fingerprint") != self._fingerprint:
+            raise ValueError("HTTP response fingerprint differs from the verified service.")
+        result.pop("fingerprint")
         return result
 
     def _ack(self, suffix, context):

@@ -5,45 +5,51 @@ Use these configurations with the [evaluation](../docs/g1/evaluation.md),
 [data collection](../docs/g1/data_collection.md) guides. Run commands from the
 repository root; relative configuration paths use that working directory.
 
-## Model serving and evaluation
+## Inference services and evaluation
 
 | File | Purpose |
 | --- | --- |
-| [evaluation/server_groot.json](evaluation/server_groot.json) | Serve a GROOT N1.7 Flow checkpoint through one HTTP port, with configurable GPU replicas and batching. |
-| [evaluation/http.json](evaluation/http.json) | Connect simulation workers to the model service; defaults to 50 tasks × 30 episodes, with 40-second atomic and 180-second composite simulation limits. |
-| [evaluation/server_custom.json](evaluation/server_custom.json) | Serve the custom Python adapter template through the same HTTP protocol. |
-| [evaluation/groot.json](evaluation/groot.json) | Load GROOT directly inside evaluation workers. |
+| [evaluation/http.json](evaluation/http.json) | Connect simulation workers to an existing HTTP inference service; defaults to 50 tasks × 30 episodes, with 40-second atomic and 180-second composite simulation limits. |
+| [evaluation/server_custom.json](evaluation/server_custom.json) | Optionally wrap a Python `module:function` adapter in the shared HTTP service. |
 | [evaluation/custom.json](evaluation/custom.json) | Load a custom Python adapter directly inside evaluation workers. |
-| [evaluation/baseline_results.json](evaluation/baseline_results.json) | Frozen historical GROOT baseline: protocol, run identity, and aggregate results for all 50 tasks. |
-| [evaluation/runtime_versions.json](evaluation/runtime_versions.json) | Recorded simulator, decoder, asset, dataset, and GROOT inference dependency revisions. |
+| [evaluation/runtime_versions.json](evaluation/runtime_versions.json) | Recorded simulator, decoder, asset, and dataset revisions. |
 
-The custom configurations reference
-[robocasa_eval/examples/custom_policy.py](../robocasa_eval/examples/custom_policy.py),
-which demonstrates the adapter lifecycle and action shapes. Replace its
-placeholder predictions with the model's inference and action conversion.
-
-Copy the server and client examples into working configurations:
+Create a working evaluator configuration:
 
 ```sh
 mkdir -p evaluation_runs/configs
-cp examples/evaluation/server_groot.json evaluation_runs/configs/server.json
 cp examples/evaluation/http.json evaluation_runs/configs/evaluation.json
 ```
 
-Set the server's `policy.kwargs.checkpoint` and `policy.kwargs.repo` to the local
-checkpoint and GR00T SDK checkout. Set the evaluator's `sim_python` and
-`decoder_path` to the prepared simulation environment and SONIC decoder. Use
-the same immutable `policy.id` in both files, and point the evaluator's
-`policy.kwargs.endpoint` at the service. Configure outputs with `workspace`.
+Set `sim_python` and `decoder_path` to the prepared simulation environment and
+SONIC decoder. Set `policy.kwargs.endpoint` to the running service, or override
+it with `--endpoint http://127.0.0.1:8000`. Configure outputs with `workspace`.
 
-Inspect the resolved task schedule without loading a model or simulator:
+Inspect the schedule without loading the simulator:
 
 ```sh
 python -m robocasa_eval plan --config evaluation_runs/configs/evaluation.json
 ```
 
-Then follow the evaluation guide to start the service, run `check` and
-full-horizon `smoke`, and launch the benchmark.
+Then follow the evaluation guide to run `check`, full-horizon `smoke`, and the
+benchmark. The service must implement the documented observation, action, and
+HTTP contracts.
+
+For a model that needs a wrapper, the custom configurations reference
+[robocasa_eval/examples/custom_policy.py](../robocasa_eval/examples/custom_policy.py).
+This template demonstrates lifecycle and action shapes. Replace its placeholder
+predictions with inference, preprocessing, and conversion to SONIC motion tokens
+and hand targets, then serve it with:
+
+```sh
+python -m robocasa_eval serve --config examples/evaluation/server_custom.json \
+  --host 127.0.0.1 --port 8000 --devices cuda:0
+```
+
+Set `policy.factory` to your importable `module:function`, use `policy.kwargs`
+for its constructor options, and list its actual model artifacts in
+`policy.artifacts` when they should be content-fingerprinted. Configure more
+GPU devices to serve multiple replicas through the same port.
 
 ## Paired dataset releases
 

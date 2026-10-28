@@ -16,6 +16,9 @@ def parser():
     result.add_argument("--config", type=Path, help="JSON configuration; relative paths use the invocation directory")
     result.add_argument("--workspace")
     result.add_argument("--run-name")
+    result.add_argument("--endpoint", help="Inference service URL, e.g. http://127.0.0.1:8000")
+    result.add_argument("--sim-python", help="Python interpreter for the simulation environment")
+    result.add_argument("--decoder-path", help="SONIC ONNX decoder used by the simulator")
     result.add_argument("--total-gpus", "--num-workers", dest="total_gpus", type=int,
                         help="Evaluation worker count; HTTP workers connect to the shared model service")
     result.add_argument("--envs-per-gpu", "--envs-per-worker", dest="envs_per_gpu",
@@ -36,7 +39,8 @@ def read_options(args):
     options = json.loads(args.config.read_text()) if args.config else {}
     if not isinstance(options, dict):
         raise ValueError("Configuration must be a JSON object")
-    for key in ("workspace", "run_name", "total_gpus", "episodes_per_task", "device_prefix"):
+    for key in ("workspace", "run_name", "total_gpus", "episodes_per_task", "device_prefix",
+                "sim_python", "decoder_path"):
         value = getattr(args, key)
         if value is not None:
             options[key] = value
@@ -46,12 +50,25 @@ def read_options(args):
         options["envs_per_gpu"] = "auto" if args.envs_per_gpu == "auto" else int(args.envs_per_gpu)
         options.pop("envs_per_worker", None)
     if args.command == "serve":
+        if any(getattr(args, key) is not None for key in ("endpoint", "sim_python", "decoder_path")):
+            raise ValueError("--endpoint/--sim-python/--decoder-path configure the evaluation client")
         for key in ("host", "port", "devices"):
             value = getattr(args, key)
             if value is not None:
                 options[key] = value
     elif any(getattr(args, key) is not None for key in ("host", "port", "devices")):
-        raise ValueError("--host/--port/--devices configure serve; evaluation uses policy.kwargs.endpoint")
+        raise ValueError("--host/--port/--devices configure serve; evaluation uses --endpoint")
+    if args.endpoint is not None:
+        policy = options.setdefault("policy", {})
+        factory = policy.get("factory", "http") if isinstance(policy, dict) else None
+        if not isinstance(factory, str) or factory not in {
+                "http", "robocasa_eval.adapters.http:create_policy"}:
+            raise ValueError("--endpoint requires an HTTP evaluation client configuration")
+        kwargs = policy.setdefault("kwargs", {})
+        if not isinstance(kwargs, dict):
+            raise ValueError("policy.kwargs must be a mapping")
+        policy["factory"] = "http"
+        kwargs["endpoint"] = args.endpoint
     return options
 
 
@@ -113,7 +130,10 @@ def run_service(options):
                 print("Model service stopped.", file=sys.stderr, flush=True)
     finally:
         os.chdir(previous)
-    return dict(status="stopped", model_id=metadata["model_id"], output=str(output))
+    result = dict(status="stopped", fingerprint=metadata["fingerprint"], output=str(output))
+    if "model_id" in metadata:
+        result["model_id"] = metadata["model_id"]
+    return result
 
 
 def main(argv=None):
@@ -129,7 +149,7 @@ def main(argv=None):
             result = run_service(options)
             print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
             return 0
-        # A smoke command always runs on one device, even under a DLC node environment.
+        # A smoke command always uses one worker, even under a distributed launcher.
         env = dict(os.environ)
         if args.command in {"smoke", "summarize"}:
             for key in ("LOCAL_RANK", "LOCAL_WORLD_SIZE", "RANK", "WORLD_SIZE", "NODE_RANK", "NNODES", "GPUS_PER_NODE"):
@@ -157,7 +177,7 @@ def main(argv=None):
             result = summarize(saved)
         else:
             prepare_workspace(config)
-            print("Checking model artifacts, adapter source, and SONIC decoder identity...", file=sys.stderr, flush=True)
+            print("Checking inference interface, adapter source, and SONIC decoder identity...", file=sys.stderr, flush=True)
             config, topo = build_config(options, verify_files=True, environment=env)
             if args.command == "check":
                 result = preflight(config, topo)

@@ -66,7 +66,7 @@ def available_cpu_cores(cgroup_root=Path("/sys/fs/cgroup")):
     return min(limits)
 
 def topology(env):
-    """DLC normally launches one command per node; also support pre-spawned workers."""
+    """Support one launcher per node as well as pre-spawned distributed workers."""
     total = integer(env, "TOTAL_GPUS", 16)
     if "LOCAL_RANK" in env:
         local = integer(env, "LOCAL_WORLD_SIZE", 0)
@@ -314,7 +314,7 @@ def sim_environment(config, rank=0):
     if config["renderer"] == "osmesa":
         env["CUDA_VISIBLE_DEVICES"] = ""
         env["LIBGL_ALWAYS_SOFTWARE"] = "1"
-        # PPU/CUDA shims must not enter the independent CPU simulator process.
+        # Keep accelerator library overrides out of the CPU simulator process.
         mesa = runtime / "mesa/usr/lib/x86_64-linux-gnu" if runtime else None
         env["LD_LIBRARY_PATH"] = str(mesa) if mesa and mesa.is_dir() else ""
     else:
