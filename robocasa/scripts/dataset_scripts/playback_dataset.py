@@ -12,7 +12,6 @@ import traceback
 import robosuite
 import robocasa
 from pathlib import Path
-import robocasa.utils.lerobot_utils as LU
 
 from robocasa.scripts.dataset_scripts.playback_utils import (
     resolve_instruction_from_ep_meta,
@@ -240,6 +239,15 @@ def playback_dataset(
     first,
     verbose,
 ):
+    if use_abs_actions:
+        raise NotImplementedError(
+            "LeRobot datasets do not store absolute actions. "
+            "Use playback_dataset_hdf5.py with an HDF5 dataset that contains "
+            "an actions_abs field."
+        )
+
+    import robocasa.utils.lerobot_utils as LU
+
     dataset = Path(dataset)
     # some arg checking
     write_video = render is not True
@@ -398,7 +406,10 @@ def get_playback_args():
     parser.add_argument(
         "--use-abs-actions",
         action="store_true",
-        help="use open-loop action playback with absolute position actions instead of loading sim states",
+        help=(
+            "unsupported for LeRobot datasets; use playback_dataset_hdf5.py "
+            "with an HDF5 dataset containing actions_abs"
+        ),
     )
 
     # Whether to render playback to screen
