@@ -707,9 +707,9 @@ if __name__ == "__main__":
         type=str,
         nargs="+",
         default=[
-            "robot0_agentview_left",
-            "robot0_agentview_right",
-            "robot0_eye_in_hand",
+            "robot0_head_camera",
+            "robot0_left_wrist_camera",
+            "robot0_right_wrist_camera",
         ],
         help="(optional) camera name(s) to use for image observations. Leave out to not use image observations.",
     )
