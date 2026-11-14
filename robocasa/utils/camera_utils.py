@@ -188,13 +188,17 @@ def get_robot_cam_configs(robot, use_cotraining_cameras=False):
 
 def set_cameras(env):
     """
-    Adds new kitchen-relevant cameras to the environment. Will randomize cameras if specified.
+    Adds kitchen cameras, restoring recorded configurations or sampling new ones.
     """
-    env._cam_configs = get_robot_cam_configs(
-        env.robots[0].name, use_cotraining_cameras=env.use_cotraining_cameras
-    )
-    if env.randomize_cameras:
-        randomize_cameras(env)
+    recorded_configs = env._ep_meta.get("cam_configs")
+    if recorded_configs is not None:
+        env._cam_configs = deepcopy(recorded_configs)
+    else:
+        env._cam_configs = get_robot_cam_configs(
+            env.robots[0].name, use_cotraining_cameras=env.use_cotraining_cameras
+        )
+        if env.randomize_cameras:
+            randomize_cameras(env)
 
     for (cam_name, cam_cfg) in env._cam_configs.items():
         if cam_cfg.get("parent_body", None) is not None:

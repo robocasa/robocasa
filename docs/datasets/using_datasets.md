@@ -263,3 +263,17 @@ You can visualize dataset videos by looking at the `videos` folder under each le
 python robocasa/scripts/dataset_scripts/playback_dataset.py --n 10 --dataset <ds-path>
 ```
 This will save a video of 10 random demonstrations in the same path as the dataset. You can play the full dataset by removing the `--n` flag.
+### Camera calibration during simulator replay
+
+For episodes that store `cam_configs` in their environment metadata, scene
+reconstruction restores those camera configurations without randomizing them
+again. Existing camera setup and randomization still apply when this metadata
+field is absent; this does not recover missing calibration from older datasets.
+
+For world-to-pixel projection, restore both the episode metadata/XML and the
+current frame's simulator state. Reuse
+`robosuite.utils.camera_utils.get_camera_transform_matrix` and
+`project_points_from_world_to_camera`; the latter returns **row, column** pixel
+indices. Camera transforms must be recomputed after state restoration for
+robot-attached cameras. Match the image height, width and vertical orientation
+used when the dataset was recorded.
