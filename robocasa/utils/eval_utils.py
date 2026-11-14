@@ -2,7 +2,7 @@ from robocasa.utils.dataset_registry import (
     ATOMIC_TASK_DATASETS,
     COMPOSITE_TASK_DATASETS,
 )
-from robosuite import load_controller_config
+from robosuite.controllers import load_part_controller_config
 import os
 import robosuite
 import imageio
@@ -30,7 +30,7 @@ def create_eval_env(
     randomize_cameras=False,
     layout_and_style_ids=((1, 1), (2, 2), (4, 4), (6, 9), (7, 10)),
 ):
-    controller_configs = load_controller_config(default_controller=controllers)
+    controller_configs = load_part_controller_config(default_controller=controllers)
 
     env_kwargs = dict(
         env_name=env_name,
