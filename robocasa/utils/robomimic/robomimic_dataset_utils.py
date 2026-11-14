@@ -171,6 +171,10 @@ def filter_dataset_size(
 def move_demo_to_new_key(f, old_demo_key, new_demo_key, delete_old_demo=True):
     print(f"Moving {old_demo_key} -> {new_demo_key}")
 
+    if delete_old_demo:
+        f.move(f"data/{old_demo_key}", f"data/{new_demo_key}")
+        return
+
     src_ep = f["data"][old_demo_key]
 
     if new_demo_key not in f["data"]:
@@ -202,6 +206,8 @@ def move_demo_to_new_key(f, old_demo_key, new_demo_key, delete_old_demo=True):
 def make_demo_ids_contiguous(dataset):
     f = h5py.File(dataset, "a")  # edit mode
 
+    original_keys = set(f["data"])
+    renamed_keys = {}
     num_old_demos = max([int(demo_key.split("_")[-1]) for demo_key in f["data"]]) + 1
     missing_demo_inds = [
         i for i in range(num_old_demos) if f"demo_{i}" not in f["data"]
@@ -224,9 +230,22 @@ def make_demo_ids_contiguous(dataset):
         new_demo_key = f"demo_{new_idx}"
 
         move_demo_to_new_key(f, old_demo_key, new_demo_key, delete_old_demo=True)
+        renamed_keys[old_demo_key] = new_demo_key
 
         old_idx -= 1
         num_demos_changed += 1
+
+    if "mask" in f:
+        for key in f["mask"]:
+            mask = f["mask"][key]
+            attrs = dict(mask.attrs)
+            demos = [demo.decode("utf-8") for demo in mask[:]]
+            demos = [
+                renamed_keys.get(demo, demo) for demo in demos if demo in original_keys
+            ]
+            del f["mask"][key]
+            mask = f["mask"].create_dataset(key, data=np.array(demos, dtype="S"))
+            mask.attrs.update(attrs)
 
     f.close()
 
