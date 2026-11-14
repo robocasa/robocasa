@@ -121,6 +121,23 @@ class NavigateKitchen(Kitchen):
         ep_meta["lang"] = f"Navigate to the {self.target_fixture.nat_lang}."
         return ep_meta
 
+    def _get_target_pose(self):
+        """
+        Get the robot base pose that counts as having reached the target fixture.
+
+        `_setup_kitchen_references` computes this while `env.reset()` is building the
+        scene, but a state restore replays a recorded scene against those same python
+        fixtures -- `reset_from_xml_string` is only a soft reset -- so the value cached
+        at reset time can describe a placement the simulator is not showing. The target
+        is derived from the current fixture poses instead.
+
+        Returns:
+            tuple: (position, orientation) of the robot base
+        """
+        OU.sync_fixture_poses_from_sim(self)
+
+        return EnvUtils.compute_robot_base_placement_pose(self, self.target_fixture)
+
     def _check_success(self):
         """
         Check if the navigation task is successful.
@@ -129,12 +146,13 @@ class NavigateKitchen(Kitchen):
         Returns:
             bool: True if the task is successful, False otherwise.
         """
+        target_pos, target_ori = self._get_target_pose()
         robot_id = self.sim.model.body_name2id("mobilebase0_base")
         base_pos = np.array(self.sim.data.body_xpos[robot_id])
-        pos_check = np.linalg.norm(self.target_pos[:2] - base_pos[:2]) <= 0.20
+        pos_check = np.linalg.norm(target_pos[:2] - base_pos[:2]) <= 0.20
         base_ori = T.mat2euler(
             np.array(self.sim.data.body_xmat[robot_id]).reshape((3, 3))
         )
-        ori_check = np.cos(self.target_ori[2] - base_ori[2]) >= 0.98
+        ori_check = np.cos(target_ori[2] - base_ori[2]) >= 0.98
 
         return pos_check and ori_check

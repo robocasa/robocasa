@@ -14,7 +14,6 @@ class Blender(Fixture):
         super().__init__(
             xml=xml, name=name, duplicate_collision_geoms=False, *args, **kwargs
         )
-        self.lid_closed_pos = None
         self._lid_on_blender = True
         self._turned_on = False
         self._button_contact_prev_timestep = False
@@ -24,9 +23,15 @@ class Blender(Fixture):
         self.blender_lid = auxiliary_fixture
 
     def get_lid_closed_pos(self, env):
-        if self.lid_closed_pos is None:
-            self.lid_closed_pos = OU.get_pos_after_rel_offset(self, self.anchor_offset)
-        return self.lid_closed_pos
+        """
+        world position the lid has to reach for the blender to count as closed
+
+        read from the simulator rather than cached from the python fixture pose: the
+        lid's own position (`get_curr_lid_pos`) already comes from the simulator, and
+        after a state restore the python pose can still describe the placements
+        `env.reset()` sampled instead of the restored ones
+        """
+        return OU.get_fixture_pos_after_rel_offset(env, self, self.anchor_offset)
 
     def get_curr_lid_pos(self, env):
         if self.blender_lid is None:
