@@ -1092,6 +1092,23 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         # consistent physics
         self.sim.set_state(initial_state_copy)
 
+    def reset(self, episode_seed=None):
+        """Reset the kitchen, optionally selecting this episode's random scene.
+
+        An explicit ``episode_seed`` makes the initial scene independent of how
+        many actions were executed in earlier episodes. Use the same episode
+        seed for each policy when comparing policies on matched initial states.
+        Omitting it preserves the existing continuous RNG stream.
+
+        The generator is reseeded in place because scene samplers may retain a
+        reference to it across resets.
+        """
+        if episode_seed is not None:
+            self.rng.bit_generator.state = np.random.default_rng(
+                episode_seed
+            ).bit_generator.state
+        return super().reset()
+
     def _reset_internal(self):
         """
         Resets simulation internal configurations.

@@ -32,3 +32,31 @@ For all experiments, we randomly sample 50 scenarios to run evaluation rollouts 
 For each rollout, we recieve a binary task success signal for whether the task is successfully completed.
 We report average task success rates across these 50 rollouts. 
 
+#### Matching initial scenes across policies
+
+Passing the same `seed` when creating two environments does not guarantee that
+episode *i* starts from the same scene in both runs. The environment uses a
+random-number stream across resets, and actions in an earlier rollout can
+consume it. Different policies may therefore reach later resets with different
+random states.
+
+For a paired comparison, supply an explicit seed at **every** reset of the raw
+RoboCasa / robosuite kitchen environment:
+
+```py
+import numpy as np
+
+base_seed = 7
+for episode_index in range(50):
+    episode_seed = int(
+        np.random.SeedSequence([base_seed, episode_index]).generate_state(1)[0]
+    )
+    obs = env.reset(episode_seed=episode_seed)
+    # Run this policy's episode here.
+```
+
+Use the same task, environment configuration, software and assets, and
+`episode_seed` mapping for every policy. Record the per-episode seeds with the
+results. `episode_seed` is optional: plain `env.reset()` retains the historical
+continuous-stream behavior. This controls initial-scene sampling, not the
+policy's inference noise or differences caused by later actions.

@@ -41,9 +41,10 @@ class DrinkwareConsolidation(Kitchen):
         ep_meta["refs"]["num_drinkware"] = self.num_drinkware
         return ep_meta
 
-    def reset(self):
-        super().reset()
+    def reset(self, episode_seed=None):
+        obs = super().reset(episode_seed=episode_seed)
         self.cab.open_door(env=self)
+        return obs
 
     def _get_obj_cfgs(self):
         cfgs = []

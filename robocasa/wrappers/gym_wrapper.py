@@ -340,10 +340,17 @@ class RoboCasaGymEnv(gym.Env):
     #     return np.copy(img)
 
     def reset(self, seed=None, options=None):
+        episode_seed = None if options is None else options.get("episode_seed")
+        if episode_seed is not None:
+            if seed is not None and seed != episode_seed:
+                raise ValueError("seed and options['episode_seed'] disagree")
+            seed = episode_seed
         if seed is not None:
-            self.env.rng = np.random.default_rng(seed)
-
-        raw_obs = self.env.reset()
+            # Kitchen.reset reseeds the existing generator in place. Replacing it
+            # would leave scene samplers holding the previous generator.
+            raw_obs = self.env.reset(episode_seed=seed)
+        else:
+            raw_obs = self.env.reset()
         # return obs
         obs = self.get_observation(raw_obs)
 
