@@ -171,6 +171,91 @@ def get_pos_after_rel_offset(fixture, offset):
     return fixture.pos + np.dot(fixture_mat, offset)
 
 
+def get_fixture_pose_from_sim(env, fixture):
+    """
+    get the world position and yaw of a fixture, as the simulator currently has it
+
+    a fixture's python pose (``fixture.pos`` / ``fixture.rot``) is read from the MJCF
+    element captured when the model was built. `reset_from_xml_string` is only a "soft"
+    reset -- it skips `_load_model` -- so after restoring a recorded scene the python
+    fixtures still describe the placements the preceding `env.reset()` sampled. reading
+    the pose back from the simulator keeps derived quantities such as task targets
+    aligned with the geometry the checks actually score
+    """
+    body_id = env.sim.model.body_name2id(fixture.root_body)
+    pos = np.array(env.sim.data.body_xpos[body_id])
+    body_mat = np.array(env.sim.data.body_xmat[body_id]).reshape((3, 3))
+    yaw = np.arctan2(body_mat[1, 0], body_mat[0, 0])
+
+    return pos, yaw
+
+
+def get_fixture_pos_after_rel_offset(env, fixture, offset):
+    """
+    like `get_pos_after_rel_offset`, but the fixture pose is read from the simulator
+    """
+    pos, yaw = get_fixture_pose_from_sim(env, fixture)
+    fixture_mat = T.euler2mat(np.array([0, 0, yaw]))
+
+    return pos + np.dot(fixture_mat, offset)
+
+
+def sync_fixture_pose_from_sim(env, fixture):
+    """
+    point a fixture's python pose back at the simulator's copy of it
+
+    see `get_fixture_pose_from_sim` for why the two can disagree
+
+    the body element is written directly rather than through `set_pos` /
+    `set_euler`, because the cabinet and counter subclasses override `set_pos` to
+    re-place their interior object. going through them moves a fixture that was
+    already in the right place, and with it anything derived from that fixture --
+    including the very goal this is called to fix. nothing here should have an
+    effect unless the two poses actually disagree.
+    """
+    pos, yaw = get_fixture_pose_from_sim(env, fixture)
+    fixture._obj.set("pos", array_to_string(pos))
+    fixture._obj.set("euler", array_to_string(np.array([0.0, 0.0, yaw])))
+
+
+def sync_fixture_poses_from_sim(env, fixtures=None):
+    """
+    sync every fixture in the environment that the simulator also has
+
+    task targets are usually derived from more than one fixture -- the robot base
+    placement of a navigation goal, for instance, is computed relative to whichever
+    counter contains the target -- so they all have to agree with the restored scene
+
+    Args:
+        fixtures (dict or list): fixtures to sync. defaults to every fixture in the env
+
+    Returns:
+        list of fixtures that were synced
+    """
+    from robocasa.models.fixtures import Fixture
+
+    if fixtures is None:
+        fixtures = env.fixtures.values()
+    elif isinstance(fixtures, dict):
+        fixtures = fixtures.values()
+
+    synced = []
+    for fixture in fixtures:
+        if not isinstance(fixture, Fixture):
+            # `env.fixtures` also holds the plain boxes that make up the cabinets and
+            # the room itself; they have no pose of their own to speak of
+            continue
+        try:
+            env.sim.model.body_name2id(fixture.root_body)
+        except ValueError:
+            # fixture is not part of the current model (e.g. a different layout)
+            continue
+        sync_fixture_pose_from_sim(env, fixture)
+        synced.append(fixture)
+
+    return synced
+
+
 def project_point_to_line(P, A, B):
     """
     logic copied from here: https://stackoverflow.com/a/61342198
