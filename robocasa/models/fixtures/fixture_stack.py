@@ -130,8 +130,7 @@ class FixtureStack:
 
             if self.default_texture is not None:
                 base_config["texture"] = self.default_texture
-            base_config["rng"] = self.rng
-            base = initialize_fixture(base_config, self.scene_fixtures)
+            base = initialize_fixture(base_config, self.scene_fixtures, rng=self.rng)
             self.scene_fixtures[base_name] = base
             self.scene_configs[base_name] = base_config
             self.fixtures.append(base)
