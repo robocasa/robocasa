@@ -808,11 +808,8 @@ class Counter(ProcGenFixture):
 
             geom_i = 0
 
-            if len(valid_geoms) > 0:
-                # remove duplicates as needed
-                valid_geoms = list(set(valid_geoms))
-
-            for g in valid_geoms:
+            # Deduplicate without changing the order used by seeded sampling.
+            for g in dict.fromkeys(valid_geoms):
                 top_pos = s2a(g.get("pos"))
                 top_half_size = s2a(g.get("size"))
                 offset = [top_pos[0], top_pos[1], self.size[2] / 2]
