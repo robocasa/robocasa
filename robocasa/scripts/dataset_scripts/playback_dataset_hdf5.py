@@ -4,12 +4,14 @@ import os
 import random
 import time
 import h5py
+import mujoco
 import imageio
 import numpy as np
 from termcolor import colored
 import traceback
 
 import robosuite
+import robosuite.macros as macros
 import robocasa
 
 from robocasa.scripts.dataset_scripts.playback_utils import (
@@ -30,6 +32,9 @@ def playback_trajectory_with_env(
     verbose=False,
     camera_height=512,
     camera_width=512,
+    sonic_gains=None,
+    sonic_runtime=None,
+    integration_states=None,
 ):
     """
     Helper function to playback a single trajectory using the simulator environment.
@@ -58,6 +63,8 @@ def playback_trajectory_with_env(
     ## removing for now
     # env.reset()
 
+    action_playback = actions is not None
+
     if verbose:
         ep_meta = json.loads(initial_state["ep_meta"])
         lang = resolve_instruction_from_ep_meta(ep_meta)
@@ -65,9 +72,16 @@ def playback_trajectory_with_env(
             print(colored(f"Instruction: {lang}", "green"))
         print(colored("Spawning environment...", "yellow"))
     reset_to(env, initial_state)
+    _apply_sonic_runtime(
+        env,
+        initial_state,
+        sonic_gains,
+        sonic_runtime,
+        integration_states,
+        require_action_replay_metadata=action_playback,
+    )
 
     traj_len = states.shape[0]
-    action_playback = actions is not None
     if action_playback:
         assert states.shape[0] == actions.shape[0]
 
@@ -216,6 +230,127 @@ class ObservationKeyToModalityDict(dict):
         return super(ObservationKeyToModalityDict, self).__getitem__(item)
 
 
+def _is_sonic_env(env):
+    try:
+        return type(env.robots[0].composite_controller).__name__ == "SonicWholeBodyController"
+    except Exception:
+        return False
+
+
+def _decode_json_attr(value):
+    if isinstance(value, bytes):
+        value = value.decode()
+    return json.loads(value) if value else {}
+
+
+def _env_meta_uses_sonic(env_meta):
+    try:
+        robots = env_meta.get("env_kwargs", {}).get("robots", [])
+        if isinstance(robots, str):
+            robots = [robots]
+        return any(str(robot).startswith("SonicG1") for robot in robots)
+    except Exception:
+        return False
+
+
+def _load_sonic_gains(env, sonic_gains_json, require=False, disable_band=False):
+    """Load recorded SONIC PD gains for action replay. The dataset's stamped sonic_gains are
+    authoritative; do not repair missing or invalid gains from the controller config."""
+    if not _is_sonic_env(env):
+        return
+    gains = _decode_json_attr(sonic_gains_json)
+    body_kp = np.asarray(gains["body"][0], dtype=float) if gains.get("body") else None
+    if not gains or body_kp is None or not np.any(np.abs(body_kp) > 1e-9):
+        if require:
+            raise ValueError(
+                "SONIC action replay requires valid dataset-level sonic_gains "
+                "with nonzero body kp; refusing to fall back to controller config."
+            )
+        return
+    env.robots[0].composite_controller.set_command_gains({
+        k: (np.asarray(kp, dtype=float), np.asarray(kd, dtype=float))
+        for k, (kp, kd) in gains.items()
+    })
+    if disable_band:
+        env.robots[0].composite_controller.release_band()
+
+
+def _restore_sonic_integration_state(env, integration_states):
+    """Restore optional mjSTATE_INTEGRATION captured by newer SONIC demos. The critical field
+    for contact-sensitive SONIC walking replay is qacc_warmstart; restoring the full first
+    integration state also preserves the exact initial MuJoCo state vector."""
+    if integration_states is None or not _is_sonic_env(env):
+        return
+    model = env.sim.model._model if hasattr(env.sim.model, "_model") else env.sim.model
+    data = env.sim.data._data if hasattr(env.sim.data, "_data") else env.sim.data
+    spec = mujoco.mjtState.mjSTATE_INTEGRATION
+    state = np.asarray(integration_states[0], dtype=float)
+    expected = mujoco.mj_stateSize(model, spec)
+    if state.size != expected:
+        raise ValueError(
+            f"SONIC states_integration has size {state.size}, expected {expected}."
+        )
+    mujoco.mj_setState(model, data, state, spec)
+    env.sim.forward()
+
+
+def _refresh_sonic_part_controller_state(env):
+    """Refresh cached joint pos/vel after playback loads a saved simulator state."""
+    if not _is_sonic_env(env):
+        return
+    for part_ctrl in env.robots[0].composite_controller.part_controllers.values():
+        part_ctrl.update(force=True)
+
+
+def _apply_sonic_runtime(
+    env,
+    initial_state,
+    sonic_gains_json,
+    sonic_runtime_json,
+    integration_states=None,
+    require_action_replay_metadata=False,
+):
+    """Restore SONIC runtime settings that are not preserved in robomimic env_args/XML."""
+    if not _is_sonic_env(env):
+        return
+    runtime = _decode_json_attr(sonic_runtime_json)
+    try:
+        from robosuite.scripts.collect_sonic_g1_demos import match_base_sim_physics
+        match_base_sim_physics(
+            env.sim.model._model,
+            floor_friction=float(runtime.get("floor_friction", 1.0)),
+            floor_torsion=float(runtime.get("floor_torsion", 0.005)),
+            timestep=float(runtime.get("sim_dt", env.control_timestep)),
+        )
+        env.sim.forward()
+    except Exception:
+        pass
+
+    # Collection throttles robocasa's expensive fixture update_state loop. Replaying with the
+    # default every-step post_action changes fixture dynamics and can seed contact divergence.
+    post_freq = runtime.get("post_action_freq")
+    if post_freq is None:
+        post_freq = max(1, round(float(getattr(env, "control_freq", 20)) / 20.0))
+    env.post_action_freq = int(post_freq)
+    env.render_freq = int(runtime.get("render_freq", env.post_action_freq))
+    if "states" in initial_state:
+        try:
+            env.timestep = int(round(float(initial_state["states"][0]) / env.control_timestep))
+            env.cur_time = float(initial_state["states"][0])
+        except Exception:
+            pass
+
+    _load_sonic_gains(
+        env,
+        sonic_gains_json,
+        require=require_action_replay_metadata,
+        disable_band=require_action_replay_metadata,
+    )
+    _restore_sonic_integration_state(env, integration_states)
+    if require_action_replay_metadata:
+        _refresh_sonic_part_controller_state(env)
+
+
 def reset_to(env, state):
     """
     Reset to a specific simulator state.
@@ -277,6 +412,23 @@ def reset_to(env, state):
     return None
 
 
+def _sonic_dataset_timestep(dataset):
+    try:
+        with h5py.File(dataset, "r") as f:
+            runtime = _decode_json_attr(f["data"].attrs.get("sonic_runtime"))
+            if "sim_dt" in runtime:
+                return float(runtime["sim_dt"])
+            env_args = json.loads(f["data"].attrs.get("env_args", "{}"))
+            env_kwargs = env_args.get("env_kwargs", {})
+            robots = env_kwargs.get("robots", [])
+            if any(str(r).startswith("SonicG1") for r in robots):
+                cf = float(env_kwargs.get("control_freq", 200))
+                return 1.0 / cf
+    except Exception:
+        pass
+    return None
+
+
 def playback_dataset(
     dataset,
     use_actions,
@@ -321,6 +473,7 @@ def playback_dataset(
         ), "playback with observations is offline and does not support action playback"
 
     env = None
+    sonic_dataset = False
 
     # create environment only if not playing back with observations
     if not use_obs:
@@ -335,6 +488,7 @@ def playback_dataset(
         # initialize_obs_utils_with_obs_specs(obs_modality_specs=dummy_spec)
 
         env_meta = get_env_metadata_from_dataset(dataset_path=dataset)
+        sonic_dataset = _env_meta_uses_sonic(env_meta)
         if use_abs_actions:
             env_meta["env_kwargs"]["controller_configs"][
                 "control_delta"
@@ -358,6 +512,8 @@ def playback_dataset(
         env = robosuite.make(**env_kwargs)
 
     f = h5py.File(dataset, "r")
+    sonic_gains_json = f["data"].attrs.get("sonic_gains")
+    sonic_runtime_json = f["data"].attrs.get("sonic_runtime")
 
     # list of all demonstration episodes (sorted in increasing number order)
     if filter_key is not None:
@@ -413,6 +569,12 @@ def playback_dataset(
             actions = f["data/{}/actions".format(ep)][()]
         elif use_abs_actions:
             actions = f["data/{}/actions_abs".format(ep)][()]  # absolute actions
+        integration_states = f["data/{}".format(ep)]["states_integration"][()] if "states_integration" in f["data/{}".format(ep)] else None
+        if actions is not None and integration_states is None and (sonic_dataset or _is_sonic_env(env)):
+            raise ValueError(
+                "SONIC action replay requires states_integration. This dataset only has "
+                "flattened MuJoCo states, so the initial warmstart/integration state is missing."
+            )
 
         playback_trajectory_with_env(
             env=env,
@@ -427,6 +589,9 @@ def playback_dataset(
             verbose=verbose,
             camera_height=camera_height,
             camera_width=camera_width,
+            sonic_gains=sonic_gains_json,
+            sonic_runtime=sonic_runtime_json,
+            integration_states=integration_states,
         )
 
     f.close()
@@ -512,9 +677,9 @@ def get_playback_args():
         type=str,
         nargs="+",
         default=[
-            "robot0_agentview_left",
-            "robot0_agentview_right",
-            "robot0_eye_in_hand",
+            "robot0_head_camera",
+            "robot0_left_wrist_camera",
+            "robot0_right_wrist_camera",
         ],
         help="(optional) camera name(s) / image observation(s) to use for rendering on-screen or to video. Default is"
         "None, which corresponds to a predefined camera for each env type",
@@ -584,6 +749,9 @@ if __name__ == "__main__":
             )
         )
         try:
+            sonic_dt = _sonic_dataset_timestep(dataset)
+            if sonic_dt is not None:
+                macros.SIMULATION_TIMESTEP = sonic_dt
             playback_dataset(
                 dataset=dataset,
                 use_actions=args.use_actions,
@@ -623,3 +791,4 @@ if __name__ == "__main__":
         for (dataset, stack_trace) in dataset_exceptions:
             print(colored(f"{dataset}:", "red"))
             # print(colored(f"{stack_trace}\n", "red"))
+        raise SystemExit(1)

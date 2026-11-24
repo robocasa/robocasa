@@ -5,9 +5,27 @@ from typing import Dict, Optional
 import numpy as np
 import yaml
 from robosuite.wrappers import Wrapper
-from pynput.keyboard import Key, Listener
 
 import robocasa.models.scenes.scene_registry as SceneRegistry
+
+
+Key = None
+Listener = None
+
+
+def _load_keyboard_listener():
+    global Key, Listener
+    if Key is not None and Listener is not None:
+        return Key, Listener
+    try:
+        from pynput.keyboard import Key as PynputKey
+        from pynput.keyboard import Listener as PynputListener
+    except ImportError as exc:
+        print(f"WARNING: enclosing wall hotkeys disabled: {exc}")
+        return None
+    Key = PynputKey
+    Listener = PynputListener
+    return Key, Listener
 
 
 def _unwrap_env(env):
@@ -304,16 +322,22 @@ def install_enclosing_wall_hotkeys(env):
     if getattr(env, "_enclosing_wall_key_listener", None) is not None:
         return
 
+    keyboard_listener = _load_keyboard_listener()
+    if keyboard_listener is None:
+        env._enclosing_wall_key_listener = False
+        return
+    key_cls, listener_cls = keyboard_listener
+
     env._toggle_enclosing_walls = False
     env._force_enclosing_walls_opaque = False
 
     def _on_release(key):
-        if key == Key.esc:
+        if key == key_cls.esc:
             env._toggle_enclosing_walls = True
             return
         if hasattr(key, "char") and key.char in {"[", "]"}:
             env._force_enclosing_walls_opaque = True
             return
 
-    env._enclosing_wall_key_listener = Listener(on_release=_on_release)
+    env._enclosing_wall_key_listener = listener_cls(on_release=_on_release)
     env._enclosing_wall_key_listener.start()

@@ -563,6 +563,7 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         """
         for robot in self.robots:
             if isinstance(robot.robot_model, PandaOmron):
+                # Override the default arm home pose with a kitchen-friendly pose
                 robot.init_qpos = (
                     -0.01612974,
                     -1.03446714,
@@ -574,18 +575,6 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                 )
                 robot.init_torso_qpos = np.array([0.0])
 
-        for robot in self.robots:
-            if isinstance(robot.robot_model, PandaOmron):
-                robot.init_qpos = (
-                    -0.01612974,
-                    -1.03446714,
-                    -0.02397936,
-                    -2.27550888,
-                    0.03932365,
-                    1.51639493,
-                    0.69615947,
-                )
-                robot.init_torso_qpos = np.array([0.0])
 
         # determine sample layout and style
         if "layout_id" in self._ep_meta and "style_id" in self._ep_meta:
@@ -838,9 +827,17 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
         ) = EnvUtils.init_robot_base_pose(self)
 
         robot_model = self.robots[0].robot_model
-        # set the robot way out of the scene at the start, it will be placed correctly later
-        robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
-        robot_model.set_base_ori(self.init_robot_base_ori_anchor)
+        from robosuite.models.robots import PandaOmron
+        if isinstance(robot_model, PandaOmron):
+            # placement code only really works for PandaOmron
+            robot_model.set_base_xpos([10.0, 10.0, self.init_robot_base_pos_anchor[2]])
+            robot_model.set_base_ori(self.init_robot_base_ori_anchor)
+        else:
+            # Static-base robots (G1, GR1, …): no runtime base mobility,
+            # so place at the anchor position directly in the XML.  _load_model is
+            # called on every hard_reset, so this is re-evaluated each episode.
+            robot_model.set_base_xpos(self.init_robot_base_pos_anchor)
+            robot_model.set_base_ori(self.init_robot_base_ori_anchor)
 
         self.robot_geom_ids = None
 
@@ -1296,6 +1293,11 @@ class Kitchen(ManipulationEnv, metaclass=KitchenEnvMeta):
                     and "fovy" in cam.attrib
                 ):
                     del cam.attrib["fovy"]
+                # If an existing robot camera authored its orientation with euler
+                # (or another MuJoCo orientation attribute), replacing it with quat
+                # requires clearing the old specifier first.
+                for attr in ("euler", "axisangle", "xyaxes", "zaxis"):
+                    cam.attrib.pop(attr, None)
 
             if cam is None:
                 cam = ET.Element("camera")
