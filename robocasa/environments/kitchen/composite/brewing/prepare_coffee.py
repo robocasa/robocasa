@@ -76,6 +76,18 @@ class PrepareCoffee(Kitchen):
     def _setup_scene(self):
         super()._setup_scene()
         self.cab.open_door(env=self)
+        self.mug_under_dispenser_at_start = None
+
+    def update_state(self):
+        super().update_state()
+        # record whether the mug was under the dispenser when the machine turned on
+        if (
+            self.mug_under_dispenser_at_start is None
+            and self.coffee_machine.get_state()["turned_on"]
+        ):
+            self.mug_under_dispenser_at_start = bool(
+                self.coffee_machine.check_receptacle_placement_for_pouring(self, "obj")
+            )
 
     def _check_success(self):
         gripper_obj_far = OU.gripper_obj_far(self)
@@ -86,6 +98,7 @@ class PrepareCoffee(Kitchen):
         return (
             contact_check
             and gripper_obj_far
-            and self.coffee_machine._turned_on
+            and self.coffee_machine.get_state()["turned_on"]
+            and self.mug_under_dispenser_at_start is True
             and gripper_button_far
         )
